@@ -1,14 +1,15 @@
-# -*- coding: UTF-8 -*-
+# flake8: noqa: W605
 
-ZERO_MWP = "o"
+ZERO_MWP: str = "o"
+"""Constant that represents 0 in the analysis."""
 
-UNIT_MWP = "m"
+UNIT_MWP: str = "m"
+"""Constant that represents m in the analysis."""
 
-# Different flow values
-KEYS = ["o", "m", "w", "p", "i"]
+KEYS: list = ["o", "m", "w", "p", "i"]
+"""Different flow values: `o, m, w, p, i` where `o` = 0 and `i` = $\infty$."""
 
-#  Define product over Keys : o•o=o; o•m=o; o•w=o; etc…
-DICT_PROD = {
+DICT_PROD: dict = {
     "o": {"o": "o", "m": "o", "w": "o", "p": "o", "i": "o"},
 
     "m": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -19,9 +20,9 @@ DICT_PROD = {
 
     "i": {"o": "o", "m": "i", "w": "i", "p": "i", "i": "i"}
 }
+"""Define product over `KEYS` : o•o=o; o•m=o; o•w=o; etc…"""
 
-#  Define sum over Keys : o+o=o; o+m=m; o+w=w; etc…
-DICT_SUM = {
+DICT_SUM: dict = {
     "o": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
 
     "m": {"o": "m", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -32,9 +33,10 @@ DICT_SUM = {
 
     "i": {"o": "i", "m": "i", "w": "i", "p": "i", "i": "i"}
 }
+"""Define sum over `KEYS` : o+o=o; o+m=m; o+w=w; etc…"""
 
 
-def prod_mwp(a, b):
+def prod_mwp(a: str, b: str) -> str:
     """Compute product of two scalars
 
     Arguments:
@@ -42,7 +44,7 @@ def prod_mwp(a, b):
         b: scalar
 
     Returns:
-        product of a•b or raises an error if a or b ∉ Keys
+        product of a • b or raises an error if a or b ${\\not\\in}$ Keys
     """
     if a in KEYS and b in KEYS:
         return DICT_PROD[a][b]
@@ -51,7 +53,7 @@ def prod_mwp(a, b):
 
 
 # Return sum a+b or an error if a or b ∉ Keys
-def sum_mwp(a, b):
+def sum_mwp(a: str, b: str) -> str:
     """Compute sum of two scalars
 
     Arguments:
@@ -59,7 +61,7 @@ def sum_mwp(a, b):
         b: scalar
 
     Returns:
-        sum of a+b or raises an error if a or b ∉ Keys
+        sum of a + b or raises an error if a or b ${\\not\\in}$ Keys
     """
     if a in KEYS and b in KEYS:
         return DICT_SUM[a][b]

@@ -1,0 +1,68 @@
+site_name: pymwp
+site_description: "Implementation of MWP analysis on C code in Python."
+docs_dir: docs
+site_dir: pages
+repo_url: https://github.com/seiller/pymwp
+repo_name: seiller/pymwp
+edit_uri: blob/master/docs/
+use_directory_urls: true
+
+
+nav:
+- Overview: index.md
+- All Documented Modules:
+  - Monomial: monomial.md
+  - Polynomial: polynomial.md
+  - Semiring: semiring.md
+- Source Code: https://github.com/seiller/pymwp
+- License: https://github.com/seiller/pymwp/LICENSE
+
+theme:
+  name: material
+  favicon: ""
+  features:
+    - navigation.expand
+  palette:
+    scheme: slate
+    primary: light blue
+    accent: blue
+  font:
+    text: Inter
+    code: Source Code Pro
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      use_pygments: true
+      linenums: true
+      linenums_style: pymdownx.inline
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - pymdownx.magiclink
+  - admonition
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+          - import sys
+          - sys.path.append("pymwp")
+          selection:
+            new_path_syntax: yes
+          rendering:
+            show_source: false
+      watch:
+      - pymwp
+
+extra_css:
+  - assets/styles.css
+
+extra_javascript:
+  - //cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - assets/config.js

@@ -1,4 +1,4 @@
-# pymwp: MWP analysis in Python
+# pymwp
 
 Implementation of MWP analysis on C code in Python.
 

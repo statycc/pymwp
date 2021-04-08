@@ -1,0 +1,15 @@
+.doc.doc-object.doc-method {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    border-top: 2px solid #fff1;
+}
+
+.doc.doc-heading {
+    font-size: 1.5em;
+}
+
+.md-typeset__table td {
+    font-size: 110%;
+}

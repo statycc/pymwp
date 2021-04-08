@@ -1,3 +1,5 @@
+# flake8: noqa: W605
+
 from __future__ import annotations
 
 from constants import Comparison
@@ -16,16 +18,20 @@ class Polynomial:
     (and then we sum the scalars) or an element which is larger (and
     then we insert the new monomial there).
 
-    For this, I use the following ordering. I consider that delta(i,j)
-    is smaller than delta(m,n) iff either j<n or (j==n) and (i<m).
+    For this, I use the following ordering. I consider that $delta(i,j)$
+    is smaller than $delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
 
     This is extended to products (which we consider ordered!) by
-    letting prod_k delta(i_k,j_k) < prod_l delta(m_l,n_l)
-    iff delta(i_1,j_1) < delta(m_1,n_1).
+    letting $\prod_k\delta(i_k,j_k) < \prod_l\delta(m_l,n_l)$
+    iff $\delta(i_1,j_1) < \delta(m_1,n_1)$.
     """
 
     def __init__(self, monomials: list = None):
-        """initialize polynomial"""
+        """Create a polynomial.
+
+        Arguments:
+            monomials: list of monomials
+        """
         self.list = monomials or []
 
     def __str__(self):
@@ -62,9 +68,8 @@ class Polynomial:
     def add(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
 
-        If both lists are empty the result is empty.
-
-        If one list is empty, the result will be the other list
+        - If both lists are empty the result is empty.
+        - If one list is empty, the result will be the other list
         of polynomials.
 
         Otherwise the operation will zip the two lists together
@@ -74,8 +79,8 @@ class Polynomial:
             polynomial: Polynomial to add to self
 
         Returns:
-            New polynomial that is a sum of the
-            two input polynomials (sorted)
+            New, sorted polynomial that is a sum of the
+            two input polynomials
         """
         # check for empty lists
         if not self.list and not polynomial.list:
@@ -124,7 +129,7 @@ class Polynomial:
         sorted_monomials = Polynomial.sort_monomials(new_list)
         return Polynomial(sorted_monomials)
 
-    def times(self, polynomial) -> Polynomial:
+    def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.
 
         Here we assume at least self is a sorted polynomial,
@@ -133,30 +138,30 @@ class Polynomial:
         This operation works as follows:
 
         1. We compute a table of all the separated products
-            $`P.m_1,...,P.m_n`$. Each of the elements is itself
-            a sorted list of monomials: $`P.m_j=m^j_1,...,m^j_k`$
+            $P.m_1,...,P.m_n$. Each of the elements is itself
+            a sorted list of monomials: $P.m_j=m^j_1,...,m^j_k$
 
         2. We then sort the list of the first (smallest) elements
-            of each list. I.e. we sort the list $`m^1_1,m^2_1,...,m^n_1`$
+            of each list. I.e. we sort the list $m^1_1,m^2_1,...,m^n_1$
             and produce the list corresponding list of indexes of
-            length n, I.e. a permutation over {0,...,n}.
+            length n, I.e. a permutation over ${0,...,n}$.
 
         3. Once all this preparatory operations are done, the main part
            of the algorithm goes as follows:
 
         4. We consider the first element — say j — of the list of indexes
            and append to the result the first element of the corresponding
-           list $`P.m_j`$ of monomials.
+           list $P.m_j$ of monomials.
 
         5. We remove both the first element of the list of index and
-           the first element of $`P.m_j`$.
+           the first element of $P.m_j$.
 
-        6. If $`P.m_j`$ is not empty, we insert j in the list of index
+        6. If $P.m_j$ is not empty, we insert j in the list of index
            at the right position: for this we compare the (new) first
-           element of $`P.m_j`$ to  $`m^{i_2}_1`$ (as we removed the
-           first element, $`i_2`$ is now the head of the list of indexes),
-           then $`m^{i_3}_1`$, until we reach the index h such that
-           $`m^{i_h}_1`$ is larger than $`m^{j}_1`$.
+           element of $P.m_j$ to  $m^{i_2}_1$ (as we removed the
+           first element, $i_2$ is now the head of the list of indexes),
+           then $m^{i_3}_1$, until we reach the index h such that
+           $m^{i_h}_1$ is larger than $m^{j}_1$.
 
         7. We start back at point 4. Unless only one element is left
            in the list of indexes. In this case, we simply append the
@@ -217,25 +222,25 @@ class Polynomial:
         return Polynomial(result)
 
     def eval(self, argument_list: list) -> str:
-        """
+        """This method does map+reduce by mapping each monomial
+        against the argument list then reduces the result to a single
+        result determined by [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp)
+        function.
+
+        <!--
         TODO: make this faster (call less often)
         TODO: figure out where arg_list comes from
+        -->
 
-        This method does map+reduce by mapping
-        each monomial against the argument list
-        then reduces the result to a single result
-        determined by SumMWP function.
-
-        !! === IMPORTANT ======================================!!
-        !! This is #1 most costly method in the analysis       !!
-        !! If you change it, check impact on performance       !!
-        !! ====================================================!!
+        !!! danger "Important!"
+            This is one of the most costly methods in the analysis. If you change
+            it, check impact on performance.
 
         Arguments:
             argument_list: list of deltas to evaluate
 
         Returns:
-            one of: "o", "m", "w", "p", "i"
+            one of: `"o", "m", "w", "p", "i"`
         """
         result = ZERO_MWP
         for monomial in self.list:
@@ -277,11 +282,11 @@ class Polynomial:
         return False not in same and len(p1) == len(p2)
 
     def copy(self) -> Polynomial:
-        """deep copy of polynomial"""
+        """Make a deep copy of polynomial."""
         return Polynomial([m.copy() for m in self.list])
 
     def show(self) -> None:
-        """display polynomial"""
+        """Display polynomial."""
         print(str(self))
 
     @staticmethod
@@ -293,15 +298,16 @@ class Polynomial:
         If the initial segments match, then the result is determined based
         on length. Three outputs are possible:
 
-        ```
-        - SMALLER if the first list is smaller than the second
-        - EQUAL if both lists are equal
-        - LARGER if the first list is larger than the second
-        ```
+        - `SMALLER` if the first list is smaller than the second
+        - `EQUAL` if both lists are equal in contents and length
+        - `LARGER` if the first list is larger than the second
 
         The return value represents the relation of first
-        list to the second one. "Smaller" means either delta values are
-        smaller -or- deltas are equal but list is shorter in length.
+        list to the second one. `Smaller` means either
+
+        - delta values of first list are smaller -or-
+        - deltas are equal but first list is shorter in length.
+
         Larger is the opposite case.
 
         Arguments:

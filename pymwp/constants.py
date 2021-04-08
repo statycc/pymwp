@@ -7,7 +7,7 @@ def is_debug():
 
 
 class Comparison(IntEnum):
-    """represent result of delta comparison"""
+    """Represent result of delta comparison."""
     SMALLER = 0
     EQUAL = 1
     LARGER = 2

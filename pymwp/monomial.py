@@ -1,3 +1,5 @@
+# flake8: noqa: W605
+
 from __future__ import annotations
 from semiring import ZERO_MWP, UNIT_MWP, prod_mwp
 
@@ -9,19 +11,25 @@ class Monomial:
     1. scalar - a value in the semi-ring
     2. a sorted list of deltas, where an index occurs at most once.
 
-    Deltas are coded as pairs (i,j) with:
-     - i the value and
-     - j the index in the domain (infinite product)
+    Deltas are coded as pairs $(i,j)$ with:
 
-    We will have that (i,j) will be equal to the unit of the semi-ring
-    iff the j-th input is equal to i (so, the jth choice is i).
+     - $i$ the value and
+     - $j$ the index in the domain (infinite product)
+
+    We will have that $(i,j)$ will be equal to the unit of the semi-ring
+    iff the $j^{th}$ input is equal to $i$ (so, the $j^{th}$ choice is $i$).
 
     We will make the assumption that the deltas of delta is sorted
     and no two deltas can have the same index.
     """
 
     def __init__(self, scalar: str = UNIT_MWP, deltas: list = []):
-        """ initialize the monomial """
+        """Create a monomial.
+
+        Arguments:
+            scalar: monomial scalar
+            deltas: list of deltas
+        """
 
         self.deltas = []
         self.scalar = scalar
@@ -36,16 +44,14 @@ class Monomial:
         self.list = getattr(self, 'deltas')
 
     def __str__(self) -> str:
-        """to string method"""
         deltas = [".delta({0},{1})".format(*delta)
                   for delta in self.deltas]
         return self.scalar + ''.join(deltas)
 
-    def __mul__(self, other):
-        """overload * operator"""
+    def __mul__(self, other) -> Monomial:
         return self.prod(other)
 
-    def prod(self, monomial) -> Monomial:
+    def prod(self, monomial: Monomial) -> Monomial:
         """
         prod operation combines two monomials where
         one is this monomial (self) and the second is
@@ -84,22 +90,20 @@ class Monomial:
         return mono_product
 
     def eval(self, argument_list: list) -> str:
-        """
-        Evaluate delta values against argument list
+        """Evaluate delta values against argument list.
 
-        !! === IMPORTANT ======================================!!
-        !! This is one of the most costly methods              !!
-        !! If you change it, check impact on performance       !!
-        !! ====================================================!!
+        !!! danger "Important!"
+            This is one of the most costly methods. If you change
+            it, check impact on performance.
 
         The result of eval is determined as follows:
 
         If the list of values given as an argument "match" all
-        the deltas, then the value is returned, otherwise 0 is
+        the deltas, then the value is returned. Otherwise 0 is
         returned.
 
         When matching we compare delta _value at index j_ to the
-        jth value in the argument list.
+        $j^{th}$ value in the argument list.
 
         It can accommodate list of values that are of length
         greater than the max of the indices in the deltas, but
@@ -110,8 +114,8 @@ class Monomial:
             argument_list: list of deltas to evaluate
 
         Returns:
-            scalar of the monomial if the evaluation matches and
-            0 (represented as 'o' str) otherwise.
+            - scalar of the monomial if the evaluation matches
+            - otherwise: 0 (represented as `'o'`)
 
         """
         for (i, j) in self.deltas:
@@ -120,22 +124,21 @@ class Monomial:
         return self.scalar
 
     def copy(self) -> Monomial:
-        """make a deep copy of this monomial"""
+        """Make a deep copy."""
         return Monomial(self.scalar, self.deltas[:])
 
     def show(self) -> None:
-        """display scalar and list of deltas"""
+        """Display scalar and the list of deltas."""
         print(str(self))
 
     @staticmethod
     def insert_deltas(monomial: Monomial, deltas_to_insert: list) -> None:
-        """
-        Given a monomial with a sorted list of deltas,
-        insert new deltas to its list of deltas
+        """Given a monomial with a sorted list of deltas,
+        insert new deltas into the list.
 
         Arguments:
             monomial: the monomial into whose list of
-            deltas values will be inserted
+                deltas values will be inserted
             deltas_to_insert: list of deltas to insert
         """
 
@@ -159,7 +162,8 @@ class Monomial:
         Check if two deltas have the same index:
 
         If they do, and if they:
-        - disagree on the value expected, returns []
+
+        - disagree on the value expected, returns `[]` (empty list)
         - agree on the value expected, returns the original deltas
 
         If they don't:
