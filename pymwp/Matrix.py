@@ -1,5 +1,5 @@
 import itertools
-from semiring import ZeroMWP, UnitMWP
+from semiring import ZERO_MWP, UNIT_MWP
 from monomial import Monomial
 from polynomial import Polynomial
 
@@ -9,9 +9,9 @@ import copy
 
 DEBUG_LEVEL = 0
 
-Zero = Polynomial([Monomial(ZeroMWP, [])])
+Zero = Polynomial([Monomial(ZERO_MWP, [])])
 
-Unit = Polynomial([Monomial(UnitMWP, [])])
+Unit = Polynomial([Monomial(UNIT_MWP, [])])
 
 
 # TODO: replace these

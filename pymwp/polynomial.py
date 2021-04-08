@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from constants import Comparison
-from semiring import ZeroMWP, SumMWP
+from semiring import ZERO_MWP, sum_mwp
 from monomial import Monomial
 
 
@@ -29,7 +29,7 @@ class Polynomial:
         self.list = monomials or []
 
     def __str__(self):
-        values = ''.join(['+' + str(m) for m in self.list]) or ZeroMWP
+        values = ''.join(['+' + str(m) for m in self.list]) or ZERO_MWP
         return ("" if not self.list else "  ") + values
 
     def __add__(self, other):
@@ -56,7 +56,7 @@ class Polynomial:
             a new polynomial containing multiplied monomials.
         """
         products = [m.prod(mono) for m in self.list]
-        new_monomials = [p for p in products if p.scalar != ZeroMWP]
+        new_monomials = [p for p in products if p.scalar != ZERO_MWP]
         return Polynomial(new_monomials)
 
     def add(self, polynomial: Polynomial) -> Polynomial:
@@ -111,7 +111,7 @@ class Polynomial:
             # element
             else:
                 new_list[i].scalar = \
-                    SumMWP(mono1.scalar, mono2.scalar)
+                    sum_mwp(mono1.scalar, mono2.scalar)
                 j = j + 1
 
             # handle case where first list is shorter
@@ -237,9 +237,9 @@ class Polynomial:
         Returns:
             one of: "o", "m", "w", "p", "i"
         """
-        result = ZeroMWP
+        result = ZERO_MWP
         for monomial in self.list:
-            result = SumMWP(result, monomial.eval(argument_list))
+            result = sum_mwp(result, monomial.eval(argument_list))
         return result
 
     def equal(self, polynomial: Polynomial) -> bool:
@@ -363,7 +363,7 @@ class Polynomial:
 
         # base case
         if list_len < 2:
-            if monomials and monomials[0] == ZeroMWP:
+            if monomials and monomials[0] == ZERO_MWP:
                 return []
             return monomials
 
@@ -395,9 +395,9 @@ class Polynomial:
                 monomial = lhead
                 # append to list as long as scalar
                 # product is not 0
-                monomial.scalar = SumMWP(
+                monomial.scalar = sum_mwp(
                     lhead.scalar, rhead.scalar)
-                if monomial.scalar != ZeroMWP:
+                if monomial.scalar != ZERO_MWP:
                     new_list.append(monomial)
                 left = ltail
                 right = rtail

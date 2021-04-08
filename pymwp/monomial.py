@@ -1,5 +1,5 @@
 from __future__ import annotations
-from semiring import ZeroMWP, UnitMWP, ProdMWP
+from semiring import ZERO_MWP, UNIT_MWP, prod_mwp
 
 
 class Monomial:
@@ -20,7 +20,7 @@ class Monomial:
     and no two deltas can have the same index.
     """
 
-    def __init__(self, scalar: str = UnitMWP, deltas: list = []):
+    def __init__(self, scalar: str = UNIT_MWP, deltas: list = []):
         """ initialize the monomial """
 
         self.deltas = []
@@ -68,10 +68,10 @@ class Monomial:
         mono_product = self.copy()
 
         # determine the new scalar
-        mono_product.scalar = ProdMWP(self.scalar, monomial.scalar)
+        mono_product.scalar = prod_mwp(self.scalar, monomial.scalar)
 
         # if scalar is 0, monomial cannot have deltas
-        if mono_product.scalar == ZeroMWP:
+        if mono_product.scalar == ZERO_MWP:
             mono_product.deltas = []
 
         # otherwise merge the two lists of deltas
@@ -116,7 +116,7 @@ class Monomial:
         """
         for (i, j) in self.deltas:
             if argument_list[j] != i:
-                return ZeroMWP
+                return ZERO_MWP
         return self.scalar
 
     def copy(self) -> Monomial:
@@ -147,7 +147,7 @@ class Monomial:
             # change the scalar to 0 because we have a null
             # monomial after insert
             if not monomial.deltas:
-                monomial.scalar = ZeroMWP
+                monomial.scalar = ZERO_MWP
                 # we can stop inserting if this happens
                 break
 

@@ -1,10 +1,14 @@
 # -*- coding: UTF-8 -*-
 
+ZERO_MWP = "o"
+
+UNIT_MWP = "m"
+
 # Different flow values
-Keys = ["o", "m", "w", "p", "i"]
+KEYS = ["o", "m", "w", "p", "i"]
 
 #  Define product over Keys : o•o=o; o•m=o; o•w=o; etc…
-dicProd = {
+DICT_PROD = {
     "o": {"o": "o", "m": "o", "w": "o", "p": "o", "i": "o"},
 
     "m": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -17,7 +21,7 @@ dicProd = {
 }
 
 #  Define sum over Keys : o+o=o; o+m=m; o+w=w; etc…
-dicSum = {
+DICT_SUM = {
     "o": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
 
     "m": {"o": "m", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -30,22 +34,34 @@ dicSum = {
 }
 
 
-# Return prod a•b or an error if a or b ∉ Keys
-def ProdMWP(a, b):
-    if a in Keys and b in Keys:
-        return dicProd[a][b]
+def prod_mwp(a, b):
+    """Compute product of two scalars
+
+    Arguments:
+        a: scalar
+        b: scalar
+
+    Returns:
+        product of a•b or raises an error if a or b ∉ Keys
+    """
+    if a in KEYS and b in KEYS:
+        return DICT_PROD[a][b]
     else:
-        print("ERROR: trying to use", a, "and", b, "as keys for dicProd…")
+        raise Exception("trying to use", a, "and", b, "as keys for DICT_PROD…")
 
 
 # Return sum a+b or an error if a or b ∉ Keys
-def SumMWP(a, b):
-    if a in Keys and b in Keys:
-        return dicSum[a][b]
+def sum_mwp(a, b):
+    """Compute sum of two scalars
+
+    Arguments:
+        a: scalar
+        b: scalar
+
+    Returns:
+        sum of a+b or raises an error if a or b ∉ Keys
+    """
+    if a in KEYS and b in KEYS:
+        return DICT_SUM[a][b]
     else:
-        print("ERROR: trying to use", a, "and", b, "as keys for dicSum…")
-
-
-ZeroMWP = "o"
-
-UnitMWP = "m"
+        raise Exception("trying to use", a, "and", b, "as keys for DICT_SUM…")

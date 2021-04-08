@@ -1,4 +1,4 @@
-from semiring import ZeroMWP
+from semiring import ZERO_MWP
 from pymwp.polynomial import Polynomial
 from pymwp.monomial import Monomial
 
@@ -13,7 +13,7 @@ def test_polynomial_copy():
 
 
 def test_polynomial_times_empty():
-    z = Polynomial([Monomial(ZeroMWP, [])])
+    z = Polynomial([Monomial(ZERO_MWP, [])])
     p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
     c = p * z
     assert c.equal(Polynomial())
