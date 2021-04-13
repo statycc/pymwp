@@ -44,27 +44,6 @@ class Polynomial:
     def __mul__(self, other):
         return self.times(other)
 
-    def multiply(self, mono: Monomial) -> Polynomial:
-        """Multiply polynomial by a monomial
-
-        This method takes as argument a monomial, then it computes
-        element-wise product for each monomial (of self) x mono_arg.
-
-        If the product scalar is non-zero the monomial is added to
-        a list of monomials returned by this method. Any monomials
-        with scalar zero will not be included in the result.
-
-        Arguments:
-            mono: Monomial by which to multiply the monomials
-            of current polynomial
-
-        Returns:
-            a new polynomial containing multiplied monomials.
-        """
-        products = [m.prod(mono) for m in self.list]
-        new_monomials = [p for p in products if p.scalar != ZERO_MWP]
-        return Polynomial(new_monomials)
-
     def add(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
 
@@ -176,10 +155,14 @@ class Polynomial:
         """
 
         # 1: compute table of products
-        products = [self.multiply(m).list for m in polynomial.list]
+        # here we compute P1 x P2 for each monomial,
+        # excluding all monomials that have scalar value 0
+        products = [[mono for mono in (m1 * m2 for m1 in self.list)
+                     if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
+        # filter out empty polynomials
         table = [p for p in products if p]
 
-        # if result is empty return default (empty) polynomial
+        # if table is empty, return default polynomial
         if not table:
             return Polynomial()
 
