@@ -5,17 +5,17 @@ from monomial import Monomial
 from polynomial import Zero, Unit
 
 
-def init_matrix(size: int, value: any) -> list:
+def init_matrix(size: int, init_value: any) -> list:
     """Create empty {size} X {size} matrix.
 
     Arguments:
         size: matrix size
-        value: initial value
+        init_value: initial value
 
     Returns:
         Initialized matrix.
     """
-    return [[value for _ in range(size)]
+    return [[init_value for _ in range(size)]
             for _ in range(size)]
 
 
@@ -33,7 +33,7 @@ def identity_matrix(size: int) -> list:
             for i in range(size)]
 
 
-def encode(matrix: list) -> list:
+def encode(matrix:list) ->list:
     """TODO:
 
     Arguments:
@@ -50,7 +50,7 @@ def encode(matrix: list) -> list:
     return new_matrix
 
 
-def decode(matrix: list) -> list:
+def decode(matrix: list) ->list:
     """TODO:
 
     Arguments:
@@ -68,7 +68,7 @@ def decode(matrix: list) -> list:
     return result
 
 
-def matrix_sum(matrix1: list, matrix2: list) -> list:
+def matrix_sum(matrix1:list, matrix2:list) ->list:
     """Matrices sum matrix1 + matrix2."""
     res = []
     for i in range(len(matrix1)):
@@ -78,7 +78,7 @@ def matrix_sum(matrix1: list, matrix2: list) -> list:
     return res
 
 
-def matrix_prod(matrix1: list, matrix2: list) -> list:
+def matrix_prod(matrix1:list, matrix2:list) ->list:
     """Matrices product matrix1 • matrix2."""
     res = []
     for i in range(len(matrix1)):
@@ -91,7 +91,7 @@ def matrix_prod(matrix1: list, matrix2: list) -> list:
     return res
 
 
-def extend_matrix(matrix: list, range_ext: int) -> list:
+def extend_matrix(matrix:list, range_ext: int) ->list:
     """
     Add range_ext columns and lines to Mat
     (Initialized as identity : with unit on the diagonal and zero elsewhere)
@@ -117,7 +117,7 @@ def extend_matrix(matrix: list, range_ext: int) -> list:
     return res
 
 
-def contains_infinite(matrix: list) -> bool:
+def contains_infinite(matrix:list) -> bool:
     """Check if matrix contains $\infty$.
 
     Arguments:

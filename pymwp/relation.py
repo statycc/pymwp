@@ -14,23 +14,19 @@ class Relation:
     TODO: what is a relation & what is the purpose of this class?
     """
 
-    def __init__(self, variables: list, matrix: list = None):
+    def __init__(self, variables: list[str], matrix: list[list] = None):
         """Create relation.
 
         Arguments:
-            variables: list of variables -> TODO: what type is variable?
+            variables: list of string variables
             matrix: matrix
         """
         self.variables = variables or []
         self.matrix = matrix or matrix_utils \
-            .init_matrix(len(variables), Zero)
+            .init_matrix(len(self.variables), Zero)
 
     def __str__(self):
         s, mtx_len = "", len(self.matrix)
-        if DEBUG >= 2:
-            s += "DEBUG Information, printRel.{0}{1}" \
-                .format(self.variables, self.matrix)
-
         for i in range(mtx_len):
             line = str(self.variables[i]) + "   |   "
             for j in range(mtx_len):
@@ -38,10 +34,10 @@ class Relation:
                 s += line
         return s
 
-        # return printRel((self.variables, self.matrix))
-
     def __add__(self, other):
-        return Relation.sum_relations(self, other)
+        er1, er2 = Relation.homogenisation(self, other)
+        new_matrix = matrix_utils.matrix_sum(er1.matrix, er2.matrix)
+        return Relation(er1.variables, new_matrix)
 
     def to_dict(self) -> dict:
         """Dictionary representation of Relation.
@@ -54,31 +50,29 @@ class Relation:
             "matrix": matrix_utils.encode(self.matrix)
         }
 
-    def replace_column(self, vector, variable) -> Relation:
+    def replace_column(self, vector: list, variable: str) -> Relation:
         """Replace a column in a matrix by a vector.
 
         Arguments:
             vector: vector to replace in matrix
-            variable: TODO: add description
+            variable: variable value; replace will occur
+                at the index of this variable.
 
         Returns:
             new Relation object with
         """
         new_relation = Relation.identity(self.variables)
-        # new_relation.identity()
-
         j = self.variables.index(variable)
+
         for idx in range(len(vector)):
             new_relation.matrix[idx][j] = vector[idx]
         return new_relation
 
     def while_correction(self) -> None:
         """Loop correction (see MWP - Lars&Niel paper)"""
-        size = len(self.variables)
-        for i in range(size):
-            for j in range(size):
-                c = self.matrix[i][j]
-                for mon in c.list:
+        for i in range(len(self.variables)):
+            for j in range(len(self.variables)):
+                for mon in self.matrix[i][j].list:
                     if mon.scalar == "p" or (mon.scalar == "w" and i == j):
                         mon.scalar = "i"
 
@@ -111,10 +105,10 @@ class Relation:
         """
         if set(self.variables) != set(other.variables):
             return False
-        (eR1, eR2) = Relation.homogenisation(self, other)
-        for i in range(len(eR1.matrix)):
-            for j in range(len(eR1.matrix)):
-                if not eR1.matrix[i][j].equal(eR2.matrix[i][j]):
+        er1, er2 = Relation.homogenisation(self, other)
+        for i in range(len(er1.matrix)):
+            for j in range(len(er1.matrix)):
+                if not er1.matrix[i][j].equal(er2.matrix[i][j]):
                     return False
         return True
 
@@ -132,8 +126,6 @@ class Relation:
             fix = fix + current
             if fix.equal(prev_fix):
                 break
-            if DEBUG >= 2:
-                print("DEBUG. Fixpoint.", self, fix)
         return fix
 
     def eval(self, args) -> Relation:
@@ -189,23 +181,6 @@ class Relation:
         """
         matrix = matrix_utils.identity_matrix(len(variables))
         return Relation(variables, matrix)
-
-    @staticmethod
-    def sum_relations(r1: Relation, r2: Relation) -> Relation:
-        """Compute sum of two relations.
-
-        (homogenisation in order to do the Relations sum)
-
-        Arguments:
-            r1: first Relation
-            r2: second Relation
-
-        Returns:
-            new Relation that represents r1 + r2.
-        """
-        er1, er2 = Relation.homogenisation(r1, r2)
-        new_matrix = matrix_utils.matrix_sum(er1.matrix, er2.matrix)
-        return Relation(er1.variables, new_matrix)
 
     @staticmethod
     def is_empty(r: Relation) -> bool:

@@ -192,8 +192,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
                 if var not in listvar:
                     listvar.append(var)
             # listvar=list(set(dblist[0])|set(dblist[1]))
-            rest = RelationList(listvar)
-            rest.identity()
+            rest = RelationList.identity(listvar)
             # Define dependence type
             node.show()
             if node.rvalue.op in ["+", "-"]:
@@ -227,8 +226,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             return index, rest
         if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
             listVar = None  # list_var(exp)
-            rels = RelationList([x] + listVar)
-            rels.identity()
+            rels = RelationList.identity([x] + listVar)
             # A FAIRE
             if DEBUG_LEVEL >= 2:
                 print("DEBUG: Computing Relation  (third case)")
@@ -246,7 +244,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             for child in node.iffalse.block_items:
                 index, rel_list = compute_rel(index, child)
                 relF.composition(rel_list)
-        rels = relF.sum_relation(relT)
+        rels = relF + relT
         # rels=rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
             print("DEBUG: Computing Relation (conditional case)")
