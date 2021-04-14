@@ -3,7 +3,10 @@ import sys
 import json
 import os
 from pycparser import parse_file, c_parser, c_ast
-from Matrix import RelationList, Relation
+# from Matrix import RelationList
+# from Matrix import Relation
+from relation import Relation
+from relation_list import RelationList
 from monomial import Monomial
 from polynomial import Polynomial
 
@@ -242,7 +245,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             for child in node.iffalse.block_items:
                 index, rel_list = compute_rel(index, child)
                 relF.composition(rel_list)
-        rels = relF.sumRel(relT)
+        rels = relF.sum_relation(relT)
         # rels=rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
             print("DEBUG_LEVEL: Computing Relation (conditional case)")
@@ -263,7 +266,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
         if DEBUG_LEVEL >= 2:
             print("DEBUG_LEVEL: Computing Relation (loop case) after fixpoint")
             rels.show()
-        rels.whileCorrection()
+        rels.while_correction()
         # rels = rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
             print("DEBUG_LEVEL: Computing Relation (loop case)")
