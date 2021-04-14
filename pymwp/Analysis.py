@@ -3,8 +3,9 @@ import sys
 import json
 import os
 from pycparser import parse_file, c_parser, c_ast
-# from Matrix import RelationList
-# from Matrix import Relation
+# from matrix_utils import RelationList
+# from matrix_utils import Relation
+from matrix import decode
 from relation import Relation
 from relation_list import RelationList
 from monomial import Monomial
@@ -335,8 +336,7 @@ def retrieve_relation(name):
     matrix = data["relation"]["matrix"]
     variables = data["relation"]["variables"]
     combinations = data["combinations"]
-    rel = Relation(variables, matrix)
-    # rel.decode_matrix(matrix)
+    rel = Relation(variables, decode(matrix))
     rels = RelationList([])
     rels.list[0] = rel
     return rels, combinations

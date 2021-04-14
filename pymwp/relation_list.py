@@ -30,8 +30,8 @@ class RelationList:
         Returns:
             TODO: Updated object?
         """
-        rel = Relation(self.list[0].variables)
-        self.list = [rel.identity()]
+        rel = Relation.identity(self.list[0].variables)
+        self.list = [rel]
         return self
 
     # TODO: add vector type
@@ -128,5 +128,4 @@ class RelationList:
         Returns:
             True if list does not contain matrix
         """
-        return next((False for o in matrix_list if
-                     o.matrix == matrix), True)
+        return not any(m.matrix == matrix in m for m in matrix_list)

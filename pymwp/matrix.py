@@ -2,19 +2,43 @@
 
 from polynomial import Polynomial
 from monomial import Monomial
+from polynomial import Zero, Unit
 
 
-def init_matrix(size: int, value: Polynomial) -> list:
-    """Empty Matrix"""
-    res = []
-    for i in range(size):
-        res.append([])
-        for j in range(size):
-            res[i].append(value)
-    return res
+def init_matrix(size: int, value: any) -> list:
+    """Create empty {size} X {size} matrix.
+
+    Arguments:
+        size: matrix size
+        value: initial value
+
+    Returns:
+        Initialized matrix.
+    """
+    return [[value for _ in range(size)]
+            for _ in range(size)]
 
 
-def encode(matrix):
+def identity_matrix(size: int) -> list:
+    """Create identity matrix of specified size.
+
+    Arguments:
+        size: matrix size
+
+    Returns:
+        New identity matrix.
+    """
+    return [[Unit if i == j else Zero
+             for j in range(size)]
+            for i in range(size)]
+
+
+def encode(matrix: list) -> list:
+    """TODO:
+
+    Arguments:
+        matrix: matrix to encode
+    """
     new_matrix = []
     for (i, row) in enumerate(matrix):
         new_matrix.append([])
@@ -26,12 +50,17 @@ def encode(matrix):
     return new_matrix
 
 
-def decode(matrix):
+def decode(matrix: list) -> list:
+    """TODO:
+
+    Arguments:
+        matrix: matrix to decode
+    """
     result = []
     for (i, row) in enumerate(matrix):
         result.append([])
         for polynomial in row:
-            poly = Polynomial([])
+            poly = Polynomial()
             for monomial in polynomial:
                 mon = Monomial(monomial["scalar"], monomial["deltas"])
                 poly.list.append(mon)
@@ -39,8 +68,8 @@ def decode(matrix):
     return result
 
 
-def matrix_sum(matrix1, matrix2):
-    """Matrices sum matrix1•matrix2"""
+def matrix_sum(matrix1: list, matrix2: list) -> list:
+    """Matrices sum matrix1 + matrix2."""
     res = []
     for i in range(len(matrix1)):
         res.append([])
@@ -49,24 +78,20 @@ def matrix_sum(matrix1, matrix2):
     return res
 
 
-def matrix_prod(matrix1, matrix2, zero):
-    """Matrices product matrix1•matrix2"""
+def matrix_prod(matrix1: list, matrix2: list) -> list:
+    """Matrices product matrix1 • matrix2."""
     res = []
-    print("matrix1=")
-    print(matrix1)
-    print("matrix2=")
-    print(matrix2)
     for i in range(len(matrix1)):
         res.append([])
         for j in range(len(matrix2)):
-            new = zero
+            new_value = Zero
             for k in range(len(matrix1)):
-                new = new + (matrix1[i][k] * matrix2[k][j])
-            res[i].append(new)
+                new_value += (matrix1[i][k] * matrix2[k][j])
+            res[i].append(new_value)
     return res
 
 
-def extend_matrix(matrix, range_ext, zero, unit):
+def extend_matrix(matrix: list, range_ext: int) -> list:
     """
     Add range_ext columns and lines to Mat
     (Initialized as identity : with unit on the diagonal and zero elsewhere)
@@ -87,15 +112,24 @@ def extend_matrix(matrix, range_ext, zero, unit):
             if i < len(matrix) and j < len(matrix):
                 res[i].append(matrix[i][j])
             else:
-                if i == j:
-                    res[i].append(unit)
-                else:
-                    res[i].append(zero)
+                res[i].append(Unit if i == j else Zero)
+
     return res
 
 
-def contains_infinite(mat):
-    for row in mat:
+def contains_infinite(matrix: list) -> bool:
+    """Check if matrix contains $\infty$.
+
+    Arguments:
+        matrix: matrix to check
+
+    Returns:
+        True if matrix contains $\infty$,
+        False otherwise.
+    """
+
+    # return any('i' in row for row in matrix)
+    for row in matrix:
         if "i" in row:
             return True
     return False
@@ -154,7 +188,7 @@ def contains_infinite(mat):
 #     return res
 #
 #
-# # Empty Matrix
+# # Empty matrix_utils
 #
 #
 # def initMatrix(len, zero=Zero):

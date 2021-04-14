@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import itertools
 
-import matrix as Matrix
+import matrix as matrix_utils
 from polynomial import Zero, Unit
 from constants import DEBUG
 
@@ -14,17 +14,16 @@ class Relation:
     TODO: what is a relation & what is the purpose of this class?
     """
 
-    def __init__(self, variables: list, matrix=None):
+    def __init__(self, variables: list, matrix: list = None):
         """Create relation.
 
         Arguments:
             variables: list of variables -> TODO: what type is variable?
+            matrix: matrix
         """
-        self.variables = variables
-        if matrix is not None:
-            self.matrix = Matrix.decode(matrix)
-        else:
-            self.matrix = Matrix.init_matrix(len(variables), Zero)
+        self.variables = variables or []
+        self.matrix = matrix or matrix_utils \
+            .init_matrix(len(variables), Zero)
 
     def __str__(self):
         s, mtx_len = "", len(self.matrix)
@@ -42,18 +41,17 @@ class Relation:
         # return printRel((self.variables, self.matrix))
 
     def __add__(self, other):
-        variables, matrix = Relation.sum_relations(
-            (self.variables, self.matrix),
-            (other.variables, other.matrix))
-        result = Relation(variables)
-        result.matrix = matrix
-        return result
+        return Relation.sum_relations(self, other)
 
-    def to_dict(self):
-        """Dictionary representation of Relation."""
+    def to_dict(self) -> dict:
+        """Dictionary representation of Relation.
+
+        Returns:
+            dictionary representing current Relation.
+        """
         return {
             "variables": self.variables,
-            "matrix": Matrix.encode(self.matrix)
+            "matrix": matrix_utils.encode(self.matrix)
         }
 
     def replace_column(self, vector, variable) -> Relation:
@@ -66,22 +64,13 @@ class Relation:
         Returns:
             new Relation object with
         """
-        new_relation = Relation(self.variables)
-        new_relation.identity()
+        new_relation = Relation.identity(self.variables)
+        # new_relation.identity()
 
         j = self.variables.index(variable)
         for idx in range(len(vector)):
             new_relation.matrix[idx][j] = vector[idx]
         return new_relation
-
-    def identity(self) -> Relation:
-        """
-        TODO: add docstring
-        """
-        _, matrix = Relation.identity_relation(
-            self.variables, Unit, Zero)
-        self.matrix = matrix
-        return self
 
     def while_correction(self) -> None:
         """Loop correction (see MWP - Lars&Niel paper)"""
@@ -94,13 +83,17 @@ class Relation:
                         mon.scalar = "i"
 
     def composition(self, other: Relation) -> Relation:
-        """Composition with a given relation other"""
-        variable, matrix = Relation.composition_relations(
-            (self.variables, self.matrix),
-            (other.variables, other.matrix))
-        compo = Relation(variable)
-        compo.matrix = matrix
-        return compo
+        """Composition with a given relation other
+
+        Arguments:
+            other: Relation to compose with self
+
+        Returns:
+           TODO:
+        """
+        er1, er2 = Relation.homogenisation(self, other)
+        new_matrix = matrix_utils.matrix_prod(er1.matrix, er2.matrix)
+        return Relation(er1.variables, new_matrix)
 
     def show(self):
         """Display relation."""
@@ -116,32 +109,32 @@ class Relation:
             True is current and other are equal
             and False otherwise.
         """
-        return Relation.is_equal(
-            (self.variables, self.matrix),
-            (other.variables, other.matrix))
+        if set(self.variables) != set(other.variables):
+            return False
+        (eR1, eR2) = Relation.homogenisation(self, other)
+        for i in range(len(eR1.matrix)):
+            for j in range(len(eR1.matrix)):
+                if not eR1.matrix[i][j].equal(eR2.matrix[i][j]):
+                    return False
+        return True
 
     def fixpoint(self):
         """Fixpoint (sum of compositions until no changes occur)."""
-        end = False
-        (v, M) = Relation.identity_relation(self.variables, Unit, Zero)
-        Fix = Relation(v)
-        PreviousFix = Relation(v)
-        Current = Relation(v)
-        Fix.matrix = M
-        PreviousFix.matrix = M
-        Current.matrix = M
-        while not end:
-            PreviousFix.matrix = Fix.matrix
-            Current = Current.composition(self)
-            Fix = Fix + Current
-            if Fix.equal(PreviousFix):
-                end = True
+        v = self.variables[:]
+        matrix = matrix_utils.identity_matrix(len(v))
+        fix = Relation(v, matrix)
+        prev_fix = Relation(v, matrix)
+        current = Relation(v, matrix)
+
+        while True:
+            prev_fix.matrix = fix.matrix
+            current = current.composition(self)
+            fix = fix + current
+            if fix.equal(prev_fix):
+                break
             if DEBUG >= 2:
-                print("DEBUG. Fixpoint.")
-                print("DEBUG. Fixpoint.")
-                self.show()
-                Fix.show()
-        return Fix
+                print("DEBUG. Fixpoint.", self, fix)
+        return fix
 
     def eval(self, args) -> Relation:
         """TODO:
@@ -178,140 +171,86 @@ class Relation:
         for args in args_list:
             list_args = list(args)
             mat = self.eval(list_args).matrix
-            if not Matrix.contains_infinite(mat):
+            if not matrix_utils.contains_infinite(mat):
                 combinations.append(list_args)
         return combinations
 
     @staticmethod
-    def identity_relation(var, unit, zero):
-        """Identity relation.
+    def identity(variables: list) -> Relation:
+        """
+        Create new identity relation
 
-        Arguments:
-            var:
-            unit:
-            zero:
+        Arguments
+            variables: list of variables
 
         Returns:
-            TODO:
+             Generated relation with given
+             variables and identity matrix.
         """
-        Id = []
-        for i in range(len(var)):
-            Id.append([])
-            for j in range(len(var)):
-                if i == j:
-                    Id[i].append(unit)
-                else:
-                    Id[i].append(zero)
-        return var, Id
+        matrix = matrix_utils.identity_matrix(len(variables))
+        return Relation(variables, matrix)
 
     @staticmethod
-    def composition_relations(r1: tuple, r2: tuple) -> tuple:
-        """Composition (homogenisation in order to do the Relations product).
+    def sum_relations(r1: Relation, r2: Relation) -> Relation:
+        """Compute sum of two relations.
+
+        (homogenisation in order to do the Relations sum)
 
         Arguments:
             r1: first Relation
             r2: second Relation
 
         Returns:
-            TODO:
+            new Relation that represents r1 + r2.
         """
-        if DEBUG >= 2:
-            print("DEBUG info for compositionRelations. Inputs.", r1, r2)
-
-        eR1, eR2 = Relation.homogenisation(r1, r2, Zero, Unit)
-
-        if DEBUG >= 2:
-            print("DEBUG info for compositionRelations. homogenises.", eR1, eR2)
-
-        result = (eR1[0], Matrix.matrix_prod(eR1[1], eR2[1], Zero))
-
-        if DEBUG >= 2:
-            print("DEBUG info for compositionRelations. Outputs.", result)
-
-        return result
+        er1, er2 = Relation.homogenisation(r1, r2)
+        new_matrix = matrix_utils.matrix_sum(er1.matrix, er2.matrix)
+        return Relation(er1.variables, new_matrix)
 
     @staticmethod
-    def sum_relations(r1: tuple, r2: tuple) -> tuple:
-        """Sum (homogenisation in order to do the Relations sum)
-
-        Arguments:
-            r1: first pair of (variables, matrix)
-            r2: second pair of (variables, matrix)
-
-        Returns:
-            TODO:
-        """
-        er1, er2 = Relation.homogenisation(r1, r2, Zero, Unit)
-        return er1[0], Matrix.matrix_sum(er1[1], er2[1])
-
-    @staticmethod
-    def is_equal(r1: tuple, r2: tuple) -> bool:
-        """Determine if two relations are equal.
-
-        Arguments:
-            r1: first pair of (variables, matrix)
-            r2: second pair of (variables, matrix)
-
-        Returns:
-            TODO:
-        """
-        if set(r1[0]) != set(r2[0]):
-            return False
-        (eR1, eR2) = Relation.homogenisation(r1, r2, Zero, Unit)
-        for i in range(len(eR1[1])):
-            for j in range(len(eR1[1])):
-                if not eR1[1][i][j].equal(eR2[1][i][j]):
-                    return False
-        return True
-
-    @staticmethod
-    def is_empty(r: tuple) -> bool:
+    def is_empty(r: Relation) -> bool:
         """Return true if the relation is empty"""
-        if r[0] == []:
-            return True
-        if r[1] == []:
-            return True
-        return False
+        return not r.variables or not r.matrix
 
     @staticmethod
-    def homogenisation(r1, r2, zero, unit):
-        """Performs homogeneisation (extend Matrices if needed in order to compose).
+    def homogenisation(r1: Relation, r2: Relation) -> tuple:
+        """Performs homogenisation (extend Matrices if needed in order to compose).
 
-        :param r1:
-        :param r2:
-        :param zero:
-        :param unit:
-        :return:
+        Arguments:
+            r1: first Relation
+            r2: second Relation
+
+        Returns:
+            Tuple of 2 homogenised relations.
         """
-        var_indices = []
-        var2 = []
+        zero, unit = Zero, Unit
+        var_indices, var2 = [], []
+
         # Empty cases
         if Relation.is_empty(r1):
-            empty = Relation(r2[0])
-            empty.identity()
-            return ((empty.variables, empty.matrix), r2)
+            empty = Relation.identity(r2.variables)
+            return Relation(empty.variables, empty.matrix), r2
         if Relation.is_empty(r2):
-            empty = Relation(r1[0])
-            empty.identity()
-            return (r1, (empty.variables, empty.matrix))
+            empty = Relation.identity(r1.variables)
+            return r1, Relation(empty.variables, empty.matrix)
+
         if DEBUG >= 2:
             print("DEBUG info for Homogeneisation. Inputs.", r1, r2)
-
-        for v in r2[0]:
+        for v in r2.variables:
             var2.append(v)
-        for v in r1[0]:
+        for v in r1.variables:
             found = False
-            for j in range(len(r2[0])):
-                if r2[0][j] == v:
+            for j in range(len(r2.variables)):
+                if r2.variables[j] == v:
                     var_indices.append(j)
                     found = True
                     var2.remove(v)
             if not found:
                 var_indices.append(-1)
         for v in var2:
-            var_indices.append(r2[0].index(v))
-        var_extended = r1[0] + var2
-        M1_extended = Matrix.extend_matrix(r1[1], len(var_extended), Zero, Unit)
+            var_indices.append(r2.variables.index(v))
+        var_extended = r1.variables + var2
+        M1_extended = matrix_utils.extend_matrix(r1.matrix, len(var_extended))
         M2_extended = []
         for i in range(len(var_extended)):
             M2_extended.append([])
@@ -320,10 +259,10 @@ class Relation:
                 if not i_in and i == j:
                     M2_extended[i].append(unit)
                 elif i_in and var_indices[j] != -1:
-                    M2_extended[i].append(r2[1][var_indices[i]][var_indices[j]])
+                    M2_extended[i].append(r2.matrix[var_indices[i]][var_indices[j]])
                 else:
                     M2_extended[i].append(zero)
         if DEBUG >= 2:
             print("DEBUG info for Homogeneisation. Result.", r1, r2,
                   (var_extended, M1_extended), (var_extended, M2_extended))
-        return ((var_extended, M1_extended), (var_extended, M2_extended))
+        return Relation(var_extended, M1_extended), Relation(var_extended, M2_extended)
