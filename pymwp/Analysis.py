@@ -213,14 +213,14 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             print("list_vect=", list_vect)
             rest.replace_column(list_vect, dblist[0][0])
             if DEBUG_LEVEL >= 2:
-                print("DEBUG_LEVEL: Computing Relation (first case)")
+                print("DEBUG: Computing Relation (first case)")
                 node.show()
                 rest.show()
             return index, rest
         if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
             rest = RelationList([x])
             if DEBUG_LEVEL >= 2:
-                print("DEBUG_LEVEL: Computing Relation (second case)")
+                print("DEBUG: Computing Relation (second case)")
                 node.show()
                 rest.show()
             return index, rest
@@ -248,7 +248,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
         rels = relF.sum_relation(relT)
         # rels=rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (conditional case)")
+            print("DEBUG: Computing Relation (conditional case)")
             node.show()
             rels.show()
         return index, rels
@@ -260,16 +260,16 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             rels.composition(rel_list)
         if DEBUG_LEVEL >= 2:
             print(
-                "DEBUG_LEVEL: Computing Relation (loop case) before fixpoint")
+                "DEBUG: Computing Relation (loop case) before fixpoint")
             rels.show()
         rels.fixpoint()
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case) after fixpoint")
+            print("DEBUG: Computing Relation (loop case) after fixpoint")
             rels.show()
         rels.while_correction()
         # rels = rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case)")
+            print("DEBUG: Computing Relation (loop case)")
             node.show()
             rels.show()
         return index, rels
@@ -282,7 +282,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
         rels = rels.fixpoint()
         rels = rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case)")
+            print("DEBUG: Computing Relation (loop case)")
             node.show()
             rels.show()
         return index, rels
@@ -335,8 +335,8 @@ def retrieve_relation(name):
     matrix = data["relation"]["matrix"]
     variables = data["relation"]["variables"]
     combinations = data["combinations"]
-    rel = Relation(variables)
-    rel.decode_matrix(matrix)
+    rel = Relation(variables, matrix)
+    # rel.decode_matrix(matrix)
     rels = RelationList([])
     rels.list[0] = rel
     return rels, combinations
@@ -344,8 +344,8 @@ def retrieve_relation(name):
 
 def output_json(name, rels, index):
     rel = rels.list[0]
-    combinations = rel.isInfinite([0, 1, 2], index)
-    info = {"relation": rel.as_dict(), "combinations": combinations}
+    combinations = rel.is_infinite([0, 1, 2], index)
+    info = {"relation": rel.to_dict(), "combinations": combinations}
     dir_path, file_name = os.path.split(name)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -362,7 +362,7 @@ else:
     print("infinite")
 
 # print("*********** FINAL CODE ****************")
-# if DEBUG_LEVEL>=3:
+# if DEBUG>=3:
 #     ast.show()
 # generator = c_generator.CGenerator()
 # print(generator.visit(ast))

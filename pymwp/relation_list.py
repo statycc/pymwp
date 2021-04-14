@@ -51,7 +51,7 @@ class RelationList:
                      for rel in self.list]
 
         if DEBUG >= 2:
-            print("DEBUG_LEVEL: relation après replace_column", self)
+            print("DEBUG: relation après replace_column", self)
 
     def composition(self, other: RelationList) -> None:
         """Composition of the entire list of relations
@@ -60,7 +60,7 @@ class RelationList:
             other: RelationList to compose with self
         """
         if DEBUG >= 2:
-            print("DEBUG_LEVEL: composition de relationList", other, self)
+            print("DEBUG: composition de relationList", other, self)
 
         new_list = []
 
@@ -99,7 +99,7 @@ class RelationList:
         Returns:
             new relation list
         """
-        self.list = [r1.sum_relation(r2)
+        self.list = [r1 + r2
                      for r1 in self.list
                      for r2 in other.list]
         return self
@@ -115,7 +115,7 @@ class RelationList:
     def while_correction(self) -> None:
         """Loop correction (see MWP - Lars&Niel paper)."""
         for rel in self.list:
-            rel.whileCorrection()
+            rel.while_correction()
 
     @staticmethod
     def unique(matrix: list, matrix_list: list) -> bool:

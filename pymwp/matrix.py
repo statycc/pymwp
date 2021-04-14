@@ -1,10 +1,112 @@
+# flake8: noqa: W605
+
+from polynomial import Polynomial
+from monomial import Monomial
+
+
+def init_matrix(size: int, value: Polynomial) -> list:
+    """Empty Matrix"""
+    res = []
+    for i in range(size):
+        res.append([])
+        for j in range(size):
+            res[i].append(value)
+    return res
+
+
+def encode(matrix):
+    new_matrix = []
+    for (i, row) in enumerate(matrix):
+        new_matrix.append([])
+        for polynomial in row:
+            monomials = []
+            for mon in polynomial.list:
+                monomials.append(mon.__dict__)
+            new_matrix[i].append(monomials)
+    return new_matrix
+
+
+def decode(matrix):
+    result = []
+    for (i, row) in enumerate(matrix):
+        result.append([])
+        for polynomial in row:
+            poly = Polynomial([])
+            for monomial in polynomial:
+                mon = Monomial(monomial["scalar"], monomial["deltas"])
+                poly.list.append(mon)
+            result[i].append(poly)
+    return result
+
+
+def matrix_sum(matrix1, matrix2):
+    """Matrices sum matrix1•matrix2"""
+    res = []
+    for i in range(len(matrix1)):
+        res.append([])
+        for j in range(len(matrix1)):
+            res[i].append(matrix1[i][j] + matrix2[i][j])
+    return res
+
+
+def matrix_prod(matrix1, matrix2, zero):
+    """Matrices product matrix1•matrix2"""
+    res = []
+    print("matrix1=")
+    print(matrix1)
+    print("matrix2=")
+    print(matrix2)
+    for i in range(len(matrix1)):
+        res.append([])
+        for j in range(len(matrix2)):
+            new = zero
+            for k in range(len(matrix1)):
+                new = new + (matrix1[i][k] * matrix2[k][j])
+            res[i].append(new)
+    return res
+
+
+def extend_matrix(matrix, range_ext, zero, unit):
+    """
+    Add range_ext columns and lines to Mat
+    (Initialized as identity : with unit on the diagonal and zero elsewhere)
+
+    Arguments:
+        matrix:
+        range_ext:
+        zero:
+        unit:
+
+    Returns
+        TODO:
+    """
+    res = []
+    for i in range(range_ext):
+        res.append([])
+        for j in range(range_ext):
+            if i < len(matrix) and j < len(matrix):
+                res[i].append(matrix[i][j])
+            else:
+                if i == j:
+                    res[i].append(unit)
+                else:
+                    res[i].append(zero)
+    return res
+
+
+def contains_infinite(mat):
+    for row in mat:
+        if "i" in row:
+            return True
+    return False
+
 # import itertools
 # from semiring import ZERO_MWP, UNIT_MWP
 # from monomial import Monomial
 # from polynomial import Polynomial
 # from relation import  Relation
 # from relation_list import RelationList
-# from constants import DEBUG as DEBUG_LEVEL
+# from constants import DEBUG as DEBUG
 #
 # import copy
 #
@@ -99,8 +201,8 @@
 #
 #
 # def printRel(Rel):
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL Information, printRel.")
+#     if DEBUG >= 2:
+#         print("DEBUG Information, printRel.")
 #         print(Rel[0])
 #         print(Rel[1])
 #     for i in range(len(Rel[1])):
@@ -138,8 +240,8 @@
 #         empty = Relation(R1[0])
 #         empty.identity()
 #         return (R1, (empty.variables, empty.matrix))
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL info for Homogeneisation. Inputs.")
+#     if DEBUG >= 2:
+#         print("DEBUG info for Homogeneisation. Inputs.")
 #         printRel(R1)
 #         printRel(R2)
 #     for v in R2[0]:
@@ -168,8 +270,8 @@
 #                 M2_extended[i].append(R2[1][var_indices[i]][var_indices[j]])
 #             else:
 #                 M2_extended[i].append(zero)
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL info for Homogeneisation. Result.")
+#     if DEBUG >= 2:
+#         print("DEBUG info for Homogeneisation. Result.")
 #         printRel(R1)
 #         printRel(R2)
 #         printRel((var_extended, M1_extended))
@@ -179,18 +281,18 @@
 #
 # # Composition (homogeneisation in order to do the Relations product)
 # def compositionRelations(R1, R2):
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL info for compositionRelations. Inputs.")
+#     if DEBUG >= 2:
+#         print("DEBUG info for compositionRelations. Inputs.")
 #         printRel(R1)
 #         printRel(R2)
 #     (eR1, eR2) = homogeneisation(R1, R2)
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL info for compositionRelations. homogeneises.")
+#     if DEBUG >= 2:
+#         print("DEBUG info for compositionRelations. homogeneises.")
 #         printRel(eR1)
 #         printRel(eR2)
 #     Result = (eR1[0], MatProd(eR1[1], eR2[1]))
-#     if DEBUG_LEVEL >= 2:
-#         print("DEBUG_LEVEL info for compositionRelations. Outputs.")
+#     if DEBUG >= 2:
+#         print("DEBUG info for compositionRelations. Outputs.")
 #         printRel(Result)
 #     return Result
 #
@@ -266,7 +368,7 @@
 #         return self
 #
 #     def replace_column(self, vect, i):
-#         if DEBUG_LEVEL >= 2:
+#         if DEBUG >= 2:
 #             print("replace column: vect=", vect, "i=", i)
 #             self.show()
 #         new_list = []
@@ -274,14 +376,14 @@
 #             for Rel in self.list:
 #                 new_list.append(Rel.replace_column(v, i))
 #         self.list = list(new_list)
-#         if DEBUG_LEVEL >= 2:
-#             print("DEBUG_LEVEL: relation après replace_column")
+#         if DEBUG >= 2:
+#             print("DEBUG: relation après replace_column")
 #             self.show()
 #
 #     # Composition of the entire list of relations
 #     def composition(self, RelList):
-#         if DEBUG_LEVEL >= 2:
-#             print("DEBUG_LEVEL: composition de relationList")
+#         if DEBUG >= 2:
+#             print("DEBUG: composition de relationList")
 #             RelList.show()
 #             self.show()
 #         new_list = []
@@ -291,22 +393,22 @@
 #                 if unique(output.matrix, new_list):
 #                     new_list.append(output)
 #         self.list = list(new_list)
-#         if DEBUG_LEVEL >= 2:
-#             print("DEBUG_LEVEL: Result")
+#         if DEBUG >= 2:
+#             print("DEBUG: Result")
 #             self.show()
 #
 #     # Composition of the entire list of relations
 #     def one_composition(self, orel):
-#         if DEBUG_LEVEL >= 2:
-#             print("DEBUG_LEVEL: composition de relationList")
+#         if DEBUG >= 2:
+#             print("DEBUG: composition de relationList")
 #             orel.show()
 #             self.show()
 #         new_list = []
 #         for myrel in self.list:
 #             new_list.append(myrel.composition(orel))
 #         self.list = copy.deepcopy(new_list)
-#         if DEBUG_LEVEL >= 2:
-#             print("DEBUG_LEVEL: Result")
+#         if DEBUG >= 2:
+#             print("DEBUG: Result")
 #             self.show()
 #
 #     # Sum of the entire list of relations
@@ -479,7 +581,7 @@
 #             Fix = Fix.sumRel(Current)
 #             if Fix.equal(PreviousFix):
 #                 end = True
-#             if DEBUG_LEVEL >= 2:
+#             if DEBUG >= 2:
 #                 print("DEBUG. Fixpoint.")
 #                 print("DEBUG. Fixpoint.")
 #                 self.show()

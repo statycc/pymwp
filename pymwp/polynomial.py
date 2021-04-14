@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from constants import Comparison
-from semiring import ZERO_MWP, sum_mwp
 from monomial import Monomial
+from semiring import ZERO_MWP, UNIT_MWP, sum_mwp
 
 
 class Polynomial:
@@ -412,3 +412,8 @@ class Polynomial:
         # doesn't matter; just append whatever
         # remains of left or right tail
         return new_list + right + left
+
+
+Zero = Polynomial([Monomial(ZERO_MWP)])
+
+Unit = Polynomial([Monomial(UNIT_MWP)])

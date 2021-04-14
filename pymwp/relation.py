@@ -1,306 +1,90 @@
+# flake8: noqa: W605
+
+from __future__ import annotations
+
 import itertools
-from semiring import ZERO_MWP, UNIT_MWP
-from monomial import Monomial
-from polynomial import Polynomial
-from constants import DEBUG as DEBUG_LEVEL
 
-Zero = Polynomial([Monomial(ZERO_MWP, [])])
-
-Unit = Polynomial([Monomial(UNIT_MWP, [])])
-
-
-# Matrices product M1•M2
-
-
-def MatProd(M1, M2, zero=Zero):
-    res = []
-    print("M1=")
-    print(M1)
-    print("M2=")
-    print(M2)
-    for i in range(len(M1)):
-        res.append([])
-        for j in range(len(M2)):
-            new = zero
-            for k in range(len(M1)):
-                new = new + (M1[i][k] * M2[k][j])
-            res[i].append(new)
-    return res
-
-
-# Matrices sum M1•M2
-
-
-def MatSum(M1, M2):
-    res = []
-    for i in range(len(M1)):
-        res.append([])
-        for j in range(len(M1)):
-            res[i].append(M1[i][j] + M2[i][j])
-    return res
-
-
-# Empty Matrix
-
-
-def initMatrix(len, zero=Zero):
-    res = []
-    for i in range(len):
-        res.append([])
-        for j in range(len):
-            res[i].append(zero)
-    return res
-
-
-# Add range_ext columns and lines to Mat
-# (Initialized as identity : with unit on the diagonal and zero elsewhere)
-
-
-def extendMatrix(Mat, range_ext, zero=Zero, unit=Unit):
-    res = []
-    for i in range(range_ext):
-        res.append([])
-        for j in range(range_ext):
-            if i < len(Mat) and j < len(Mat):
-                res[i].append(Mat[i][j])
-            else:
-                if i == j:
-                    res[i].append(unit)
-                else:
-                    res[i].append(zero)
-    return res
-
-
-# Print a relation
-
-
-def printRel(Rel):
-    s = ""
-    if DEBUG_LEVEL >= 2:
-        s += "DEBUG_LEVEL Information, printRel."
-        s += str(Rel[0])
-        s += str(Rel[1])
-    for i in range(len(Rel[1])):
-        line = str(Rel[0][i]) + "   |   "
-        for j in range(len(Rel[1])):
-            line = line + "   " + str(Rel[1][i][j])
-        s += line
-    return s
-
-
-# Return true if the relation is empty
-
-
-def is_empty(Rel):
-    if Rel[0] == []:
-        return True
-    if Rel[1] == []:
-        return True
-    return False
-
-
-# Performs homogeneisation (extend Matrices if needed in order to compose)
-
-def homogeneisation(R1, R2, zero=Zero, unit=Unit):
-    var_indices = []
-    var2 = []
-    # Empty cases
-    if is_empty(R1):
-        empty = Relation(R2[0])
-        empty.identity()
-        return ((empty.variables, empty.matrix), R2)
-    if is_empty(R2):
-        empty = Relation(R1[0])
-        empty.identity()
-        return (R1, (empty.variables, empty.matrix))
-    if DEBUG_LEVEL >= 2:
-        print("DEBUG_LEVEL info for Homogeneisation. Inputs.")
-        printRel(R1)
-        printRel(R2)
-    for v in R2[0]:
-        var2.append(v)
-    for v in R1[0]:
-        found = False
-        for j in range(len(R2[0])):
-            if R2[0][j] == v:
-                var_indices.append(j)
-                found = True
-                var2.remove(v)
-        if not found:
-            var_indices.append(-1)
-    for v in var2:
-        var_indices.append(R2[0].index(v))
-    var_extended = R1[0] + var2
-    M1_extended = extendMatrix(R1[1], len(var_extended))
-    M2_extended = []
-    for i in range(len(var_extended)):
-        M2_extended.append([])
-        i_in = var_indices[i] != -1
-        for j in range(len(var_extended)):
-            if not i_in and i == j:
-                M2_extended[i].append(unit)
-            elif i_in and var_indices[j] != -1:
-                M2_extended[i].append(R2[1][var_indices[i]][var_indices[j]])
-            else:
-                M2_extended[i].append(zero)
-    if DEBUG_LEVEL >= 2:
-        print("DEBUG_LEVEL info for Homogeneisation. Result.")
-        printRel(R1)
-        printRel(R2)
-        printRel((var_extended, M1_extended))
-        printRel((var_extended, M2_extended))
-    return ((var_extended, M1_extended), (var_extended, M2_extended))
-
-
-# Composition (homogeneisation in order to do the Relations product)
-def compositionRelations(R1, R2):
-    if DEBUG_LEVEL >= 2:
-        print("DEBUG_LEVEL info for compositionRelations. Inputs.")
-        printRel(R1)
-        printRel(R2)
-    (eR1, eR2) = homogeneisation(R1, R2)
-    if DEBUG_LEVEL >= 2:
-        print("DEBUG_LEVEL info for compositionRelations. homogeneises.")
-        printRel(eR1)
-        printRel(eR2)
-    Result = (eR1[0], MatProd(eR1[1], eR2[1]))
-    if DEBUG_LEVEL >= 2:
-        print("DEBUG_LEVEL info for compositionRelations. Outputs.")
-        printRel(Result)
-    return Result
-
-
-# Sum (homogeneisation in order to do the Relations sum)
-
-
-def sumRelations(R1, R2):
-    (eR1, eR2) = homogeneisation(R1, R2)
-    return (eR1[0], MatSum(eR1[1], eR2[1]))
-
-
-def isequalRel(R1, R2):
-    if set(R1[0]) != set(R2[0]):
-        return False
-    (eR1, eR2) = homogeneisation(R1, R2)
-    for i in range(len(eR1[1])):
-        for j in range(len(eR1[1])):
-            if not eR1[1][i][j].equal(eR2[1][i][j]):
-                return False
-    return True
-
-
-# Identity relation
-
-
-def identityRel(var, unit=Unit, zero=Zero):
-    Id = []
-    for i in range(len(var)):
-        Id.append([])
-        for j in range(len(var)):
-            if i == j:
-                Id[i].append(unit)
-            else:
-                Id[i].append(zero)
-    return (var, Id)
-
-
-def algebraicRel(Rel, list, typeofdep, zero=Zero):
-    (Var, Mat) = Rel
-    out = Var.index(list[0][0])
-    Mat[out][out] = zero
-    for var in list[1]:
-        in_ind = Var.index(var)
-        Mat[in_ind][out] = typeofdep
-    return (Var, Mat)
-
-
-def contains_infinite(mat):
-    for row in mat:
-        if "i" in row:
-            return True
-    return False
+import matrix as Matrix
+from polynomial import Zero, Unit
+from constants import DEBUG
 
 
 class Relation:
-    # Cons : take list of variables, init matrix with zeros
-    def __init__(self, variables):
+    """
+    TODO: what is a relation & what is the purpose of this class?
+    """
+
+    def __init__(self, variables: list, matrix=None):
+        """Create relation.
+
+        Arguments:
+            variables: list of variables -> TODO: what type is variable?
+        """
         self.variables = variables
-        self.matrix = initMatrix(len(variables))
+        if matrix is not None:
+            self.matrix = Matrix.decode(matrix)
+        else:
+            self.matrix = Matrix.init_matrix(len(variables), Zero)
 
     def __str__(self):
-        return printRel((self.variables, self.matrix))
+        s, mtx_len = "", len(self.matrix)
+        if DEBUG >= 2:
+            s += "DEBUG Information, printRel.{0}{1}" \
+                .format(self.variables, self.matrix)
 
-    # Return dict representation of Relation
-    def as_dict(self):
-        return {"variables": self.variables, "matrix": self.encode_matrix()}
+        for i in range(mtx_len):
+            line = str(self.variables[i]) + "   |   "
+            for j in range(mtx_len):
+                line = line + "   " + str(self.matrix[i][j])
+                s += line
+        return s
 
-    # Create matrix of dicts by converting each Polynomial to a list of dict
-    def encode_matrix(self):
-        new_matrix = []
-        for (i, row) in enumerate(self.matrix):
-            new_matrix.append([])
-            for polynomial in row:
-                monomials = []
-                for mon in polynomial.list:
-                    monomials.append(mon.__dict__)
-                new_matrix[i].append(monomials)
-        return new_matrix
+        # return printRel((self.variables, self.matrix))
 
-    def decode_matrix(self, org_matrix):
-        """Create matrix of polynomials by converting each list of
-        dicts to instances of Polynomials
+    def __add__(self, other):
+        variables, matrix = Relation.sum_relations(
+            (self.variables, self.matrix),
+            (other.variables, other.matrix))
+        result = Relation(variables)
+        result.matrix = matrix
+        return result
+
+    def to_dict(self):
+        """Dictionary representation of Relation."""
+        return {
+            "variables": self.variables,
+            "matrix": Matrix.encode(self.matrix)
+        }
+
+    def replace_column(self, vector, variable) -> Relation:
+        """Replace a column in a matrix by a vector.
+
+        Arguments:
+            vector: vector to replace in matrix
+            variable: TODO: add description
+
+        Returns:
+            new Relation object with
         """
-        self.matrix = []
-        for (i, row) in enumerate(org_matrix):
-            self.matrix.append([])
-            for polynomial in row:
-                poly = Polynomial([])
-                for monomial in polynomial:
-                    mon = Monomial(monomial["scalar"], monomial["deltas"])
-                    poly.list.append(mon)
-                self.matrix[i].append(poly)
+        new_relation = Relation(self.variables)
+        new_relation.identity()
 
-    # not used…
-    # list contains two list with left-hand and right-hand side
-    # variables respectively; they are supposed to be
-    def algebraic(self, list, typeofdep):
-        """ DEPRECATED """
-        # contained in self.variables already.
-        (Var, Mat) = algebraicRel((self.variables, self.matrix), list,
-                                  typeofdep)
-        self.matrix = Mat
+        j = self.variables.index(variable)
+        for idx in range(len(vector)):
+            new_relation.matrix[idx][j] = vector[idx]
+        return new_relation
+
+    def identity(self) -> Relation:
+        """
+        TODO: add docstring
+        """
+        _, matrix = Relation.identity_relation(
+            self.variables, Unit, Zero)
+        self.matrix = matrix
         return self
 
-    # True if infinit somewhere
-    def isInfinit(self):
-        size = len(self.variables)
-        for i in range(size):
-            for j in range(size):
-                c = self.matrix[i][j]
-                for mon in c.list:
-                    if mon.scalar == "i":
-                        return True
-        return False
-
-    def ReplaceColumnMatrix(self, vect, var):
-        # (Var,Mat)=Rel
-        new = Relation(self.variables)
-        new.identity()
-        j = self.variables.index(var)
-        for i in range(len(vect)):
-            new.matrix[i][j] = vect[i]
-        return new
-
-    def replace_column(self, vect, i):
-        return self.ReplaceColumnMatrix(vect, i)
-
-    def identity(self):
-        (Var, Mat) = identityRel(self.variables)
-        self.matrix = Mat
-        return self
-
-    # Loop correction (see MWP - Lars&Niel paper)
-    def whileCorrection(self):
+    def while_correction(self) -> None:
+        """Loop correction (see MWP - Lars&Niel paper)"""
         size = len(self.variables)
         for i in range(size):
             for j in range(size):
@@ -309,39 +93,37 @@ class Relation:
                     if mon.scalar == "p" or (mon.scalar == "w" and i == j):
                         mon.scalar = "i"
 
-    def conditionLoop(self, list_var):
-        return
-
-    def conditionWhile(self, list_var):
-        return
-
-    #  Composition with a given relation Rel
-    def composition(self, Rel):
-        (var, Mat) = compositionRelations((self.variables, self.matrix),
-                                          (Rel.variables, Rel.matrix))
-        compo = Relation(var)
-        compo.matrix = Mat
+    def composition(self, other: Relation) -> Relation:
+        """Composition with a given relation other"""
+        variable, matrix = Relation.composition_relations(
+            (self.variables, self.matrix),
+            (other.variables, other.matrix))
+        compo = Relation(variable)
+        compo.matrix = matrix
         return compo
 
-    #  Sum with a given relation Rel
-    def sum_relation(self, Rel):
-        (var, Mat) = sumRelations((self.variables, self.matrix),
-                                  (Rel.variables, Rel.matrix))
-        result = Relation(var)
-        result.matrix = Mat
-        return result
-
     def show(self):
+        """Display relation."""
         print(str(self))
 
-    def equal(self, Rel):
-        return isequalRel((self.variables, self.matrix),
-                          (Rel.variables, Rel.matrix))
+    def equal(self, other: Relation) -> bool:
+        """Determine if two relations are equal.
 
-    #  Fixpoint (sum of compositions until no changes occur)
+        Arguments:
+            other: relation to compare
+
+        Returns:
+            True is current and other are equal
+            and False otherwise.
+        """
+        return Relation.is_equal(
+            (self.variables, self.matrix),
+            (other.variables, other.matrix))
+
     def fixpoint(self):
+        """Fixpoint (sum of compositions until no changes occur)."""
         end = False
-        (v, M) = identityRel(self.variables)
+        (v, M) = Relation.identity_relation(self.variables, Unit, Zero)
         Fix = Relation(v)
         PreviousFix = Relation(v)
         Current = Relation(v)
@@ -351,17 +133,25 @@ class Relation:
         while not end:
             PreviousFix.matrix = Fix.matrix
             Current = Current.composition(self)
-            Fix = Fix.sum_relation(Current)
+            Fix = Fix + Current
             if Fix.equal(PreviousFix):
                 end = True
-            if DEBUG_LEVEL >= 2:
+            if DEBUG >= 2:
                 print("DEBUG. Fixpoint.")
                 print("DEBUG. Fixpoint.")
                 self.show()
                 Fix.show()
         return Fix
 
-    def eval(self, args):
+    def eval(self, args) -> Relation:
+        """TODO:
+
+        Arguments:
+            args: TODO:
+
+        Returns:
+            TODO:
+        """
         result = Relation([])
         mat = []
         result.variables = self.variables
@@ -372,13 +162,168 @@ class Relation:
         result.matrix = mat
         return result
 
-    def isInfinite(self, choices, index):
+    def is_infinite(self, choices, index):
+        """TODO:
+
+        Arguments:
+            choices:
+            index:
+
+        Returns:
+            TODO:
+        """
         # uses itertools.product to generate all possible assignments
         args_list = list(itertools.product(choices, repeat=index))
         combinations = []
         for args in args_list:
             list_args = list(args)
             mat = self.eval(list_args).matrix
-            if not contains_infinite(mat):
+            if not Matrix.contains_infinite(mat):
                 combinations.append(list_args)
         return combinations
+
+    @staticmethod
+    def identity_relation(var, unit, zero):
+        """Identity relation.
+
+        Arguments:
+            var:
+            unit:
+            zero:
+
+        Returns:
+            TODO:
+        """
+        Id = []
+        for i in range(len(var)):
+            Id.append([])
+            for j in range(len(var)):
+                if i == j:
+                    Id[i].append(unit)
+                else:
+                    Id[i].append(zero)
+        return var, Id
+
+    @staticmethod
+    def composition_relations(r1: tuple, r2: tuple) -> tuple:
+        """Composition (homogenisation in order to do the Relations product).
+
+        Arguments:
+            r1: first Relation
+            r2: second Relation
+
+        Returns:
+            TODO:
+        """
+        if DEBUG >= 2:
+            print("DEBUG info for compositionRelations. Inputs.", r1, r2)
+
+        eR1, eR2 = Relation.homogenisation(r1, r2, Zero, Unit)
+
+        if DEBUG >= 2:
+            print("DEBUG info for compositionRelations. homogenises.", eR1, eR2)
+
+        result = (eR1[0], Matrix.matrix_prod(eR1[1], eR2[1], Zero))
+
+        if DEBUG >= 2:
+            print("DEBUG info for compositionRelations. Outputs.", result)
+
+        return result
+
+    @staticmethod
+    def sum_relations(r1: tuple, r2: tuple) -> tuple:
+        """Sum (homogenisation in order to do the Relations sum)
+
+        Arguments:
+            r1: first pair of (variables, matrix)
+            r2: second pair of (variables, matrix)
+
+        Returns:
+            TODO:
+        """
+        er1, er2 = Relation.homogenisation(r1, r2, Zero, Unit)
+        return er1[0], Matrix.matrix_sum(er1[1], er2[1])
+
+    @staticmethod
+    def is_equal(r1: tuple, r2: tuple) -> bool:
+        """Determine if two relations are equal.
+
+        Arguments:
+            r1: first pair of (variables, matrix)
+            r2: second pair of (variables, matrix)
+
+        Returns:
+            TODO:
+        """
+        if set(r1[0]) != set(r2[0]):
+            return False
+        (eR1, eR2) = Relation.homogenisation(r1, r2, Zero, Unit)
+        for i in range(len(eR1[1])):
+            for j in range(len(eR1[1])):
+                if not eR1[1][i][j].equal(eR2[1][i][j]):
+                    return False
+        return True
+
+    @staticmethod
+    def is_empty(r: tuple) -> bool:
+        """Return true if the relation is empty"""
+        if r[0] == []:
+            return True
+        if r[1] == []:
+            return True
+        return False
+
+    @staticmethod
+    def homogenisation(r1, r2, zero, unit):
+        """Performs homogeneisation (extend Matrices if needed in order to compose).
+
+        :param r1:
+        :param r2:
+        :param zero:
+        :param unit:
+        :return:
+        """
+        var_indices = []
+        var2 = []
+        # Empty cases
+        if Relation.is_empty(r1):
+            empty = Relation(r2[0])
+            empty.identity()
+            return ((empty.variables, empty.matrix), r2)
+        if Relation.is_empty(r2):
+            empty = Relation(r1[0])
+            empty.identity()
+            return (r1, (empty.variables, empty.matrix))
+        if DEBUG >= 2:
+            print("DEBUG info for Homogeneisation. Inputs.", r1, r2)
+
+        for v in r2[0]:
+            var2.append(v)
+        for v in r1[0]:
+            found = False
+            for j in range(len(r2[0])):
+                if r2[0][j] == v:
+                    var_indices.append(j)
+                    found = True
+                    var2.remove(v)
+            if not found:
+                var_indices.append(-1)
+        for v in var2:
+            var_indices.append(r2[0].index(v))
+        var_extended = r1[0] + var2
+        M1_extended = Matrix.extend_matrix(r1[1], len(var_extended), Zero, Unit)
+        M2_extended = []
+        for i in range(len(var_extended)):
+            M2_extended.append([])
+            i_in = var_indices[i] != -1
+            for j in range(len(var_extended)):
+                if not i_in and i == j:
+                    M2_extended[i].append(unit)
+                elif i_in and var_indices[j] != -1:
+                    M2_extended[i].append(r2[1][var_indices[i]][var_indices[j]])
+                else:
+                    M2_extended[i].append(zero)
+        if DEBUG >= 2:
+            print("DEBUG info for Homogeneisation. Result.", r1, r2,
+                  (var_extended, M1_extended), (var_extended, M2_extended))
+        return ((var_extended, M1_extended), (var_extended, M2_extended))
