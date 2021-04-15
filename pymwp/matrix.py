@@ -91,7 +91,7 @@ def matrix_prod(matrix1:list, matrix2:list) ->list:
     return res
 
 
-def extend_matrix(matrix:list, range_ext: int) ->list:
+def extend(matrix:list, range_ext: int) ->list:
     """
     Add range_ext columns and lines to Mat
     (Initialized as identity : with unit on the diagonal and zero elsewhere)

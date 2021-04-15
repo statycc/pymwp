@@ -189,55 +189,57 @@ class Relation:
 
     @staticmethod
     def homogenisation(r1: Relation, r2: Relation) -> tuple:
-        """Performs homogenisation (extend Matrices if needed in order to compose).
+        """Performs homogenisation.
+
+        After this operation both relations will have same
+        variables and their matrices will be same size.
+
+        This operation will extend matrices if needed.
 
         Arguments:
-            r1: first Relation
-            r2: second Relation
+            r1: first relation to homogenise
+            r2: second relation to homogenise
 
         Returns:
-            Tuple of 2 homogenised relations.
+            a tuple of 2 Relations where these outputs are
+                homogenised versions of the 2 inputs
         """
-        zero, unit = Zero, Unit
-        var_indices, var2 = [], []
 
-        # Empty cases
+        # check equality
+        if r1.variables == r2.variables:
+            return r1, r2
+
+        # check empty cases
         if Relation.is_empty(r1):
-            empty = Relation.identity(r2.variables)
-            return Relation(empty.variables, empty.matrix), r2
-        if Relation.is_empty(r2):
-            empty = Relation.identity(r1.variables)
-            return r1, Relation(empty.variables, empty.matrix)
+            return Relation.identity(r2.variables), r2
 
-        if DEBUG >= 2:
-            print("DEBUG info for Homogeneisation. Inputs.", r1, r2)
-        for v in r2.variables:
-            var2.append(v)
-        for v in r1.variables:
-            found = False
-            for j in range(len(r2.variables)):
-                if r2.variables[j] == v:
-                    var_indices.append(j)
-                    found = True
-                    var2.remove(v)
-            if not found:
-                var_indices.append(-1)
-        for v in var2:
-            var_indices.append(r2.variables.index(v))
-        var_extended = r1.variables + var2
-        M1_extended = matrix_utils.extend_matrix(r1.matrix, len(var_extended))
-        M2_extended = []
-        for i in range(len(var_extended)):
-            M2_extended.append([])
-            i_in = var_indices[i] != -1
-            for j in range(len(var_extended)):
-                if not i_in and i == j:
-                    M2_extended[i].append(unit)
-                elif i_in and var_indices[j] != -1:
-                    M2_extended[i].append(r2.matrix[var_indices[i]][var_indices[j]])
-                else:
-                    M2_extended[i].append(zero)
-        if DEBUG >= 2:
-            print("DEBUG info for Homogeneisation. Result.", r1, r2,
-                  (var_extended, M1_extended), (var_extended, M2_extended))
-        return Relation(var_extended, M1_extended), Relation(var_extended, M2_extended)
+        if Relation.is_empty(r2):
+            return r1, Relation.identity(r1.variables)
+
+        # build a list of all distinct variables; maintain order
+        extended_vars = r1.variables + [v for v in r2.variables
+                                        if v not in r1.variables]
+
+        # resize matrices to match new number of variables
+        new_matrix_size = len(extended_vars)
+
+        # first matrix: just resize -> this one is now done
+        matrix1 = matrix_utils.extend(r1.matrix, new_matrix_size)
+
+        # second matrix: create and initialize as identity matrix
+        matrix2 = matrix_utils.identity_matrix(new_matrix_size)
+
+        # index of each new variable iff variable exists in r2
+        index_dict = {index: r2.variables.index(var)
+                      for index, var in enumerate(extended_vars)
+                      if var in r2.variables}
+
+        # generate all valid <row, column> combinations
+        index_map = [t1 + t2 for t1 in index_dict.items()
+                     for t2 in index_dict.items()]
+
+        # fill the resized matrix with values from original matrix
+        for mj, rj, mi, ri in index_map:
+            matrix2[mi][mj] = r2.matrix[ri][rj]
+
+        return Relation(extended_vars, matrix1), Relation(extended_vars, matrix2)
