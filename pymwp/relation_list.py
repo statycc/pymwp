@@ -1,6 +1,7 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+from typing import List, Optional
 
 from relation import Relation
 
@@ -10,15 +11,16 @@ class RelationList:
     TODO: What is this class? Add description
     """
 
-    def __init__(self, variables: list = None, **kwargs):
+    def __init__(self, variables: Optional[List[str]] = None, **kwargs):
         """Create relation list.
 
         Arguments:
             variables: list of variables used to initialize
                 a relation on relation list.
-            kwargs: additional arguments
-                - list: custom list of relations to use to
-                initialize relation list.
+
+            **kwargs:
+                - list (`[List[Relation]]`)
+                    : list of relations for initializing relation list.
 
         Returns:
             RelationList with initialized relation(s)
@@ -56,7 +58,7 @@ class RelationList:
         new_list = []
         for r1 in self.list:
             for r2 in other.list:
-                output = r1.composition(r2)
+                output = r1 * r2
                 if RelationList.unique(output.matrix, new_list):
                     new_list.append(output)
 
@@ -68,7 +70,7 @@ class RelationList:
         Arguments:
             other: Relation to compose with current list's relations.
         """
-        self.list = [r.composition(other) for r in self.list]
+        self.list = [r * other for r in self.list]
 
     def fixpoint(self) -> None:
         """Compute fixpoint for all relations in this relation list."""

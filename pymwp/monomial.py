@@ -92,9 +92,11 @@ class Monomial:
     def eval(self, argument_list: list) -> str:
         """Evaluate delta values against argument list.
 
-        !!! danger "Important!"
+        <!--
+            IMPORTANT:
             This is one of the most costly methods. If you change
             it, check impact on performance.
+        -->
 
         The result of eval is determined as follows:
 

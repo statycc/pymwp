@@ -1,21 +1,25 @@
 # flake8: noqa: W605
 
+from typing import Any, Optional
+
 from polynomial import Polynomial
 from monomial import Monomial
-from polynomial import Zero, Unit
+from polynomial import ZERO, UNIT
 
 
-def init_matrix(size: int, init_value: any) -> list:
+def init_matrix(size: int, init_value: Optional[Any] = ZERO) -> list:
     """Create empty {size} X {size} matrix.
 
     Arguments:
         size: matrix size
-        init_value: initial value
+        init_value: initial value. If not provided,
+            will default to zero polynomial.
 
     Returns:
         Initialized matrix.
     """
-    return [[init_value for _ in range(size)]
+    return [[init_value
+             for _ in range(size)]
             for _ in range(size)]
 
 
@@ -28,12 +32,12 @@ def identity_matrix(size: int) -> list:
     Returns:
         New identity matrix.
     """
-    return [[Unit if i == j else Zero
+    return [[UNIT if i == j else ZERO
              for j in range(size)]
             for i in range(size)]
 
 
-def encode(matrix:list) ->list:
+def encode(matrix: list) -> list:
     """TODO:
 
     Arguments:
@@ -50,7 +54,7 @@ def encode(matrix:list) ->list:
     return new_matrix
 
 
-def decode(matrix: list) ->list:
+def decode(matrix: list) -> list:
     """TODO:
 
     Arguments:
@@ -68,7 +72,7 @@ def decode(matrix: list) ->list:
     return result
 
 
-def matrix_sum(matrix1:list, matrix2:list) ->list:
+def matrix_sum(matrix1: list, matrix2: list) -> list:
     """Matrices sum matrix1 + matrix2."""
     res = []
     for i in range(len(matrix1)):
@@ -78,20 +82,20 @@ def matrix_sum(matrix1:list, matrix2:list) ->list:
     return res
 
 
-def matrix_prod(matrix1:list, matrix2:list) ->list:
+def matrix_prod(matrix1: list, matrix2: list) -> list:
     """Matrices product matrix1 • matrix2."""
     res = []
     for i in range(len(matrix1)):
         res.append([])
         for j in range(len(matrix2)):
-            new_value = Zero
+            new_value = ZERO
             for k in range(len(matrix1)):
                 new_value += (matrix1[i][k] * matrix2[k][j])
             res[i].append(new_value)
     return res
 
 
-def extend(matrix:list, range_ext: int) ->list:
+def extend(matrix: list, range_ext: int) -> list:
     """
     Add range_ext columns and lines to Mat
     (Initialized as identity : with unit on the diagonal and zero elsewhere)
@@ -112,12 +116,12 @@ def extend(matrix:list, range_ext: int) ->list:
             if i < len(matrix) and j < len(matrix):
                 res[i].append(matrix[i][j])
             else:
-                res[i].append(Unit if i == j else Zero)
+                res[i].append(UNIT if i == j else ZERO)
 
     return res
 
 
-def contains_infinite(matrix:list) -> bool:
+def contains_infinite(matrix: list) -> bool:
     """Check if matrix contains $\infty$.
 
     Arguments:
@@ -144,9 +148,9 @@ def contains_infinite(matrix:list) -> bool:
 #
 # import copy
 #
-# Zero = Polynomial([Monomial(ZERO_MWP, [])])
+# ZERO = Polynomial([Monomial(ZERO_MWP, [])])
 #
-# Unit = Polynomial([Monomial(UNIT_MWP, [])])
+# UNIT = Polynomial([Monomial(UNIT_MWP, [])])
 #
 #
 # def Prod(a, b):
@@ -160,7 +164,7 @@ def contains_infinite(matrix:list) -> bool:
 # # Matrices product M1•M2
 #
 #
-# def MatProd(M1, M2, prod=Prod, sum=Sum, zero=Zero):
+# def MatProd(M1, M2, prod=Prod, sum=Sum, zero=ZERO):
 #     res = []
 #     print("M1=")
 #     print(M1)
@@ -191,7 +195,7 @@ def contains_infinite(matrix:list) -> bool:
 # # Empty matrix_utils
 #
 #
-# def initMatrix(len, zero=Zero):
+# def initMatrix(len, zero=ZERO):
 #     res = []
 #     for i in range(len):
 #         res.append([])
@@ -204,7 +208,7 @@ def contains_infinite(matrix:list) -> bool:
 # # (Initialized as identity : with unit on the diagonal and zero elsewhere)
 #
 #
-# def extendMatrix(Mat, range_ext, zero=Zero, unit=Unit):
+# def extendMatrix(Mat, range_ext, zero=ZERO, unit=UNIT):
 #     res = []
 #     for i in range(range_ext):
 #         res.append([])
@@ -262,7 +266,7 @@ def contains_infinite(matrix:list) -> bool:
 # # Performs homogeneisation (extend Matrices if needed in order to compose)
 #
 #
-# def homogeneisation(R1, R2, zero=Zero, unit=Unit):
+# def homogeneisation(R1, R2, zero=ZERO, unit=UNIT):
 #     var_indices = []
 #     var2 = []
 #     # Empty cases
@@ -353,7 +357,7 @@ def contains_infinite(matrix:list) -> bool:
 # # Identity relation
 #
 #
-# def identityRel(var, unit=Unit, zero=Zero):
+# def identityRel(var, unit=UNIT, zero=ZERO):
 #     Id = []
 #     for i in range(len(var)):
 #         Id.append([])
@@ -365,7 +369,7 @@ def contains_infinite(matrix:list) -> bool:
 #     return (var, Id)
 #
 #
-# def algebraicRel(Rel, list, typeofdep, zero=Zero):
+# def algebraicRel(Rel, list, typeofdep, zero=ZERO):
 #     (Var, Mat) = Rel
 #     out = Var.index(list[0][0])
 #     Mat[out][out] = zero

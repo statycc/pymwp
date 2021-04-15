@@ -9,7 +9,8 @@ from semiring import ZERO_MWP, UNIT_MWP, sum_mwp
 
 class Polynomial:
     """
-    A polynomial is an ordered list of ordered monomials.
+    A polynomial is an ordered list of ordered
+    [`monomials`](monomial.md#pymwp.monomial).
 
     For polynomials, I introduce a total order on the monomials. This
     eases the computation of the sum: if we want to add a monomial to an
@@ -228,19 +229,16 @@ class Polynomial:
         function.
 
         <!--
-        TODO: make this faster (call less often)
-        TODO: figure out where arg_list comes from
-        -->
-
-        !!! danger "Important!"
-            This is one of the most costly methods in the analysis. If you change
+            IMPORTANT:
+            This is one of the most costly methods. If you change
             it, check impact on performance.
+        -->
 
         Arguments:
             argument_list: list of deltas to evaluate
 
         Returns:
-            one of: `"o", "m", "w", "p", "i"`
+            scalar value
         """
         result = ZERO_MWP
         for monomial in self.list:
@@ -414,6 +412,6 @@ class Polynomial:
         return new_list + right + left
 
 
-Zero = Polynomial([Monomial(ZERO_MWP)])
+ZERO = Polynomial([Monomial(ZERO_MWP)])
 
-Unit = Polynomial([Monomial(UNIT_MWP)])
+UNIT = Polynomial([Monomial(UNIT_MWP)])
