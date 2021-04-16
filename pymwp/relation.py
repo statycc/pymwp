@@ -30,6 +30,8 @@ class Relation:
         If matrix is not provided, the relation matrix will be initialized to
         zero matrix of size matching the number of variables.
 
+        Also see: [`Relation.identity()`](relation.md#pymwp.relation.Relation.identity)
+        for creating a relation whose matrix is an identity matrix.
 
         Example:
 
@@ -44,6 +46,7 @@ class Relation:
         #  X1  |  0  0  0
         #  X2  |  0  0  0
         ```
+
 
         Arguments:
             variables: program variables
