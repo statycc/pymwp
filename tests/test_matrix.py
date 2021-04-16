@@ -4,7 +4,7 @@ from monomial import Monomial
 from polynomial import Polynomial
 
 
-def test_init_matrix_creates_o_matrix():
+def test_init_matrix_creates_zero_matrix():
     matrix = init_matrix(2)
 
     assert matrix[0][0] == o
@@ -106,4 +106,4 @@ def test_decode():
     decoded = decode(sample)
     expected = init_matrix(2, Polynomial([Monomial('m', [(0, 1)])]))
 
-    assert decoded[0][0] == expected[0][0]
+    assert decoded == expected
