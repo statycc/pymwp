@@ -1,7 +1,7 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Tuple, List
 
 import itertools
 
@@ -20,7 +20,8 @@ class Relation:
 
     """
 
-    def __init__(self, variables: list[str], matrix: Optional[list[list]] = None):
+    def __init__(self, variables: Optional[list[str]] = None,
+                 matrix: Optional[list[list]] = None):
         """Create a relation.
 
         When constructing a relation, provide a list of variables
@@ -57,8 +58,9 @@ class Relation:
         """Create an identity relation.
 
         This method allows creating a relation whose
-        matrix is an identity matrix. This is an alternative
-        way to construct a Relation.
+        matrix is an identity matrix.
+
+        This is an alternative way to construct a relation.
 
         Example:
 
@@ -79,8 +81,7 @@ class Relation:
             variables: list of variables
 
         Returns:
-             Generated relation with given variables and
-                identity matrix.
+             Generated relation of given variables and an identity matrix.
         """
         matrix = matrix_utils.identity_matrix(len(variables))
         return Relation(variables, matrix)
@@ -103,14 +104,13 @@ class Relation:
 
     def replace_column(self, vector: list, variable: str) -> Relation:
         """Replace matrix column by a vector.
-
         Arguments:
-            vector: vector to insert into the matrix
-            variable: program variable; column replacement
+            vector: vector by which a matrix column will be replaced.
+            variable: program variable, column replacement
                 will occur at the index of this variable.
 
         Returns:
-            new relation after applying the column update.
+            new relation after applying the column replacement.
         """
         new_relation = Relation.identity(self.variables)
         j = self.variables.index(variable)
@@ -121,10 +121,7 @@ class Relation:
         return new_relation
 
     def while_correction(self) -> None:
-        """Loop correction.
-
-        See: [MWP paper](https://dl.acm.org/doi/10.1145/1555746.1555752)
-        """
+        """Loop correction (see MWP paper)."""
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
                 for mon in poly.list:
@@ -138,10 +135,10 @@ class Relation:
         relations `relation + relation`.
 
         Arguments:
-            other: Relation to sum with current
+            other: Relation to sum with self.
 
         Returns:
-           a new relation that is a sum of inputs.
+           A new relation that is a sum of inputs.
         """
         er1, er2 = Relation.homogenisation(self, other)
         new_matrix = matrix_utils.matrix_sum(er1.matrix, er2.matrix)
@@ -194,12 +191,17 @@ class Relation:
 
         for row1, row2 in zip(er1.matrix, er2.matrix):
             for poly1, poly2 in zip(row1, row2):
-                if not poly1.equal(poly2):
+                if poly1 != poly2:
                     return False
         return True
 
-    def fixpoint(self):
-        """Fixpoint: sum of compositions until no changes occur."""
+    def fixpoint(self) -> Relation:
+        """
+        Compute sum of compositions until no changes occur.
+
+        Returns:
+            resulting relation.
+        """
         fix_vars = self.variables
         matrix = matrix_utils.identity_matrix(len(fix_vars))
         fix = Relation(fix_vars, matrix)
@@ -213,47 +215,68 @@ class Relation:
             if fix.equal(prev_fix):
                 return fix
 
-    def eval(self, args) -> Relation:
-        """TODO:
+    def eval(self, choices: list[int]) -> bool:
+        """Evaluate matrix against a list of choices and
+            determine if any of them results in infinity.
+
+        This method iterates all monomials of all polynomials
+        and performs the eval on that object.
+
+        for implementations see:
+
+        - [`polynomial#eval`](polynomial.md#pymwp.polynomial.Polynomial.eval)
+        - [`monomial#eval`](monomial.md#pymwp.monomial.Monomial.eval)
 
         Arguments:
-            args: TODO:
+            choices: List of choices represents a list of indices
+            to select for each monomial.
 
         Returns:
-            TODO:
+           True if no infinity occurs and false otherwise.
         """
-        result = Relation([])
-        mat = []
-        result.variables = self.variables
-        for i, row in enumerate(self.matrix):
-            mat.append([])
-            for poly in row:
-                mat[i].append(poly.eval(args))
-        result.matrix = mat
-        return result
 
-    def is_infinite(self, choices, index):
-        """TODO:
+        for row in self.matrix:
+            for poly in row:
+                if poly.eval(choices) == 'i':
+                    return False
+        return True
+
+    def non_infinity(self, choices: list[int], index: int) -> List[list[int]]:
+        """Find all combinations of choices that do not evaluate to infinity.
+
+        This method computes the Cartesian product of input iterables and evaluates each
+        combination against the current relation.
+
+        If the evaluation determines that no infinity will occur, that
+        combination will be included in the return value.
+
+        Reference:
+        [itertools.product](https://docs.python.org/3/library/itertools.html#itertools.product)
+
+        Example:
+
+        ```
+        rel.non_infinity(choices=[0, 1], index=2)
+
+        # internally generates combinations: [[0, 0], [0, 1], [1, 0], [1, 1]]
+        # and of those returns the ones that do not evaluate to infinity.
+        ```
 
         Arguments:
-            choices:
-            index:
+            choices: integer list of choices
+            index: length of generated product
 
         Returns:
-            TODO:
+            All combinations that do not result in $\infty$.
         """
         # uses itertools.product to generate all possible assignments
-        args_list = list(itertools.product(choices, repeat=index))
-        combinations = []
-        for args in args_list:
-            list_args = list(args)
-            mat = self.eval(list_args).matrix
-            if not matrix_utils.contains_infinite(mat):
-                combinations.append(list_args)
-        return combinations
+        combinations = [list(args) for args in
+                        itertools.product(choices, repeat=index)]
+
+        return list(filter(self.eval, combinations))
 
     def to_dict(self) -> dict:
-        """Dictionary representation of Relation."""
+        """Get dictionary representation of relation."""
         return {
             "variables": self.variables,
             "matrix": matrix_utils.encode(self.matrix)
@@ -264,21 +287,20 @@ class Relation:
         print(str(self))
 
     @staticmethod
-    def homogenisation(r1: Relation, r2: Relation) -> tuple:
-        """Performs relation homogenisation.
+    def homogenisation(r1: Relation, r2: Relation) -> Tuple[Relation, Relation]:
+        """Performs homogenisation on two relations.
 
         After this operation both relations will have same
-        variables and their matrices will be same size.
+        variables and their matrices of the same size.
 
-        This operation will resize matrices if needed.
+        This operation will internally resize matrices as needed.
 
         Arguments:
             r1: first relation to homogenise
             r2: second relation to homogenise
 
         Returns:
-            a tuple of 2 relations where the outputs are
-                homogenised versions of the 2 inputs relations
+            Homogenised versions of the 2 inputs relations
         """
 
         # check equality

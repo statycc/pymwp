@@ -1,15 +1,17 @@
 # flake8: noqa: W605
 
+from typing import List
+
 ZERO_MWP: str = "o"
-"""Constant that represents 0 in the analysis."""
+"""Scalar that represents 0 in the analysis (`'o'`)."""
 
 UNIT_MWP: str = "m"
-"""Constant that represents m in the analysis."""
+"""Scalar that represents m in the analysis (`'m'`)."""
 
-KEYS: list = ["o", "m", "w", "p", "i"]
-"""Different flow values: `o, m, w, p, i` where `o` = 0 and `i` = $\infty$."""
+KEYS: List[str] = ["o", "m", "w", "p", "i"]
+"""Different scalar values: `"o", "m", "w", "p", "i"` where `o` = 0 and `i` = $\infty$."""
 
-DICT_PROD: dict = {
+__DICT_PROD: dict = {
     "o": {"o": "o", "m": "o", "w": "o", "p": "o", "i": "o"},
 
     "m": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -20,9 +22,36 @@ DICT_PROD: dict = {
 
     "i": {"o": "o", "m": "i", "w": "i", "p": "i", "i": "i"}
 }
-"""Define product over `KEYS` : o•o=o; o•m=o; o•w=o; etc…"""
 
-DICT_SUM: dict = {
+
+def prod_mwp(scalar1: str, scalar2: str) -> str:
+    """Compute product of two scalars.
+
+    | $\\times$ | $0$ | $m$      | $w$       | $p$      | $\infty$ |
+    | ---       | --- | ---      | ---       | ---      | --- |
+    | $0$       | $0$ | $0$      | $0$       | $0$      | $0$ |
+    | $m$       | $0$ | $m$      | $w$       | $p$      | $\infty$ |
+    | $w$       | $0$ | $w$      | $w$       | $p$      | $\infty$ |
+    | $p$       | $0$ | $p$      | $p$       | $p$      | $\infty$ |
+    | $\infty$  | $0$ | $\infty$ | $\infty$  | $\infty$ | $\infty$ |
+
+    Arguments:
+        scalar1: scalar value
+        scalar2: scalar value
+
+    Raises:
+          Exception: if `scalar1` or `scalar2` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
+
+    Returns:
+        product of scalar1 * scalar2
+    """
+    if scalar1 in KEYS and scalar2 in KEYS:
+        return __DICT_PROD[scalar1][scalar2]
+    else:
+        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for __DICT_PROD…")
+
+
+__DICT_SUM: dict = {
     "o": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
 
     "m": {"o": "m", "m": "m", "w": "w", "p": "p", "i": "i"},
@@ -33,43 +62,31 @@ DICT_SUM: dict = {
 
     "i": {"o": "i", "m": "i", "w": "i", "p": "i", "i": "i"}
 }
-"""Define sum over `KEYS` : o+o=o; o+m=m; o+w=w; etc…"""
 
 
-def prod_mwp(a: str, b: str) -> str:
-    """Compute product of two scalars
-
-    Arguments:
-        a: scalar value
-        b: scalar value
-
-    Raises:
-          Exception: if `a` or `b` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
-
-    Returns:
-        product of a • b or raises an error if a or b ${\\not\\in}$ Keys
-    """
-    if a in KEYS and b in KEYS:
-        return DICT_PROD[a][b]
-    else:
-        raise Exception("trying to use", a, "and", b, "as keys for DICT_PROD…")
+def sum_mwp(scalar1: str, scalar2: str) -> str:
+    """Compute sum of two scalars.
 
 
-# Return sum a+b or an error if a or b ∉ Keys
-def sum_mwp(a: str, b: str) -> str:
-    """Compute sum of two scalars
+    | $+$       | $0$      | $m$      | $w$       | $p$      | $\infty$ |
+    | ---       | ---      | ---      | ---       | ---      | --- |
+    | $0$       | $0$      | $m$      | $w$       | $p$      | $\infty$ |
+    | $m$       | $m$      | $m$      | $w$       | $p$      | $\infty$ |
+    | $w$       | $w$      | $w$      | $w$       | $p$      | $\infty$ |
+    | $p$       | $p$      | $p$      | $p$       | $p$      | $\infty$ |
+    | $\infty$  | $\infty$ | $\infty$ | $\infty$  | $\infty$ | $\infty$ |
 
     Arguments:
-        a: scalar value
-        b: scalar value
+        scalar1: scalar value
+        scalar2: scalar value
 
     Raises:
-          Exception: if `a` or `b` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
+          Exception: if `scalar1` or `scalar2` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
 
     Returns:
-        sum of a + b or raises an error if a or b ${\\not\\in}$ Keys
+        sum of scalar1 + scalar2
     """
-    if a in KEYS and b in KEYS:
-        return DICT_SUM[a][b]
+    if scalar1 in KEYS and scalar2 in KEYS:
+        return __DICT_SUM[scalar1][scalar2]
     else:
-        raise Exception("trying to use", a, "and", b, "as keys for DICT_SUM…")
+        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for __DICT_SUM…")

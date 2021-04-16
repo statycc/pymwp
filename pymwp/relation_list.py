@@ -69,9 +69,9 @@ class RelationList:
             variable: variable value; replace will occur
                 at the index of this variable.
         """
-        self.list = [rel.replace_column(value, variable)
-                     for rel in self.list
-                     for value in vector]
+
+        self.list = [rel.replace_column(vector, variable)
+                     for rel in self.list]
 
     def composition(self, other: RelationList) -> None:
         """Composition of the entire list of relations
@@ -97,7 +97,7 @@ class RelationList:
         self.list = [r * other for r in self.list]
 
     def fixpoint(self) -> None:
-        """Compute fixpoint for all relations in this relation list."""
+        """Apply fixpoint to all relations in relation list."""
         self.list = [rel.fixpoint() for rel in self.list]
 
     def show(self) -> None:

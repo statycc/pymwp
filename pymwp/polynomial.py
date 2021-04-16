@@ -36,8 +36,9 @@ class Polynomial:
         self.list = monomials or []
 
     def __str__(self):
-        values = ''.join(['+' + str(m) for m in self.list]) or ZERO_MWP
-        return ("" if not self.list else "  ") + values
+        values = ''.join(['+' + str(m) for m in self.list]) \
+                 or ('+' + ZERO_MWP)
+        return "  " + values
 
     def __eq__(self, other):
         return self.equal(other)
@@ -225,20 +226,15 @@ class Polynomial:
 
         return Polynomial(result)
 
-    def eval(self, argument_list: list) -> str:
-        """This method does map+reduce by mapping each monomial
-        against the argument list then reduces the result to a single
-        result determined by [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp)
-        function.
+    def eval(self, argument_list: list[int]) -> str:
+        """Evaluate polynomial.
 
-        <!--
-            IMPORTANT:
-            This is one of the most costly methods. If you change
-            it, check impact on performance.
-        -->
+        This method performs map() on each monomial against the argument list
+        then reduces the result to a single result determined by
+        [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp) function.
 
         Arguments:
-            argument_list: list of deltas to evaluate
+            argument_list: list of indices of deltas to evaluate
 
         Returns:
             scalar value
@@ -246,6 +242,8 @@ class Polynomial:
         result = ZERO_MWP
         for monomial in self.list:
             result = sum_mwp(result, monomial.eval(argument_list))
+            if result == 'i':
+                break
         return result
 
     def equal(self, polynomial: Polynomial) -> bool:

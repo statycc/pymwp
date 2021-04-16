@@ -91,14 +91,8 @@ class Monomial:
 
         return mono_product
 
-    def eval(self, argument_list: list) -> str:
+    def eval(self, argument_list: list[int]) -> str:
         """Evaluate delta values against argument list.
-
-        <!--
-            IMPORTANT:
-            This is one of the most costly methods. If you change
-            it, check impact on performance.
-        -->
 
         The result of eval is determined as follows:
 
@@ -117,10 +111,13 @@ class Monomial:
         Arguments:
             argument_list: list of deltas to evaluate
 
-        Returns:
-            - scalar of the monomial if the evaluation matches
-            - otherwise: 0
+        Raises:
+            IndexError: if argument list length is less than
+                max index in the list of deltas.
 
+        Returns:
+            Scalar of the monomial if the evaluation matches and
+            otherwise 0.
         """
         for (i, j) in self.deltas:
             if argument_list[j] != i:

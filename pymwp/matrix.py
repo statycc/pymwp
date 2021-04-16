@@ -121,23 +121,6 @@ def extend(matrix: list, range_ext: int) -> list:
     return res
 
 
-def contains_infinite(matrix: list) -> bool:
-    """Check if matrix contains $\infty$.
-
-    Arguments:
-        matrix: matrix to check
-
-    Returns:
-        True if matrix contains $\infty$,
-        False otherwise.
-    """
-
-    # return any('i' in row for row in matrix)
-    for row in matrix:
-        if "i" in row:
-            return True
-    return False
-
 # import itertools
 # from semiring import ZERO_MWP, UNIT_MWP
 # from monomial import Monomial

@@ -211,7 +211,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
                 index, list_vect = create_vector(index, dblist, "undef")
             ####
             print("list_vect=", list_vect)
-            rest.replace_column(list_vect, dblist[0][0])
+            rest.replace_column(list_vect[0], dblist[0][0])
             if DEBUG_LEVEL >= 2:
                 print("DEBUG: Computing Relation (first case)")
                 node.show()
@@ -342,7 +342,7 @@ def retrieve_relation(name):
 
 def output_json(name, rels, index):
     rel = rels.list[0]
-    combinations = rel.is_infinite([0, 1, 2], index)
+    combinations = rel.non_infinity([0, 1, 2], index)
     info = {"relation": rel.to_dict(), "combinations": combinations}
     dir_path, file_name = os.path.split(name)
     if not os.path.exists(dir_path):
