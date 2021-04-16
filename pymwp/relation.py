@@ -10,22 +10,39 @@ import matrix as matrix_utils
 
 class Relation:
     """
-    A relation is made of a list of program variables and a 2D-matrix.
+    A relation is made of a list of variables and a 2D-matrix:
 
-    Variables of a relation represent the variables of the input
+    - Variables of a relation represent the variables of the input
     program under analysis, for example: $X_0, X_1, X_2$.
 
-    Matrix holds [`polynomial`](polynomial.md#pymwp.polynomial) objects,
+    - Matrix holds [`polynomial`](polynomial.md#pymwp.polynomial) objects
     and represents the current state of the analysis.
+
     """
 
     def __init__(self, variables: list[str], matrix: Optional[list[list]] = None):
         """Create a relation.
 
         When constructing a relation, provide a list of variables
-        and an initial matrix. If matrix is not provided, the
-        relation will be initialized to a zero matrix of size
-        matching the number of variables.
+        and an initial matrix.
+
+        If matrix is not provided, the relation matrix will be initialized to
+        zero matrix of size matching the number of variables.
+
+
+        Example:
+
+        Create a new relation from a list of variables:
+
+        ```python
+        r = Relation(['X0', 'X1', 'X2'])
+
+        # Creates relation with 0-matrix with and specified variables:
+        #
+        #  X0  |  0  0  0
+        #  X1  |  0  0  0
+        #  X2  |  0  0  0
+        ```
 
         Arguments:
             variables: program variables
@@ -43,7 +60,22 @@ class Relation:
         matrix is an identity matrix. This is an alternative
         way to construct a Relation.
 
-        Arguments
+        Example:
+
+        Create a new identity relation from a list of variables:
+
+        ```python
+        r = Relation.identity(['X0', 'X1', 'X2', 'X3'])
+
+        # Creates relation with 0-matrix with and specified variables:
+        #
+        #  X0  |  m  0  0  0
+        #  X1  |  0  m  0  0
+        #  X2  |  0  0  m  0
+        #  X3  |  0  0  0  m
+        ```
+
+        Arguments:
             variables: list of variables
 
         Returns:
@@ -102,12 +134,14 @@ class Relation:
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
 
+        Calling this method is equivalent to addition of
+        relations `relation + relation`.
+
         Arguments:
             other: Relation to sum with current
 
         Returns:
-           new relation that is a sum of current
-            and the argument.
+           a new relation that is a sum of inputs.
         """
         er1, er2 = Relation.homogenisation(self, other)
         new_matrix = matrix_utils.matrix_sum(er1.matrix, er2.matrix)
@@ -116,19 +150,20 @@ class Relation:
     def composition(self, other: Relation) -> Relation:
         """Composition of current and another relation.
 
-        This is equivalent to performing operation
-        relation * relation.
+        Calling this method is equivalent to multiplication of
+        relations `relation * relation`.
 
-        Composition will combine the variables of two
-        relations and have a matrix that is the product
-        of their matrices of the two input relations.
+        Composition will:
+
+        1. combine the variables of two relations, and
+        2. produce a single matrix that is the product of matrices of
+            the two input relations.
 
         Arguments:
             other: Relation to compose with current
 
         Returns:
-           new relation that is a product of current
-            and the argument.
+           a new relation that is a product of inputs.
         """
         er1, er2 = Relation.homogenisation(self, other)
         new_matrix = matrix_utils.matrix_prod(er1.matrix, er2.matrix)
@@ -142,7 +177,7 @@ class Relation:
         1. the same variables (independent of order), and
         2. matrix polynomials must be equal element-wise.
 
-        See [`polynomial#equal`](polynomial.md#pymwp.polynomial.equal)
+        See [`polynomial#equal`](polynomial.md#pymwp.polynomial.Polynomial.equal)
         for details on how to determine equality of two polynomials.
 
         Arguments:

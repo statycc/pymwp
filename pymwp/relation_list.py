@@ -8,24 +8,47 @@ from relation import Relation
 
 class RelationList:
     """
-    TODO: What is this class? Add description
+    Relation list holds a list of [`relations`](relation.md#pymwp.relation)
+    and provides methods for performing operations on those relations.
     """
 
-    def __init__(self, variables: Optional[List[str]] = None, **kwargs):
+    def __init__(self, variables: Optional[List[str]] = None,
+                 relation_list: Optional[List[Relation]] = None):
         """Create relation list.
+
+        When constructing a relation list, you can provide a list of relations
+        by specifying a relation_list argument value is a list of relations.
+
+        If no initial list is provided, the constructor will construct a list
+        with 1 relation, using the provided variables.
+
 
         Arguments:
             variables: list of variables used to initialize
                 a relation on relation list.
-
-            **kwargs:
-                - list (`[List[Relation]]`)
-                    : list of relations for initializing relation list.
+            relation_list: list of relations for initializing
+                relation list
 
         Returns:
             RelationList with initialized relation(s)
         """
-        self.list = kwargs.get('list', [Relation(variables)])
+        self.list = relation_list or [Relation(variables)]
+
+    @staticmethod
+    def identity(variables: list) -> RelationList:
+        """Create relation list that contains 1
+        [`identity relation`](relation.md#pymwp.relation.identity).
+
+        This is an alternative way to construct a relation list.
+
+        Arguments:
+            variables: list of variables
+
+        Returns:
+            RelationList that contains identity relation generated
+            using the provided variables.
+        """
+        return RelationList(relation_list=[Relation.identity(variables)])
 
     def __str__(self) -> str:
         return "--- Affiche {0} ---\n{1}\n--- FIN ---" \
@@ -34,8 +57,9 @@ class RelationList:
                                for i, r in enumerate(self.list)]))
 
     def __add__(self, other):
-        return RelationList(
-            list=[r1 + r2 for r1 in self.list for r2 in other.list])
+        return RelationList(relation_list=[
+            r1 + r2 for r1 in self.list
+            for r2 in other.list])
 
     def replace_column(self, vector: list, variable: str) -> None:
         """Replace column with a provided vector.
@@ -86,19 +110,7 @@ class RelationList:
             rel.while_correction()
 
     @staticmethod
-    def identity(variables: list) -> RelationList:
-        """Create RelationList whose contents is 1 identity Relation.
-
-        Arguments:
-            variables: list of variables
-
-        Returns:
-            RelationList that contains identity Relation.
-        """
-        return RelationList(list=[Relation.identity(variables)])
-
-    @staticmethod
-    def unique(matrix: list, matrix_list: list) -> bool:
+    def unique(matrix: List[list], matrix_list: List[List[list]]) -> bool:
         """Determine if matrix list contains matrix.
 
         Arguments:

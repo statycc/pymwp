@@ -40,8 +40,11 @@ def prod_mwp(a: str, b: str) -> str:
     """Compute product of two scalars
 
     Arguments:
-        a: scalar
-        b: scalar
+        a: scalar value
+        b: scalar value
+
+    Raises:
+          Exception: if `a` or `b` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
 
     Returns:
         product of a • b or raises an error if a or b ${\\not\\in}$ Keys
@@ -57,8 +60,11 @@ def sum_mwp(a: str, b: str) -> str:
     """Compute sum of two scalars
 
     Arguments:
-        a: scalar
-        b: scalar
+        a: scalar value
+        b: scalar value
+
+    Raises:
+          Exception: if `a` or `b` is not in [`KEYS`](semiring.md#pymwp.semiring.KEYS)
 
     Returns:
         sum of a + b or raises an error if a or b ${\\not\\in}$ Keys

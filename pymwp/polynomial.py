@@ -39,6 +39,9 @@ class Polynomial:
         values = ''.join(['+' + str(m) for m in self.list]) or ZERO_MWP
         return ("" if not self.list else "  ") + values
 
+    def __eq__(self, other):
+        return self.equal(other)
+
     def __add__(self, other):
         return self.add(other)
 
@@ -250,21 +253,17 @@ class Polynomial:
 
         This method will compare current polynomial (self) to
         another polynomial provided as argument. Result of
-        True means the two polynomial have an equal number of
-        monomials, and each monomial has element-wise equal
-        list of deltas. Otherwise the result is False.
+        true means both polynomial have an equal number of
+        monomials, and element-wise each monomial same
+        list of deltas. Otherwise the result is false.
 
-        Note that this behavior is not the same as ==
-        which does equality by reference. Calling p.equal(q)
-        will return True for distinct objects as long as
-        their data is equal as described above.
+        This method is alias of `==` operator.
 
         Arguments:
-            polynomial: polynomial to compare
+            polynomial: polynomial to compare.
 
         Returns:
-            True if polynomials are equal
-            False otherwise
+            True if polynomials are equal and false otherwise.
         """
         p1, p2 = self.list, polynomial.list
 
@@ -413,5 +412,7 @@ class Polynomial:
 
 
 ZERO = Polynomial([Monomial(ZERO_MWP)])
+"""zero-polynomial"""
 
 UNIT = Polynomial([Monomial(UNIT_MWP)])
+"""unit-polynomial"""

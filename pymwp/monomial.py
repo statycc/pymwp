@@ -1,6 +1,8 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+from typing import Optional, List
+
 from semiring import ZERO_MWP, UNIT_MWP, prod_mwp
 
 
@@ -23,7 +25,7 @@ class Monomial:
     and no two deltas can have the same index.
     """
 
-    def __init__(self, scalar: str = UNIT_MWP, deltas: list = []):
+    def __init__(self, scalar: str = UNIT_MWP, deltas: Optional[list] = []):
         """Create a monomial.
 
         Arguments:
@@ -117,7 +119,7 @@ class Monomial:
 
         Returns:
             - scalar of the monomial if the evaluation matches
-            - otherwise: 0 (represented as `'o'`)
+            - otherwise: 0
 
         """
         for (i, j) in self.deltas:
@@ -134,19 +136,20 @@ class Monomial:
         print(str(self))
 
     @staticmethod
-    def insert_deltas(monomial: Monomial, deltas_to_insert: list) -> None:
-        """Given a monomial with a sorted list of deltas,
-        insert new deltas into the list.
+    def insert_deltas(monomial: Monomial, deltas: List[tuple]) -> None:
+        """Insert new deltas into monomial list of deltas.
 
         Arguments:
+
             monomial: the monomial into whose list of
                 deltas values will be inserted
-            deltas_to_insert: list of deltas to insert
+
+            deltas: list of deltas to insert into monomial
         """
 
         # Deltas are inserted one after the other so that
         # the resulting list is ordered
-        for delta in deltas_to_insert:
+        for delta in deltas:
             monomial.deltas = Monomial.insert_delta(monomial.deltas, delta)
 
             # change the scalar to 0 because we have a null
@@ -157,7 +160,7 @@ class Monomial:
                 break
 
     @staticmethod
-    def insert_delta(sorted_deltas: list, delta: tuple) -> list:
+    def insert_delta(sorted_deltas: List[tuple], delta: tuple) -> List[tuple]:
         """
         Takes as input a _sorted_ list of deltas and a delta.
 
@@ -176,7 +179,7 @@ class Monomial:
             delta: the delta value to be inserted
 
         Returns:
-            updated list of deltas
+            updated list of deltas.
         """
 
         # insert position index

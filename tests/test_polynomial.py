@@ -9,7 +9,7 @@ def test_polynomial_copy():
     # their data is identical
     assert poly_copy.equal(p)
     # different reference
-    assert poly_copy != p
+    assert poly_copy is not p
 
 
 def test_polynomial_times_empty():
