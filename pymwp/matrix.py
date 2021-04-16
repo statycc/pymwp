@@ -7,9 +7,9 @@ from polynomial import Polynomial
 from monomial import Monomial
 from semiring import ZERO_MWP, UNIT_MWP
 
-_ZERO = Polynomial([Monomial(ZERO_MWP)])
+ZERO = Polynomial([Monomial(ZERO_MWP)])
 
-_UNIT = Polynomial([Monomial(UNIT_MWP)])
+UNIT = Polynomial([Monomial(UNIT_MWP)])
 
 
 def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
@@ -37,7 +37,7 @@ def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
     Returns:
         Initialized matrix.
     """
-    value = init_value if init_value is not None else _ZERO
+    value = init_value if init_value is not None else ZERO
     return [[value for _ in range(size)] for _ in range(size)]
 
 
@@ -64,7 +64,7 @@ def identity_matrix(size: int) -> List[list]:
     Returns:
         New identity matrix.
     """
-    return [[_UNIT if i == j else _ZERO
+    return [[UNIT if i == j else ZERO
              for j in range(size)] for i in range(size)]
 
 
@@ -101,10 +101,11 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
     Returns:
         Decoded matrix of polynomials.
     """
+    print(matrix)
     return [[
-        Polynomial(monomials=[Monomial(
+        Polynomial([Monomial(
             scalar=monomial["scalar"],
-            deltas=["deltas"])
+            deltas=monomial["deltas"])
             for monomial in polynomial])
         for polynomial in row]
         for (i, row) in enumerate(matrix)]
@@ -141,8 +142,8 @@ def matrix_prod(matrix1: List[List[Polynomial]],
     return [[
 
         reduce(lambda total, k:
-               total + matrix1[i][k] * matrix2[k][j],
-               range(len(matrix1)), _ZERO)
+               total + (matrix1[i][k] * matrix2[k][j]),
+               range(len(matrix1)), ZERO)
 
         for j in range(len(matrix2))]
         for i in range(len(matrix1))]

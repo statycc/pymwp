@@ -53,7 +53,7 @@ class Polynomial:
         Arguments:
             monomials: list of monomials
         """
-        self.list = monomials or []
+        self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
         values = ''.join(['+' + str(m) for m in self.list]) \
@@ -187,7 +187,7 @@ class Polynomial:
         # filter out empty polynomials
         table = [p for p in products if p]
 
-        # if table is empty, return default polynomial
+        # if table is empty, return zero polynomial
         if not table:
             return Polynomial()
 
