@@ -1,7 +1,7 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from semiring import ZERO_MWP, UNIT_MWP, prod_mwp
 
@@ -10,8 +10,8 @@ class Monomial:
     """
     A monomial is a pair made of:
 
-    1. scalar - a value in the semi-ring
-    2. a sorted list of deltas, where an index occurs at most once.
+    1. `scalar` - a value in the semi-ring
+    2. a sorted list of `deltas`, where an index occurs at most once.
 
     Deltas are coded as pairs $(i,j)$ with:
 
@@ -25,8 +25,29 @@ class Monomial:
     and no two deltas can have the same index.
     """
 
-    def __init__(self, scalar: str = UNIT_MWP, deltas: Optional[list] = []):
+    def __init__(self, scalar: str = UNIT_MWP, deltas: Optional[List[Tuple[int, int]]] = None):
         """Create a monomial.
+
+        Example:
+
+
+        Create a monomial
+
+        ```python
+        mono = Monomial()
+        ```
+
+        Create monomial with scalar $m$ explicitly.
+
+        ```python
+        mono = Monomial('m')
+        ```
+
+        Create monomial with scalar $w$ and two deltas
+
+        ```python
+        mono = Monomial('w', [(0, 0), (1, 1)]
+        ```
 
         Arguments:
             scalar: monomial scalar
@@ -36,7 +57,8 @@ class Monomial:
         self.deltas = []
         self.scalar = scalar
 
-        Monomial.insert_deltas(self, deltas)
+        if deltas:
+            Monomial.insert_deltas(self, deltas)
 
         # monomial.list is alias for monomial.deltas; earlier
         # versions of code used attribute name list but "list"
@@ -100,7 +122,7 @@ class Monomial:
         the deltas, then the value is returned. Otherwise 0 is
         returned.
 
-        When matching we compare delta _value at index j_ to the
+        When matching we compare delta value $i$ at index $j$ to the
         $j^{th}$ value in the argument list.
 
         It can accommodate list of values that are of length
@@ -125,12 +147,19 @@ class Monomial:
         return self.scalar
 
     def copy(self) -> Monomial:
-        """Make a deep copy."""
+        """Make a deep copy of a monomial."""
         return Monomial(self.scalar, self.deltas[:])
 
     def show(self) -> None:
         """Display scalar and the list of deltas."""
         print(str(self))
+
+    def to_dict(self) -> dict:
+        """Get dictionary representation of a monomial."""
+        return {
+            "scalar": self.scalar,
+            "deltas": self.deltas
+        }
 
     @staticmethod
     def insert_deltas(monomial: Monomial, deltas: List[tuple]) -> None:

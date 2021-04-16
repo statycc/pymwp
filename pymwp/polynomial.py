@@ -1,16 +1,16 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+from typing import Optional, List
 
 from constants import Comparison
 from monomial import Monomial
-from semiring import ZERO_MWP, UNIT_MWP, sum_mwp
+from semiring import ZERO_MWP, sum_mwp
 
 
 class Polynomial:
     """
-    A polynomial is an ordered list of ordered
-    [`monomials`](monomial.md#pymwp.monomial).
+    A polynomial is an ordered list of ordered [`Monomials`](monomial.md).
 
     For polynomials, I introduce a total order on the monomials. This
     eases the computation of the sum: if we want to add a monomial to an
@@ -19,7 +19,7 @@ class Polynomial:
     (and then we sum the scalars) or an element which is larger (and
     then we insert the new monomial there).
 
-    For this, I use the following ordering. I consider that $delta(i,j)$
+    Polynomials use the following ordering: $delta(i,j)$
     is smaller than $delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
 
     This is extended to products (which we consider ordered!) by
@@ -27,8 +27,28 @@ class Polynomial:
     iff $\delta(i_1,j_1) < \delta(m_1,n_1)$.
     """
 
-    def __init__(self, monomials: list = None):
+    def __init__(self, monomials: Optional[List[Monomial]] = None):
         """Create a polynomial.
+
+        Example:
+
+        Create polynomial with no monomials
+
+        ```python
+        zero = Polynomial()
+        ```
+
+        Create polynomial with one default monomial
+
+        ```python
+        poly = Polynomial([Monomial()])
+        ```
+
+        Create polynomial with two monomials
+
+        ```python
+        poly = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
+        ```
 
         Arguments:
             monomials: list of monomials
@@ -407,10 +427,3 @@ class Polynomial:
         # doesn't matter; just append whatever
         # remains of left or right tail
         return new_list + right + left
-
-
-ZERO = Polynomial([Monomial(ZERO_MWP)])
-"""zero-polynomial"""
-
-UNIT = Polynomial([Monomial(UNIT_MWP)])
-"""unit-polynomial"""

@@ -15,13 +15,13 @@ class Relation:
     - Variables of a relation represent the variables of the input
     program under analysis, for example: $X_0, X_1, X_2$.
 
-    - Matrix holds [`polynomial`](polynomial.md#pymwp.polynomial) objects
+    - Matrix holds [`Polynomials`](polynomial.md#pymwp.polynomial)
     and represents the current state of the analysis.
 
     """
 
-    def __init__(self, variables: Optional[list[str]] = None,
-                 matrix: Optional[list[list]] = None):
+    def __init__(self, variables: Optional[List[str]] = None,
+                 matrix: Optional[List[List]] = None):
         """Create a relation.
 
         When constructing a relation, provide a list of variables
@@ -47,17 +47,16 @@ class Relation:
         #  X2  |  0  0  0
         ```
 
-
         Arguments:
             variables: program variables
             matrix: relation matrix
         """
-        self.variables = variables or []
+        self.variables = (variables or [])[:]
         self.matrix = matrix or matrix_utils \
             .init_matrix(len(self.variables))
 
     @staticmethod
-    def identity(variables: list) -> Relation:
+    def identity(variables: List) -> Relation:
         """Create an identity relation.
 
         This method allows creating a relation whose
@@ -105,7 +104,7 @@ class Relation:
     def __mul__(self, other):
         return self.composition(other)
 
-    def replace_column(self, vector: list, variable: str) -> Relation:
+    def replace_column(self, vector: List, variable: str) -> Relation:
         """Replace matrix column by a vector.
         Arguments:
             vector: vector by which a matrix column will be replaced.
@@ -134,8 +133,7 @@ class Relation:
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
 
-        Calling this method is equivalent to addition of
-        relations `relation + relation`.
+        Calling this method is equivalent to syntax `relation + relation`.
 
         Arguments:
             other: Relation to sum with self.
@@ -150,8 +148,7 @@ class Relation:
     def composition(self, other: Relation) -> Relation:
         """Composition of current and another relation.
 
-        Calling this method is equivalent to multiplication of
-        relations `relation * relation`.
+        Calling this method is equivalent to syntax `relation * relation`.
 
         Composition will:
 
@@ -218,7 +215,7 @@ class Relation:
             if fix.equal(prev_fix):
                 return fix
 
-    def eval(self, choices: list[int]) -> bool:
+    def eval(self, choices: List[int]) -> bool:
         """Evaluate matrix against a list of choices and
             determine if any of them results in infinity.
 
@@ -244,7 +241,7 @@ class Relation:
                     return False
         return True
 
-    def non_infinity(self, choices: list[int], index: int) -> List[list[int]]:
+    def non_infinity(self, choices: List[int], index: int) -> List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
         This method computes the Cartesian product of input iterables and evaluates each
@@ -279,7 +276,7 @@ class Relation:
         return list(filter(self.eval, combinations))
 
     def to_dict(self) -> dict:
-        """Get dictionary representation of relation."""
+        """Get dictionary representation of a relation."""
         return {
             "variables": self.variables,
             "matrix": matrix_utils.encode(self.matrix)
@@ -325,17 +322,19 @@ class Relation:
         new_matrix_size = len(extended_vars)
 
         # first matrix: just resize -> this one is now done
-        matrix1 = matrix_utils.extend(r1.matrix, new_matrix_size)
+        matrix1 = matrix_utils.resize(r1.matrix, new_matrix_size)
 
         # second matrix: create and initialize as identity matrix
         matrix2 = matrix_utils.identity_matrix(new_matrix_size)
 
-        # index of each new variable iff variable exists in r2
+        # index of each extended_vars iff variable exists in r2.
+        # we will use this to mapping from old -> new matrix to fill
+        # the new matrix; the indices may be in different order.
         index_dict = {index: r2.variables.index(var)
                       for index, var in enumerate(extended_vars)
                       if var in r2.variables}
 
-        # generate all valid <row, column> combinations
+        # generate a list of all valid <row, column> combinations
         index_map = [t1 + t2 for t1 in index_dict.items()
                      for t2 in index_dict.items()]
 

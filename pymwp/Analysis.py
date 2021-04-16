@@ -341,7 +341,7 @@ def retrieve_relation(name):
 
 
 def output_json(name, rels, index):
-    rel = rels.list[0]
+    rel = rels.relations[0]
     combinations = rel.non_infinity([0, 1, 2], index)
     info = {"relation": rel.to_dict(), "combinations": combinations}
     dir_path, file_name = os.path.split(name)
