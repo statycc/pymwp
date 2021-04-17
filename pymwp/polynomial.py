@@ -254,7 +254,7 @@ class Polynomial:
 
         This method will compare current polynomial (self) to
         another polynomial provided as argument. Result of
-        true means both polynomial have an equal number of
+        true means both polynomials have an equal number of
         monomials, and element-wise each monomial has the same
         list of deltas. Otherwise the result is false.
 
