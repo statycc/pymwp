@@ -1,9 +1,7 @@
-name: Build
+name: Docs
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 jobs:
@@ -21,10 +19,6 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-    - name: Lint source
+    - name: Update pages
       run: |
-        flake8 ./pymwp --count --show-source --statistics
-
-    - name: Run unit tests
-      run: |
-        pytest --cov=./pymwp tests
+        mkdocs gh-deploy --force

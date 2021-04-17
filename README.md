@@ -1,5 +1,7 @@
 # pymwp: MWP analysis in Python
 
+[![build](https://github.com/seiller/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/seiller/pymwp/actions/workflows/build.yaml)
+
 Implementation of MWP analysis on C code in Python.
 
 
