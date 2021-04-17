@@ -180,8 +180,8 @@ class Polynomial:
         """
 
         # 1: compute table of products
-        # here we compute P1 x P2 for each monomial,
-        # excluding all monomials that have scalar value 0
+        # here we compute P1 x P2 for each polynomial, excluding from the
+        # result all monomials that have scalar value 0
         products = [[mono for mono in (m1 * m2 for m1 in self.list)
                      if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
         # filter out empty polynomials
