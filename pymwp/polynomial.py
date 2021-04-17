@@ -19,12 +19,12 @@ class Polynomial:
     (and then we sum the scalars) or an element which is larger (and
     then we insert the new monomial there).
 
-    Polynomials use the following ordering: $delta(i,j)$
-    is smaller than $delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
+    Polynomials use the following ordering: $\\delta(i,j)$
+    is smaller than $\\delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
 
     This is extended to products (which we consider ordered!) by
-    letting $\prod_k\delta(i_k,j_k) < \prod_l\delta(m_l,n_l)$
-    iff $\delta(i_1,j_1) < \delta(m_1,n_1)$.
+    letting $\\prod_k\\delta(i_k,j_k) < \\prod_l\\delta(m_l,n_l)$
+    iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
     """
 
     def __init__(self, monomials: Optional[List[Monomial]] = None):
@@ -272,7 +272,8 @@ class Polynomial:
         # same values and are equal in length; avoid calling
         # compare because it is more expensive method call; we
         # can do faster equality comparison on deltas this way
-        same = [(m1.deltas == m2.deltas) for m1, m2 in zip(p1, p2)]
+        same = [m1.scalar == m2.scalar and m1.deltas == m2.deltas
+                for m1, m2 in zip(p1, p2)]
 
         # if False is in list it means some comparison of
         # deltas was determined not to be equal; do length

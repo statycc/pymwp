@@ -30,8 +30,9 @@ class Relation:
         If matrix is not provided, the relation matrix will be initialized to
         zero matrix of size matching the number of variables.
 
-        Also see: [`Relation.identity()`](relation.md#pymwp.relation.Relation.identity)
-        for creating a relation whose matrix is an identity matrix.
+        Also see: [`Relation.identity()`](relation.md#pymwp.relation
+        .Relation.identity) for creating a relation whose matrix is an
+        identity matrix.
 
         Example:
 
@@ -71,7 +72,7 @@ class Relation:
         ```python
         r = Relation.identity(['X0', 'X1', 'X2', 'X3'])
 
-        # Creates relation with 0-matrix with and specified variables:
+        # Creates relation with identity matrix with and specified variables:
         #
         #  X0  |  m  0  0  0
         #  X1  |  0  m  0  0
@@ -105,7 +106,8 @@ class Relation:
         return self.composition(other)
 
     def replace_column(self, vector: List, variable: str) -> Relation:
-        """Replace matrix column by a vector.
+        """Replace identity matrix column by a vector.
+
         Arguments:
             vector: vector by which a matrix column will be replaced.
             variable: program variable, column replacement
