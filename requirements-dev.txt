@@ -1,0 +1,8 @@
+-r requirements.txt
+
+flake8
+pytest
+pytest-cov
+mkdocs
+mkdocs-material
+mkdocstrings

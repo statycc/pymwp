@@ -31,9 +31,9 @@ test: dev-env test-only
 lint: dev-env lint-only
 
 dev-env:
-	python3 -m venv venv;
+	test -d venv || python3 -m venv venv;
 	source venv/bin/activate;
-	pip3 install -q -r requirements.txt
+	pip3 install -q -r requirements-dev.txt
 
 test-only:
 	@echo "\nrunning unit tests...\n"

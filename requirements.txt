@@ -1,4 +1,1 @@
 pycparser==2.20
-flake8
-pytest
-pytest-cov
