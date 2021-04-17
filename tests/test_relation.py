@@ -42,8 +42,8 @@ def test_empty_relation_is_empty():
 
 
 def test_empty_relation_not_empty():
-    empty = Relation(['X1', 'X2'])
-    assert empty.is_empty is False
+    not_empty = Relation(['X1', 'X2'])
+    assert not_empty.is_empty is False
 
 
 def test_replace_column():
