@@ -3,11 +3,8 @@ import sys
 import json
 import os
 from pycparser import parse_file, c_parser, c_ast
-from matrix import decode
-from relation import Relation
-from relation_list import RelationList
-from monomial import Monomial
-from polynomial import Polynomial
+from pymwp.matrix import decode
+from pymwp import Relation, RelationList, Monomial, Polynomial
 
 # -*- coding: UTF-8 -*-
 #

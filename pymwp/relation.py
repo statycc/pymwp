@@ -5,7 +5,7 @@ from typing import Optional, Tuple, List
 
 import itertools
 
-import matrix as matrix_utils
+from . import matrix as matrix_utils
 
 
 class Relation:

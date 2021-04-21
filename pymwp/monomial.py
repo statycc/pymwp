@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import Optional, List, Tuple
 
-from semiring import ZERO_MWP, UNIT_MWP, prod_mwp
+from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp
 
 
 class Monomial:

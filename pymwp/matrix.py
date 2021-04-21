@@ -3,9 +3,9 @@
 from typing import Any, Optional, List
 from functools import reduce
 
-from polynomial import Polynomial
-from monomial import Monomial
-from semiring import ZERO_MWP, UNIT_MWP
+from .polynomial import Polynomial
+from .monomial import Monomial
+from .semiring import ZERO_MWP, UNIT_MWP
 
 ZERO = Polynomial([Monomial(ZERO_MWP)])
 

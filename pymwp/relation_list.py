@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from relation import Relation
+from .relation import Relation
 
 
 class RelationList:

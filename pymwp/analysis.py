@@ -6,9 +6,11 @@ import json
 from typing import Optional, List, Tuple
 from pycparser import parse_file, c_ast
 
-from pymwp.Matrix import RelationList, Relation
-from pymwp.polynomial import Polynomial
-from pymwp.monomial import Monomial
+from .relation_list import RelationList
+from .relation import Relation
+from .polynomial import Polynomial
+from .monomial import Monomial
+from .matrix import decode
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +90,7 @@ class WhileVisitor(c_ast.NodeVisitor):
 class Analysis:
     """MWP analysis implementation."""
 
-    def __init__(self, in_file: str, out_path: Optional[str]):
+    def __init__(self, in_file: str, out_path: Optional[str] = None):
         """Run MWP analysis on specified file.
 
         Arguments:
@@ -101,19 +103,17 @@ class Analysis:
         ast = Analysis.parse_c_file(in_file)
         function_body = ast.ext[0].body
 
-        index, relations = 0, RelationList([])
-        total = len(function_body.block_items)
+        index, relations = 0, RelationList()
 
-        for i, stmt in enumerate(function_body.block_items):
+        for stmt in function_body.block_items:
             logger.debug(f'computing relation...')
             index, rel_list = self.compute_relation(index, stmt)
             logger.debug(f'computing composition...')
             relations.composition(rel_list)
-            logger.debug(f'done... {i}/{total}')
 
-        relation = relations.list[0]
+        relation = relations.relations[0]
         logger.debug('computing combinations...')
-        combinations = relation.isInfinite([0, 1, 2], index)
+        combinations = relation.non_infinity([0, 1, 2], index)
         logger.debug('saving result...')
         Analysis.save_relation(out_file, relation, combinations)
 
@@ -128,7 +128,7 @@ class Analysis:
     def default_out_file(in_file: str):
         file_only = os.path.splitext(in_file)[0]
         without_extension = os.path.basename(file_only)
-        return os.path.join("./output/{0}.json".format(without_extension))
+        return os.path.join("../output/{0}.json".format(without_extension))
 
     @staticmethod
     def parse_c_file(file, use_cpp: bool = True, cpp_path: str = "gcc", cpp_args: str = "-E"):
@@ -153,70 +153,6 @@ class Analysis:
         logger.debug("C file parsed successfully using args %s %s", cpp_path, cpp_args)
         return ast
 
-    @staticmethod
-    def create_vector(index, dblist: List[list], type: str) -> Tuple[int, List[List[Polynomial]]]:
-        """Assign value flow regarding to operator type.
-
-        Arguments
-            index: delta index
-            dblist: TODO
-            type: one of "u","+","*","undef"
-
-        Returns:
-              updated index, list of polynomials
-        """
-        list_vector: List[List[Polynomial]] = []
-        if type == "u":
-            poly = Polynomial([
-                Monomial("m", [(0, index)]),
-                Monomial("m", [(1, index)]),
-                Monomial("m", [(2, index)]),
-            ])
-            list_vector.append([poly])
-        if type == "*" and dblist[1][0] == dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vector.append([poly])
-        if type == "+" and dblist[1][0] == dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("p", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vector.append([poly])
-        if type == "*" and dblist[1][0] != dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            poly2 = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vector.append([poly, poly2])
-        if type == "+" and dblist[1][0] != dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("m", [(1, index)]),
-                Monomial("p", [(2, index)]),
-            ])
-            poly2 = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("p", [(1, index)]),
-                Monomial("m", [(2, index)]),
-            ])
-            list_vector.append([poly, poly2])
-        if dblist[0][0] not in dblist[1]:
-            for v in list_vector:
-                v.insert(0, Polynomial([Monomial("o", [])]))
-        index = index + 1
-        return index, list_vector
-
     def compute_relation(self, index: int, node) -> Tuple[int, RelationList]:
         """
         Return a RelationList corresponding for all possible matrices for `node`
@@ -230,6 +166,8 @@ class Analysis:
         """
         # TODO miss unary and constantes operation
         # logger.debug("In compute_rel")
+
+        logger.debug("In compute_relation")
 
         if isinstance(node, c_ast.Assignment):
             x = node.lvalue.name
@@ -249,45 +187,52 @@ class Analysis:
                     if var not in listvar:
                         listvar.append(var)
                 # listvar=list(set(dblist[0])|set(dblist[1]))
-                rest = RelationList(listvar)
-                rest.identity()
+                rest = RelationList.identity(listvar)
                 # Define dependence type
                 # node.show()
                 if node.rvalue.op in ["+", "-"]:
-                    # logger.debug("operator +…")
+                    logger.debug("operator +…")
                     if nb_cst == 0:
-                        index, list_vect = self.create_vector(index, dblist, "+")
+                        index, list_vect = Analysis.create_vector(index, dblist, "+")
                     else:
-                        index, list_vect = self.create_vector(index, dblist, "u")
+                        index, list_vect = Analysis.create_vector(index, dblist, "u")
                 elif node.rvalue.op in ["*"]:
-                    # logger.debug("operator *…")
+                    logger.debug("operator *…")
                     if nb_cst == 0:
-                        index, list_vect = self.create_vector(index, dblist, "*")
+                        index, list_vect = Analysis.create_vector(index, dblist, "*")
                     else:
-                        index, list_vect = self.create_vector(index, dblist, "u")
+                        index, list_vect = Analysis.create_vector(index, dblist, "u")
                 else:
-                    index, list_vect = self.create_vector(index, dblist, "undef")
+                    index, list_vect = Analysis.create_vector(index, dblist, "undef")
                 ####
-                # logger.debug(f"list_vect={list_vect}")
-                rest.replace_column(list_vect, dblist[0][0])
-                # logger.debug(f'Computing Relation (first case) {node} {rest}')
+                logger.debug(f"list_vect={list_vect}")
+                rest.replace_column(list_vect[0], dblist[0][0])
+                logger.debug('Computing Relation (first case)')
+                # if DEBUG_LEVEL >= 2:
+                #     print("DEBUG: Computing Relation (first case)")
+                #     node.show()
+                #     rest.show()
                 return index, rest
-
             if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
                 rest = RelationList([x])
-                # logger.debug(f'Computing Relation (second case) {node} {rest}')
+                logger.debug('Computing Relation (second case)')
+                # if DEBUG_LEVEL >= 2:
+                #     print("DEBUG: Computing Relation (second case)")
+                #     node.show()
+                #     rest.show()
                 return index, rest
-
             if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
-                listVar = None  # VarVisitor.list_var(exp)
-                rels = RelationList([x] + listVar)
-                rels.identity()
+                listVar = None  # list_var(exp)
+                rels = RelationList.identity([x] + listVar)
                 # A FAIRE
-                # logger.debug(f'Computing Relation (third case) {node} {rels}')
+                # if DEBUG_LEVEL >= 2:
+                logger.debug('Computing Relation (third case)')
+                #     print("DEBUG: Computing Relation  (third case)")
+                #     node.show()
+                #     rels.show()
                 return index, rels
-
         if isinstance(node, c_ast.If):  # if cond then … else …
-            # print("analysing If:")
+            logger.debug("analysing If:")
             relT = RelationList([])
             for child in node.iftrue.block_items:
                 index, rel_list = self.compute_relation(index, child)
@@ -297,39 +242,119 @@ class Analysis:
                 for child in node.iffalse.block_items:
                     index, rel_list = self.compute_relation(index, child)
                     relF.composition(rel_list)
-            rels = relF.sumRel(relT)
-            # rels=rels.conditionRel(VarVisitor.list_var(node.cond))
-            # logger.debug(f'Computing Relation (conditional case) {node} {rels}')
+            rels = relF + relT
+            # rels=rels.conditionRel(list_var(node.cond))
+            # if DEBUG_LEVEL >= 2:
+            logger.debug('Computing Relation (conditional case)')
+            #     print("DEBUG: Computing Relation (conditional case)")
+            #     node.show()
+            #     rels.show()
             return index, rels
-
         if isinstance(node, c_ast.While):
-            # print("analysing While:")
+            logger.debug("analysing While:")
             rels = RelationList([])
             for child in node.stmt.block_items:
                 index, rel_list = self.compute_relation(index, child)
                 rels.composition(rel_list)
-            # logger.debug(f"Computing Relation (loop case) before fixpoint {rels}")
+            logger.debug('Computing Relation (loop case) before fixpoint')
+            # if DEBUG_LEVEL >= 2:
+            #     print(
+            #         "DEBUG: Computing Relation (loop case) before fixpoint")
+            #     rels.show()
             rels.fixpoint()
-            # logger.debug(f"Computing Relation (loop case) after fixpoint {rels}")
-
-            rels.whileCorrection()
+            logger.debug('Computing Relation (loop case) after fixpoint)')
+            # if DEBUG_LEVEL >= 2:
+            #     print("DEBUG: Computing Relation (loop case) after fixpoint")
+            #     rels.show()
+            rels.while_correction()
+            logger.debug('Computing Relation (loop case)')
             # rels = rels.conditionRel(list_var(node.cond))
-            # logger.debug(f"Computing Relation (loop case) {node} {rels}")
+            # if DEBUG_LEVEL >= 2:
+            #     print("DEBUG: Computing Relation (loop case)")
+            #     node.show()
+            #     rels.show()
             return index, rels
-
         if isinstance(node, c_ast.For):
-            # logger.debug("analysing For:")
+            logger.debug("analysing For:")
             rels = RelationList([])
             for child in node.stmt.block_items:
                 index, rel_list = self.compute_relation(index, child)
                 rels = rels.composition(rel_list)
             rels = rels.fixpoint()
             rels = rels.conditionRel(VarVisitor.list_var(node.cond))
-            # logger.debug(f"Computing Relation (loop case) {node} {rels}")
+            # if DEBUG_LEVEL >= 2:
+            #     print("DEBUG: Computing Relation (loop case)")
+            #     node.show()
+            #     rels.show()
             return index, rels
-
-        logger.warning(f"uncovered case ! Create empty RelationList (function call) ?")  # \n{node}")
+        logger.debug(f"uncovered case! Type: {type(node)}")
+        # node.show()
         return index, RelationList([])  #  FIXME
+
+    @staticmethod
+    def create_vector(index, dblist: List[list], type: str) -> Tuple[int, List[List[Polynomial]]]:
+        """Assign value flow regarding to operator type.
+
+        Arguments
+            index: delta index
+            dblist: TODO
+            type: one of "u","+","*","undef"
+
+        Returns:
+              updated index, list of polynomials
+        """
+        list_vect = []
+        poly = Polynomial([])
+        if type == "u":
+            poly = Polynomial([
+                Monomial("m", [(0, index)]),
+                Monomial("m", [(1, index)]),
+                Monomial("m", [(2, index)]),
+            ])
+            list_vect.append([poly])
+        if type == "*" and dblist[1][0] == dblist[1][1]:
+            poly = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("w", [(1, index)]),
+                Monomial("w", [(2, index)]),
+            ])
+            list_vect.append([poly])
+        if type == "+" and dblist[1][0] == dblist[1][1]:
+            poly = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("p", [(1, index)]),
+                Monomial("w", [(2, index)]),
+            ])
+            list_vect.append([poly])
+        if type == "*" and dblist[1][0] != dblist[1][1]:
+            poly = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("w", [(1, index)]),
+                Monomial("w", [(2, index)]),
+            ])
+            poly2 = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("w", [(1, index)]),
+                Monomial("w", [(2, index)]),
+            ])
+            list_vect.append([poly, poly2])
+        if type == "+" and dblist[1][0] != dblist[1][1]:
+            poly = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("m", [(1, index)]),
+                Monomial("p", [(2, index)]),
+            ])
+            poly2 = Polynomial([
+                Monomial("w", [(0, index)]),
+                Monomial("p", [(1, index)]),
+                Monomial("m", [(2, index)]),
+            ])
+            list_vect.append([poly, poly2])
+        if dblist[0][0] not in dblist[1]:
+            for v in list_vect:
+                v.insert(0, Polynomial([Monomial("o", [])]))
+        index = index + 1
+        return index, list_vect
 
     @staticmethod
     def save_relation(file_name: str, relation: Relation, combinations: List[List[int]]) -> None:
@@ -341,7 +366,7 @@ class Analysis:
             combinations: non-infinity choices
         """
         info = {
-            "relation": relation.as_dict(),
+            "relation": relation.to_dict(),
             "combinations": combinations
         }
 
@@ -378,10 +403,8 @@ class Analysis:
         combinations = data["combinations"]
 
         # generate objects
-        rel = Relation(variables)
-        rel.decode_matrix(matrix)
-        relation_list = RelationList([])
-        relation_list.list[0] = rel
+        relation = Relation(variables, decode(matrix))
+        relation_list = RelationList(relation_list=[relation])
         return relation_list, combinations
 
     @staticmethod

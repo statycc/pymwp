@@ -3,9 +3,9 @@
 from __future__ import annotations
 from typing import Optional, List
 
-from constants import Comparison
-from monomial import Monomial
-from semiring import ZERO_MWP, sum_mwp
+from .constants import Comparison
+from .monomial import Monomial
+from .semiring import ZERO_MWP, sum_mwp
 
 
 class Polynomial:

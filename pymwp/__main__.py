@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-
 import argparse
 import sys
 import logging
 from typing import List, Optional
 
-from pymwp import Analysis, __version__
+from .analysis import Analysis
+from .version import __version__
 
 
 def main():

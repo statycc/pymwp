@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # flake8: noqa: F401
 
@@ -10,5 +9,7 @@ __title__ = "pymwp"
 __author__ = "T. Seiller"
 __license__ = ""
 
-from pymwp.version import __version__
-from pymwp._analysis import Analysis
+from pymwp.relation_list import RelationList
+from pymwp.relation import Relation
+from pymwp.polynomial import Polynomial
+from pymwp.monomial import Monomial
