@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import sys
 import logging
@@ -7,7 +9,8 @@ from pymwp import Analysis, __version__
 
 
 def main():
-    parser = argparse.ArgumentParser(description=main.__doc__)
+    """Implementation of MWP analysis on C code in Python."""
+    parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
     args = _parse_args(parser)
 
     if args.verbosity:
@@ -16,13 +19,14 @@ def main():
             log_level = min(args.verbosity, 4) * 10
             if args.logfile:
                 log_filename = args.logfile
-            setup_logger(logging.FATAL - log_level, log_filename=log_filename)
+            setup_logger(logging.FATAL - log_level,
+                         log_filename=log_filename)
 
     if not args.file:
         parser.print_help()
         sys.exit(1)
     else:
-        Analysis(args.file)
+        Analysis(args.file, args.out)
 
 
 def _parse_args(
@@ -30,7 +34,14 @@ def _parse_args(
         args: Optional[List] = None) -> argparse.Namespace:
     parser.add_argument(
         "file",
-        help="Path to C file", nargs="?"
+        help="Path to C source code file",
+        nargs="?"
+    )
+    parser.add_argument(
+        "--outfile",
+        action="store",
+        dest="out",
+        help="file for storing analysis result",
     )
     parser.add_argument(
         "-v",
@@ -38,18 +49,17 @@ def _parse_args(
         action="count",
         default=0,
         dest="verbosity",
-        help="Verbosity level, use up to 4 to increase logging -vvvv",
+        help="verbosity level, use up to 4 to increase logging -vvvv",
+    )
+    parser.add_argument(
+        "--logfile",
+        action="store",
+        help="logging debug and error messages into a log file",
     )
     parser.add_argument(
         "--version",
         action="version",
         version="%(prog)s " + __version__,
-    )
-
-    parser.add_argument(
-        "--logfile",
-        action="store",
-        help="logging debug and error messages into a log file",
     )
     return parser.parse_args(args)
 
@@ -64,7 +74,7 @@ def setup_logger(
             see: https://docs.python.org/3/library/logging.html#levels
         log_filename: Write logging info to a file
     """
-    fmt = "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    fmt = "[%(asctime)s] %(levelname)s (%(module)s): %(message)s"
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
 
