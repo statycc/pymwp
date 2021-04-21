@@ -1,15 +1,16 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+from typing import Optional, List
 
 from constants import Comparison
-from semiring import ZERO_MWP, sum_mwp
 from monomial import Monomial
+from semiring import ZERO_MWP, sum_mwp
 
 
 class Polynomial:
     """
-    A polynomial is an ordered list of ordered monomials.
+    A polynomial is an ordered list of ordered [`Monomials`](monomial.md).
 
     For polynomials, I introduce a total order on the monomials. This
     eases the computation of the sum: if we want to add a monomial to an
@@ -18,25 +19,49 @@ class Polynomial:
     (and then we sum the scalars) or an element which is larger (and
     then we insert the new monomial there).
 
-    For this, I use the following ordering. I consider that $delta(i,j)$
-    is smaller than $delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
+    Polynomials use the following ordering: $\\delta(i,j)$
+    is smaller than $\\delta(m,n)$ iff either $j<n$ or $(j==n)$ and $(i<m)$.
 
     This is extended to products (which we consider ordered!) by
-    letting $\prod_k\delta(i_k,j_k) < \prod_l\delta(m_l,n_l)$
-    iff $\delta(i_1,j_1) < \delta(m_1,n_1)$.
+    letting $\\prod_k\\delta(i_k,j_k) < \\prod_l\\delta(m_l,n_l)$
+    iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
     """
 
-    def __init__(self, monomials: list = None):
+    def __init__(self, monomials: Optional[List[Monomial]] = None):
         """Create a polynomial.
+
+        Example:
+
+        Create polynomial with no monomials
+
+        ```python
+        zero = Polynomial()
+        ```
+
+        Create polynomial with one default monomial
+
+        ```python
+        poly = Polynomial([Monomial()])
+        ```
+
+        Create polynomial with two monomials
+
+        ```python
+        poly = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
+        ```
 
         Arguments:
             monomials: list of monomials
         """
-        self.list = monomials or []
+        self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
-        values = ''.join(['+' + str(m) for m in self.list]) or ZERO_MWP
-        return ("" if not self.list else "  ") + values
+        values = ''.join(['+' + str(m) for m in self.list]) \
+                 or ('+' + ZERO_MWP)
+        return "  " + values
+
+    def __eq__(self, other):
+        return self.equal(other)
 
     def __add__(self, other):
         return self.add(other)
@@ -155,14 +180,14 @@ class Polynomial:
         """
 
         # 1: compute table of products
-        # here we compute P1 x P2 for each monomial,
-        # excluding all monomials that have scalar value 0
+        # here we compute P1 x P2 for each polynomial, excluding from the
+        # result all monomials that have scalar value 0
         products = [[mono for mono in (m1 * m2 for m1 in self.list)
                      if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
         # filter out empty polynomials
         table = [p for p in products if p]
 
-        # if table is empty, return default polynomial
+        # if table is empty, return zero polynomial
         if not table:
             return Polynomial()
 
@@ -204,30 +229,24 @@ class Polynomial:
 
         return Polynomial(result)
 
-    def eval(self, argument_list: list) -> str:
-        """This method does map+reduce by mapping each monomial
-        against the argument list then reduces the result to a single
-        result determined by [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp)
-        function.
+    def eval(self, argument_list: list[int]) -> str:
+        """Evaluate polynomial.
 
-        <!--
-        TODO: make this faster (call less often)
-        TODO: figure out where arg_list comes from
-        -->
-
-        !!! danger "Important!"
-            This is one of the most costly methods in the analysis. If you change
-            it, check impact on performance.
+        This method performs map() on each monomial against the argument list
+        then reduces the result to a single result determined by
+        [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp) function.
 
         Arguments:
-            argument_list: list of deltas to evaluate
+            argument_list: list of indices of deltas to evaluate
 
         Returns:
-            one of: `"o", "m", "w", "p", "i"`
+            scalar value
         """
         result = ZERO_MWP
         for monomial in self.list:
             result = sum_mwp(result, monomial.eval(argument_list))
+            if result == 'i':
+                break
         return result
 
     def equal(self, polynomial: Polynomial) -> bool:
@@ -235,21 +254,17 @@ class Polynomial:
 
         This method will compare current polynomial (self) to
         another polynomial provided as argument. Result of
-        True means the two polynomial have an equal number of
-        monomials, and each monomial has element-wise equal
-        list of deltas. Otherwise the result is False.
+        true means both polynomials have an equal number of
+        monomials, and element-wise each monomial has the same
+        list of deltas. Otherwise the result is false.
 
-        Note that this behavior is not the same as ==
-        which does equality by reference. Calling p.equal(q)
-        will return True for distinct objects as long as
-        their data is equal as described above.
+        This method is alias of `==` operator.
 
         Arguments:
-            polynomial: polynomial to compare
+            polynomial: polynomial to compare.
 
         Returns:
-            True if polynomials are equal
-            False otherwise
+            True if polynomials are equal and false otherwise.
         """
         p1, p2 = self.list, polynomial.list
 
@@ -257,7 +272,8 @@ class Polynomial:
         # same values and are equal in length; avoid calling
         # compare because it is more expensive method call; we
         # can do faster equality comparison on deltas this way
-        same = [(m1.deltas == m2.deltas) for m1, m2 in zip(p1, p2)]
+        same = [m1.scalar == m2.scalar and m1.deltas == m2.deltas
+                for m1, m2 in zip(p1, p2)]
 
         # if False is in list it means some comparison of
         # deltas was determined not to be equal; do length

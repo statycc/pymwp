@@ -7,24 +7,26 @@ def test_polynomial_copy():
     p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
     poly_copy = p.copy()
     # their data is identical
-    assert poly_copy.equal(p)
+    assert poly_copy == p
     # different reference
-    assert poly_copy != p
+    assert poly_copy is not p
 
 
 def test_polynomial_times_empty():
     z = Polynomial([Monomial(ZERO_MWP, [])])
     p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
     c = p * z
-    assert c.equal(Polynomial())
+    assert c == Polynomial()
 
 
 def test_polynomial_times_by_non_empty():
-    m = Polynomial([Monomial('m', [(2, 2)])])
-    p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    mono1 = Monomial('m', [(2, 2)])
+    mono2 = Monomial('m', [(0, 0), (1, 1)])
+    m = Polynomial([mono1])
+    p = Polynomial([mono2])
     c = p * m
     expected = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
-    assert c.equal(expected)
+    assert c == expected
 
 
 def test_polynomial_equals_empty_are_equal():
