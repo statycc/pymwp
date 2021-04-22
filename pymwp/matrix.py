@@ -1,5 +1,6 @@
 # flake8: noqa: W605
 
+import logging
 from typing import Any, Optional, List
 from functools import reduce
 
@@ -10,6 +11,8 @@ from .semiring import ZERO_MWP, UNIT_MWP
 ZERO = Polynomial([Monomial(ZERO_MWP)])
 
 UNIT = Polynomial([Monomial(UNIT_MWP)])
+
+logger = logging.getLogger(__name__)
 
 
 def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
@@ -138,6 +141,8 @@ def matrix_prod(matrix1: List[List[Polynomial]],
     Returns:
         new matrix that represents the product of the two inputs.
     """
+
+    logger.debug(f'computing matrix product for size {len(matrix1)} x {len(matrix2)}')
 
     return [[
 

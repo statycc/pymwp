@@ -98,37 +98,37 @@ class Analysis:
             out_path: where to store result
         """
         out_file = out_path or Analysis.default_out_file(in_file)
+        choices = [0, 1, 2]
 
-        logger.info("Starting analysis on file: %s", in_file)
+        logger.info("Starting analysis of %s", in_file)
         ast = Analysis.parse_c_file(in_file)
         function_body = ast.ext[0].body
 
         index, relations = 0, RelationList()
+        total = len(function_body.block_items)
 
-        for stmt in function_body.block_items:
-            logger.debug(f'computing relation...')
+        for i, stmt in enumerate(function_body.block_items):
+            logger.debug(f'computing relation...{i} of {total}')
             index, rel_list = self.compute_relation(index, stmt)
             logger.debug(f'computing composition...')
             relations.composition(rel_list)
 
         relation = relations.relations[0]
-        logger.debug('computing combinations...')
-        combinations = relation.non_infinity([0, 1, 2], index)
-        logger.debug('saving result...')
+        combinations = relation.non_infinity(choices, index)
+        logger.debug('saving result')
         Analysis.save_relation(out_file, relation, combinations)
+        logger.info("Stored result in %s", out_file)
 
-        logger.debug(relations)
         if combinations:
             logger.info(combinations)
         else:
             logger.info("infinite")
-        logger.info("Stored result in %s", out_file)
 
     @staticmethod
     def default_out_file(in_file: str):
         file_only = os.path.splitext(in_file)[0]
         without_extension = os.path.basename(file_only)
-        return os.path.join("../output/{0}.json".format(without_extension))
+        return os.path.join("output/{0}.json".format(without_extension))
 
     @staticmethod
     def parse_c_file(file, use_cpp: bool = True, cpp_path: str = "gcc", cpp_args: str = "-E"):
@@ -150,7 +150,7 @@ class Analysis:
             Generated AST
         """
         ast = parse_file(file, use_cpp=use_cpp, cpp_path=cpp_path, cpp_args=cpp_args)
-        logger.debug("C file parsed successfully using args %s %s", cpp_path, cpp_args)
+        logger.debug("C file parsed successfully using args: %s %s", cpp_path, cpp_args)
         return ast
 
     def compute_relation(self, index: int, node) -> Tuple[int, RelationList]:
@@ -165,7 +165,6 @@ class Analysis:
             TODO
         """
         # TODO miss unary and constantes operation
-        # logger.debug("In compute_rel")
 
         logger.debug("In compute_relation")
 
@@ -205,7 +204,7 @@ class Analysis:
                 else:
                     index, list_vect = Analysis.create_vector(index, dblist, "undef")
                 ####
-                logger.debug(f"list_vect={list_vect}")
+                # logger.debug(f"list_vect={list_vect}")
                 rest.replace_column(list_vect[0], dblist[0][0])
                 logger.debug('Computing Relation (first case)')
                 # if DEBUG_LEVEL >= 2:
@@ -280,7 +279,7 @@ class Analysis:
             for child in node.stmt.block_items:
                 index, rel_list = self.compute_relation(index, child)
                 rels = rels.composition(rel_list)
-            rels = rels.fixpoint()
+            rels.fixpoint()
             rels = rels.conditionRel(VarVisitor.list_var(node.cond))
             # if DEBUG_LEVEL >= 2:
             #     print("DEBUG: Computing Relation (loop case)")
@@ -409,7 +408,7 @@ class Analysis:
 
     @staticmethod
     def progress_bar(current: int, total: int, ch: str = "█", scale: float = 0.55) -> None:
-        """Display a simple, pretty progress bar.
+        """Display a simple progress bar.
 
         Example:
 

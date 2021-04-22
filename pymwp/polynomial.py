@@ -1,11 +1,15 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
+import logging
 from typing import Optional, List
 
 from .constants import Comparison
 from .monomial import Monomial
 from .semiring import ZERO_MWP, sum_mwp
+
+logger = logging.getLogger(__name__)
 
 
 class Polynomial:
@@ -56,8 +60,7 @@ class Polynomial:
         self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
-        values = ''.join(['+' + str(m) for m in self.list]) \
-                 or ('+' + ZERO_MWP)
+        values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)
         return "  " + values
 
     def __eq__(self, other):
@@ -205,8 +208,13 @@ class Polynomial:
                 index_list.append(i)
 
         # 3: start main part
-        result = []
+        result, debug_counter = [], 1
         while index_list:
+            debug_counter += 1
+            if debug_counter % 1000 == 0:
+                logger.debug(f"Computing times, iteration {debug_counter}")
+                logger.debug(f"Index list len is {len(index_list)}")
+
             # 4. get first element and append to result
             # 5. remove from index and table
             smallest = index_list.pop(0)

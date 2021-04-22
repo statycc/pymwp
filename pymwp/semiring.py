@@ -48,7 +48,7 @@ def prod_mwp(scalar1: str, scalar2: str) -> str:
     if scalar1 in KEYS and scalar2 in KEYS:
         return __DICT_PROD[scalar1][scalar2]
     else:
-        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for __DICT_PROD…")
+        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for prod…")
 
 
 __DICT_SUM: dict = {
@@ -89,4 +89,4 @@ def sum_mwp(scalar1: str, scalar2: str) -> str:
     if scalar1 in KEYS and scalar2 in KEYS:
         return __DICT_SUM[scalar1][scalar2]
     else:
-        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for __DICT_SUM…")
+        raise Exception("trying to use", scalar1, "and", scalar2, "as keys for sum…")

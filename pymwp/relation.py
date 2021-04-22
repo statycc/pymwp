@@ -1,11 +1,14 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
+import logging
+from itertools import product
 from typing import Optional, Tuple, List
 
-import itertools
-
 from . import matrix as matrix_utils
+
+logger = logging.getLogger(__name__)
 
 
 class Relation:
@@ -164,8 +167,12 @@ class Relation:
         Returns:
            a new relation that is a product of inputs.
         """
+
+        logger.debug("starting composition with homogenisation")
         er1, er2 = Relation.homogenisation(self, other)
+        logger.debug("composing matrix product")
         new_matrix = matrix_utils.matrix_prod(er1.matrix, er2.matrix)
+        logger.debug("relation composition done")
         return Relation(er1.variables, new_matrix)
 
     def equal(self, other: Relation) -> bool:
@@ -210,11 +217,14 @@ class Relation:
         prev_fix = Relation(fix_vars, matrix)
         current = Relation(fix_vars, matrix)
 
+        logger.debug(f"computing fixpoint for variables {fix_vars}")
+
         while True:
             prev_fix.matrix = fix.matrix
             current = current * self
             fix = fix + current
             if fix.equal(prev_fix):
+                logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
     def eval(self, choices: List[int]) -> bool:
@@ -238,6 +248,7 @@ class Relation:
         """
 
         for row in self.matrix:
+            logger.debug(f"evaluating {len(row)} polynomials against {choices}")
             for poly in row:
                 if poly.eval(choices) == 'i':
                     return False
@@ -271,10 +282,14 @@ class Relation:
         Returns:
             All combinations that do not result in $\infty$.
         """
-        # uses itertools.product to generate all possible assignments
-        combinations = [list(args) for args in
-                        itertools.product(choices, repeat=index)]
+        logger.debug(f"computing combinations for choices {choices}, index {index}")
+        logger.debug(f"relation contains {self.variables} variables")
 
+        # uses itertools.product to generate all possible assignments
+        assignments = product(choices, repeat=index)
+        combinations = [list(args) for args in assignments]
+
+        logger.debug(f"number of assignments to evaluate {len(combinations)}")
         return list(filter(self.eval, combinations))
 
     def to_dict(self) -> dict:
