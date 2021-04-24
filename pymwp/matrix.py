@@ -104,7 +104,6 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
     Returns:
         Decoded matrix of polynomials.
     """
-    print(matrix)
     return [[
         Polynomial([Monomial(
             scalar=monomial["scalar"],
@@ -141,8 +140,6 @@ def matrix_prod(matrix1: List[List[Polynomial]],
     Returns:
         new matrix that represents the product of the two inputs.
     """
-
-    logger.debug(f'computing matrix product for size {len(matrix1)} x {len(matrix2)}')
 
     return [[
 

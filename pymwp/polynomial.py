@@ -102,8 +102,7 @@ class Polynomial:
         self_len = len(new_list)
         poly_len = len(polynomial.list)
 
-        # iterate lists of monomials until
-        # one the ned of shorter list
+        # iterate lists of monomials until the end of shorter list
         while j < poly_len:
             mono1, mono2 = new_list[i], polynomial.list[j]
             check = Polynomial.compare(mono1.deltas, mono2.deltas)
@@ -207,14 +206,12 @@ class Polynomial:
             if i not in index_list:
                 index_list.append(i)
 
-        # 3: start main part
-        result, debug_counter = [], 1
-        while index_list:
-            debug_counter += 1
-            if debug_counter % 1000 == 0:
-                logger.debug(f"Computing times, iteration {debug_counter}")
-                logger.debug(f"Index list len is {len(index_list)}")
+        if len(self.list) > 1000 or len(polynomial.list) > 1000:
+            logger.debug(f'p1 {len(self.list)}, p2: {len(polynomial.list)}, i: {len(index_list)}')
 
+        # 3: start main part
+        result = []
+        while index_list:
             # 4. get first element and append to result
             # 5. remove from index and table
             smallest = index_list.pop(0)
@@ -234,7 +231,6 @@ class Polynomial:
                 if not inserted:
                     index_list.append(smallest)
             # 7. repeat until done
-
         return Polynomial(result)
 
     def eval(self, argument_list: list[int]) -> str:

@@ -405,29 +405,3 @@ class Analysis:
         relation = Relation(variables, decode(matrix))
         relation_list = RelationList(relation_list=[relation])
         return relation_list, combinations
-
-    @staticmethod
-    def progress_bar(current: int, total: int, ch: str = "█", scale: float = 0.55) -> None:
-        """Display a simple progress bar.
-
-        Example:
-
-            |███████████████████████████████████████| 100.0%
-
-        Arguments:
-            current: the delta between the total file size (bytes)
-                and bytes already written to disk.
-            total: File size of the media stream in bytes.
-            ch: Character to use for presenting progress segment.
-            scale: Scale multiplier to reduce progress bar size.
-        """
-        columns = shutil.get_terminal_size().columns
-        max_width = int(columns * scale)
-
-        filled = int(round(max_width * current / float(total)))
-        remaining = max_width - filled
-        progress_bar = ch * filled + " " * remaining
-        percent = round(100.0 * current / float(total), 1)
-        text = f" ↳ |{progress_bar}| {percent}%\r\n"
-        sys.stdout.write(text)
-        sys.stdout.flush()
