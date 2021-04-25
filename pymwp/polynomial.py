@@ -186,8 +186,8 @@ class Polynomial:
         # result all monomials that have scalar value 0
         products = [[mono for mono in (m1 * m2 for m1 in self.list)
                      if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
-        # filter out empty polynomials
-        table = [p for p in products if p]
+        # filter out empty monomials
+        table: List[List[Monomial]] = [p for p in products if p]
 
         # if table is empty, return zero polynomial
         if not table:
