@@ -1,6 +1,4 @@
 import os
-import sys
-import shutil
 import logging
 import json
 from typing import Optional, List, Tuple
@@ -110,7 +108,7 @@ class Analysis:
         for i, stmt in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
             index, rel_list = self.compute_relation(index, stmt)
-            logger.debug(f'computing composition...')
+            logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
 
         relation = relations.relations[0]
@@ -127,8 +125,8 @@ class Analysis:
     @staticmethod
     def default_out_file(in_file: str):
         file_only = os.path.splitext(in_file)[0]
-        without_extension = os.path.basename(file_only)
-        return os.path.join("output/{0}.json".format(without_extension))
+        file_name = os.path.basename(file_only)
+        return os.path.join("output", f"{file_name}.txt")
 
     @staticmethod
     def parse_c_file(file, use_cpp: bool = True, cpp_path: str = "gcc", cpp_args: str = "-E"):
@@ -188,7 +186,6 @@ class Analysis:
                 # listvar=list(set(dblist[0])|set(dblist[1]))
                 rest = RelationList.identity(listvar)
                 # Define dependence type
-                # node.show()
                 if node.rvalue.op in ["+", "-"]:
                     logger.debug("operator +…")
                     if nb_cst == 0:
@@ -203,32 +200,19 @@ class Analysis:
                         index, list_vect = Analysis.create_vector(index, dblist, "u")
                 else:
                     index, list_vect = Analysis.create_vector(index, dblist, "undef")
-                ####
                 # logger.debug(f"list_vect={list_vect}")
                 rest.replace_column(list_vect[0], dblist[0][0])
                 logger.debug('Computing Relation (first case)')
-                # if DEBUG_LEVEL >= 2:
-                #     print("DEBUG: Computing Relation (first case)")
-                #     node.show()
-                #     rest.show()
                 return index, rest
             if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
                 rest = RelationList([x])
                 logger.debug('Computing Relation (second case)')
-                # if DEBUG_LEVEL >= 2:
-                #     print("DEBUG: Computing Relation (second case)")
-                #     node.show()
-                #     rest.show()
                 return index, rest
             if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
                 listVar = None  # list_var(exp)
                 rels = RelationList.identity([x] + listVar)
-                # A FAIRE
-                # if DEBUG_LEVEL >= 2:
+                # TODO
                 logger.debug('Computing Relation (third case)')
-                #     print("DEBUG: Computing Relation  (third case)")
-                #     node.show()
-                #     rels.show()
                 return index, rels
         if isinstance(node, c_ast.If):  # if cond then … else …
             logger.debug("analysing If:")
@@ -245,50 +229,30 @@ class Analysis:
             # rels=rels.conditionRel(list_var(node.cond))
             # if DEBUG_LEVEL >= 2:
             logger.debug('Computing Relation (conditional case)')
-            #     print("DEBUG: Computing Relation (conditional case)")
-            #     node.show()
-            #     rels.show()
             return index, rels
         if isinstance(node, c_ast.While):
             logger.debug("analysing While:")
-            rels = RelationList([])
+            rels = RelationList()
             for child in node.stmt.block_items:
                 index, rel_list = self.compute_relation(index, child)
                 rels.composition(rel_list)
             logger.debug('Computing Relation (loop case) before fixpoint')
-            # if DEBUG_LEVEL >= 2:
-            #     print(
-            #         "DEBUG: Computing Relation (loop case) before fixpoint")
-            #     rels.show()
             rels.fixpoint()
             logger.debug('Computing Relation (loop case) after fixpoint)')
-            # if DEBUG_LEVEL >= 2:
-            #     print("DEBUG: Computing Relation (loop case) after fixpoint")
-            #     rels.show()
             rels.while_correction()
             logger.debug('Computing Relation (loop case)')
-            # rels = rels.conditionRel(list_var(node.cond))
-            # if DEBUG_LEVEL >= 2:
-            #     print("DEBUG: Computing Relation (loop case)")
-            #     node.show()
-            #     rels.show()
             return index, rels
         if isinstance(node, c_ast.For):
             logger.debug("analysing For:")
-            rels = RelationList([])
+            rels = RelationList()
             for child in node.stmt.block_items:
                 index, rel_list = self.compute_relation(index, child)
                 rels = rels.composition(rel_list)
             rels.fixpoint()
             rels = rels.conditionRel(VarVisitor.list_var(node.cond))
-            # if DEBUG_LEVEL >= 2:
-            #     print("DEBUG: Computing Relation (loop case)")
-            #     node.show()
-            #     rels.show()
             return index, rels
         logger.debug(f"uncovered case! Type: {type(node)}")
-        # node.show()
-        return index, RelationList([])  #  FIXME
+        return index, RelationList()  #  FIXME
 
     @staticmethod
     def create_vector(index, dblist: List[list], type: str) -> Tuple[int, List[List[Polynomial]]]:
@@ -303,7 +267,6 @@ class Analysis:
               updated index, list of polynomials
         """
         list_vect = []
-        poly = Polynomial([])
         if type == "u":
             poly = Polynomial([
                 Monomial("m", [(0, index)]),
@@ -352,8 +315,7 @@ class Analysis:
         if dblist[0][0] not in dblist[1]:
             for v in list_vect:
                 v.insert(0, Polynomial([Monomial("o", [])]))
-        index = index + 1
-        return index, list_vect
+        return index + 1, list_vect
 
     @staticmethod
     def save_relation(file_name: str, relation: Relation, combinations: List[List[int]]) -> None:
@@ -370,8 +332,10 @@ class Analysis:
         }
 
         # ensure directory path exists
-        dir_path, file_name = os.path.split(file_name)
+        dir_path, _ = os.path.split(file_name)
+        logger.debug(f'out path {dir_path}')
         if not os.path.exists(dir_path):
+            logger.debug(f'made directory')
             os.makedirs(dir_path)
 
         # write to file

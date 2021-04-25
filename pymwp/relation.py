@@ -248,7 +248,7 @@ class Relation:
         """
 
         for row in self.matrix:
-            logger.debug(f"evaluating {len(row)} polynomials against {choices}")
+            # logger.debug(f"evaluating {len(row)} polynomials against {choices}")
             for poly in row:
                 if poly.eval(choices) == 'i':
                     return False
@@ -282,7 +282,7 @@ class Relation:
         Returns:
             All combinations that do not result in $\infty$.
         """
-        logger.debug(f"computing combinations for choices {choices}, index {index}")
+        logger.debug(f"computing combinations choices {choices}, index {index}")
         logger.debug(f"relation contains {self.variables} variables")
 
         # uses itertools.product to generate all possible assignments
