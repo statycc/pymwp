@@ -75,7 +75,7 @@ def test_monomial_copy():
     n = m.copy()
     assert m.scalar == n.scalar  # same scalar
     assert m.deltas == n.deltas  # same deltas
-    assert m != n  # different reference
+    assert m is not n  # different reference
 
 
 def test_valid_insert_to_empty():

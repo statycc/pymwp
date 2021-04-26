@@ -3,7 +3,9 @@ import sys
 import json
 import os
 from pycparser import parse_file, c_parser, c_ast
-from Matrix import RelationList, Relation
+from matrix import decode
+from relation import Relation
+from relation_list import RelationList
 from monomial import Monomial
 from polynomial import Polynomial
 
@@ -188,8 +190,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
                 if var not in listvar:
                     listvar.append(var)
             # listvar=list(set(dblist[0])|set(dblist[1]))
-            rest = RelationList(listvar)
-            rest.identity()
+            rest = RelationList.identity(listvar)
             # Define dependence type
             node.show()
             if node.rvalue.op in ["+", "-"]:
@@ -208,23 +209,22 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
                 index, list_vect = create_vector(index, dblist, "undef")
             ####
             print("list_vect=", list_vect)
-            rest.replace_column(list_vect, dblist[0][0])
+            rest.replace_column(list_vect[0], dblist[0][0])
             if DEBUG_LEVEL >= 2:
-                print("DEBUG_LEVEL: Computing Relation (first case)")
+                print("DEBUG: Computing Relation (first case)")
                 node.show()
                 rest.show()
             return index, rest
         if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
             rest = RelationList([x])
             if DEBUG_LEVEL >= 2:
-                print("DEBUG_LEVEL: Computing Relation (second case)")
+                print("DEBUG: Computing Relation (second case)")
                 node.show()
                 rest.show()
             return index, rest
         if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
             listVar = None  # list_var(exp)
-            rels = RelationList([x] + listVar)
-            rels.identity()
+            rels = RelationList.identity([x] + listVar)
             # A FAIRE
             if DEBUG_LEVEL >= 2:
                 print("DEBUG: Computing Relation  (third case)")
@@ -242,10 +242,10 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             for child in node.iffalse.block_items:
                 index, rel_list = compute_rel(index, child)
                 relF.composition(rel_list)
-        rels = relF.sumRel(relT)
+        rels = relF + relT
         # rels=rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (conditional case)")
+            print("DEBUG: Computing Relation (conditional case)")
             node.show()
             rels.show()
         return index, rels
@@ -257,16 +257,16 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
             rels.composition(rel_list)
         if DEBUG_LEVEL >= 2:
             print(
-                "DEBUG_LEVEL: Computing Relation (loop case) before fixpoint")
+                "DEBUG: Computing Relation (loop case) before fixpoint")
             rels.show()
         rels.fixpoint()
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case) after fixpoint")
+            print("DEBUG: Computing Relation (loop case) after fixpoint")
             rels.show()
-        rels.whileCorrection()
+        rels.while_correction()
         # rels = rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case)")
+            print("DEBUG: Computing Relation (loop case)")
             node.show()
             rels.show()
         return index, rels
@@ -279,7 +279,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
         rels = rels.fixpoint()
         rels = rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
-            print("DEBUG_LEVEL: Computing Relation (loop case)")
+            print("DEBUG: Computing Relation (loop case)")
             node.show()
             rels.show()
         return index, rels
@@ -332,17 +332,16 @@ def retrieve_relation(name):
     matrix = data["relation"]["matrix"]
     variables = data["relation"]["variables"]
     combinations = data["combinations"]
-    rel = Relation(variables)
-    rel.decode_matrix(matrix)
+    rel = Relation(variables, decode(matrix))
     rels = RelationList([])
     rels.list[0] = rel
     return rels, combinations
 
 
 def output_json(name, rels, index):
-    rel = rels.list[0]
-    combinations = rel.isInfinite([0, 1, 2], index)
-    info = {"relation": rel.as_dict(), "combinations": combinations}
+    rel = rels.relations[0]
+    combinations = rel.non_infinity([0, 1, 2], index)
+    info = {"relation": rel.to_dict(), "combinations": combinations}
     dir_path, file_name = os.path.split(name)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -359,7 +358,7 @@ else:
     print("infinite")
 
 # print("*********** FINAL CODE ****************")
-# if DEBUG_LEVEL>=3:
+# if DEBUG>=3:
 #     ast.show()
 # generator = c_generator.CGenerator()
 # print(generator.visit(ast))
