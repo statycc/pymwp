@@ -12,6 +12,46 @@ from .semiring import ZERO_MWP, sum_mwp
 logger = logging.getLogger(__name__)
 
 
+class MonoListBuilder:
+
+    def __init__(self):
+        self.tree = {}
+        self.flat_tree = {}
+
+    def insert_deltas(self, flat, node, deltas):
+        if not deltas:
+            return
+        flat[tuple(deltas)] = 1
+        first, *rest = deltas
+        if first not in node:
+            node[first] = {}
+        self.insert_deltas(flat, node[first], rest)
+
+    def add(self, *monos):
+        for mono in monos:
+            if mono.scalar not in self.tree:
+                self.tree[mono.scalar] = {}
+                self.flat_tree[mono.scalar] = {}
+            if tuple(mono.deltas) not in self.flat_tree[mono.scalar]:
+                self.insert_deltas(
+                    self.flat_tree[mono.scalar],
+                    self.tree[mono.scalar],
+                    mono.deltas)
+
+    def unpack(self, scalar, res, path, remaining_values):
+        if remaining_values == {}:
+            res.append(Monomial(scalar, path))
+            return
+        for k, v in remaining_values.items():
+            self.unpack(scalar, res, path + [k], v)
+
+    def get(self):
+        result = []
+        for key, value in self.tree.items():
+            self.unpack(key, result, [], value)
+        return result
+
+
 class Polynomial:
     """
     A polynomial is an ordered list of ordered [`Monomials`](monomial.md).
@@ -231,6 +271,7 @@ class Polynomial:
                 if not inserted:
                     index_list.append(smallest)
             # 7. repeat until done
+
         return Polynomial(result)
 
     def eval(self, argument_list: list[int]) -> str:
