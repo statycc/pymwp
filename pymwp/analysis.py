@@ -277,33 +277,31 @@ class Analysis:
               updated index, list of polynomials
         """
 
-        def create_polynomial(scalar1: str, scalar2: str,
-                              scalar3: str) -> Polynomial:
-            return Polynomial([
+        vector = []
+
+        def append_poly(scalar1: str, scalar2: str, scalar3: str):
+            vector.append(Polynomial([
                 Monomial(scalar1, [(0, index)]),
                 Monomial(scalar2, [(1, index)]),
                 Monomial(scalar3, [(2, index)]),
-            ])
-
-        vector = []
+            ]))
 
         if operator_type == "u":
-            vector.append(create_polynomial('m', 'm', 'm'))
+            append_poly('m', 'm', 'm')
 
         if db_list[1][0] == db_list[1][1]:
             if operator_type == "*":
-                vector.append(create_polynomial('w', 'w', 'w'))
+                append_poly('w', 'w', 'w')
             if operator_type == "+":
-                vector.append(create_polynomial('w', 'p', 'w'))
+                append_poly('w', 'p', 'w')
         else:
             if operator_type == "*":
-                poly1 = create_polynomial('w', 'w', 'w')
-                poly2 = create_polynomial('w', 'w', 'w')
-                vector = [poly1, poly2]
+                append_poly('w', 'w', 'w')
+                append_poly('w', 'w', 'w')
+
             if operator_type == "+":
-                poly1 = create_polynomial('w', 'm', 'p')
-                poly2 = create_polynomial('w', 'p', 'm')
-                vector = [poly1, poly2]
+                append_poly('w', 'm', 'p')
+                append_poly('w', 'p', 'm')
 
         if db_list[0][0] not in db_list[1]:
             vector.insert(0, Polynomial([Monomial("o")]))
