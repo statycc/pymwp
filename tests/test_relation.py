@@ -1,8 +1,8 @@
-from monomial import Monomial
-from polynomial import Polynomial
-from relation import Relation
-from semiring import ZERO_MWP
-from matrix import init_matrix
+from pymwp.monomial import Monomial
+from pymwp.polynomial import Polynomial
+from pymwp.relation import Relation
+from pymwp.semiring import ZERO_MWP
+from pymwp.matrix import init_matrix
 
 
 def test_init_relation_creates_zero_matrix():

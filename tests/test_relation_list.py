@@ -1,6 +1,6 @@
-from relation import Relation
-from relation_list import RelationList
-from matrix import init_matrix, identity_matrix
+from pymwp.relation import Relation
+from pymwp.relation_list import RelationList
+from pymwp.matrix import init_matrix, identity_matrix
 
 
 def test_init_list_with_relation():

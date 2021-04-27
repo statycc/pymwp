@@ -1,7 +1,7 @@
-from matrix import init_matrix, identity_matrix, encode, decode, matrix_sum, matrix_prod, resize
-from matrix import ZERO as o, UNIT as m
-from monomial import Monomial
-from polynomial import Polynomial
+from pymwp.matrix import init_matrix, identity_matrix, encode, decode, matrix_sum, matrix_prod, resize
+from pymwp.matrix import ZERO as o, UNIT as m
+from pymwp.monomial import Monomial
+from pymwp.polynomial import Polynomial
 
 
 def test_init_matrix_creates_zero_matrix():

@@ -115,7 +115,7 @@ class Analysis:
         combinations = relation.non_infinity(choices, index)
         logger.debug('saving result')
         Analysis.save_relation(out_file, relation, combinations)
-        logger.info("Stored result in %s", out_file)
+        logger.info("saved result in %s", out_file)
 
         if combinations:
             logger.info(combinations)
@@ -129,7 +129,10 @@ class Analysis:
         return os.path.join("output", f"{file_name}.txt")
 
     @staticmethod
-    def parse_c_file(file, use_cpp: bool = True, cpp_path: str = "gcc", cpp_args: str = "-E"):
+    def parse_c_file(
+            file, use_cpp: bool = True, cpp_path: str = "gcc",
+            cpp_args: str = "-E"
+    ):
         """Parse C file using pycparser.
 
         Arguments:
@@ -139,21 +142,21 @@ class Analysis:
             cpp_path: If use_cpp is True, this is the path to 'cpp' on your
                 system. If no path is provided, it attempts to just execute
                 'cpp', so it must be in your PATH.
-            cpp_args: If use_cpp is True, set this to the command line arguments
-                strings to cpp. Be careful with quotes - it's best to pass a
-                 raw string (r'') here. If several arguments are required,
-                 pass a list of strings.
+            cpp_args: If use_cpp is True, set this to the command line
+                arguments strings to cpp. Be careful with quotes - it's best
+                to pass a raw string (r'') here. If several arguments are
+                required, pass a list of strings.
 
         Returns:
             Generated AST
         """
-        ast = parse_file(file, use_cpp=use_cpp, cpp_path=cpp_path, cpp_args=cpp_args)
-        logger.debug("C file parsed successfully using args: %s %s", cpp_path, cpp_args)
+        ast = parse_file(file, use_cpp, cpp_path, cpp_args)
+        logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
         return ast
 
     def compute_relation(self, index: int, node) -> Tuple[int, RelationList]:
-        """
-        Return a RelationList corresponding for all possible matrices for `node`
+        """Return a RelationList corresponding for all possible matrices
+        of `node`.
 
         Arguments:
             index: TODO
@@ -189,17 +192,22 @@ class Analysis:
                 if node.rvalue.op in ["+", "-"]:
                     logger.debug("operator +…")
                     if nb_cst == 0:
-                        index, list_vect = Analysis.create_vector(index, dblist, "+")
+                        index, list_vect = Analysis \
+                            .create_vector(index, dblist, "+")
                     else:
-                        index, list_vect = Analysis.create_vector(index, dblist, "u")
+                        index, list_vect = Analysis \
+                            .create_vector(index, dblist, "u")
                 elif node.rvalue.op in ["*"]:
                     logger.debug("operator *…")
                     if nb_cst == 0:
-                        index, list_vect = Analysis.create_vector(index, dblist, "*")
+                        index, list_vect = Analysis \
+                            .create_vector(index, dblist, "*")
                     else:
-                        index, list_vect = Analysis.create_vector(index, dblist, "u")
+                        index, list_vect = Analysis \
+                            .create_vector(index, dblist, "u")
                 else:
-                    index, list_vect = Analysis.create_vector(index, dblist, "undef")
+                    index, list_vect = Analysis \
+                        .create_vector(index, dblist, "undef")
                 # logger.debug(f"list_vect={list_vect}")
                 rest.replace_column(list_vect[0], dblist[0][0])
                 logger.debug('Computing Relation (first case)')
@@ -255,70 +263,56 @@ class Analysis:
         return index, RelationList()  #  FIXME
 
     @staticmethod
-    def create_vector(index, dblist: List[list], type: str) -> Tuple[int, List[List[Polynomial]]]:
-        """Assign value flow regarding to operator type.
+    def create_vector(
+            index: int, db_list: List[list], operator_type: str
+    ) -> Tuple[int, List[List[Polynomial]]]:
+        """Assign value flow regarding to operator operator_type.
 
         Arguments
             index: delta index
-            dblist: TODO
-            type: one of "u","+","*","undef"
+            db_list: TODO
+            operator_type: one of `"u"`,`"+"`,`"*"`,`"undef"`
 
         Returns:
               updated index, list of polynomials
         """
-        list_vect = []
-        if type == "u":
-            poly = Polynomial([
-                Monomial("m", [(0, index)]),
-                Monomial("m", [(1, index)]),
-                Monomial("m", [(2, index)]),
+
+        def create_polynomial(scalar1: str, scalar2: str,
+                              scalar3: str) -> Polynomial:
+            return Polynomial([
+                Monomial(scalar1, [(0, index)]),
+                Monomial(scalar2, [(1, index)]),
+                Monomial(scalar3, [(2, index)]),
             ])
-            list_vect.append([poly])
-        if type == "*" and dblist[1][0] == dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vect.append([poly])
-        if type == "+" and dblist[1][0] == dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("p", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vect.append([poly])
-        if type == "*" and dblist[1][0] != dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            poly2 = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("w", [(1, index)]),
-                Monomial("w", [(2, index)]),
-            ])
-            list_vect.append([poly, poly2])
-        if type == "+" and dblist[1][0] != dblist[1][1]:
-            poly = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("m", [(1, index)]),
-                Monomial("p", [(2, index)]),
-            ])
-            poly2 = Polynomial([
-                Monomial("w", [(0, index)]),
-                Monomial("p", [(1, index)]),
-                Monomial("m", [(2, index)]),
-            ])
-            list_vect.append([poly, poly2])
-        if dblist[0][0] not in dblist[1]:
-            for v in list_vect:
-                v.insert(0, Polynomial([Monomial("o", [])]))
-        return index + 1, list_vect
+
+        vector = []
+
+        if operator_type == "u":
+            vector.append(create_polynomial('m', 'm', 'm'))
+
+        if db_list[1][0] == db_list[1][1]:
+            if operator_type == "*":
+                vector.append(create_polynomial('w', 'w', 'w'))
+            if operator_type == "+":
+                vector.append(create_polynomial('w', 'p', 'w'))
+        else:
+            if operator_type == "*":
+                poly1 = create_polynomial('w', 'w', 'w')
+                poly2 = create_polynomial('w', 'w', 'w')
+                vector = [poly1, poly2]
+            if operator_type == "+":
+                poly1 = create_polynomial('w', 'm', 'p')
+                poly2 = create_polynomial('w', 'p', 'm')
+                vector = [poly1, poly2]
+
+        if db_list[0][0] not in db_list[1]:
+            vector.insert(0, Polynomial([Monomial("o")]))
+
+        return index + 1, [vector]
 
     @staticmethod
-    def save_relation(file_name: str, relation: Relation, combinations: List[List[int]]) -> None:
+    def save_relation(file_name: str, relation: Relation,
+                      combinations: List[List[int]]) -> None:
         """Save analysis result to file.
 
         Arguments:
@@ -333,9 +327,7 @@ class Analysis:
 
         # ensure directory path exists
         dir_path, _ = os.path.split(file_name)
-        logger.debug(f'out path {dir_path}')
         if not os.path.exists(dir_path):
-            logger.debug(f'made directory')
             os.makedirs(dir_path)
 
         # write to file

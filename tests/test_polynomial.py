@@ -1,4 +1,4 @@
-from semiring import ZERO_MWP
+from pymwp.semiring import ZERO_MWP
 from pymwp.polynomial import Polynomial
 from pymwp.monomial import Monomial
 
