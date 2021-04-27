@@ -1,6 +1,8 @@
 import os
+import sys
 import logging
 import json
+from subprocess import CalledProcessError
 from typing import Optional, List, Tuple
 from pycparser import parse_file, c_ast
 
@@ -100,6 +102,13 @@ class Analysis:
 
         logger.info("Starting analysis of %s", in_file)
         ast = Analysis.parse_c_file(in_file)
+
+        if not ast.ext or \
+                ast.ext[0].body is None or \
+                ast.ext[0].body.block_items is None:
+            logger.error('Input is invalid or empty. Terminating.')
+            sys.exit(1)
+
         function_body = ast.ext[0].body
 
         index, relations = 0, RelationList()
@@ -107,7 +116,7 @@ class Analysis:
 
         for i, stmt in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list = self.compute_relation(index, stmt)
+            index, rel_list = Analysis.compute_relation(index, stmt)
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
 
@@ -150,117 +159,141 @@ class Analysis:
         Returns:
             Generated AST
         """
-        ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-        logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
-        return ast
+        try:
+            ast = parse_file(file, use_cpp, cpp_path, cpp_args)
+            logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
+            return ast
+        except CalledProcessError:
+            logger.error('Failed to parse C file. Terminating.')
+            sys.exit(1)
 
-    def compute_relation(self, index: int, node) -> Tuple[int, RelationList]:
-        """Return a RelationList corresponding for all possible matrices
-        of `node`.
+    @staticmethod
+    def compute_relation(index: int, node) -> Tuple[int, RelationList]:
+        """Create a relation list corresponding for all possible matrices
+        of node.
 
         Arguments:
-            index: TODO
-            node: TODO
+            index: delta index
+            node: AST node to analyze
 
         Returns:
-            TODO
+            Updated index value and relation list
         """
-        # TODO miss unary and constantes operation
 
-        logger.debug("In compute_relation")
+        # TODO: miss unary and constants operation
+        logger.debug("in compute_relation")
 
         if isinstance(node, c_ast.Assignment):
-            x = node.lvalue.name
-            dblist = [[x], []]
-            if isinstance(node.rvalue, c_ast.BinaryOp):  # x=y+z
-                nb_cst = 2
-                if not isinstance(node.rvalue.left, c_ast.Constant):
-                    y = node.rvalue.left.name
-                    dblist[1].append(y)
-                    nb_cst -= 1
-                if not isinstance(node.rvalue.right, c_ast.Constant):
-                    z = node.rvalue.right.name
-                    dblist[1].append(z)
-                    nb_cst -= 1
-                listvar = dblist[0]
-                for var in dblist[1]:
-                    if var not in listvar:
-                        listvar.append(var)
-                # listvar=list(set(dblist[0])|set(dblist[1]))
-                rest = RelationList.identity(listvar)
-                # Define dependence type
-                if node.rvalue.op in ["+", "-"]:
-                    logger.debug("operator +…")
-                    if nb_cst == 0:
-                        index, list_vect = Analysis \
-                            .create_vector(index, dblist, "+")
-                    else:
-                        index, list_vect = Analysis \
-                            .create_vector(index, dblist, "u")
-                elif node.rvalue.op in ["*"]:
-                    logger.debug("operator *…")
-                    if nb_cst == 0:
-                        index, list_vect = Analysis \
-                            .create_vector(index, dblist, "*")
-                    else:
-                        index, list_vect = Analysis \
-                            .create_vector(index, dblist, "u")
+            return Analysis.analyze_assignment(node, index)
+        if isinstance(node, c_ast.If):
+            return Analysis.analyse_if(node, index)
+        if isinstance(node, c_ast.While):
+            return Analysis.analyze_while(node, index)
+        if isinstance(node, c_ast.For):
+            return Analysis.analyze_for(node, index)
+
+        # TODO: handle uncovered cases
+        logger.debug(f"uncovered case! type: {type(node)}")
+        return index, RelationList()
+
+    @staticmethod
+    def analyze_assignment(node, index):
+        """Analyze assignment."""
+        x = node.lvalue.name
+        dblist = [[x], []]
+        if isinstance(node.rvalue, c_ast.BinaryOp):  # x=y+z
+            nb_cst = 2
+            if not isinstance(node.rvalue.left, c_ast.Constant):
+                y = node.rvalue.left.name
+                dblist[1].append(y)
+                nb_cst -= 1
+            if not isinstance(node.rvalue.right, c_ast.Constant):
+                z = node.rvalue.right.name
+                dblist[1].append(z)
+                nb_cst -= 1
+            listvar = dblist[0]
+            for var in dblist[1]:
+                if var not in listvar:
+                    listvar.append(var)
+            # listvar=list(set(dblist[0])|set(dblist[1]))
+            rest = RelationList.identity(listvar)
+            # Define dependence type
+            if node.rvalue.op in ["+", "-"]:
+                logger.debug("operator +…")
+                if nb_cst == 0:
+                    index, list_vect = Analysis \
+                        .create_vector(index, dblist, "+")
                 else:
                     index, list_vect = Analysis \
-                        .create_vector(index, dblist, "undef")
-                # logger.debug(f"list_vect={list_vect}")
-                rest.replace_column(list_vect[0], dblist[0][0])
-                logger.debug('Computing Relation (first case)')
-                return index, rest
-            if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
-                rest = RelationList([x])
-                logger.debug('Computing Relation (second case)')
-                return index, rest
-            if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
-                listVar = None  # list_var(exp)
-                rels = RelationList.identity([x] + listVar)
-                # TODO
-                logger.debug('Computing Relation (third case)')
-                return index, rels
-        if isinstance(node, c_ast.If):  # if cond then … else …
-            logger.debug("analysing If:")
-            relT = RelationList([])
-            for child in node.iftrue.block_items:
-                index, rel_list = self.compute_relation(index, child)
-                relT.composition(rel_list)
-            relF = RelationList([])
-            if node.iffalse is not None:
-                for child in node.iffalse.block_items:
-                    index, rel_list = self.compute_relation(index, child)
-                    relF.composition(rel_list)
-            rels = relF + relT
-            # rels=rels.conditionRel(list_var(node.cond))
-            # if DEBUG_LEVEL >= 2:
-            logger.debug('Computing Relation (conditional case)')
+                        .create_vector(index, dblist, "u")
+            elif node.rvalue.op in ["*"]:
+                logger.debug("operator *…")
+                if nb_cst == 0:
+                    index, list_vect = Analysis \
+                        .create_vector(index, dblist, "*")
+                else:
+                    index, list_vect = Analysis \
+                        .create_vector(index, dblist, "u")
+            else:
+                index, list_vect = Analysis \
+                    .create_vector(index, dblist, "undef")
+            # logger.debug(f"list_vect={list_vect}")
+            rest.replace_column(list_vect[0], dblist[0][0])
+            logger.debug('Computing Relation (first case)')
+            return index, rest
+        if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
+            rest = RelationList([x])
+            logger.debug('Computing Relation (second case)')
+            return index, rest
+        if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
+            listVar = None  # list_var(exp)
+            rels = RelationList.identity([x] + listVar)
+            # TODO
+            logger.debug('Computing Relation (third case)')
             return index, rels
-        if isinstance(node, c_ast.While):
-            logger.debug("analysing While:")
-            rels = RelationList()
-            for child in node.stmt.block_items:
-                index, rel_list = self.compute_relation(index, child)
-                rels.composition(rel_list)
-            logger.debug('Computing Relation (loop case) before fixpoint')
-            rels.fixpoint()
-            logger.debug('Computing Relation (loop case) after fixpoint)')
-            rels.while_correction()
-            logger.debug('Computing Relation (loop case)')
-            return index, rels
-        if isinstance(node, c_ast.For):
-            logger.debug("analysing For:")
-            rels = RelationList()
-            for child in node.stmt.block_items:
-                index, rel_list = self.compute_relation(index, child)
-                rels = rels.composition(rel_list)
-            rels.fixpoint()
-            rels = rels.conditionRel(VarVisitor.list_var(node.cond))
-            return index, rels
-        logger.debug(f"uncovered case! Type: {type(node)}")
-        return index, RelationList()  #  FIXME
+
+    @staticmethod
+    def analyse_if(node, index):
+        """Analyze if statement."""
+        logger.debug("analysing If:")
+        true_relation = RelationList([])
+        for child in node.iftrue.block_items:
+            index, rel_list = Analysis.compute_relation(index, child)
+            true_relation.composition(rel_list)
+        false_relation = RelationList([])
+        if node.iffalse is not None:
+            for child in node.iffalse.block_items:
+                index, rel_list = Analysis.compute_relation(index, child)
+                false_relation.composition(rel_list)
+        relations = false_relation + true_relation
+        logger.debug('computing relation (conditional case)')
+        return index, relations
+
+    @staticmethod
+    def analyze_while(node, index):
+        """Analyze while loop."""
+        logger.debug("analysing While:")
+        relations = RelationList()
+        for child in node.stmt.block_items:
+            index, rel_list = Analysis.compute_relation(index, child)
+            relations.composition(rel_list)
+        logger.debug('while loop fixpoint')
+        relations.fixpoint()
+        relations.while_correction()
+        return index, relations
+
+    @staticmethod
+    def analyze_for(node, index):
+        """Analyze for loop node."""
+        logger.debug("analysing For:")
+        relations = RelationList()
+        for child in node.stmt.block_items:
+            index, rel_list = Analysis.compute_relation(index, child)
+            relations.composition(rel_list)
+        relations.fixpoint()
+        # TODO: what is conditionRel?
+        relations = relations.conditionRel(VarVisitor.list_var(node.cond))
+        return index, relations
 
     @staticmethod
     def create_vector(
@@ -274,11 +307,12 @@ class Analysis:
             operator_type: one of `"u"`,`"+"`,`"*"`,`"undef"`
 
         Returns:
-              updated index, list of polynomials
+              updated index, nested list of polynomials
         """
 
         vector = []
 
+        # helper for creating polynomials
         def append_poly(scalar1: str, scalar2: str, scalar3: str):
             vector.append(Polynomial([
                 Monomial(scalar1, [(0, index)]),
@@ -289,11 +323,12 @@ class Analysis:
         if operator_type == "u":
             append_poly('m', 'm', 'm')
 
-        if db_list[1][0] == db_list[1][1]:
+        elif db_list[1][0] == db_list[1][1]:
             if operator_type == "*":
                 append_poly('w', 'w', 'w')
             if operator_type == "+":
                 append_poly('w', 'p', 'w')
+
         else:
             if operator_type == "*":
                 append_poly('w', 'w', 'w')
@@ -309,8 +344,9 @@ class Analysis:
         return index + 1, [vector]
 
     @staticmethod
-    def save_relation(file_name: str, relation: Relation,
-                      combinations: List[List[int]]) -> None:
+    def save_relation(
+            file_name: str, relation: Relation, combinations: List[List[int]]
+    ) -> None:
         """Save analysis result to file.
 
         Arguments:
@@ -335,9 +371,6 @@ class Analysis:
     @staticmethod
     def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
         """Load previous analysis result from file.
-
-        !!! info
-            This method is not currently used.
 
         Arguments:
             file_name: file to read
