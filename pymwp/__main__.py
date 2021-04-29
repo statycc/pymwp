@@ -73,7 +73,7 @@ def setup_logger(
             see: https://docs.python.org/3/library/logging.html#levels
         log_filename: Write logging info to a file
     """
-    fmt = "[%(asctime)s] %(levelname)s (in %(module)s): %(message)s"
+    fmt = "[%(asctime)s] %(levelname)s (%(module)s): %(message)s"
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
 

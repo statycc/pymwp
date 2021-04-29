@@ -18,23 +18,23 @@ logger = logging.getLogger(__name__)
 class MyWhile:
     """Loop object."""
 
-    def __init__(self, node_while, parent, isOpt, subWhiles):
+    def __init__(self, node_while, parent, is_opt, sub_whiles):
         # Corresponding node in the ast
         self.node_while = node_while
         # its parent node
         self.parent = parent
-        # a boolean to know if it's optimzed yet
-        self.isOpt = isOpt
+        # a boolean to know if it's optimized yet
+        self.is_opt = is_opt
         # Sub loops it may contains
-        self.subWhiles = subWhiles
+        self.sub_whiles = sub_whiles
 
     # Pretty printing
     def show(self, indent=""):
         indice = self.parent[1]
-        opt = self.isOpt
+        opt = self.is_opt
         print(indent + "while - " + str(indice) + " est opt:" + str(opt))
         self.node_while.show()
-        for sub_while in self.subWhiles:
+        for sub_while in self.sub_whiles:
             sub_while.show("\t")
 
 
@@ -61,7 +61,6 @@ class WhileVisitor(c_ast.NodeVisitor):
     """For visiting and performing actions for every encountered while node."""
 
     def __init__(self):
-        # Will contain list of `myWhile` object
         self.values = []
 
     def visit(self, node, parent=None, i=-1):
@@ -70,12 +69,11 @@ class WhileVisitor(c_ast.NodeVisitor):
         return visitor(node, parent, i)
 
     # When visit create `myWhile` object to the list of while
-    def visit_While(self, node, parent=None, i=-1):
+    def visit_while(self, node, parent=None, i=-1):
         wv = WhileVisitor()
         wv.visit(node.stmt)
-        myWhile = MyWhile(node, (parent, i), False, wv.values)
-        # mywhile = c_ast.While(node.cond,node.stmt)
-        self.values.append(myWhile)
+        my_while = MyWhile(node, (parent, i), False, wv.values)
+        self.values.append(my_while)
 
     def generic_visit(self, node, parent, i):
         """Called if no explicit visitor function exists for a
@@ -110,7 +108,6 @@ class Analysis:
             sys.exit(1)
 
         function_body = ast.ext[0].body
-
         index, relations = 0, RelationList()
         total = len(function_body.block_items)
 
@@ -122,50 +119,29 @@ class Analysis:
 
         relation = relations.relations[0]
         combinations = relation.non_infinity(choices, index)
-        logger.debug('saving result')
         Analysis.save_relation(out_file, relation, combinations)
         logger.info("saved result in %s", out_file)
 
+        logger.debug(relations)
         if combinations:
-            logger.info(combinations)
+            logger.info(f"\n{combinations}")
         else:
             logger.info("infinite")
 
     @staticmethod
     def default_out_file(in_file: str):
+        """Get default output file name.
+
+        Arguments:
+            in_file: input C filename
+
+        Returns:
+            Generated output filename with path.
+
+        """
         file_only = os.path.splitext(in_file)[0]
         file_name = os.path.basename(file_only)
         return os.path.join("output", f"{file_name}.txt")
-
-    @staticmethod
-    def parse_c_file(
-            file, use_cpp: bool = True, cpp_path: str = "gcc",
-            cpp_args: str = "-E"
-    ):
-        """Parse C file using pycparser.
-
-        Arguments:
-            file: path to C file
-            use_cpp: Set to True if you want to execute the C pre-processor
-                on the file prior to parsing it.
-            cpp_path: If use_cpp is True, this is the path to 'cpp' on your
-                system. If no path is provided, it attempts to just execute
-                'cpp', so it must be in your PATH.
-            cpp_args: If use_cpp is True, set this to the command line
-                arguments strings to cpp. Be careful with quotes - it's best
-                to pass a raw string (r'') here. If several arguments are
-                required, pass a list of strings.
-
-        Returns:
-            Generated AST
-        """
-        try:
-            ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-            logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
-            return ast
-        except CalledProcessError:
-            logger.error('Failed to parse C file. Terminating.')
-            sys.exit(1)
 
     @staticmethod
     def compute_relation(index: int, node) -> Tuple[int, RelationList]:
@@ -180,11 +156,15 @@ class Analysis:
             Updated index value and relation list
         """
 
-        # TODO: miss unary and constants operation
         logger.debug("in compute_relation")
 
         if isinstance(node, c_ast.Assignment):
-            return Analysis.analyze_assignment(node, index)
+            if isinstance(node.rvalue, c_ast.BinaryOp):
+                return Analysis.analyze_binary_op(node, index)
+            if isinstance(node.rvalue, c_ast.Constant):
+                return Analysis.analyze_constant(node, index)
+            if isinstance(node.rvalue, c_ast.UnaryOp):
+                return Analysis.analyze_unary_op(node, index)
         if isinstance(node, c_ast.If):
             return Analysis.analyse_if(node, index)
         if isinstance(node, c_ast.While):
@@ -197,60 +177,68 @@ class Analysis:
         return index, RelationList()
 
     @staticmethod
-    def analyze_assignment(node, index):
-        """Analyze assignment."""
+    def analyze_binary_op(node, index):
+        """Analyze binary operation x = y + z"""
         x = node.lvalue.name
         dblist = [[x], []]
-        if isinstance(node.rvalue, c_ast.BinaryOp):  # x=y+z
-            nb_cst = 2
-            if not isinstance(node.rvalue.left, c_ast.Constant):
-                y = node.rvalue.left.name
-                dblist[1].append(y)
-                nb_cst -= 1
-            if not isinstance(node.rvalue.right, c_ast.Constant):
-                z = node.rvalue.right.name
-                dblist[1].append(z)
-                nb_cst -= 1
-            listvar = dblist[0]
-            for var in dblist[1]:
-                if var not in listvar:
-                    listvar.append(var)
-            # listvar=list(set(dblist[0])|set(dblist[1]))
-            rest = RelationList.identity(listvar)
-            # Define dependence type
-            if node.rvalue.op in ["+", "-"]:
-                logger.debug("operator +…")
-                if nb_cst == 0:
-                    index, list_vect = Analysis \
-                        .create_vector(index, dblist, "+")
-                else:
-                    index, list_vect = Analysis \
-                        .create_vector(index, dblist, "u")
-            elif node.rvalue.op in ["*"]:
-                logger.debug("operator *…")
-                if nb_cst == 0:
-                    index, list_vect = Analysis \
-                        .create_vector(index, dblist, "*")
-                else:
-                    index, list_vect = Analysis \
-                        .create_vector(index, dblist, "u")
+        nb_cst = 2
+        if not isinstance(node.rvalue.left, c_ast.Constant):
+            y = node.rvalue.left.name
+            dblist[1].append(y)
+            nb_cst -= 1
+        if not isinstance(node.rvalue.right, c_ast.Constant):
+            z = node.rvalue.right.name
+            dblist[1].append(z)
+            nb_cst -= 1
+        listvar = dblist[0]
+        for var in dblist[1]:
+            if var not in listvar:
+                listvar.append(var)
+        # listvar=list(set(dblist[0])|set(dblist[1]))
+        rest = RelationList.identity(listvar)
+        # Define dependence type
+        if node.rvalue.op in ["+", "-"]:
+            logger.debug("operator +…")
+            if nb_cst == 0:
+                index, list_vect = Analysis \
+                    .create_vector(index, dblist, "+")
             else:
                 index, list_vect = Analysis \
-                    .create_vector(index, dblist, "undef")
-            # logger.debug(f"list_vect={list_vect}")
-            rest.replace_column(list_vect[0], dblist[0][0])
-            logger.debug('Computing Relation (first case)')
-            return index, rest
-        if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
-            rest = RelationList([x])
-            logger.debug('Computing Relation (second case)')
-            return index, rest
-        if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
-            listVar = None  # list_var(exp)
-            rels = RelationList.identity([x] + listVar)
-            # TODO
-            logger.debug('Computing Relation (third case)')
-            return index, rels
+                    .create_vector(index, dblist, "u")
+        elif node.rvalue.op in ["*"]:
+            logger.debug("operator *…")
+            if nb_cst == 0:
+                index, list_vect = Analysis \
+                    .create_vector(index, dblist, "*")
+            else:
+                index, list_vect = Analysis \
+                    .create_vector(index, dblist, "u")
+        else:
+            index, list_vect = Analysis \
+                .create_vector(index, dblist, "undef")
+        # logger.debug(f"list_vect={list_vect}")
+        rest.replace_column(list_vect[0], dblist[0][0])
+        logger.debug('Computing Relation (first case)')
+        return index, rest
+
+    @staticmethod
+    def analyze_constant(node, index):
+        """Analyze constant."""
+        # TODO: implement
+        x = node.lvalue.name
+        rest = RelationList([x])
+        logger.debug('Computing Relation (second case)')
+        return index, rest
+
+    @staticmethod
+    def analyze_unary_op(node, index):
+        """Analyze unary operator."""
+        # TODO : implement
+        x = node.lvalue.name
+        listVar = None  # list_var(exp)
+        rels = RelationList.identity([x] + listVar)
+        logger.debug('Computing Relation (third case)')
+        return index, rels
 
     @staticmethod
     def analyse_if(node, index):
@@ -285,13 +273,14 @@ class Analysis:
     @staticmethod
     def analyze_for(node, index):
         """Analyze for loop node."""
+        # TODO: implement
         logger.debug("analysing For:")
         relations = RelationList()
         for child in node.stmt.block_items:
             index, rel_list = Analysis.compute_relation(index, child)
             relations.composition(rel_list)
         relations.fixpoint()
-        # TODO: what is conditionRel?
+        # unknown method conditionRel
         relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations
 
@@ -342,6 +331,36 @@ class Analysis:
             vector.insert(0, Polynomial([Monomial("o")]))
 
         return index + 1, [vector]
+
+    @staticmethod
+    def parse_c_file(
+            file, use_cpp: bool = True, cpp_path: str = "gcc",
+            cpp_args: str = "-E"
+    ):
+        """Parse C file using pycparser.
+
+        Arguments:
+            file: path to C file
+            use_cpp: Set to True if you want to execute the C pre-processor
+                on the file prior to parsing it.
+            cpp_path: If use_cpp is True, this is the path to 'cpp' on your
+                system. If no path is provided, it attempts to just execute
+                'cpp', so it must be in your PATH.
+            cpp_args: If use_cpp is True, set this to the command line
+                arguments strings to cpp. Be careful with quotes - it's best
+                to pass a raw string (r'') here. If several arguments are
+                required, pass a list of strings.
+
+        Returns:
+            Generated AST
+        """
+        try:
+            ast = parse_file(file, use_cpp, cpp_path, cpp_args)
+            logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
+            return ast
+        except CalledProcessError:
+            logger.error('Failed to parse C file. Terminating.')
+            sys.exit(1)
 
     @staticmethod
     def save_relation(
