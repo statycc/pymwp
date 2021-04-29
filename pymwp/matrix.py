@@ -78,8 +78,7 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
         matrix: matrix to encode
 
     Raises:
-        AttributeError: If the matrix does not contain polynomials
-        calling this method will raise this exception.
+        AttributeError: If the matrix does not contain polynomials.
 
     Returns:
         Encoded matrix.

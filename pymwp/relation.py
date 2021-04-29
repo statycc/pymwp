@@ -228,27 +228,33 @@ class Relation:
                 return fix
 
     def eval(self, choices: List[int]) -> bool:
-        """Evaluate matrix against a list of choices and
+        """Evaluate relation matrix against a list of choices to
             determine if any of them results in infinity.
 
         This method iterates all monomials of all polynomials
-        and performs the eval on that object.
+        and performs `eval()` on each object.
 
-        for implementations see:
+        For implementations see:
 
-        - [`polynomial#eval`](polynomial.md#pymwp.polynomial.Polynomial.eval)
-        - [`monomial#eval`](monomial.md#pymwp.monomial.Monomial.eval)
+        - [`polynomial.eval()`](polynomial.md#pymwp.polynomial.Polynomial.eval)
+        - [`monomial.eval()`](monomial.md#pymwp.monomial.Monomial.eval)
+
+        Example:
+
+        ```python
+        choices = [0, 1, 2, 0, 1, 0]
+        relation.eval(choices)
+        ```
 
         Arguments:
-            choices: List of choices represents a list of indices
-            to select for each monomial.
+            choices: a list of indices to select for each monomial.
 
         Returns:
-           True if no infinity occurs and false otherwise.
+           `False` if infinity occurs during evaluation of choices and `True`
+           otherwise.
         """
 
         for row in self.matrix:
-            # logger.debug(f"evaluating {len(row)} polynomials against {choices}")
             for poly in row:
                 if poly.eval(choices) == 'i':
                     return False
@@ -280,7 +286,7 @@ class Relation:
             index: length of generated product
 
         Returns:
-            All combinations that do not result in $\infty$.
+            All combinations that do not result in $\\infty$.
         """
         logger.debug(f"computing combinations choices {choices}, index {index}")
         logger.debug(f"relation contains {self.variables} variables")
