@@ -5,6 +5,7 @@ import json
 from subprocess import CalledProcessError
 from typing import Optional, List, Tuple
 from pycparser import parse_file, c_ast
+from pycparser.c_ast import Node, Assignment, If, While, For
 
 from .relation_list import RelationList
 from .relation import Relation
@@ -28,8 +29,8 @@ class MyWhile:
         # Sub loops it may contains
         self.sub_whiles = sub_whiles
 
-    # Pretty printing
     def show(self, indent=""):
+        """Pretty printing."""
         indice = self.parent[1]
         opt = self.is_opt
         print(indent + "while - " + str(indice) + " est opt:" + str(opt))
@@ -68,8 +69,8 @@ class WhileVisitor(c_ast.NodeVisitor):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node, parent, i)
 
-    # When visit create `myWhile` object to the list of while
     def visit_while(self, node, parent=None, i=-1):
+        """When visit create `myWhile` object to the list of while."""
         wv = WhileVisitor()
         wv.visit(node.stmt)
         my_while = MyWhile(node, (parent, i), False, wv.values)
@@ -88,18 +89,21 @@ class WhileVisitor(c_ast.NodeVisitor):
 class Analysis:
     """MWP analysis implementation."""
 
-    def __init__(self, in_file: str, out_path: Optional[str] = None):
-        """Run MWP analysis on specified file.
+    def __init__(self, file_in: str, file_out: Optional[str] = None):
+        """Run MWP analysis on specified input file.
 
         Arguments:
-            in_file: path to C file
-            out_path: where to store result
+            file_in: C source code file path
+            file_out: where to store result
         """
-        out_file = out_path or Analysis.default_out_file(in_file)
+
+        # TODO: parametrize
+        output_file = file_out or Analysis.default_file_out(file_in)
+        use_cpp, cpp_path, cpp_args = None, None, None
         choices = [0, 1, 2]
 
-        logger.info("Starting analysis of %s", in_file)
-        ast = Analysis.parse_c_file(in_file)
+        logger.info("Starting analysis of %s", file_in)
+        ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
 
         if not ast.ext or \
                 ast.ext[0].body is None or \
@@ -111,16 +115,16 @@ class Analysis:
         index, relations = 0, RelationList()
         total = len(function_body.block_items)
 
-        for i, stmt in enumerate(function_body.block_items):
-            logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list = Analysis.compute_relation(index, stmt)
+        for i, node in enumerate(function_body.block_items):
+            logger.debug(f'computing relation...{i} of {total} {type(node)}')
+            index, rel_list = Analysis.compute_relation(index, node)
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
 
         relation = relations.relations[0]
         combinations = relation.non_infinity(choices, index)
-        Analysis.save_relation(out_file, relation, combinations)
-        logger.info("saved result in %s", out_file)
+        Analysis.save_relation(output_file, relation, combinations)
+        logger.info("saved result in %s", output_file)
 
         logger.debug(relations)
         if combinations:
@@ -129,24 +133,24 @@ class Analysis:
             logger.info("infinite")
 
     @staticmethod
-    def default_out_file(in_file: str):
-        """Get default output file name.
+    def default_file_out(input_file: str) -> str:
+        """Generates default output file.
 
         Arguments:
-            in_file: input C filename
+            input_file: input filename (with or without path)
 
         Returns:
             Generated output filename with path.
 
         """
-        file_only = os.path.splitext(in_file)[0]
+        file_only = os.path.splitext(input_file)[0]
         file_name = os.path.basename(file_only)
         return os.path.join("output", f"{file_name}.txt")
 
     @staticmethod
-    def compute_relation(index: int, node) -> Tuple[int, RelationList]:
+    def compute_relation(index: int, node: Node) -> Tuple[int, RelationList]:
         """Create a relation list corresponding for all possible matrices
-        of node.
+        of an AST node.
 
         Arguments:
             index: delta index
@@ -160,25 +164,34 @@ class Analysis:
 
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
-                return Analysis.analyze_binary_op(node, index)
+                return Analysis.binary_op(index, node)
             if isinstance(node.rvalue, c_ast.Constant):
-                return Analysis.analyze_constant(node, index)
+                return Analysis.constant(index, node)
             if isinstance(node.rvalue, c_ast.UnaryOp):
-                return Analysis.analyze_unary_op(node, index)
+                return Analysis.unary_op(index, node)
         if isinstance(node, c_ast.If):
-            return Analysis.analyse_if(node, index)
+            return Analysis.if_(index, node)
         if isinstance(node, c_ast.While):
-            return Analysis.analyze_while(node, index)
+            return Analysis.while_(index, node)
         if isinstance(node, c_ast.For):
-            return Analysis.analyze_for(node, index)
+            return Analysis.for_(index, node)
 
         # TODO: handle uncovered cases
         logger.debug(f"uncovered case! type: {type(node)}")
+
         return index, RelationList()
 
     @staticmethod
-    def analyze_binary_op(node, index):
-        """Analyze binary operation x = y + z"""
+    def binary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
+        """Analyze binary operation, e.g. `x = y + z`.
+
+        Arguments:
+            index: delta index
+            node: binary node to analyze
+
+        Returns:
+            Updated index value and relation list
+        """
         x = node.lvalue.name
         dblist = [[x], []]
         nb_cst = 2
@@ -222,66 +235,113 @@ class Analysis:
         return index, rest
 
     @staticmethod
-    def analyze_constant(node, index):
-        """Analyze constant."""
+    def constant(index: int, node: Assignment) -> Tuple[int, RelationList]:
+        """Analyze a constant.
+
+        Arguments:
+            index: delta index
+            node: node representing a constant
+
+        Returns:
+            Updated index value and relation list
+        """
         # TODO: implement
-        x = node.lvalue.name
-        rest = RelationList([x])
         logger.debug('Computing Relation (second case)')
-        return index, rest
+        var_name = node.lvalue.name
+        return index, RelationList([var_name])
 
     @staticmethod
-    def analyze_unary_op(node, index):
-        """Analyze unary operator."""
+    def unary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
+        """Analyze unary operator.
+
+        Arguments:
+            index: delta index
+            node: unary operator node
+
+        Returns:
+            Updated index value and relation list
+        """
         # TODO : implement
-        x = node.lvalue.name
-        listVar = None  # list_var(exp)
-        rels = RelationList.identity([x] + listVar)
         logger.debug('Computing Relation (third case)')
-        return index, rels
+        var_name = node.lvalue.name
+        # list_var = None  # list_var(exp)
+        # variables = [var_name] + list_var
+        variables = [var_name]
+        return index, RelationList.identity(variables)
 
     @staticmethod
-    def analyse_if(node, index):
-        """Analyze if statement."""
-        logger.debug("analysing If:")
-        true_relation = RelationList([])
+    def if_(index: int, node: If) -> Tuple[int, RelationList]:
+        """Analyze an if statement.
+
+        Arguments:
+            index: delta index
+            node: if-statement node
+
+        Returns:
+            Updated index value and relation list
+        """
+        logger.debug('computing relation (conditional case)')
+
+        true_relation = RelationList()
         for child in node.iftrue.block_items:
             index, rel_list = Analysis.compute_relation(index, child)
             true_relation.composition(rel_list)
-        false_relation = RelationList([])
+
+        false_relation = RelationList()
         if node.iffalse is not None:
             for child in node.iffalse.block_items:
                 index, rel_list = Analysis.compute_relation(index, child)
                 false_relation.composition(rel_list)
+
         relations = false_relation + true_relation
-        logger.debug('computing relation (conditional case)')
         return index, relations
 
     @staticmethod
-    def analyze_while(node, index):
-        """Analyze while loop."""
-        logger.debug("analysing While:")
+    def while_(index: int, node: While) -> Tuple[int, RelationList]:
+        """Analyze while loop.
+
+        Arguments:
+            index: delta index
+            node: while loop node
+
+        Returns:
+            Updated index value and relation list
+        """
+        logger.debug("analysing While")
+
         relations = RelationList()
         for child in node.stmt.block_items:
             index, rel_list = Analysis.compute_relation(index, child)
             relations.composition(rel_list)
+
         logger.debug('while loop fixpoint')
         relations.fixpoint()
         relations.while_correction()
+
         return index, relations
 
     @staticmethod
-    def analyze_for(node, index):
-        """Analyze for loop node."""
-        # TODO: implement
-        logger.debug("analysing For:")
+    def for_(index: int, node: For) -> Tuple[int, RelationList]:
+        """Analyze for loop node.
+
+        Arguments:
+            index: delta index
+            node: for loop node
+
+        Returns:
+            Updated index value and relation list
+
+        """
+        logger.debug("analysing for:")
+
         relations = RelationList()
         for child in node.stmt.block_items:
             index, rel_list = Analysis.compute_relation(index, child)
             relations.composition(rel_list)
+
         relations.fixpoint()
-        # unknown method conditionRel
-        relations = relations.conditionRel(VarVisitor.list_var(node.cond))
+        # TODO: unknown method conditionRel
+        # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations
 
     @staticmethod
@@ -334,9 +394,9 @@ class Analysis:
 
     @staticmethod
     def parse_c_file(
-            file, use_cpp: bool = True, cpp_path: str = "gcc",
-            cpp_args: str = "-E"
-    ):
+            file: str, use_cpp: Optional[bool] = True,
+            cpp_path: Optional[str] = "gcc", cpp_args: Optional[str] = "-E"
+    ) -> c_ast:
         """Parse C file using pycparser.
 
         Arguments:
@@ -399,7 +459,7 @@ class Analysis:
 
         """
         # read the file
-        with open(file_name, "r") as file_object:
+        with open(file_name) as file_object:
             data = json.load(file_object)
 
         # parse its data
