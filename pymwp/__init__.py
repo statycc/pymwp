@@ -7,7 +7,7 @@ pymwp: implementation of MWP analysis on C code in Python.
 
 __title__ = "pymwp"
 __author__ = "T. Seiller"
-__license__ = ""
+__license__ = "CC BY-NC 4.0"
 
 from pymwp.relation_list import RelationList
 from pymwp.relation import Relation
