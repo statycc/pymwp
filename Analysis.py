@@ -231,14 +231,23 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
     if isinstance(node, c_ast.If):  # if cond then … else …
         print("analysing If:")
         relT = RelationList([])
-        for child in node.iftrue.block_items:
-            index, rel_list = compute_rel(index, child)
-            relT.composition(rel_list)
         relF = RelationList([])
-        if node.iffalse is not None:
-            for child in node.iffalse.block_items:
-                index, rel_list = compute_rel(index, child)
+        # handle case where statement block has no braces
+        # -> there are no block_items
+        if 'block_items' not in node.iftrue:
+            index, rel_list = compute_rel(index, node.iftrue)
+            relT.composition(rel_list)
+            if node.iffalse is not None:
+                index, rel_list = compute_rel(index, node.iffalse)
                 relF.composition(rel_list)
+        else:
+            for child in node.iftrue.block_items:
+                index, rel_list = compute_rel(index, child)
+                relT.composition(rel_list)
+            if node.iffalse is not None:
+                for child in node.iffalse.block_items:
+                    index, rel_list = compute_rel(index, child)
+                    relF.composition(rel_list)
         rels = relF + relT
         # rels=rels.conditionRel(list_var(node.cond))
         if DEBUG_LEVEL >= 2:
