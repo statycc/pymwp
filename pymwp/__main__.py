@@ -50,7 +50,7 @@ def _parse_args(
         "-v",
         "--verbose",
         action="count",
-        default=0,
+        default=4,
         dest="verbosity",
         help="verbosity level, use up to 4 to increase logging -vvvv",
     )

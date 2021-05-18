@@ -268,20 +268,36 @@ class Analysis:
             Updated index value and relation list
         """
         logger.debug('computing relation (conditional case)')
-
         true_relation = RelationList()
-        for child in node.iftrue.block_items:
-            index, rel_list = Analysis.compute_relation(index, child)
-            true_relation.composition(rel_list)
-
         false_relation = RelationList()
-        if node.iffalse is not None:
-            for child in node.iffalse.block_items:
-                index, rel_list = Analysis.compute_relation(index, child)
-                false_relation.composition(rel_list)
+
+        index = Analysis.if_branch(node.iftrue, index, true_relation)
+        index = Analysis.if_branch(node.iffalse, index, false_relation)
 
         relations = false_relation + true_relation
         return index, relations
+
+    @staticmethod
+    def if_branch(node, index, relation_list) -> int:
+        """Analyze true or false branch of an if statement.
+
+        Arguments:
+            node: AST branch node
+            index: current delta index value
+            relation_list: current relation list state
+
+        Returns:
+            Updated index value
+        """
+        if node is not None:
+            if hasattr(node, 'block_items'):
+                for child in node.block_items:
+                    index, rel_list = Analysis.compute_relation(index, child)
+                    relation_list.composition(rel_list)
+            else:
+                index, rel_list = Analysis.compute_relation(index, node)
+                relation_list.composition(rel_list)
+        return index
 
     @staticmethod
     def while_(index: int, node: While) -> Tuple[int, RelationList]:
