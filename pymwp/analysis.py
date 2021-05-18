@@ -384,10 +384,10 @@ class Analysis:
         Arguments:
             ast: AST object
         """
-        invalid = ast is None or \
-                  ast.ext is None or len(ast.ext) == 0 or \
-                  ast.ext[0].body is None or \
-                  ast.ext[0].body.block_items is None
+
+        invalid = ast is None or ast.ext is None or len(ast.ext) == 0
+        invalid = invalid or ast.ext[0].body is None or ast.ext[
+            0].body.block_items is None
 
         if invalid:
             logger.error('Input C file is invalid or empty.')
