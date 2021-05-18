@@ -1,7 +1,7 @@
 import sys
 import logging
 from subprocess import CalledProcessError
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 from pycparser import parse_file, c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For
 
@@ -39,13 +39,6 @@ class Analysis:
         choices = [0, 1, 2]
         logger.info(f'Starting analysis of {file_in}')
         ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
-
-        # handle empty file / empty main
-        if not ast.ext or \
-                ast.ext[0].body is None or \
-                ast.ext[0].body.block_items is None:
-            logger.error('Input is invalid or empty. Terminating.')
-            sys.exit(1)
 
         function_body = ast.ext[0].body
         index, relations = 0, RelationList()
@@ -339,8 +332,7 @@ class Analysis:
 
     @staticmethod
     def parse_c_file(
-            file: str, use_cpp: Optional[bool], cpp_path: Optional[str],
-            cpp_args: Optional[str]
+            file: str, use_cpp: bool, cpp_path: str, cpp_args: str
     ) -> c_ast:
         """Parse C file using pycparser.
 
@@ -367,7 +359,33 @@ class Analysis:
             else:
                 info = 'parsed without preprocessor'
             logger.debug(info)
+            Analysis.validate_ast(ast)
             return ast
         except CalledProcessError:
             logger.error('Failed to parse C file. Terminating.')
+            sys.exit(1)
+
+    @staticmethod
+    def validate_ast(ast: c_ast) -> None:
+        """Check if successfully parsed AST can be analyzed.
+
+        Here we check that the C input file contains some source code
+        (has body) and that that body is not empty (has block_items).
+        These types of inputs do not cause the parser to error, so we
+        need to check these separately from parse error.
+
+        If the input is invalid terminate immediately.
+
+        Ref: [issue #4](https://github.com/seiller/pymwp/issues/4)
+
+        Arguments:
+            ast: AST object
+        """
+        invalid = ast is None or \
+                  ast.ext is None or len(ast.ext) == 0 or \
+                  ast.ext[0].body is None or \
+                  ast.ext[0].body.block_items is None
+
+        if invalid:
+            logger.error('Input C file is invalid or empty.')
             sys.exit(1)

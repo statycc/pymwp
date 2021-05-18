@@ -19,17 +19,21 @@ def default_file_out(input_file: str) -> str:
     """
     file_only = os.path.splitext(input_file)[0]
     file_name = os.path.basename(file_only)
+    # TODO: we save/load json but save as .txt, why?
     return os.path.join("output", f"{file_name}.txt")
 
 
 def save_relation(
         file_name: str, relation: Relation, combinations: List[List[int]]
 ) -> None:
-    """Save analysis result to file.
+    """Save analysis result to file as JSON.
+
+    - if output file does not exist it will be created
+    - if output file exists it will be overwritten
 
     Arguments:
-        file_name: file to write
-        relation: result relation
+        file_name: filename where to write
+        relation: analysis result relation
         combinations: non-infinity choices
     """
     info = {
@@ -50,8 +54,15 @@ def save_relation(
 def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
     """Load previous analysis result from file.
 
+    This method is the reverse of
+    [`save_relation`](file_io.md#pymwp.file_io.save_relation)
+    and assumes the input matches the output of that method.
+
     Arguments:
         file_name: file to read
+
+    Raises:
+          Exception: if `file_name` does not exist or cannot be read.
 
     Returns:
         parsed relation list and combinations
