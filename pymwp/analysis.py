@@ -18,8 +18,8 @@ class Analysis:
 
     @staticmethod
     def run(
-            file_in: str, file_out: str, no_save: bool,
-            use_cpp: bool, cpp_path: str, cpp_args: str
+            file_in: str, file_out: str = None, no_save: bool = False,
+            use_cpp: bool = True, cpp_path: str = None, cpp_args: str = None
     ):
         """Run MWP analysis on specified input file.
 
@@ -41,6 +41,7 @@ class Analysis:
         choices = [0, 1, 2]
         logger.info(f'Starting analysis of {file_in}')
         ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
+        Analysis.validate_ast(ast)
 
         function_body = ast.ext[0].body
         index, relations = 0, RelationList()
@@ -367,13 +368,12 @@ class Analysis:
         """
         try:
             ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-
+            # print(ast)
             if use_cpp:
                 info = f'parsed with preprocessor: {cpp_path} {cpp_args}'
             else:
                 info = 'parsed without preprocessor'
             logger.debug(info)
-            Analysis.validate_ast(ast)
             return ast
         except CalledProcessError:
             logger.error('Failed to parse C file. Terminating.')
