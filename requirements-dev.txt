@@ -3,6 +3,7 @@
 flake8
 pytest
 pytest-cov
+pytest-mock
 mkdocs
 mkdocs-material
 mkdocstrings

@@ -1,4 +1,7 @@
-from pymwp.file_io import default_file_out #, save_relation, load_relation
+import os
+import json
+
+from pymwp.file_io import default_file_out, save_relation, load_relation
 from pymwp.relation import Relation
 
 
@@ -16,10 +19,42 @@ def test_file_out_name_with_path():
     assert out_file == "output/example.txt"
 
 
-def test_save_relation():
-    filename = 'output.txt'
-    relation = Relation(['X1', 'X2', 'X3'])
-    combinations = [[2, 0, 0], [1, 0, 0]]
-    # save_relation(filename, relation, combinations)
-    # TODO: need to mock file open...
-    pass
+def test_save_relation(mocker):
+    # mock all built-ins
+    mocker.patch('os.path.exists', return_value=False)
+    mocker.patch('os.makedirs')
+    mocker.patch('builtins.open')
+    mocker.patch('json.dump')
+
+    filename = 'fakepath/deep_path/output.txt'
+    save_relation(filename, Relation(), [[]])
+
+    # it creates directory path when dir/s do not exist
+    os.makedirs.assert_called_once_with('fakepath/deep_path')
+    # it saves json
+    json.dump.assert_called_once()
+
+
+def test_load_relation(mocker):
+    # mock built-ins
+    mocker.patch('json.load', return_value={
+        "relation": {"variables": ["x", "y"],
+                     "matrix": [
+                         [[{"scalar": "m", "deltas": [(0, 0)]}],
+                          [{"scalar": "o", "deltas": []}]],
+                         [[{"scalar": "o", "deltas": []}],
+                          [{"scalar": "o", "deltas": []}]]]},
+        "combinations": [[0, 0, 0], [1, 0, 0]]
+    })
+    mocker.patch('builtins.open')
+
+    # load the relation
+    relation_list, combinations = load_relation("whatever.txt")
+    first_relation = relation_list.relations[0]
+    first_poly = first_relation.matrix[0][0].list[0]
+
+    # now check that composed relation matches expectation
+    assert combinations == [[0, 0, 0], [1, 0, 0]]
+    assert first_relation.variables == ["x", "y"]
+    assert first_poly.scalar == "m"
+    assert first_poly.deltas == [(0, 0)]

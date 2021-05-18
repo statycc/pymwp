@@ -1,11 +1,14 @@
 import os
 import json
+import logging
 
 from typing import List, Tuple
 
 from .relation_list import RelationList
 from .relation import Relation
 from .matrix import decode
+
+logger = logging.getLogger(__name__)
 
 
 def default_file_out(input_file: str) -> str:
@@ -23,22 +26,24 @@ def default_file_out(input_file: str) -> str:
     return os.path.join("output", f"{file_name}.txt")
 
 
-def save_relation(
-        file_name: str, relation: Relation, combinations: List[List[int]]
-) -> None:
+def save_relation(file_name: str, relation: Relation,
+                  choices: List[List[int]]) -> None:
     """Save analysis result to file as JSON.
 
+    Expected behavior:
+
+    - if path to output file does not exist it will be created
     - if output file does not exist it will be created
     - if output file exists it will be overwritten
 
     Arguments:
         file_name: filename where to write
         relation: analysis result relation
-        combinations: non-infinity choices
+        choices: non-infinity choices
     """
     info = {
         "relation": relation.to_dict(),
-        "combinations": combinations
+        "choices": choices
     }
 
     # ensure directory path exists
@@ -49,6 +54,8 @@ def save_relation(
     # write to file
     with open(file_name, "w") as outfile:
         json.dump(info, outfile, indent=4)
+
+    logger.info(f'saved result in {file_name}')
 
 
 def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
