@@ -32,6 +32,7 @@ def main():
 def _parse_args(
         parser: argparse.ArgumentParser,
         args: Optional[List] = None) -> argparse.Namespace:
+    """Setup available program arguments."""
     parser.add_argument(
         "file",
         help="Path to C source code file",
