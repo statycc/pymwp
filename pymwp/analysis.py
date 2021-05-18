@@ -368,7 +368,6 @@ class Analysis:
         """
         try:
             ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-            # print(ast)
             if use_cpp:
                 info = f'parsed with preprocessor: {cpp_path} {cpp_args}'
             else:
