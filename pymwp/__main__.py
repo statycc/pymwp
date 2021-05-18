@@ -53,7 +53,7 @@ def _parse_args(
     parser.add_argument(
         "--no-save",
         action='store_true',
-        help="disable writing result to file"
+        help="skip writing result to file"
     )
     parser.add_argument(
         "--no-cpp",

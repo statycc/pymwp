@@ -38,6 +38,12 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
     python -m pymwp c_files/infinite_2.c
     ```
     
+    to see all available options see help
+    
+    ```bash
+    python -m pymwp
+    ```
+    
     Earlier version of analysis can be called by replacing `-m pymwp` with 
     `Analysis.py`.
 

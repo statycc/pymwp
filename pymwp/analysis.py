@@ -5,7 +5,7 @@ from typing import List, Tuple
 from pycparser import parse_file, c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For
 
-from .relation_list import RelationList
+from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
 from .monomial import Monomial
 from .file_io import save_relation
@@ -20,7 +20,7 @@ class Analysis:
     def run(
             file_in: str, file_out: str = None, no_save: bool = False,
             use_cpp: bool = True, cpp_path: str = None, cpp_args: str = None
-    ):
+    ) -> Tuple[Relation, List[List[int]]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
@@ -36,6 +36,10 @@ class Analysis:
                 arguments strings to cpp. Be careful with quotes - it's best
                 to pass a raw string (r'') here. If several arguments are
                 required, pass a list of strings.
+
+        Returns:
+              Computed relation and list of non-infinity choices.
+
         """
 
         choices = [0, 1, 2]
