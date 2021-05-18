@@ -8,7 +8,7 @@ from pycparser.c_ast import Node, Assignment, If, While, For
 from .relation_list import RelationList
 from .polynomial import Polynomial
 from .monomial import Monomial
-from .file_io import default_file_out, save_relation
+from .file_io import save_relation
 
 logger = logging.getLogger(__name__)
 
@@ -16,19 +16,27 @@ logger = logging.getLogger(__name__)
 class Analysis:
     """MWP analysis implementation."""
 
-    def __init__(self, file_in: str, file_out: Optional[str] = None):
+    def __init__(
+            self, file_in: str, file_out: str, use_cpp: bool, cpp_path: str,
+            cpp_args: str
+    ):
         """Run MWP analysis on specified input file.
 
         Arguments:
             file_in: C source code file path
             file_out: where to store result
+            use_cpp: Set to True if you want to execute the C pre-processor
+                on the file prior to parsing it.
+            cpp_path: If use_cpp is True, this is the path to 'cpp' on your
+                system. If no path is provided, it attempts to just execute
+                'cpp', so it must be in your PATH.
+            cpp_args: If use_cpp is True, set this to the command line
+                arguments strings to cpp. Be careful with quotes - it's best
+                to pass a raw string (r'') here. If several arguments are
+                required, pass a list of strings.
         """
 
         choices = [0, 1, 2]
-        output_file = file_out or default_file_out(file_in)
-        # TODO: parametrize these options
-        use_cpp, cpp_path, cpp_args = True, 'gcc', '-E'
-
         logger.info(f'Starting analysis of {file_in}')
         ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
 
@@ -51,8 +59,8 @@ class Analysis:
 
         relation = relations.relations[0]
         combinations = relation.non_infinity(choices, index)
-        save_relation(output_file, relation, combinations)
-        logger.info(f'saved result in {output_file}')
+        save_relation(file_out, relation, combinations)
+        logger.info(f'saved result in {file_out}')
 
         logger.debug(relations)
         if combinations:
@@ -353,7 +361,12 @@ class Analysis:
         """
         try:
             ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-            logger.debug("C file parsed using args: %s %s", cpp_path, cpp_args)
+
+            if use_cpp:
+                info = f'parsed with preprocessor: {cpp_path} {cpp_args}'
+            else:
+                info = 'parsed without preprocessor'
+            logger.debug(info)
             return ast
         except CalledProcessError:
             logger.error('Failed to parse C file. Terminating.')

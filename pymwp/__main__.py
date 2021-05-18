@@ -9,6 +9,7 @@ from typing import List, Optional
 
 from .analysis import Analysis
 from .version import __version__
+from .file_io import default_file_out
 
 
 def main():
@@ -16,17 +17,16 @@ def main():
     parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
     args = _parse_args(parser)
 
-    log_filename = None
-    log_level = 40
-    if args.logfile:
-        log_filename = args.logfile
-    setup_logger(logging.FATAL - log_level, log_filename=log_filename)
-
     if not args.file:
         parser.print_help()
         sys.exit(1)
-    else:
-        Analysis(args.file, args.out)
+
+    log_level = 40
+    log_filename = args.logfile
+    setup_logger(logging.FATAL - log_level, log_filename=log_filename)
+    file_out = args.out or default_file_out(args.file)
+
+    Analysis(args.file, file_out, not args.no_cpp, args.cpp, args.cpp_args)
 
 
 def _parse_args(
@@ -47,6 +47,23 @@ def _parse_args(
         "--logfile",
         action="store",
         help="save log messages into a file",
+    )
+    parser.add_argument(
+        "--no-cpp",
+        action='store_true',
+        help="disable execution of C pre-processor on the input file"
+    )
+    parser.add_argument(
+        '--cpp',
+        action='store',
+        default='gcc',
+        help='path to C pre-processor on your system (default: gcc)',
+    )
+    parser.add_argument(
+        '--cpp-args',
+        action='store',
+        default='-E',
+        help='arguments to pass to C pre-processor (default: -E)',
     )
     parser.add_argument(
         "--version",
