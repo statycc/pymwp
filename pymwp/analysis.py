@@ -139,6 +139,12 @@ class Analysis:
     def constant(index: int, node: Assignment) -> Tuple[int, RelationList]:
         """Analyze a constant.
 
+        From MWP paper:
+
+        > To deal with constants, just replace the program’s constants by
+          variables and regard the replaced constants as input to these
+          variables.
+
         Arguments:
             index: delta index
             node: node representing a constant
@@ -146,10 +152,6 @@ class Analysis:
         Returns:
             Updated index value and relation list
         """
-        # TODO: implement constants, from MWP paper:
-        # To deal with constants, just replace the program’s constants by
-        # variables and regard the replaced constants as input to these
-        # variables.
 
         logger.debug('Computing Relation (second case / constant)')
         var_name = node.lvalue.name
@@ -262,6 +264,7 @@ class Analysis:
 
         relations.fixpoint()
         # TODO: unknown method conditionRel
+        #  ref: https://github.com/seiller/pymwp/issues/5
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations
 
