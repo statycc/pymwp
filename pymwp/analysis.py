@@ -16,15 +16,17 @@ logger = logging.getLogger(__name__)
 class Analysis:
     """MWP analysis implementation."""
 
-    def __init__(
-            self, file_in: str, file_out: str, use_cpp: bool, cpp_path: str,
-            cpp_args: str
+    @staticmethod
+    def run(
+            file_in: str, file_out: str, no_save: bool,
+            use_cpp: bool, cpp_path: str, cpp_args: str
     ):
         """Run MWP analysis on specified input file.
 
         Arguments:
             file_in: C source code file path
             file_out: where to store result
+            no_save: Set true when analysis result should not be saved to file
             use_cpp: Set to True if you want to execute the C pre-processor
                 on the file prior to parsing it.
             cpp_path: If use_cpp is True, this is the path to 'cpp' on your
@@ -52,14 +54,16 @@ class Analysis:
 
         relation = relations.relations[0]
         combinations = relation.non_infinity(choices, index)
-        save_relation(file_out, relation, combinations)
-        logger.info(f'saved result in {file_out}')
+        if not no_save:
+            save_relation(file_out, relation, combinations)
 
         logger.debug(relations)
         if combinations:
             logger.info(f'\n{combinations}')
         else:
             logger.info('infinite')
+
+        return relation, combinations
 
     @staticmethod
     def compute_relation(index: int, node: Node) -> Tuple[int, RelationList]:
@@ -182,14 +186,13 @@ class Analysis:
 
         Arguments:
             index: delta index
-            node: if-statement node
+            node: if-statement AST node
 
         Returns:
             Updated index value and relation list
         """
         logger.debug('computing relation (conditional case)')
-        true_relation = RelationList()
-        false_relation = RelationList()
+        true_relation, false_relation = RelationList(), RelationList()
 
         index = Analysis.if_branch(node.iftrue, index, true_relation)
         index = Analysis.if_branch(node.iffalse, index, false_relation)
@@ -199,10 +202,18 @@ class Analysis:
 
     @staticmethod
     def if_branch(node, index, relation_list) -> int:
-        """Analyze true or false branch of an if statement.
+        """Analyze `if` or `else` branch of a conditional statement.
+
+        This method will analyze the body of the statement and update
+        the provided relation. It can handle blocks with or without surrounding
+        braces. It will return the updated index value.
+
+        If branch does not exist (when else case is omitted) this
+        method does nothing and returns the original index value without
+        modification.
 
         Arguments:
-            node: AST branch node
+            node: AST if statement branch node
             index: current delta index value
             relation_list: current relation list state
 

@@ -26,7 +26,8 @@ def main():
     setup_logger(logging.FATAL - log_level, log_filename=log_filename)
     file_out = args.out or default_file_out(args.file)
 
-    Analysis(args.file, file_out, not args.no_cpp, args.cpp, args.cpp_args)
+    Analysis.run(args.file, file_out, args.no_save,
+                 not args.no_cpp, args.cpp, args.cpp_args)
 
 
 def _parse_args(
@@ -48,6 +49,11 @@ def _parse_args(
         "--logfile",
         action="store",
         help="save log messages into a file",
+    )
+    parser.add_argument(
+        "--no-save",
+        action='store_true',
+        help="disable writing result to file"
     )
     parser.add_argument(
         "--no-cpp",
