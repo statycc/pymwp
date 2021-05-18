@@ -1,89 +1,16 @@
-import os
 import sys
 import logging
-import json
 from subprocess import CalledProcessError
 from typing import Optional, List, Tuple
 from pycparser import parse_file, c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For
 
 from .relation_list import RelationList
-from .relation import Relation
 from .polynomial import Polynomial
 from .monomial import Monomial
-from .matrix import decode
+from .file_io import default_file_out, save_relation
 
 logger = logging.getLogger(__name__)
-
-
-class MyWhile:
-    """Loop object."""
-
-    def __init__(self, node_while, parent, is_opt, sub_whiles):
-        # Corresponding node in the ast
-        self.node_while = node_while
-        # its parent node
-        self.parent = parent
-        # a boolean to know if it's optimized yet
-        self.is_opt = is_opt
-        # Sub loops it may contains
-        self.sub_whiles = sub_whiles
-
-    def show(self, indent=""):
-        """Pretty printing."""
-        indice = self.parent[1]
-        opt = self.is_opt
-        print(indent + "while - " + str(indice) + " est opt:" + str(opt))
-        self.node_while.show()
-        for sub_while in self.sub_whiles:
-            sub_while.show("\t")
-
-
-class VarVisitor(c_ast.NodeVisitor):
-    """
-    pycparser provides visitors of nodes. This simplify action we want
-    to perform on specific node in a traversal way.
-    Here for visiting variables nodes.
-
-    TODO: this is not being used, why?
-    """
-
-    def __init__(self):
-        self.values = []
-
-    @staticmethod
-    def list_var(node):
-        vv = VarVisitor()
-        vv.visit(node)
-        return vv.values
-
-
-class WhileVisitor(c_ast.NodeVisitor):
-    """For visiting and performing actions for every encountered while node."""
-
-    def __init__(self):
-        self.values = []
-
-    def visit(self, node, parent=None, i=-1):
-        method = "visit_" + node.__class__.__name__
-        visitor = getattr(self, method, self.generic_visit)
-        return visitor(node, parent, i)
-
-    def visit_while(self, node, parent=None, i=-1):
-        """When visit create `myWhile` object to the list of while."""
-        wv = WhileVisitor()
-        wv.visit(node.stmt)
-        my_while = MyWhile(node, (parent, i), False, wv.values)
-        self.values.append(my_while)
-
-    def generic_visit(self, node, parent, i):
-        """Called if no explicit visitor function exists for a
-        node. Implements preorder visiting of the node.
-        """
-        i = 0
-        for c_name, c in node.children():
-            self.visit(c, node, i)
-            i += 1
 
 
 class Analysis:
@@ -97,14 +24,15 @@ class Analysis:
             file_out: where to store result
         """
 
-        output_file = file_out or Analysis.default_file_out(file_in)
-        # TODO: parametrize
-        use_cpp, cpp_path, cpp_args = None, None, None
         choices = [0, 1, 2]
+        output_file = file_out or default_file_out(file_in)
+        # TODO: parametrize these options
+        use_cpp, cpp_path, cpp_args = True, 'gcc', '-E'
 
-        logger.info("Starting analysis of %s", file_in)
+        logger.info(f'Starting analysis of {file_in}')
         ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
 
+        # handle empty file / empty main
         if not ast.ext or \
                 ast.ext[0].body is None or \
                 ast.ext[0].body.block_items is None:
@@ -123,29 +51,14 @@ class Analysis:
 
         relation = relations.relations[0]
         combinations = relation.non_infinity(choices, index)
-        Analysis.save_relation(output_file, relation, combinations)
-        logger.info("saved result in %s", output_file)
+        save_relation(output_file, relation, combinations)
+        logger.info(f'saved result in {output_file}')
 
         logger.debug(relations)
         if combinations:
-            logger.info(f"\n{combinations}")
+            logger.info(f'\n{combinations}')
         else:
-            logger.info("infinite")
-
-    @staticmethod
-    def default_file_out(input_file: str) -> str:
-        """Generates default output file.
-
-        Arguments:
-            input_file: input filename (with or without path)
-
-        Returns:
-            Generated output filename with path.
-
-        """
-        file_only = os.path.splitext(input_file)[0]
-        file_name = os.path.basename(file_only)
-        return os.path.join("output", f"{file_name}.txt")
+            logger.info('infinite')
 
     @staticmethod
     def compute_relation(index: int, node: Node) -> Tuple[int, RelationList]:
@@ -232,7 +145,11 @@ class Analysis:
         Returns:
             Updated index value and relation list
         """
-        # TODO: implement
+        # TODO: implement constants, from MWP paper:
+        # To deal with constants, just replace the program’s constants by
+        # variables and regard the replaced constants as input to these
+        # variables.
+
         logger.debug('Computing Relation (second case / constant)')
         var_name = node.lvalue.name
         return index, RelationList([var_name])
@@ -248,7 +165,7 @@ class Analysis:
         Returns:
             Updated index value and relation list
         """
-        # TODO : implement
+        # TODO : implement unary op
         logger.debug('Computing Relation (third case / unary)')
         var_name = node.lvalue.name
         # list_var = None  # list_var(exp)
@@ -414,8 +331,8 @@ class Analysis:
 
     @staticmethod
     def parse_c_file(
-            file: str, use_cpp: Optional[bool] = True,
-            cpp_path: Optional[str] = "gcc", cpp_args: Optional[str] = "-E"
+            file: str, use_cpp: Optional[bool], cpp_path: Optional[str],
+            cpp_args: Optional[str]
     ) -> c_ast:
         """Parse C file using pycparser.
 
@@ -442,52 +359,74 @@ class Analysis:
             logger.error('Failed to parse C file. Terminating.')
             sys.exit(1)
 
+
+class MyWhile:
+    """Loop object."""
+
+    def __init__(self, node_while, parent, is_opt, sub_whiles):
+        # Corresponding node in the ast
+        self.node_while = node_while
+        # its parent node
+        self.parent = parent
+        # a boolean to know if it's optimized yet
+        self.is_opt = is_opt
+        # Sub loops it may contains
+        self.sub_whiles = sub_whiles
+
+    def show(self, indent=""):
+        """Pretty printing."""
+        index = self.parent[1]
+        opt = self.is_opt
+        logger.debug(f'{indent} while - {index} est opt: {opt}')
+        self.node_while.show()
+        for sub_while in self.sub_whiles:
+            sub_while.show("\t")
+
+
+class VarVisitor(c_ast.NodeVisitor):
+    """
+    pycparser provides visitors of nodes. This simplify action we want
+    to perform on specific node in a traversal way.
+    Here for visiting variables nodes.
+
+    TODO: this is not being used, do we need it?
+    """
+
+    def __init__(self):
+        self.values = []
+
     @staticmethod
-    def save_relation(
-            file_name: str, relation: Relation, combinations: List[List[int]]
-    ) -> None:
-        """Save analysis result to file.
+    def list_var(node):
+        """TODO: what is this?"""
+        vv = VarVisitor()
+        vv.visit(node)
+        return vv.values
 
-        Arguments:
-            file_name: file to write
-            relation: result relation
-            combinations: non-infinity choices
+
+class WhileVisitor(c_ast.NodeVisitor):
+    """For visiting and performing actions for every encountered while node."""
+
+    def __init__(self):
+        self.values = []
+
+    def visit(self, node, parent=None, i=-1):
+        """TODO: what is this?"""
+        method = "visit_" + node.__class__.__name__
+        visitor = getattr(self, method, self.generic_visit)
+        return visitor(node, parent, i)
+
+    def visit_while(self, node, parent=None, i=-1):
+        """When visit create `myWhile` object to the list of while."""
+        wv = WhileVisitor()
+        wv.visit(node.stmt)
+        my_while = MyWhile(node, (parent, i), False, wv.values)
+        self.values.append(my_while)
+
+    def generic_visit(self, node, parent, i):
+        """Called if no explicit visitor function exists for a
+        node. Implements preorder visiting of the node.
         """
-        info = {
-            "relation": relation.to_dict(),
-            "combinations": combinations
-        }
-
-        # ensure directory path exists
-        dir_path, _ = os.path.split(file_name)
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-
-        # write to file
-        with open(file_name, "w") as outfile:
-            json.dump(info, outfile, indent=4)
-
-    @staticmethod
-    def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
-        """Load previous analysis result from file.
-
-        Arguments:
-            file_name: file to read
-
-        Returns:
-            parsed relation list and combinations
-
-        """
-        # read the file
-        with open(file_name) as file_object:
-            data = json.load(file_object)
-
-        # parse its data
-        matrix = data["relation"]["matrix"]
-        variables = data["relation"]["variables"]
-        combinations = data["combinations"]
-
-        # generate objects
-        relation = Relation(variables, decode(matrix))
-        relation_list = RelationList(relation_list=[relation])
-        return relation_list, combinations
+        i = 0
+        for c_name, c in node.children():
+            self.visit(c, node, i)
+            i += 1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Command line interface"""
+"""Provides command line interface with arguments"""
 
 import argparse
 import sys
@@ -16,14 +16,11 @@ def main():
     parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
     args = _parse_args(parser)
 
-    if args.verbosity:
-        if args.verbosity:
-            log_filename = None
-            log_level = min(args.verbosity, 4) * 10
-            if args.logfile:
-                log_filename = args.logfile
-            setup_logger(logging.FATAL - log_level,
-                         log_filename=log_filename)
+    log_filename = None
+    log_level = 40
+    if args.logfile:
+        log_filename = args.logfile
+    setup_logger(logging.FATAL - log_level, log_filename=log_filename)
 
     if not args.file:
         parser.print_help()
@@ -47,17 +44,9 @@ def _parse_args(
         help="file for storing analysis result",
     )
     parser.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        default=4,
-        dest="verbosity",
-        help="verbosity level, use up to 4 to increase logging -vvvv",
-    )
-    parser.add_argument(
         "--logfile",
         action="store",
-        help="logging debug and error messages into a log file",
+        help="save log messages into a file",
     )
     parser.add_argument(
         "--version",
