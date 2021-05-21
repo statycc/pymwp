@@ -183,7 +183,8 @@ class Relation:
         1. the same variables (independent of order), and
         2. matrix polynomials must be equal element-wise.
 
-        See [`polynomial#equal`](polynomial.md#pymwp.polynomial.Polynomial.equal)
+        See [`polynomial#equal`](
+        polynomial.md#pymwp.polynomial.Polynomial.equal)
         for details on how to determine equality of two polynomials.
 
         Arguments:
@@ -263,14 +264,15 @@ class Relation:
     def non_infinity(self, choices: List[int], index: int) -> List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
-        This method computes the Cartesian product of input iterables and evaluates each
-        combination against the current relation.
+        This method computes the Cartesian product of input iterables and
+        evaluates each combination against the current relation.
 
         If the evaluation determines that no infinity will occur, that
         combination will be included in the return value.
 
         Reference:
-        [itertools.product](https://docs.python.org/3/library/itertools.html#itertools.product)
+        [itertools.product](https://docs.python.org/3/library/itertools.html
+        #itertools.product)
 
         Example:
 
@@ -278,7 +280,8 @@ class Relation:
         rel.non_infinity(choices=[0, 1], index=2)
 
         # internally generates combinations: [[0, 0], [0, 1], [1, 0], [1, 1]]
-        # and of those returns the ones that do not evaluate to infinity.
+        # and of those returns the ones that do not evaluate to infinity
+        # against current relation.
         ```
 
         Arguments:
@@ -286,9 +289,10 @@ class Relation:
             index: length of generated product
 
         Returns:
-            All combinations that do not result in $\\infty$.
+            All combinations that do not result in $\\infty$ when evaluated
+            against the this relation.
         """
-        logger.debug(f"computing combinations choices {choices}, index {index}")
+        logger.debug(f"computing combinations choices {choices} index {index}")
         logger.debug(f"relation contains {self.variables} variables")
 
         # uses itertools.product to generate all possible assignments
@@ -310,7 +314,8 @@ class Relation:
         print(str(self))
 
     @staticmethod
-    def homogenisation(r1: Relation, r2: Relation) -> Tuple[Relation, Relation]:
+    def homogenisation(r1: Relation, r2: Relation) \
+            -> Tuple[Relation, Relation]:
         """Performs homogenisation on two relations.
 
         After this operation both relations will have same
@@ -365,4 +370,5 @@ class Relation:
         for mj, rj, mi, ri in index_map:
             matrix2[mi][mj] = r2.matrix[ri][rj]
 
-        return Relation(extended_vars, matrix1), Relation(extended_vars, matrix2)
+        return Relation(extended_vars, matrix1), Relation(extended_vars,
+                                                          matrix2)

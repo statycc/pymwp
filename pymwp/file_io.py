@@ -22,8 +22,7 @@ def default_file_out(input_file: str) -> str:
     """
     file_only = os.path.splitext(input_file)[0]
     file_name = os.path.basename(file_only)
-    # TODO: we save/load json but save as .txt, why?
-    return os.path.join("output", f"{file_name}.txt")
+    return os.path.join("output", f"{file_name}.json")
 
 
 def save_relation(file_name: str, relation: Relation,
