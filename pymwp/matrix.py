@@ -1,15 +1,18 @@
 # flake8: noqa: W605
 
+import logging
 from typing import Any, Optional, List
 from functools import reduce
 
-from polynomial import Polynomial
-from monomial import Monomial
-from semiring import ZERO_MWP, UNIT_MWP
+from .polynomial import Polynomial
+from .monomial import Monomial
+from .semiring import ZERO_MWP, UNIT_MWP
 
 ZERO = Polynomial([Monomial(ZERO_MWP)])
 
 UNIT = Polynomial([Monomial(UNIT_MWP)])
+
+logger = logging.getLogger(__name__)
 
 
 def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
@@ -75,8 +78,7 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
         matrix: matrix to encode
 
     Raises:
-        AttributeError: If the matrix does not contain polynomials
-        calling this method will raise this exception.
+        AttributeError: If the matrix does not contain polynomials.
 
     Returns:
         Encoded matrix.
@@ -101,7 +103,6 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
     Returns:
         Decoded matrix of polynomials.
     """
-    print(matrix)
     return [[
         Polynomial([Monomial(
             scalar=monomial["scalar"],

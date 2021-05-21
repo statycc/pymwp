@@ -3,11 +3,8 @@ import sys
 import json
 import os
 from pycparser import parse_file, c_parser, c_ast
-from matrix import decode
-from relation import Relation
-from relation_list import RelationList
-from monomial import Monomial
-from polynomial import Polynomial
+from pymwp.matrix import decode
+from pymwp import Relation, RelationList, Monomial, Polynomial
 
 # -*- coding: UTF-8 -*-
 #
@@ -169,7 +166,7 @@ def create_vector(index, dblist, type):  # type in ("u","+","*","undef")
 
 
 # Return a RelationList corresponding for all possible matrices for `node`
-def compute_rel(index, node):  # TODO miss unary and constantes operation
+def compute_rel(index, node):  # miss unary and constantes operation
     print("In compute_rel")
 
     if isinstance(node, c_ast.Assignment):
@@ -215,14 +212,14 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
                 node.show()
                 rest.show()
             return index, rest
-        if isinstance(node.rvalue, c_ast.Constant):  # x=Cte TODO
+        if isinstance(node.rvalue, c_ast.Constant):  # x=Cte
             rest = RelationList([x])
             if DEBUG_LEVEL >= 2:
                 print("DEBUG: Computing Relation (second case)")
                 node.show()
                 rest.show()
             return index, rest
-        if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…) TODO
+        if isinstance(node.rvalue, c_ast.UnaryOp):  # x=exp(…)
             listVar = None  # list_var(exp)
             rels = RelationList.identity([x] + listVar)
             # A FAIRE
@@ -294,7 +291,7 @@ def compute_rel(index, node):  # TODO miss unary and constantes operation
         return index, rels
     print("uncovered case ! Create empty RelationList (function call) ?")
     node.show()
-    return index, RelationList([])  #  FIXME
+    return index, RelationList([])  # FIX
 
 
 # ################# Perform on loops ##########
@@ -316,7 +313,7 @@ def analysis():
                          os.path.basename(os.path.splitext(filename)[0])) +
             ".txt")
     return compute_relation(name)
-    # TODO uncomment when issues are fixed
+    # uncomment when issues are fixed
     # if not os.path.isfile(
     #         name) or os.path.getmtime(filename) > os.path.getmtime(name):
     #     return compute_relation(name)
@@ -358,6 +355,12 @@ def output_json(name, rels, index):
         json.dump(info, outfile, indent=4)
     return combinations
 
+
+print('=' * 50)
+print('Running deprecated version of Analysis.')
+print('press enter to proceed...')
+print('=' * 50)
+input()
 
 rels, combinations = analysis()
 rels.show()

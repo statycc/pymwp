@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from relation import Relation
+from .relation import Relation
 
 
 class RelationList:
@@ -109,11 +109,8 @@ class RelationList:
         return RelationList(relation_list=[Relation.identity(variables)])
 
     def __str__(self) -> str:
-        relations = ['{0}:\n{1}'.format(i + 1, r)
-                     for i, r in enumerate(self.relations)]
-
-        return "--- Affiche {0} ---\n{1}\n--- FIN ---" \
-            .format(super().__str__(), '\n'.join(relations))
+        relations = '\n'.join([f'{i + 1}:\n{r}' for i, r in enumerate(self.relations)])
+        return f"\n--- Affiche {super().__str__()} ---\n{relations}\n--- FIN ---"
 
     def __add__(self, other):
         return RelationList(relation_list=[

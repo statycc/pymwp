@@ -1,11 +1,15 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
+import logging
 from typing import Optional, List
 
-from constants import Comparison
-from monomial import Monomial
-from semiring import ZERO_MWP, sum_mwp
+from .constants import Comparison
+from .monomial import Monomial
+from .semiring import ZERO_MWP, sum_mwp
+
+logger = logging.getLogger(__name__)
 
 
 class Polynomial:
@@ -56,8 +60,7 @@ class Polynomial:
         self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
-        values = ''.join(['+' + str(m) for m in self.list]) \
-                 or ('+' + ZERO_MWP)
+        values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)
         return "  " + values
 
     def __eq__(self, other):
@@ -99,8 +102,7 @@ class Polynomial:
         self_len = len(new_list)
         poly_len = len(polynomial.list)
 
-        # iterate lists of monomials until
-        # one the ned of shorter list
+        # iterate lists of monomials until the end of shorter list
         while j < poly_len:
             mono1, mono2 = new_list[i], polynomial.list[j]
             check = Polynomial.compare(mono1.deltas, mono2.deltas)
@@ -184,8 +186,8 @@ class Polynomial:
         # result all monomials that have scalar value 0
         products = [[mono for mono in (m1 * m2 for m1 in self.list)
                      if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
-        # filter out empty polynomials
-        table = [p for p in products if p]
+        # filter out empty monomials
+        table: List[List[Monomial]] = [p for p in products if p]
 
         # if table is empty, return zero polynomial
         if not table:
@@ -203,6 +205,9 @@ class Polynomial:
                     break
             if i not in index_list:
                 index_list.append(i)
+
+        if len(self.list) > 1000 or len(polynomial.list) > 1000:
+            logger.debug(f'p1 {len(self.list)}, p2: {len(polynomial.list)}')
 
         # 3: start main part
         result = []

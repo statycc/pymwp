@@ -11,6 +11,8 @@ use_directory_urls: true
 nav:
 - Overview: index.md
 - All documented modules:
+  - Analysis: analysis.md
+  - File I/O: file_io.md
   - Matrix: matrix.md
   - Monomial: monomial.md
   - Polynomial: polynomial.md
@@ -18,7 +20,7 @@ nav:
   - Relation List: relation_list.md
   - Semiring: semiring.md
 - Source Code: https://github.com/seiller/pymwp
-#- License: https://github.com/seiller/pymwp/LICENSE
+- License: https://github.com/seiller/pymwp/LICENSE
 
 theme:
   name: material

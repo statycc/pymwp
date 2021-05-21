@@ -1,11 +1,14 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
+import logging
+from itertools import product
 from typing import Optional, Tuple, List
 
-import itertools
+from . import matrix as matrix_utils
 
-import matrix as matrix_utils
+logger = logging.getLogger(__name__)
 
 
 class Relation:
@@ -164,8 +167,12 @@ class Relation:
         Returns:
            a new relation that is a product of inputs.
         """
+
+        logger.debug("starting composition with homogenisation")
         er1, er2 = Relation.homogenisation(self, other)
+        logger.debug("composing matrix product")
         new_matrix = matrix_utils.matrix_prod(er1.matrix, er2.matrix)
+        logger.debug("relation composition done")
         return Relation(er1.variables, new_matrix)
 
     def equal(self, other: Relation) -> bool:
@@ -176,7 +183,8 @@ class Relation:
         1. the same variables (independent of order), and
         2. matrix polynomials must be equal element-wise.
 
-        See [`polynomial#equal`](polynomial.md#pymwp.polynomial.Polynomial.equal)
+        See [`polynomial#equal`](
+        polynomial.md#pymwp.polynomial.Polynomial.equal)
         for details on how to determine equality of two polynomials.
 
         Arguments:
@@ -210,31 +218,41 @@ class Relation:
         prev_fix = Relation(fix_vars, matrix)
         current = Relation(fix_vars, matrix)
 
+        logger.debug(f"computing fixpoint for variables {fix_vars}")
+
         while True:
             prev_fix.matrix = fix.matrix
             current = current * self
             fix = fix + current
             if fix.equal(prev_fix):
+                logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
     def eval(self, choices: List[int]) -> bool:
-        """Evaluate matrix against a list of choices and
+        """Evaluate relation matrix against a list of choices to
             determine if any of them results in infinity.
 
         This method iterates all monomials of all polynomials
-        and performs the eval on that object.
+        and performs `eval()` on each object.
 
-        for implementations see:
+        For implementations see:
 
-        - [`polynomial#eval`](polynomial.md#pymwp.polynomial.Polynomial.eval)
-        - [`monomial#eval`](monomial.md#pymwp.monomial.Monomial.eval)
+        - [`polynomial.eval()`](polynomial.md#pymwp.polynomial.Polynomial.eval)
+        - [`monomial.eval()`](monomial.md#pymwp.monomial.Monomial.eval)
+
+        Example:
+
+        ```python
+        choices = [0, 1, 2, 0, 1, 0]
+        relation.eval(choices)
+        ```
 
         Arguments:
-            choices: List of choices represents a list of indices
-            to select for each monomial.
+            choices: a list of indices to select for each monomial.
 
         Returns:
-           True if no infinity occurs and false otherwise.
+           `False` if infinity occurs during evaluation of choices and `True`
+           otherwise.
         """
 
         for row in self.matrix:
@@ -246,14 +264,15 @@ class Relation:
     def non_infinity(self, choices: List[int], index: int) -> List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
-        This method computes the Cartesian product of input iterables and evaluates each
-        combination against the current relation.
+        This method computes the Cartesian product of input iterables and
+        evaluates each combination against the current relation.
 
         If the evaluation determines that no infinity will occur, that
         combination will be included in the return value.
 
         Reference:
-        [itertools.product](https://docs.python.org/3/library/itertools.html#itertools.product)
+        [itertools.product](https://docs.python.org/3/library/itertools.html
+        #itertools.product)
 
         Example:
 
@@ -261,7 +280,8 @@ class Relation:
         rel.non_infinity(choices=[0, 1], index=2)
 
         # internally generates combinations: [[0, 0], [0, 1], [1, 0], [1, 1]]
-        # and of those returns the ones that do not evaluate to infinity.
+        # and of those returns the ones that do not evaluate to infinity
+        # against current relation.
         ```
 
         Arguments:
@@ -269,12 +289,17 @@ class Relation:
             index: length of generated product
 
         Returns:
-            All combinations that do not result in $\infty$.
+            All combinations that do not result in $\\infty$ when evaluated
+            against the this relation.
         """
-        # uses itertools.product to generate all possible assignments
-        combinations = [list(args) for args in
-                        itertools.product(choices, repeat=index)]
+        logger.debug(f"computing combinations choices {choices} index {index}")
+        logger.debug(f"relation contains {self.variables} variables")
 
+        # uses itertools.product to generate all possible assignments
+        assignments = product(choices, repeat=index)
+        combinations = [list(args) for args in assignments]
+
+        logger.debug(f"number of assignments to evaluate {len(combinations)}")
         return list(filter(self.eval, combinations))
 
     def to_dict(self) -> dict:
@@ -289,7 +314,8 @@ class Relation:
         print(str(self))
 
     @staticmethod
-    def homogenisation(r1: Relation, r2: Relation) -> Tuple[Relation, Relation]:
+    def homogenisation(r1: Relation, r2: Relation) \
+            -> Tuple[Relation, Relation]:
         """Performs homogenisation on two relations.
 
         After this operation both relations will have same
@@ -344,4 +370,5 @@ class Relation:
         for mj, rj, mi, ri in index_map:
             matrix2[mi][mj] = r2.matrix[ri][rj]
 
-        return Relation(extended_vars, matrix1), Relation(extended_vars, matrix2)
+        return Relation(extended_vars, matrix1), Relation(extended_vars,
+                                                          matrix2)

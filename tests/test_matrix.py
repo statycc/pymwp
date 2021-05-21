@@ -1,7 +1,8 @@
-from matrix import init_matrix, identity_matrix, encode, decode, matrix_sum, matrix_prod, resize
-from matrix import ZERO as o, UNIT as m
-from monomial import Monomial
-from polynomial import Polynomial
+from pymwp.matrix import init_matrix, identity_matrix, encode, decode, \
+    matrix_sum, matrix_prod, resize
+from pymwp.matrix import ZERO as o, UNIT as m
+from pymwp.monomial import Monomial
+from pymwp.polynomial import Polynomial
 
 
 def test_init_matrix_creates_zero_matrix():
@@ -90,8 +91,10 @@ def test_encode():
     mat = init_matrix(2, p)
     encoded = encode(mat)
     expected = [
-        [[{'scalar': 'm', 'deltas': [(0, 1)]}], [{'scalar': 'm', 'deltas': [(0, 1)]}]],
-        [[{'scalar': 'm', 'deltas': [(0, 1)]}], [{'scalar': 'm', 'deltas': [(0, 1)]}]]
+        [[{'scalar': 'm', 'deltas': [(0, 1)]}],
+         [{'scalar': 'm', 'deltas': [(0, 1)]}]],
+        [[{'scalar': 'm', 'deltas': [(0, 1)]}],
+         [{'scalar': 'm', 'deltas': [(0, 1)]}]]
     ]
 
     assert encoded == expected
@@ -99,8 +102,10 @@ def test_encode():
 
 def test_decode():
     sample = [
-        [[{'scalar': 'm', 'deltas': [(0, 1)]}], [{'scalar': 'm', 'deltas': [(0, 1)]}]],
-        [[{'scalar': 'm', 'deltas': [(0, 1)]}], [{'scalar': 'm', 'deltas': [(0, 1)]}]]
+        [[{'scalar': 'm', 'deltas': [(0, 1)]}],
+         [{'scalar': 'm', 'deltas': [(0, 1)]}]],
+        [[{'scalar': 'm', 'deltas': [(0, 1)]}],
+         [{'scalar': 'm', 'deltas': [(0, 1)]}]]
     ]
 
     decoded = decode(sample)

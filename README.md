@@ -5,6 +5,8 @@
 
 Implementation of MWP analysis on C code in Python.
 
+Source code documentation is available at [seiller.github.io/pymwp](https://seiller.github.io/pymwp/).
+
 
 ### How to run the analysis
 
@@ -24,17 +26,26 @@ Implementation of MWP analysis on C code in Python.
 
 3. Run the analysis
 
-    From project root, run:
+    From project root run:
     
     ```bash
-    python pymwp/Analysis.py path/to/c/file
+    python -m pymwp path/to/c/file
     ```
 
     for example:
     
     ```bash
-    python pymwp/Analysis.py c_files/infinite_2.c
+    python -m pymwp c_files/infinite_2.c
     ```
+    
+    to see all available options see help
+    
+    ```bash
+    python -m pymwp
+    ```
+    
+    Earlier version of analysis can be called by replacing `-m pymwp` with 
+    `Analysis.py`.
 
 * * *
 
