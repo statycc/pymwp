@@ -9,14 +9,14 @@ def test_file_out_name_wo_path():
     input_file = "my_c_file.c"
     out_file = default_file_out(input_file)
 
-    assert out_file == "output/my_c_file.txt"
+    assert out_file == "output/my_c_file.json"
 
 
 def test_file_out_name_with_path():
     input_file = "my_dir/of/files/example.c"
     out_file = default_file_out(input_file)
 
-    assert out_file == "output/example.txt"
+    assert out_file == "output/example.json"
 
 
 def test_save_relation(mocker):
