@@ -356,6 +356,12 @@ def output_json(name, rels, index):
     return combinations
 
 
+print('=' * 50)
+print('Running deprecated version of Analysis.')
+print('press enter to proceed...')
+print('=' * 50)
+input()
+
 rels, combinations = analysis()
 rels.show()
 if combinations:
