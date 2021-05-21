@@ -30,11 +30,11 @@ def prod_mwp(scalar1: str, scalar2: str) -> str:
 
     | $\\times$  | $0$ | $m$       | $w$        | $p$       | $\\infty$ |
     | ---        | --- | ---       | ---        | ---       | --- |
-    | $0$        | $0$ | $0$       | $0$        | $0$       | $0$ |
+    | $0$        | $0$ | $0$       | $0$        | $0$       | $\\infty$ |
     | $m$        | $0$ | $m$       | $w$        | $p$       | $\\infty$ |
     | $w$        | $0$ | $w$       | $w$        | $p$       | $\\infty$ |
     | $p$        | $0$ | $p$       | $p$        | $p$       | $\\infty$ |
-    | $\\infty$  | $0$ | $\\infty$ | $\\infty$  | $\\infty$ | $\\infty$ |
+    | $\\infty$  | $\\infty$ | $\\infty$ | $\\infty$  | $\\infty$ | $\\infty$ |
 
     Arguments:
         scalar1: scalar value
