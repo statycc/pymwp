@@ -116,6 +116,9 @@ class Relation:
             variable: program variable, column replacement
                 will occur at the index of this variable.
 
+        Raises:
+              ValueError: if variable is not found in this relation.
+
         Returns:
             new relation after applying the column replacement.
         """
