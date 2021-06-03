@@ -1,6 +1,6 @@
 # matrix.py
 
-Helper methods for working with matrices.
+Helper functions for working with matrices.
 
 To encoding/decode matrices:
 
@@ -14,16 +14,17 @@ To create matrices:
 from matrix import init_matrix, identity_matrix
 ```
 
-To extend (enlarge) matrices:
-
-```python
-from matrix import resize
-```
-
 To compute matrix sum and product:
 
 ```python
 from matrix import matrix_prod, matrix_sum
 ```
+
+Other utility helpers:
+
+```python
+from matrix import resize, matrix_print
+```
+
 
 ::: pymwp.matrix

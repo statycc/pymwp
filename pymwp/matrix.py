@@ -72,7 +72,11 @@ def identity_matrix(size: int) -> List[list]:
 
 
 def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
-    """Convert matrix of polynomials to a matrix of dictionaries.
+    """Converts a matrix of polynomials to a matrix of dictionaries.
+
+    This function is useful when preparing to write a matrix of polynomials to
+    a file. The same matrix can later be restored using matrix
+    [decode](matrix.md#pymwp.matrix.decode).
 
     Arguments:
         matrix: matrix to encode
@@ -90,7 +94,11 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
 
 
 def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
-    """Convert matrix of dictionaries to a matrix of polynomials.
+    """Converts matrix of dictionaries to a matrix of polynomials.
+
+    Primary use case of this function is for restoring a matrix of
+     polynomials from a file (assuming [encode](matrix.md#pymwp.matrix.encode)
+     was used to generate that file).
 
     Arguments:
         matrix: matrix to decode
@@ -112,7 +120,9 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
         for (i, row) in enumerate(matrix)]
 
 
-def matrix_sum(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> List[List[Any]]:
+def matrix_sum(
+        matrix1: List[List[Any]], matrix2: List[List[Any]]
+) -> List[List[Any]]:
     """Compute the sum of two matrices.
 
     Arguments:
@@ -128,8 +138,9 @@ def matrix_sum(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> List[List[
             for i in range(len(matrix1))]
 
 
-def matrix_prod(matrix1: List[List[Polynomial]],
-                matrix2: List[List[Polynomial]]) -> List[List[Polynomial]]:
+def matrix_prod(
+        matrix1: List[List[Polynomial]], matrix2: List[List[Polynomial]]
+) -> List[List[Polynomial]]:
     """Compute the product of two polynomial matrices.
 
     Arguments:
@@ -150,7 +161,8 @@ def matrix_prod(matrix1: List[List[Polynomial]],
         for i in range(len(matrix1))]
 
 
-def resize(matrix: List[List[Polynomial]], new_size: int) -> List[List[Polynomial]]:
+def resize(matrix: List[List[Polynomial]], new_size: int) \
+        -> List[List[Polynomial]]:
     """Create a new matrix of polynomials of specified size.
 
     The resized matrix is initialized as an identity matrix
@@ -172,3 +184,10 @@ def resize(matrix: List[List[Polynomial]], new_size: int) -> List[List[Polynomia
         for j in range(bound):
             res[i][j] = matrix[i][j]
     return res
+
+
+def matrix_print(matrix: List[List[Any]]) -> None:
+    """Pretty print a matrix"""
+    for row in matrix:
+        print([str(r) for r in row])
+    print(' ')
