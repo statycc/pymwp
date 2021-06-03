@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from .constants import Comparison
 from .monomial import Monomial
@@ -74,7 +74,20 @@ class Polynomial:
         return self.times(other)
 
     @staticmethod
-    def contains_filter(list_monom:list, mono: Monomial, i: int):
+    def contains_filter(list_monom: list, mono: Monomial, i: int) \
+            -> Tuple[SetInclusion, int]:
+        """TODO: What does this method do, in one sentence?
+
+        (If you need more words to explain it, write here or delete this line.)
+
+        Arguments:
+            list_monom: TODO: what is list_monom?
+            mono: TODO: what is mono?
+            i: TODO: what is i?
+
+        Returns:
+            TODO: what does this method return?
+        """
         j = 0
         while j < len(list_monom):
             m = list_monom[j]
@@ -85,25 +98,39 @@ class Polynomial:
                 list_monom.remove(m)
                 # If removed monom is before i (where we want to insert mono)
                 if j < i:
-                    i = i-1 # shift left position
+                    i = i - 1  # shift left position
                 continue
             elif incl == SetInclusion.INCLUDED:
-                # We don't want to add mono, inform with CONTAINS
+                #  We don't want to add mono, inform with CONTAINS
                 return SetInclusion.CONTAINS, i
-            j=j+1
+            j = j + 1
         # No inclusion
         return SetInclusion.EMPTY, i
 
     @staticmethod
-    def inclusion(new_list:list, mono: Monomial, i:int=0):
+    def inclusion(new_list: list, mono: Monomial, i: int = 0) \
+            -> Tuple[bool, int]:
+        """TODO: What does this method do, in one sentence?
+
+        (If you need more words to explain it, write here or delete this line.)
+
+        Arguments:
+            new_list: TODO: what is new list?
+            mono: TODO: what is mono?
+            i: TODO: what is i?
+
+        Returns:
+            TODO: what does "False, i" mean?
+            TODO: what does "True, i" mean?
+        """
         # XXX new_list will be simplified regarding to mono2 here ↓ XXX
-        incl,i = Polynomial.contains_filter(new_list,mono,i)
+        incl, i = Polynomial.contains_filter(new_list, mono, i)
 
         # if mono2 ⊆ new_list
         if incl == SetInclusion.CONTAINS:
             # We skip adding mono2 into new_list
-            return False,i
-        return True,i
+            return False, i
+        return True, i
 
     def add_old(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
@@ -170,7 +197,6 @@ class Polynomial:
         sorted_monomials = Polynomial.sort_monomials(new_list)
         return Polynomial(sorted_monomials)
 
-
     def add(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
 
@@ -208,7 +234,7 @@ class Polynomial:
             tobe_inserted, i = Polynomial.inclusion(new_list, mono2, i)
 
             if not (tobe_inserted):
-                j = j+1
+                j = j + 1
                 continue
 
             # handle case where first list is shorter
@@ -354,7 +380,6 @@ class Polynomial:
             # 7. repeat until done
 
         return Polynomial(result)
-
 
     def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.
