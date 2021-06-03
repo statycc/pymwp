@@ -31,8 +31,8 @@ def test_analyze_simple_infinite(mocker):
     try:
         assert str(relation.matrix[0][0].list[0]) == 'm'
         assert str(relation.matrix[0][0].list[1]) == 'i.delta(0,0)'
-        assert str(relation.matrix[0][0].list[2]) == 'i.delta(0,0).delta(0,1)'
-        assert str(relation.matrix[0][0].list[3]) == 'i.delta(0,0).delta(1,1)'
+        assert str(relation.matrix[0][0].list[2]) == 'i.delta(1,0)'
+        assert str(relation.matrix[0][0].list[3]) == 'i.delta(2,0)'
     except AssertionError:
         relation.show()
         raise
