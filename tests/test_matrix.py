@@ -69,22 +69,33 @@ def test_matrix_prod():
     p3 = Polynomial([Monomial('m', [(0, 2)]), Monomial('w', [(1, 2)])])
     p4 = Polynomial([Monomial('p', [(0, 2)]), Monomial('w', [(1, 2)])])
 
+    #          m p3 o
+    #          o m  o
+    #          o p4 m
+    # m o p1
+    # o m p2
+    # o o o
     mat_a = [[m, o, p1], [o, m, p2], [o, o, o]]
     mat_b = [[m, p3, o], [o, m, o], [o, p4, m]]
     result = matrix_prod(mat_a, mat_b)
 
-    assert result[0][0] == (m * m) + (o * o) + (p1 * o)
-    assert result[0][1] == (m * p3) + (o * m) + (p1 * p4)
-    assert result[0][2] == (m * o) + (o * o) + (p1 * m)
+    try:
+        assert result[0][0] == (m * m) + (o * o) + (p1 * o)
+        assert result[0][1] == (m * p3) + (o * m) + (p1 * p4)
+        assert result[0][2] == (m * o) + (o * o) + (p1 * m)
 
-    assert result[1][0] == (o * m) + (m * o) + (p2 * o)
-    assert result[1][1] == (o * p3) + (m * m) + (p2 * p4)
-    assert result[1][2] == (o * o) + (m * o) + (p2 * m)
+        assert result[1][0] == (o * m) + (m * o) + (p2 * o)
+        assert result[1][1] == (o * p3) + (m * m) + (p2 * p4)
+        assert result[1][2] == (o * o) + (m * o) + (p2 * m)
 
-    assert result[2][0] == (o * m) + (o * o) + (o * o)
-    assert result[2][1] == (o * p3) + (o * m) + (o * p4)
-    assert result[2][2] == (o * o) + (o * o) + (o * m)
-
+        assert result[2][0] == (o * m) + (o * o) + (o * o)
+        assert result[2][1] == (o * p3) + (o * m) + (o * p4)
+        assert result[2][2] == (o * o) + (o * o) + (o * m)
+    except AssertionError:
+        print(result[0][1])
+        print("Should be :")
+        print((m * p3) + (o * m) + (p1 * p4))
+        raise
 
 def test_encode():
     p = Polynomial([Monomial('m', [(0, 1)])])
