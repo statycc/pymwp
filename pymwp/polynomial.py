@@ -74,19 +74,23 @@ class Polynomial:
         return self.times(other)
 
     @staticmethod
-    def contains_filter(list_monom: list, mono: Monomial, i: int) \
-            -> Tuple[SetInclusion, int]:
-        """TODO: What does this method do, in one sentence?
+    def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
+            -> Tuple[bool, int]:
+        """filter list_monom regarding to mono inclusion and return info
 
-        (If you need more words to explain it, write here or delete this line.)
+        remove all monomials of list_monom that are included in mono.
+
+        return CONTAINS if one of monomials of list_monom contains mono
+        (regarding to Monomial.inclusion def).
 
         Arguments:
-            list_monom: TODO: what is list_monom?
-            mono: TODO: what is mono?
-            i: TODO: what is i?
+            list_monom: a list of monomials
+            mono: a monomial we want to add
+            i: the position index where to add mono
 
         Returns:
-            TODO: what does this method return?
+            False if mono already in list_monom and shifted index where to
+            insert mono, return True if mono not in list_monom
         """
         j = 0
         while j < len(list_monom):
@@ -102,100 +106,10 @@ class Polynomial:
                 continue
             elif incl == SetInclusion.INCLUDED:
                 #  We don't want to add mono, inform with CONTAINS
-                return SetInclusion.CONTAINS, i
+                return False, i
             j = j + 1
         # No inclusion
-        return SetInclusion.EMPTY, i
-
-    @staticmethod
-    def inclusion(new_list: list, mono: Monomial, i: int = 0) \
-            -> Tuple[bool, int]:
-        """TODO: What does this method do, in one sentence?
-
-        (If you need more words to explain it, write here or delete this line.)
-
-        Arguments:
-            new_list: TODO: what is new list?
-            mono: TODO: what is mono?
-            i: TODO: what is i?
-
-        Returns:
-            TODO: what does "False, i" mean?
-            TODO: what does "True, i" mean?
-        """
-        # XXX new_list will be simplified regarding to mono2 here ↓ XXX
-        incl, i = Polynomial.contains_filter(new_list, mono, i)
-
-        # if mono2 ⊆ new_list
-        if incl == SetInclusion.CONTAINS:
-            # We skip adding mono2 into new_list
-            return False, i
         return True, i
-
-    def add_old(self, polynomial: Polynomial) -> Polynomial:
-        """Add two polynomials
-
-        - If both lists are empty the result is empty.
-        - If one list is empty, the result will be the other list
-        of polynomials.
-
-        Otherwise the operation will zip the two lists together
-        and return a new polynomial of sorted monomials.
-
-        Arguments:
-            polynomial: Polynomial to add to self
-
-        Returns:
-            New, sorted polynomial that is a sum of the
-            two input polynomials
-        """
-        # check for empty lists
-        if not self.list and not polynomial.list:
-            return Polynomial()
-        if not self.list:
-            return polynomial.copy()
-        if not polynomial.list:
-            return self.copy()
-
-        i, j = 0, 0
-        new_list = self.copy().list
-        # self_len = len(new_list)
-        poly_len = len(polynomial.list)
-
-        # iterate lists of monomials until the end of shorter list
-        while j < poly_len:
-            mono2 = polynomial.list[j]
-            mono1 = new_list[i]
-
-            check = Polynomial.compare(mono1.deltas, mono2.deltas)
-
-            # move to next when self is smaller
-            if check == Comparison.SMALLER:
-                i = i + 1
-
-            # insert when the second is smaller
-            elif check == Comparison.LARGER:
-                new_list.insert(i, mono2)
-                i = i + 1
-                j = j + 1
-
-            # when both list heads are the same
-            # recompute scalar and move to next
-            # element
-            else:
-                new_list[i].scalar = \
-                    sum_mwp(mono1.scalar, mono2.scalar)
-                j = j + 1
-
-            # handle case where first list is shorter
-            # by just appending what remains of the
-            # other list of monomials
-            if i == len(new_list):
-                new_list = new_list + polynomial.list[j:]
-                break
-
-        sorted_monomials = Polynomial.sort_monomials(new_list)
-        return Polynomial(sorted_monomials)
 
     def add(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
@@ -277,109 +191,6 @@ class Polynomial:
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
         return Polynomial(sorted_monomials)
-
-    def times_old(self, polynomial: Polynomial) -> Polynomial:
-        """Multiply two polynomials.
-
-        Here we assume at least self is a sorted polynomial,
-        and the result of this operation will be sorted.
-
-        This operation works as follows:
-
-        1. We compute a table of all the separated products
-            $P.m_1,...,P.m_n$. Each of the elements is itself
-            a sorted list of monomials: $P.m_j=m^j_1,...,m^j_k$
-
-        2. We then sort the list of the first (smallest) elements
-            of each list. I.e. we sort the list $m^1_1,m^2_1,...,m^n_1$
-            and produce the list corresponding list of indexes of
-            length n, I.e. a permutation over ${0,...,n}$.
-
-        3. Once all this preparatory operations are done, the main part
-           of the algorithm goes as follows:
-
-        4. We consider the first element — say j — of the list of indexes
-           and append to the result the first element of the corresponding
-           list $P.m_j$ of monomials.
-
-        5. We remove both the first element of the list of index and
-           the first element of $P.m_j$.
-
-        6. If $P.m_j$ is not empty, we insert j in the list of index
-           at the right position: for this we compare the (new) first
-           element of $P.m_j$ to  $m^{i_2}_1$ (as we removed the
-           first element, $i_2$ is now the head of the list of indexes),
-           then $m^{i_3}_1$, until we reach the index h such that
-           $m^{i_h}_1$ is larger than $m^{j}_1$.
-
-        7. We start back at point 4. Unless only one element is left
-           in the list of indexes. In this case, we simply append the
-           tail of the corresponding list to the result.
-
-        Arguments:
-            polynomial: polynomial to multiply with self
-
-        Returns:
-            a new polynomial that is the sorted product
-            of the two input polynomials
-        """
-
-        # 1: compute table of products
-        # here we compute P1 x P2 for each polynomial, excluding from the
-        # result all monomials that have scalar value 0
-        products = [[mono for mono in (m1 * m2 for m1 in self.list)
-                     if mono.scalar != ZERO_MWP] for m2 in polynomial.list]
-        # filter out empty monomials
-        table: List[List[Monomial]] = [p for p in products if p]
-
-        # if table is empty, return zero polynomial
-        if not table:
-            return Polynomial()
-
-        # 2: create an index lists that represents the ordered
-        # monomials in table, ordered by deltas of first monomials
-        index_list = [0]
-        for i in range(1, len(table)):
-            t1 = table[i][0].deltas
-            for j in range(len(index_list)):
-                t2 = table[index_list[j]][0].deltas
-                if Polynomial.compare(t1, t2) == Comparison.SMALLER:
-                    index_list.insert(j, i)
-                    break
-            if i not in index_list:
-                index_list.append(i)
-
-        if len(self.list) > 1000 or len(polynomial.list) > 1000:
-            logger.debug(f'p1 {len(self.list)}, p2: {len(polynomial.list)}')
-
-        # 3: start main part
-        result = []
-        while index_list:
-            # 4. get first element and append to result
-            # 5. remove from index and table
-            smallest = index_list.pop(0)
-            # TODO 
-            mono2 = table[smallest].pop(0)
-            # tobe_inserted, _ = Polynomial.inclusion(result, mono2)
-            # if tobe_inserted:
-            result.append(mono2)
-
-            # 6. when table is non-empty insert j at
-            # the right index
-            if table[smallest]:
-                inserted = False
-                t1 = table[smallest][0].deltas
-                for j in range(len(index_list)):
-                    t2 = table[index_list[j]][0].deltas
-                    if Polynomial.compare(t1, t2) == Comparison.LARGER:
-                        index_list.insert(j, smallest)
-                        inserted = True
-                        break
-                if not inserted:
-                    index_list.append(smallest)
-            # 7. repeat until done
-
-        return Polynomial(result)
 
     def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.

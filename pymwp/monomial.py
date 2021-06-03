@@ -77,12 +77,33 @@ class Monomial:
         return self.prod(other)
 
     def contains(self, m: Monomial) -> bool:
+        """check if all deltas of m are in deltas of self
+
+        Arguments:
+            self: this monomial
+            m: a monomial to search for intersection
+
+        Returns:
+            False if one delta of m not in self
+            True otherwise
+        """
         for b in m.list:
             if not (b in self.list):
                 return False
         return True
 
     def inclusion(self, monomial: Monomial) -> SetInclusion:
+        """gives info about inclusion of self monomial with monomial
+
+        Arguments:
+            self: this monomial
+            monomial: a monomial to see inclusion
+
+        Returns:
+            CONTAINS if self contains monomial
+            INCLUDED if self is included in monomial
+            EMPTY none of them
+        """
         # self contains monomial ?
         contains:bool = self.contains(monomial)
 

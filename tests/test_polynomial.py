@@ -28,9 +28,9 @@ def test_contains_filter():
     m0 = Monomial('p', [(0, 1)])
     m0_ = Monomial('m', [(0, 1), (1, 2), (1, 3)])
     try:
-        assert Polynomial.contains_filter(new_list,m0,1) == (SetInclusion.EMPTY,0)
+        assert Polynomial.inclusion(new_list,m0,1) == (True,0)
         assert new_list == [m3]
-        assert Polynomial.contains_filter(new_list2,m0_,1) == (SetInclusion.CONTAINS,1)
+        assert Polynomial.inclusion(new_list2,m0_,1) == (False,1)
     except AssertionError:
         print([str(m) for m in new_list])
         raise
@@ -56,16 +56,11 @@ def test_polynomial_add_simpl():
     print(m)
     mono0 = Monomial('w', [(0, 2), (0, 3)])
     p = Polynomial([mono0])
-    p_ = Polynomial([mono0])
-    m_ = m.copy()
-    c_ = m_.add_old(p_)
     c = p.add(m)
     expected = Polynomial([mono0, mono3])
     try:
         assert c == expected
     except AssertionError:
-        print("old:")
-        print(c_)
         print("new:")
         print(c)
         raise
