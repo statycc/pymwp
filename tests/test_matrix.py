@@ -134,8 +134,8 @@ def test_matrix_not_equals():
     p1 = Polynomial([Monomial('m', [(0, 1)])])
     p2 = Polynomial([Monomial('m', [(1, 1)])])
 
-    m1 = [[o, p1, o], [o, o, o], [o, o, p1]]
-    m2 = [[o, p2, o], [o, o, o], [o, o, p2]]
+    m1 = [[o, o, o], [o, o, o], [o, o, p1]]
+    m2 = [[o, o, o], [o, o, o], [o, o, p2]]
 
     assert equals(m1, m2) is False
 
