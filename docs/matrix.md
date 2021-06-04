@@ -1,7 +1,6 @@
 # matrix.py
 
-Helper functions for working with matrices.
-
+Helper methods for working with matrices.
 
 To create matrices:
 
