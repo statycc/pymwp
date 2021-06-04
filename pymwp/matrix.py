@@ -1,6 +1,7 @@
 # flake8: noqa: W605
 
 import logging
+
 from typing import Any, Optional, List
 from functools import reduce
 
@@ -19,6 +20,8 @@ def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
     """Create empty matrix of specified size.
 
     Example:
+
+    Generate 5 x 5 size zero-matrix
 
     ```python
     init_matrix(5)
@@ -48,6 +51,8 @@ def identity_matrix(size: int) -> List[list]:
     """Create identity matrix of specified size.
 
     Example:
+
+    Generate 5 x 5 size identity matrix:
 
     ```python
     identity_matrix(5)
@@ -186,43 +191,78 @@ def resize(matrix: List[List[Polynomial]], new_size: int) \
     return res
 
 
-def matrix_print(matrix: List[List[Any]]) -> None:
-    """Pretty print a matrix elements at the screen.
+def show(matrix: List[List[Any]], **kwargs) -> None:
+    """Pretty print a matrix at the screen.
 
-    Arguments:
-        matrix: the matrix to print.
+    Using the keyword arguments it is possible display additional text
+    before or after the matrix.
+
+    Args:
+        matrix: the matrix to display.
+        **prefix (str): display some text before displaying matrix
+        **postfix (str): display some text after displaying matrix
     """
+    if 'prefix' in kwargs:
+        print(kwargs['prefix'])
     for row in matrix:
         print([str(r) for r in row])
+    if 'postfix' in kwargs:
+        print(kwargs['postfix'])
     print(' ')
 
 
 def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
-    """Determine if two matrices are equal by performing element-wise
-        comparisons on its values.
+    """Determine if two matrices are equal.
 
-    The two matrices must be equal size, otherwise the answer is always
-    False. This function can evaluate matrices of any values type as long as
-    the values are comparable by equals (==) operator.
+    This function performs element-wise equality comparisons on values of
+    two matrices. The two matrices must be the same size. For any two matrices
+    of different size the result is always `False`.
+
+    This function can evaluate values that are comparable by equals `==`
+    operator.
 
     Arguments:
         matrix1: first matrix.
         matrix2: second matrix.
 
-    Returns:
-        True if matrices are equal element-wise and False otherwise.
-    """
-    if matrix1 is None or matrix2 is None:
-        return matrix1 == matrix2
+    Raises:
+        TypeError: If the matrix value is not iterable
 
-    # check equal size
+    Returns:
+        `True` if matrices are equal element-wise and `False` otherwise.
+    """
+    # equal size
     if [len(row) for row in matrix1] != [len(row) for row in matrix2]:
         return False
 
-    # compare element-wise
+    # element-wise comparison
     for row_index, column in enumerate(matrix1):
         for col_index, value in enumerate(column):
             if matrix2[row_index][col_index] != value:
                 return False
 
     return True
+
+
+def fixpoint(matrix: List[List[Any]]) -> List[List[Any]]:
+    """Computes the star operation $1 + M + M^2 + M^3 + …$
+
+    This function assumes provided input is a square matrix.
+
+    Arguments:
+        matrix: for which to compute fixpoint
+
+    Returns:
+        $M^*$
+    """
+    _1_ = identity_matrix(len(matrix))
+    previous = matrix
+    next_matrix = matrix
+    result = matrix_sum(_1_, matrix)
+
+    while not equals(previous, result):
+        previous = result
+        next_matrix = matrix_prod(next_matrix, matrix)  # M^2, M^3, M^4....
+        result = matrix_sum(result, next_matrix)
+
+    return result

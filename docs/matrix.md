@@ -2,11 +2,6 @@
 
 Helper functions for working with matrices.
 
-To encoding/decode matrices:
-
-```python
-from matrix import encode, decode
-```
 
 To create matrices:
 
@@ -20,11 +15,10 @@ To compute matrix sum and product:
 from matrix import matrix_prod, matrix_sum
 ```
 
-Other utility helpers:
+Other utility methods:
 
 ```python
-from matrix import resize, matrix_print
+from matrix import equals, fixpoint, show, resize, encode, decode
 ```
-
 
 ::: pymwp.matrix
