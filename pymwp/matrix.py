@@ -1,6 +1,7 @@
 # flake8: noqa: W605
 
 import logging
+
 from typing import Any, Optional, List
 from functools import reduce
 
@@ -19,6 +20,8 @@ def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
     """Create empty matrix of specified size.
 
     Example:
+
+    Generate 5 x 5 size zero-matrix
 
     ```python
     init_matrix(5)
@@ -49,6 +52,8 @@ def identity_matrix(size: int) -> List[list]:
 
     Example:
 
+    Generate 5 x 5 size identity matrix:
+
     ```python
     identity_matrix(5)
 
@@ -72,7 +77,11 @@ def identity_matrix(size: int) -> List[list]:
 
 
 def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
-    """Convert matrix of polynomials to a matrix of dictionaries.
+    """Converts a matrix of polynomials to a matrix of dictionaries.
+
+    This function is useful when preparing to write a matrix of polynomials to
+    a file. The same matrix can later be restored using matrix
+    [decode](matrix.md#pymwp.matrix.decode).
 
     Arguments:
         matrix: matrix to encode
@@ -90,7 +99,11 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
 
 
 def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
-    """Convert matrix of dictionaries to a matrix of polynomials.
+    """Converts matrix of dictionaries to a matrix of polynomials.
+
+    Primary use case of this function is for restoring a matrix of
+     polynomials from a file (assuming [encode](matrix.md#pymwp.matrix.encode)
+     was used to generate that file).
 
     Arguments:
         matrix: matrix to decode
@@ -112,7 +125,9 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
         for (i, row) in enumerate(matrix)]
 
 
-def matrix_sum(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> List[List[Any]]:
+def matrix_sum(
+        matrix1: List[List[Any]], matrix2: List[List[Any]]
+) -> List[List[Any]]:
     """Compute the sum of two matrices.
 
     Arguments:
@@ -128,8 +143,9 @@ def matrix_sum(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> List[List[
             for i in range(len(matrix1))]
 
 
-def matrix_prod(matrix1: List[List[Polynomial]],
-                matrix2: List[List[Polynomial]]) -> List[List[Polynomial]]:
+def matrix_prod(
+        matrix1: List[List[Polynomial]], matrix2: List[List[Polynomial]]
+) -> List[List[Polynomial]]:
     """Compute the product of two polynomial matrices.
 
     Arguments:
@@ -150,7 +166,8 @@ def matrix_prod(matrix1: List[List[Polynomial]],
         for i in range(len(matrix1))]
 
 
-def resize(matrix: List[List[Polynomial]], new_size: int) -> List[List[Polynomial]]:
+def resize(matrix: List[List[Polynomial]], new_size: int) \
+        -> List[List[Polynomial]]:
     """Create a new matrix of polynomials of specified size.
 
     The resized matrix is initialized as an identity matrix
@@ -172,3 +189,80 @@ def resize(matrix: List[List[Polynomial]], new_size: int) -> List[List[Polynomia
         for j in range(bound):
             res[i][j] = matrix[i][j]
     return res
+
+
+def show(matrix: List[List[Any]], **kwargs) -> None:
+    """Pretty print a matrix at the screen.
+
+    Using the keyword arguments it is possible display additional text
+    before or after the matrix.
+
+    Args:
+        matrix: the matrix to display.
+        **prefix (str): display some text before displaying matrix
+        **postfix (str): display some text after displaying matrix
+    """
+    if 'prefix' in kwargs:
+        print(kwargs['prefix'])
+    for row in matrix:
+        print([str(r) for r in row])
+    if 'postfix' in kwargs:
+        print(kwargs['postfix'])
+    print(' ')
+
+
+def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
+    """Determine if two matrices are equal.
+
+    This function performs element-wise equality comparisons on values of
+    two matrices. The two matrices must be the same size. For any two matrices
+    of different size the result is always `False`.
+
+    This function can evaluate values that are comparable by equals `==`
+    operator.
+
+    Arguments:
+        matrix1: first matrix.
+        matrix2: second matrix.
+
+    Raises:
+        TypeError: If the matrix value is not iterable
+
+    Returns:
+        `True` if matrices are equal element-wise and `False` otherwise.
+    """
+    # equal size
+    if [len(row) for row in matrix1] != [len(row) for row in matrix2]:
+        return False
+
+    # element-wise comparison
+    for row_index, column in enumerate(matrix1):
+        for col_index, value in enumerate(column):
+            if matrix2[row_index][col_index] != value:
+                return False
+
+    return True
+
+
+def fixpoint(matrix: List[List[Any]]) -> List[List[Any]]:
+    """Computes the star operation $1 + M + M^2 + M^3 + …$
+
+    This function assumes provided input is a square matrix.
+
+    Arguments:
+        matrix: for which to compute fixpoint
+
+    Returns:
+        $M^*$
+    """
+    _1_ = identity_matrix(len(matrix))
+    previous = matrix
+    next_matrix = matrix
+    result = matrix_sum(_1_, matrix)
+
+    while not equals(previous, result):
+        previous = result
+        next_matrix = matrix_prod(next_matrix, matrix)  # M^2, M^3, M^4....
+        result = matrix_sum(result, next_matrix)
+
+    return result

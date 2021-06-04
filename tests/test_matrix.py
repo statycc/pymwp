@@ -1,5 +1,7 @@
+import builtins
+
 from pymwp.matrix import init_matrix, identity_matrix, encode, decode, \
-    matrix_sum, matrix_prod, resize
+    matrix_sum, matrix_prod, resize, equals, fixpoint, show
 from pymwp.matrix import ZERO as o, UNIT as m
 from pymwp.monomial import Monomial
 from pymwp.polynomial import Polynomial
@@ -112,3 +114,64 @@ def test_decode():
     expected = init_matrix(2, Polynomial([Monomial('m', [(0, 1)])]))
 
     assert decoded == expected
+
+
+def test_matrix_equals():
+    p1 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
+    p2 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
+    p3 = Polynomial([Monomial('m', [(0, 0)])])
+    p4 = Polynomial([Monomial('m', [(0, 0)])])
+    p5 = Polynomial([Monomial('m', [(1, 1), (2, 2)])])
+    p6 = Polynomial([Monomial('m', [(1, 1), (2, 2)])])
+
+    m1 = [[o, p1, o], [p3, o, o], [o, o, p5]]
+    m2 = [[o, p2, o], [p4, o, o], [o, o, p6]]
+
+    assert equals(m1, m2) is True
+
+
+def test_matrix_not_equals():
+    p1 = Polynomial([Monomial('m', [(0, 1)])])
+    p2 = Polynomial([Monomial('m', [(1, 1)])])
+
+    m1 = [[o, o, o], [o, o, o], [o, o, p1]]
+    m2 = [[o, o, o], [o, o, o], [o, o, p2]]
+
+    assert equals(m1, m2) is False
+
+
+def test_matrix_size_not_equals():
+    m1 = [[o, o, o], [o, o, o], [o, o, o]]
+    m2 = [[o, o], [o, o]]
+
+    assert equals(m1, m2) is False
+
+
+def test_fixpoint():
+    before = [[o, o, o], [o, o, o], [o, o, o]]
+    after = fixpoint(before)
+
+    assert after[0][0] == m
+    assert after[0][1] == o
+    assert after[0][2] == o
+    assert after[1][0] == o
+    assert after[1][1] == m
+    assert after[1][2] == o
+    assert after[2][0] == o
+    assert after[2][1] == o
+    assert after[2][2] == m
+
+
+def test_show(mocker):
+    my_matrix = [[o, o, o], [o, o, o], [o, o, o]]
+    mocker.patch('builtins.print')
+    show(my_matrix)
+    expected = 4  # print each row and new line
+    assert builtins.print.call_count == expected
+
+
+def test_show_with_extras(mocker):
+    my_matrix = [[o, o, o], [o, o, o], [o, o, o]]
+    mocker.patch('builtins.print')
+    show(my_matrix, prefix="foo", postfix="bar")
+    assert builtins.print.call_count == 6
