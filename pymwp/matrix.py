@@ -197,10 +197,45 @@ def show(matrix: List[List[Any]], **kwargs) -> None:
     Using the keyword arguments it is possible display additional text
     before or after the matrix.
 
-    Args:
+    Example:
+
+    Display matrix only:
+
+    ```python
+    my_matrix = identity_matrix(3)
+    show(my_matrix)
+
+    # displays:
+    #
+    # ['  +m', '  +o', '  +o']
+    # ['  +o', '  +m', '  +o']
+    # ['  +o', '  +o', '  +m']
+    ```
+
+    Display matrix and some extra text before it
+
+    ```python
+    my_matrix = identity_matrix(3)
+    header = '|   x1   |   x2  |  x3 |'
+    show(my_matrix, prefix=header)
+
+    # displays:
+    #
+    # |   x1   |   x2  |  x3 |
+    # ['  +m', '  +o', '  +o']
+    # ['  +o', '  +m', '  +o']
+    # ['  +o', '  +o', '  +m']
+    ```
+
+    Arguments:
         matrix: the matrix to display.
-        **prefix (str): display some text before displaying matrix
-        **postfix (str): display some text after displaying matrix
+        **kwargs: keyword arguments
+
+            - `prefix` (`str`): display some text before displaying matrix
+            - `postfix` (`str`): display some text after displaying matrix
+
+    Raises:
+        TypeError: If the matrix is not iterable (type list of lists)
     """
     if 'prefix' in kwargs:
         print(kwargs['prefix'])
