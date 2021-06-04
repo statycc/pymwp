@@ -187,7 +187,42 @@ def resize(matrix: List[List[Polynomial]], new_size: int) \
 
 
 def matrix_print(matrix: List[List[Any]]) -> None:
-    """Pretty print a matrix"""
+    """Pretty print a matrix elements at the screen.
+
+    Arguments:
+        matrix: the matrix to print.
+    """
     for row in matrix:
         print([str(r) for r in row])
     print(' ')
+
+
+def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
+    """Determine if two matrices are equal by performing element-wise
+        comparisons on its values.
+
+    The two matrices must be equal size, otherwise the answer is always
+    False. This function can evaluate matrices of any values type as long as
+    the values are comparable by equals (==) operator.
+
+    Arguments:
+        matrix1: first matrix.
+        matrix2: second matrix.
+
+    Returns:
+        True if matrices are equal element-wise and False otherwise.
+    """
+    if matrix1 is None or matrix2 is None:
+        return matrix1 == matrix2
+
+    # check equal size
+    if [len(row) for row in matrix1] != [len(row) for row in matrix2]:
+        return False
+
+    # compare element-wise
+    for row_index, column in enumerate(matrix1):
+        for col_index, value in enumerate(column):
+            if matrix2[row_index][col_index] != value:
+                return False
+
+    return True
