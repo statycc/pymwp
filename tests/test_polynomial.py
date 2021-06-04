@@ -19,21 +19,23 @@ def test_polynomial_times_empty():
     c = p * z
     assert c == Polynomial()
 
+
 def test_contains_filter():
     m1 = Monomial('m', [(0, 0), (0, 1)])
     m2 = Monomial('w', [(0, 1), (1, 2)])
     m3 = Monomial('p', [(0, 2), (1, 3), (2, 4)])
-    new_list = [m1,m2,m3]
-    new_list2 = [m1,m2,m3]
+    new_list = [m1, m2, m3]
+    new_list2 = [m1, m2, m3]
     m0 = Monomial('p', [(0, 1)])
     m0_ = Monomial('m', [(0, 1), (1, 2), (1, 3)])
     try:
-        assert Polynomial.inclusion(new_list,m0,1) == (True,0)
+        assert Polynomial.inclusion(new_list, m0, 1) == (True, 0)
         assert new_list == [m3]
-        assert Polynomial.inclusion(new_list2,m0_,1) == (False,1)
+        assert Polynomial.inclusion(new_list2, m0_, 1) == (False, 1)
     except AssertionError:
         print([str(m) for m in new_list])
         raise
+
 
 def test_polynomial_add_by_non_empty():
     mono1 = Monomial('m', [(2, 2)])
@@ -41,18 +43,20 @@ def test_polynomial_add_by_non_empty():
     m = Polynomial([mono1])
     p = Polynomial([mono2])
     c = p + m
-    expected = Polynomial([Monomial('m', [(0, 0), (1, 1)]),Monomial('m', [(2, 2)])])
+    expected = Polynomial(
+        [Monomial('m', [(0, 0), (1, 1)]), Monomial('m', [(2, 2)])])
     try:
         assert c == expected
     except AssertionError:
         print(c)
         raise
 
+
 def test_polynomial_add_simpl():
     mono1 = Monomial('m', [(0, 1), (0, 2), (0, 3)])
     mono2 = Monomial('w', [(0, 2), (0, 3), (0, 4)])
     mono3 = Monomial('p', [(0, 2), (0, 3), (0, 5)])
-    m = Polynomial(Polynomial.sort_monomials([mono1,mono2,mono3]))
+    m = Polynomial(Polynomial.sort_monomials([mono1, mono2, mono3]))
     print(m)
     mono0 = Monomial('w', [(0, 2), (0, 3)])
     p = Polynomial([mono0])
@@ -65,31 +69,6 @@ def test_polynomial_add_simpl():
         print(c)
         raise
 
-# def test_polynomial_add_old_simpl():
-#     mono1 = Monomial('m', [(2, 2)])
-#     mono2 = Monomial('m', [(0, 0), (2, 2)])
-#     m = Polynomial([mono1])
-#     p = Polynomial([mono2])
-#     c = p.add_old(m)
-#     expected = Polynomial([Monomial('m', [(0, 0), (2, 2)])])
-#     try:
-#         assert c == expected
-#     except AssertionError:
-#         print(c)
-#         raise
-
-# def test_polynomial_add_old_by_non_empty():
-#     mono1 = Monomial('m', [(2, 2)])
-#     mono2 = Monomial('m', [(0, 0), (1, 1)])
-#     m = Polynomial([mono1])
-#     p = Polynomial([mono2])
-#     c = p.add_old(m)
-#     expected = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
-#     try:
-#         assert c == expected
-#     except AssertionError:
-#         print(c)
-#         raise
 
 def test_polynomial_times_by_non_empty():
     mono1 = Monomial('m', [(2, 2)])
