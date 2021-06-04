@@ -130,7 +130,8 @@ class Analysis:
         # x | o   o
         # y | m   m
         vector = [
-                Polynomial([Monomial("o")]), # because x != y
+                # because x != y
+                Polynomial([Monomial("o")]),
                 Polynomial([Monomial('m')])
                 ]
 
