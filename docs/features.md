@@ -29,9 +29,7 @@ Description | State | Example
  Variable declarations |  ✅  | `int x = 3;` 
  Constant declarations |  ✅  | `const int x = 10;`
 **Unary operations** | 🟧 | `-x`, `--x`, `x++`, ... 
-**Binary operations** ||
- Addition | ✅ |  `x = y + z`
- Multiply | ✅ |  `x = y * z`
+**Binary operations** | ✅ |  `x = y + z`
 **Conditional statements** || 
  if statement | ✅ | `if(x > 0) { ... }`
  if-else statement | ✅ | `if(x > 0) { ... } else { ... }`
@@ -39,9 +37,7 @@ Description | State | Example
 **Repetition statements** || 
  while loop | ✅ | `while(x < 20) { ... }`
  for loop | 🟧 | `for (i = 0; i < 10; ++i) { ... }`
-**Functions** ||
- functions | 🟧 | 
- inline functions | ⬜ | 
+**Functions** | 🟧 ||
 **Pointers** ||
  pointers | 🟧 |
  Restricted pointers | ⬜ |  
