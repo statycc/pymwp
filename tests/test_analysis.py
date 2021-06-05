@@ -48,27 +48,6 @@ def test_analyze_simple_non_infinite(mocker):
     assert str(relation.matrix[0][0].list[3]) == 'w.delta(2,0)'
 
 
-# same if statement but with braces
-#
-# int main() {
-#      int x;
-#      int y;
-#      x = 1;
-#
-#      int x1;
-#      int x2;
-#      int x3;
-#      x1 = 1;
-#      x2 = 2;
-#      if (x > 0) {
-#         x3 = 1;
-#      }
-#      else {
-#         x3 = x2;
-#      }
-#      y = x3;
-#  }
-
 def test_analyze_if_with_braces(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
                  return_value=IF_WITH_BRACES)
