@@ -48,37 +48,14 @@ def test_analyze_simple_non_infinite(mocker):
     assert str(relation.matrix[0][0].list[3]) == 'w.delta(2,0)'
 
 
-# same if statement but with braces
-#
-# int main() {
-#      int x;
-#      int y;
-#      x = 1;
-#
-#      int x1;
-#      int x2;
-#      int x3;
-#      x1 = 1;
-#      x2 = 2;
-#      if (x > 0) {
-#         x3 = 1;
-#      }
-#      else {
-#         x3 = x2;
-#      }
-#      y = x3;
-#  }
-
 def test_analyze_if_with_braces(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
                  return_value=IF_WITH_BRACES)
     relation, combinations = Analysis.run("if_braces", no_save=True)
 
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
-    # Should we have `m` on diag for x3 ? don't think so
-    # since X3 is constant in all cases…
-    assert str(relation.matrix[3][3].list[0]) == 'o'
+    assert combinations == [[]]
+    assert relation.variables == ['x', 'x1', 'x2', 'x3']
+    assert str(relation.matrix[3][3].list[0]) == 'm'
 
 
 def test_analyze_if_without_braces(mocker):
@@ -87,8 +64,6 @@ def test_analyze_if_without_braces(mocker):
     relation, combinations = Analysis.run("if_wo_braces", no_save=True)
 
     # should have exact same result as previous test...
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
-    # Should we have `m` on diag for x3 ? don't think so
-    # since X3 is constant in all cases…
-    assert str(relation.matrix[3][3].list[0]) == 'o'
+    assert combinations == [[]]
+    assert relation.variables == ['x', 'x1', 'x2', 'x3']
+    assert str(relation.matrix[3][3].list[0]) == 'm'

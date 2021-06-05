@@ -92,11 +92,6 @@ class Analysis:
                 return Analysis.constant(index, node)
             if isinstance(node.rvalue, c_ast.UnaryOp):
                 return Analysis.unary_op(index, node)
-            if isinstance(node.rvalue, c_ast.ID):
-                x = node.lvalue.name
-                y = node.rvalue.name
-                if x != y:
-                    return Analysis.id(index, node)
         if isinstance(node, c_ast.If):
             return Analysis.if_(index, node)
         if isinstance(node, c_ast.While):
@@ -108,44 +103,6 @@ class Analysis:
         logger.debug(f"uncovered case! type: {type(node)}")
 
         return index, RelationList()
-
-    @staticmethod
-    def id(index: int, node: Assignment) -> Tuple[int, RelationList]:
-        """Analyze x = y (with x != y) and y not a const
-
-        Arguments:
-            index: delta index
-            node: AST node representing a simple assignment
-
-        Returns:
-            Updated index value and relation list
-        """
-        logger.debug('Computing Relation x = y')
-        x = node.lvalue.name
-        y = node.rvalue.name
-        vars_list = [[x], [y]]
-
-        # create a vector of polynomials based on operator type
-        #     x   y
-        # x | o   o
-        # y | m   m
-        vector = [
-                # because x != y
-                Polynomial([Monomial("o")]),
-                Polynomial([Monomial('m')])
-                ]
-
-        # build a list of unique variables
-        variables = vars_list[0]
-        for var in vars_list[1]:
-            if var not in variables:
-                variables.append(var)
-
-        # create relation list
-        rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, vars_list[0][0])
-
-        return index + 1, rel_list
 
     @staticmethod
     def binary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
@@ -352,11 +309,7 @@ class Analysis:
         dependence_type = None
         p1_scalars, p2_scalars = None, None
         const_count = 2 - len(variables_list[1])
-        if const_count == 0:
-            operand_match = variables_list[1][0] == variables_list[1][1]
-        else:
-            operand_match = False
-        # x = … (if x not in …)
+        operand_match = variables_list[1][0] == variables_list[1][1]
         prepend_zero = variables_list[0][0] not in variables_list[1]
 
         # determine dependence type
