@@ -20,8 +20,6 @@ implemented and for which implementation is planned.
 - 🟥 &nbsp; **planned** - implementation is in a planning stage
 - ⬜ &nbsp; **future**
 
-
-
 Description | State | Example
 --- | --- | ---
 **Basic data types** ||
@@ -58,7 +56,3 @@ Description | State | Example
 ### Handling of unsupported operations
 
 Analysis will bypass any statement that is unsupported.
-
-
-
-
