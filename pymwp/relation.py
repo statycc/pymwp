@@ -131,7 +131,16 @@ class Relation:
         return new_relation
 
     def while_correction(self) -> None:
-        """Loop correction (see MWP paper)."""
+        """Replace invalid scalars in a matrix by i.
+
+        Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
+
+        Following the computation of fixpoint for a while loop node, this
+        method checks the resulting matrix and replaces all invalid scalars
+        with $\\infty$ (W rule in MWP paper).
+
+        This method is where $\\infty$ is introduced in a matrix.
+        """
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
                 for mon in poly.list:
