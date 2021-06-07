@@ -1,7 +1,7 @@
 from pytest import raises
 from pymwp.analysis import Analysis
 from .sample_ast import EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, \
-    IF_WO_BRACES, IF_WITH_BRACES
+    IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED
 
 
 def test_analyze_empty_file(mocker):
@@ -57,8 +57,13 @@ def test_analyze_if_with_braces(mocker):
     assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
     # Should we have `m` on diag for x3 ? don't think so
     # since X3 is constant in all cases…
-    assert str(relation.matrix[3][3].list[0]) == 'o'
-
+    try:
+        for i in range(len(relation.variables)):
+            for j in range(len(relation.variables)):
+                assert str(relation.matrix[i][j].list[0]) == 'o'
+    except AssertionError:
+        relation.show()
+        raise
 
 def test_analyze_if_without_braces(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
@@ -70,4 +75,37 @@ def test_analyze_if_without_braces(mocker):
     assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
     # Should we have `m` on diag for x3 ? don't think so
     # since X3 is constant in all cases…
-    assert str(relation.matrix[3][3].list[0]) == 'o'
+    try:
+        for i in range(len(relation.variables)):
+            for j in range(len(relation.variables)):
+                assert str(relation.matrix[i][j].list[0]) == 'o'
+    except AssertionError:
+        relation.show()
+        raise
+
+def test_analyze_variable_ignore(mocker):
+    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
+                 return_value=VARIABLE_IGNORED)
+    relation, combinations = Analysis.run("variable_ignored", no_save=True)
+
+    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+    assert relation.variables == ['X2', 'X3', 'X1', 'X4']
+
+    wmp = '+o+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
+    wpm = '+o+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'
+    o = '+o'
+    m = '+m'
+    res = [
+        [o,o,o,o],
+        [wmp,m,o,wmp],
+        [wpm,o,m,wpm],
+        [o,o,o,o],
+        ]
+
+    try:
+        for i in range(len(relation.variables)):
+            for j in range(len(relation.variables)):
+                assert str(relation.matrix[i][j]).strip() == res[i][j]
+    except AssertionError:
+        relation.show()
+        raise

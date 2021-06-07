@@ -650,3 +650,60 @@ NOT_INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
     )
 )
 ])
+
+# int main(){
+#     X2 = X3+X1;
+#     X4 = X2;
+# }
+VARIABLE_IGNORED = FileAST(ext=[FuncDef(decl=Decl(
+    name='main',
+    quals=[
+    ],
+    storage=[
+    ],
+    funcspec=[
+    ],
+    type=FuncDecl(args=None,
+                  type=TypeDecl(
+                      declname='main',
+                      quals=[
+                      ],
+                      type=IdentifierType(
+                          names=[
+                              'int'
+                          ]
+                      )
+                  )
+                  ),
+    init=None,
+    bitsize=None
+),
+    param_decls=None,
+    body=Compound(
+        block_items=[
+                     Assignment(op='=',
+                                lvalue=ID(
+                                    name='X2'
+                                ),
+                                rvalue=BinaryOp(
+                                    op='+',
+                                    left=ID(
+                                        name='X3'
+                                    ),
+                                    right=ID(
+                                        name='X1'
+                                    )
+                                )
+                                ),
+                     Assignment(op='=',
+                                lvalue=ID(
+                                    name='X4'
+                                ),
+                                rvalue=ID(
+                                    name='X2'
+                                )
+                                )
+                     ]
+    )
+)
+])
