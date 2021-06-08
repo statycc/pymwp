@@ -27,8 +27,8 @@ Description | State | Example
  `long long`
  Floating point types  | ✅ | `float`, `double`, `long double` 
 **Declarations** ||
- Variable declarations |  ✅  | `int x = 3;` 
- Constant declarations |  ✅  | `const int x = 10;`
+ Variable declarations |  ✅  | `int x;` 
+ Constant declarations |  ✅  | `const int x;`
 **Unary operations** | 🟧 | `-x`, `--x`, `x++`, ... 
 **Binary operations** | ✅ |  `x = y + z`
 **Conditional statements** || 
