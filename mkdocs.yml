@@ -10,6 +10,8 @@ use_directory_urls: true
 
 nav:
 - Overview: index.md
+- Features: features.md
+- Examples: examples.md
 - All documented modules:
   - Analysis: analysis.md
   - File I/O: file_io.md
@@ -50,6 +52,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - include-markdown
   - mkdocstrings:
       default_handler: python
       handlers:
