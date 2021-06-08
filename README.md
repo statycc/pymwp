@@ -7,6 +7,13 @@ Implementation of MWP analysis on C code in Python.
 
 Source code documentation is available at [seiller.github.io/pymwp](https://seiller.github.io/pymwp/).
 
+<!--
+    do not remove the next comment ("include-start") or the ending 
+    ("include-end"), it is a marker for what to include in the docs, but 
+    feel free to edit the instructions...
+-->
+
+<!--include-start-->
 
 ### How to run the analysis
 
@@ -35,7 +42,7 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
     for example:
     
     ```bash
-    python -m pymwp c_files/infinite_2.c
+    python -m pymwp c_files/basics/if.c
     ```
     
     to see all available options see help
@@ -43,9 +50,8 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
     ```bash
     python -m pymwp
     ```
-    
-    Earlier version of analysis can be called by replacing `-m pymwp` with 
-    `Analysis.py`.
+
+<!--include-end--> 
 
 * * *
 
