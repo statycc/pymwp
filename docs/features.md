@@ -23,8 +23,7 @@ implemented and for which implementation is planned.
 Description | State | Example
 --- | --- | ---
 **Basic data types** ||
- Integer types (incl. `signed`, `unsigned`) | ✅ | `char`, `short`, `int`, `long`, 
- `long long`
+ Integer types (incl. `signed`, `unsigned`) | ✅ | `char`, `short`, `int`, `long`, `long long`
  Floating point types  | ✅ | `float`, `double`, `long double` 
 **Declarations** ||
  Variable declarations |  ✅  | `int x;` 
