@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from .constants import Comparison
 from .monomial import Monomial
 from .semiring import ZERO_MWP, sum_mwp
+from .constants import SetInclusion
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,44 @@ class Polynomial:
     def __mul__(self, other):
         return self.times(other)
 
+    @staticmethod
+    def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
+            -> Tuple[bool, int]:
+        """filter list_monom regarding to mono inclusion and return info
+
+        remove all monomials of list_monom that are included in mono.
+
+        return CONTAINS if one of monomials of list_monom contains mono
+        (regarding to Monomial.inclusion def).
+
+        Arguments:
+            list_monom: a list of monomials
+            mono: a monomial we want to add
+            i: the position index where to add mono
+
+        Returns:
+            False if mono already in list_monom and shifted index where to
+            insert mono, return True if mono not in list_monom
+        """
+        j = 0
+        while j < len(list_monom):
+            m = list_monom[j]
+            incl = m.inclusion(mono)
+            # if m ⊆ mono
+            if incl == SetInclusion.CONTAINS:
+                # We will then add mono so we can remove m
+                list_monom.remove(m)
+                # If removed monom is before i (where we want to insert mono)
+                if j < i:
+                    i = i - 1  # shift left position
+                continue
+            elif incl == SetInclusion.INCLUDED:
+                #  We don't want to add mono, inform with CONTAINS
+                return False, i
+            j = j + 1
+        # No inclusion
+        return True, i
+
     def add(self, polynomial: Polynomial) -> Polynomial:
         """Add two polynomials
 
@@ -99,12 +138,37 @@ class Polynomial:
 
         i, j = 0, 0
         new_list = self.copy().list
-        self_len = len(new_list)
+        # self_len = len(new_list)
         poly_len = len(polynomial.list)
 
         # iterate lists of monomials until the end of shorter list
         while j < poly_len:
-            mono1, mono2 = new_list[i], polynomial.list[j]
+            mono2 = polynomial.list[j]
+
+            tobe_inserted, i = Polynomial.inclusion(new_list, mono2, i)
+
+            if not (tobe_inserted):
+                j = j + 1
+                continue
+
+            # handle case where first list is shorter
+            # by just appending what remains of the
+            # other list of monomials
+            if new_list == []:
+                new_list = new_list + polynomial.list[j:]
+
+            # handle case where first list is shorter
+            # by just appending what remains of the
+            # other list of monomials
+            if i == len(new_list):
+                for m in polynomial.list[j:]:
+                    tobe_inserted, i = Polynomial.inclusion(new_list, m, i)
+                    if (tobe_inserted):
+                        new_list = new_list + [m]
+                break
+
+            mono1 = new_list[i]
+
             check = Polynomial.compare(mono1.deltas, mono2.deltas)
 
             # move to next when self is smaller
@@ -124,13 +188,6 @@ class Polynomial:
                 new_list[i].scalar = \
                     sum_mwp(mono1.scalar, mono2.scalar)
                 j = j + 1
-
-            # handle case where first list is shorter
-            # by just appending what remains of the
-            # other list of monomials
-            if i == self_len:
-                new_list = new_list + polynomial.list[j:]
-                break
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
         return Polynomial(sorted_monomials)
@@ -215,7 +272,11 @@ class Polynomial:
             # 4. get first element and append to result
             # 5. remove from index and table
             smallest = index_list.pop(0)
-            result.append(table[smallest].pop(0))
+            # TODO 
+            mono2 = table[smallest].pop(0)
+            tobe_inserted, _ = Polynomial.inclusion(result, mono2)
+            if tobe_inserted:
+                result.append(mono2)
 
             # 6. when table is non-empty insert j at
             # the right index

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 from typing import Optional, List, Tuple
+from .constants import SetInclusion
 
-from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp
+from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp, sum_mwp
 
 
 class Monomial:
@@ -75,6 +76,49 @@ class Monomial:
     def __mul__(self, other) -> Monomial:
         return self.prod(other)
 
+    def contains(self, m: Monomial) -> bool:
+        """check if all deltas of m are in deltas of self
+
+        Arguments:
+            self: this monomial
+            m: a monomial to search for intersection
+
+        Returns:
+            False if one delta of m not in self
+            True otherwise
+        """
+        for b in m.list:
+            if not (b in self.list):
+                return False
+        return True
+
+    def inclusion(self, monomial: Monomial) -> SetInclusion:
+        """gives info about inclusion of self monomial with monomial
+
+        Arguments:
+            self: this monomial
+            monomial: a monomial to see inclusion
+
+        Returns:
+            CONTAINS if self contains monomial
+            INCLUDED if self is included in monomial
+            EMPTY none of them
+        """
+        # self contains monomial ?
+        contains:bool = self.contains(monomial)
+
+        summ = sum_mwp(self.scalar,monomial.scalar)
+        # if self contains monomial and self.scalar >= monomial.scalar
+        if contains and (monomial.scalar == summ):
+            return SetInclusion.CONTAINS
+        else:
+            # self included in monomial and self.scalar <= monomial.scalar
+            included:bool = monomial.contains(self)
+            if included and (self.scalar==summ):
+                return SetInclusion.INCLUDED
+            else:
+                return SetInclusion.EMPTY
+
     def prod(self, monomial: Monomial) -> Monomial:
         """
         prod operation combines two monomials where
@@ -109,6 +153,7 @@ class Monomial:
         # so we are adding to it the deltas from
         # the second monomial passed in as argument
         elif monomial.list:
+            # TODO here insert only those not contained ?
             Monomial.insert_deltas(mono_product, monomial.deltas)
 
         return mono_product
