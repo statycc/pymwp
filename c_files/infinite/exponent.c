@@ -4,7 +4,11 @@
  */
 
 int main(){
-
+    int x;
+    int n;
+    int p = x;
+    int r;
+    while (n > 0)
     {
         if (n % 2 == 1)
             r *= p;
