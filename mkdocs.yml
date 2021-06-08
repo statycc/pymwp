@@ -10,6 +10,7 @@ use_directory_urls: true
 
 nav:
 - Overview: index.md
+- Features: features.md
 - All documented modules:
   - Analysis: analysis.md
   - File I/O: file_io.md
