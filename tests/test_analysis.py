@@ -46,10 +46,9 @@ def test_analyze_simple_non_infinite(mocker):
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     assert relation.variables == ['X0', 'X1']
-    assert str(relation.matrix[0][0].list[0]) == 'o'
-    assert str(relation.matrix[0][0].list[1]) == 'w.delta(0,0)'
-    assert str(relation.matrix[0][0].list[2]) == 'w.delta(1,0)'
-    assert str(relation.matrix[0][0].list[3]) == 'w.delta(2,0)'
+    assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
+    assert str(relation.matrix[0][0].list[1]) == 'w.delta(1,0)'
+    assert str(relation.matrix[0][0].list[2]) == 'w.delta(2,0)'
 
 
 def test_analyze_if_with_braces(mocker):
@@ -57,7 +56,8 @@ def test_analyze_if_with_braces(mocker):
                  return_value=IF_WITH_BRACES)
     relation, combinations = Analysis.run("if_braces", no_save=True)
 
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+                            [2, 0], [2, 1], [2, 2]]
     assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
     # Should we have `m` on diag for x3 ? don't think so
     # since X3 is constant in all cases…
@@ -68,6 +68,7 @@ def test_analyze_if_with_braces(mocker):
     except AssertionError:
         relation.show()
         raise
+
 
 def test_analyze_if_without_braces(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
@@ -75,7 +76,8 @@ def test_analyze_if_without_braces(mocker):
     relation, combinations = Analysis.run("if_wo_braces", no_save=True)
 
     # should have exact same result as previous test...
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+                            [2, 0], [2, 1], [2, 2]]
     assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
     # Should we have `m` on diag for x3 ? don't think so
     # since X3 is constant in all cases…
@@ -87,24 +89,26 @@ def test_analyze_if_without_braces(mocker):
         relation.show()
         raise
 
+
 def test_analyze_variable_ignore(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
                  return_value=VARIABLE_IGNORED)
     relation, combinations = Analysis.run("variable_ignored", no_save=True)
 
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+                            [2, 0], [2, 1], [2, 2]]
     assert relation.variables == ['X2', 'X3', 'X1', 'X4']
 
-    wmp = '+o+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
-    wpm = '+o+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'
+    wmp = '+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
+    wpm = '+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'
     o = '+o'
     m = '+m'
     res = [
-        [o,o,o,o],
-        [wmp,m,o,wmp],
-        [wpm,o,m,wpm],
-        [o,o,o,o],
-        ]
+        [o, o, o, o],
+        [wmp, m, o, wmp],
+        [wpm, o, m, wpm],
+        [o, o, o, o],
+    ]
 
     try:
         for i in range(len(relation.variables)):

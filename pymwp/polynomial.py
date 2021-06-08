@@ -190,7 +190,7 @@ class Polynomial:
                 j = j + 1
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
-        return Polynomial(sorted_monomials)
+        return Polynomial(sorted_monomials).remove_zeros()
 
     def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.
@@ -293,7 +293,7 @@ class Polynomial:
                     index_list.append(smallest)
             # 7. repeat until done
 
-        return Polynomial(result)
+        return Polynomial(result).remove_zeros()
 
     def eval(self, argument_list: list[int]) -> str:
         """Evaluate polynomial.
@@ -477,3 +477,26 @@ class Polynomial:
         # doesn't matter; just append whatever
         # remains of left or right tail
         return new_list + right + left
+
+    def remove_zeros(self) -> Polynomial:
+        """Removes all encountered 0s from a polynomial.
+
+        Before returning, if the list is empty, the result produces a
+            0-monomial.
+
+        Arguments:
+            polynomial: from which to remove zeros
+
+        Returns:
+            polynomial with list of monomials for which zeros are
+            removed, unless 0 is the only monomial.
+        """
+        filtered_monomials = list(filter(
+            lambda mono: mono.scalar != ZERO_MWP, self.list))
+
+        if len(filtered_monomials) == 0:
+            self.list = [Monomial(ZERO_MWP)]
+        else:
+            self.list = filtered_monomials
+
+        return self
