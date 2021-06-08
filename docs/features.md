@@ -46,8 +46,8 @@ Description | State | Example
  Arrays | 🟧 |
  Variable length arrays | ⬜ |  
 **Comments** ||
- Single-line | 🟥 | `// comment`
- Multi-line | 🟥 | `/* comment */`
+ Single-line | ✅ | `// comment`
+ Multi-line | ✅ | `/* comment */`
 
 
 ### Handling of unsupported operations
