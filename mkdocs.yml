@@ -60,13 +60,13 @@ plugins:
           selection:
             new_path_syntax: yes
             filters:
-              - "^__init__$"  # but always include __init__ modules and methods
+              - "^__init__$"
           rendering:
             show_root_heading: false
             show_source: false
             show_category_heading: false
       watch:
-      - pymwp
+        - pymwp
 
 extra_css:
   - assets/styles.css
