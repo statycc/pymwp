@@ -48,7 +48,7 @@ Description | State | Example
 **Comments** ||
  Single-line | ✅ | `// comment`
  Multi-line | ✅ | `/* comment */`
-
+ **Header Files Inclusion** | 🟧 ||
 
 ### Handling of unsupported operations
 
