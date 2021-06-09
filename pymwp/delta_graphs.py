@@ -1,7 +1,8 @@
 ## TODO: needed imports
 
-# from __future__ import annotations
-# from typing import List, Tuple
+from __future__ import annotations
+from typing import List, Tuple, Optional
+from .monomial import Monomial
 
 #
 class DeltaGraph:
@@ -24,8 +25,7 @@ class DeltaGraph:
     example:
 
     ```
-        i       0       1       2       3
-            -------------------------------
+                                 ↓
         n1 = ( (0,1) , (0,2) , (0,3), (0,4) )
         n2 = ( (0,1) , (0,2) , (1,3), (0,4) )
     ```
@@ -33,7 +33,7 @@ class DeltaGraph:
     in our graph will have:
 
     ```
-        n1 <---- 2 ----> n2
+        n1 <---- 3 ----> n2
     ```
 
     or
@@ -41,23 +41,38 @@ class DeltaGraph:
     ```python
     size = 4   ↓
 
-    graph_dict[4][n1][n2] = 2
+    graph_dict[4][n1][n2] = 3
     ```
 
     Note: yes it also means it's symetric :
 
     ```python
-    graph_dict[4][n2][n1] = 2
+    graph_dict[4][n2][n1] = 3
     ```
 
     This representation will help us simplify the evaluation by
     removing redundant/irrelevant choices/paths.
     """
 
-    def __init__(self):
-        """Create empty DeltaGraph
+    def __init__(self, monomials: Optional[List[Monomial]]= None):
+        """Create DeltaGraph
+            fill with empty dictionary all monomial_list of monomials given
         """
-        self.graph_dict={}
+        self.graph_dict= {}
+        if monomials:
+            for ml in monomials:
+                size = len(ml.list)
+                if size not in self.graph_dict:
+                    self.graph_dict[size] = {}
+                self.graph_dict[size][tuple(ml.list)] = {}
+
+    def import_monomials(self, monomials_list):
+        if monomials_list:
+            for ml in monomials_list:
+                size = len(ml)
+                if size not in self.graph_dict:
+                    self.graph_dict[size] = {}
+                self.graph_dict[size][ml] = {}
 
     def addEdge(self,node1,node2,label):
         """Add an edge of label `label` btwn `node1` and `node2`
@@ -77,19 +92,19 @@ class DeltaGraph:
         """
         # addEdge is called only when len(node1) = len(node2)
         size = len(node1)
-        if size not in self.graph_dict:
-            self.graph_dict[size]={}
         if node1 not in self.graph_dict[size]:
             self.graph_dict[size][node1]={}
 
         # self.graph_dict[size][node1]=[(node2,label)]
         self.graph_dict[size][node1][node2]=label
 
-        # symetry ↓ ?? Is it usefull ?? FIXME test…
         # If addEdge is always called from insert_tuple
         # node2 should always be in self.graph_dict[size]
         if node2 not in self.graph_dict[size]:
             self.graph_dict[size][node2]={}
+        # mono_diff is not symetric ! FIXME
+        (diff,label)=self.mono_diff(node2,node1)
+        assert diff
         self.graph_dict[size][node2][node1]=label
 
     # monomial_list : Tuple[Tuple[int,int]]
@@ -116,17 +131,21 @@ class DeltaGraph:
         """
         n=len(monomial_list)
 
-        #if simplification:
-        ## Add here the simplification
+        if n not in self.graph_dict:
+            self.graph_dict[n] = {}
+            self.graph_dict[n][monomial_list] = {}
+        else:
+            #if simplification:
+            ## Add here the simplification
 
-        if monomial_list not in self.graph_dict[n]:
-            for listi in self.graph_dict[n]:
-                # Already tested when listi[listi][monomial_list] exists
-                # FIXME is it possible ?
-                # if monomial_list not in listi[listi]:
-                (diff,i)=self.mono_diff(monomial_list,listi)
-                if diff:
-                    self.addEdge(monomial_list,listi,i)
+            if monomial_list not in self.graph_dict[n]:
+                for listi in list(self.graph_dict[n]):
+                    # Already tested when listi[listi][monomial_list] exists
+                    # FIXME is it possible ?
+                    # if monomial_list not in listi[listi]:
+                    (diff,i)=self.mono_diff(monomial_list,listi)
+                    if diff:
+                        self.addEdge(monomial_list,listi,i)
 
 
     @staticmethod
@@ -137,7 +156,7 @@ class DeltaGraph:
             index: index to remove
 
         Returns:
-            a new tuple without delat with index `index`
+            a new tuple without detlas with index `index`
         """
         return tuple(filter(lambda x: x[1] != index, list(ml)))
 
@@ -158,13 +177,14 @@ class DeltaGraph:
 
         # For each neighbour
         for ml_nb in neighbos:
-            labl = self.graph_dict[size][ml_nb][ml]
-            # If same label then recursively remove neighbour
-            if labl == index:
-                self.remove_tuple(ml_nb,index)
-            # if not just remove the edge
-            else:
-                del self.graph_dict[size][ml_nb][ml]
+            if ml_nb in self.graph_dict[size]:
+                labl = self.graph_dict[size][ml_nb][ml]
+                # If same label then recursively remove neighbour
+                if labl == index:
+                    self.remove_tuple(ml_nb,index)
+                # if not just remove the edge
+                else:
+                    del self.graph_dict[size][ml_nb][ml]
 
     @staticmethod
     def mono_diff(ml1, ml2):
@@ -173,6 +193,10 @@ class DeltaGraph:
         and returns (diff, i) where diff is True if and only if
         both lists differ only on one element,
         and i is the index of the corresponding delta.
+
+        Note:
+            mono_diff(m1,m2) not always = to mono_diff(m2,m1)
+            Is that true in real cases ? FIXME
 
         Arguments:
             ml1: first monomial_list
@@ -186,9 +210,9 @@ class DeltaGraph:
         index = None
         diff_count = 0
         i = 0
-        while diff_count < 2:
+        while diff_count < 2 and i < len(ml1):
             if ml1[i] not in ml2:
-                index = i
+                index = ml1[i][1]
                 diff_count+=1
             i+=1
         return (diff_count == 1), index
@@ -196,7 +220,8 @@ class DeltaGraph:
 
     def isfull(self,n,mono,index,max_choices=3):
         i=0
-        for (_,j) in self.graph_dict[n][mono]:
+        for mono2 in self.graph_dict[n][mono]:
+            j = self.graph_dict[n][mono][mono2]
             if j==index:
                 i=i+1
                 if i==max_choices-1:
@@ -208,7 +233,7 @@ class DeltaGraph:
         _, listi = zip(*lm)
         return listi
 
-    def simplify(self,list_of_max):
+    def fusion(self,list_of_max):
         # Start from longest monomial list to the shortest
         for n in sorted(self.graph_dict,reverse=True):
             # For all monomial list of size n
