@@ -12,6 +12,7 @@ nav:
 - Overview: index.md
 - Features: features.md
 - Examples: examples.md
+- Demo: demo.md
 - All documented modules:
   - Analysis: analysis.md
   - File I/O: file_io.md
