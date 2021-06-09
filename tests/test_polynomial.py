@@ -118,3 +118,40 @@ def test_polynomial_sort_2():
     assert p[1].deltas == [(1, 1), (1, 2)]
     assert p[2].deltas == [(1, 2), (1, 3)]
     assert p[3].deltas == [(1, 4)]
+
+
+def test_polynomial_remove_zeros_with_deltas():
+    # see: https://github.com/seiller/pymwp/issues/16
+    zero = Polynomial([Monomial('o')])
+    poly = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+
+    after_add = zero + poly
+    after_add.remove_zeros()
+    scalars_after_add = [mono.scalar for mono in after_add.list]
+
+    assert 'o' not in scalars_after_add
+    assert 'm' in scalars_after_add
+
+
+def test_polynomial_remove_zeros_no_deltas():
+    zero = Polynomial([Monomial('o')])
+    poly = Polynomial([Monomial('w')])
+
+    # add two when there are no deltas
+    after_add = zero + poly
+    after_add.remove_zeros()
+    scalars_after_add = [mono.scalar for mono in after_add.list]
+
+    # w-monomial remains
+    assert len(after_add.list) == 1
+    assert 'o' not in scalars_after_add
+    assert 'w' in scalars_after_add
+
+
+def test_polynomial_remove_zeros_empty():
+    # only 0-monomials
+    poly = Polynomial([Monomial('o'), Monomial('o'), Monomial('o')])
+    poly.remove_zeros()
+    # exactly 1 remains after
+    assert len(poly.list) == 1
+    assert poly.list[0].scalar == 'o'
