@@ -1,13 +1,25 @@
 <select id="demo-options" aria-label="demo options"></select>
 
-<pre id="demo-display" style="white-space: break-spaces;">
-    Choose an example to analyze
+<pre id="demo-display">
+
+    🠕 🠕 🠕 🠕 🠕 🠕
+
+Choose an example to analyze
 </pre>
+
+<div id="progress-container">
+    <div class="progress-bar">
+      <span class="bar">
+        <span class="progress"></span>
+      </span>
+    </div>
+</div>
 
 <script>
     const base = "https://pymwp1.uk.r.appspot.com/";
     const displayPre = document.getElementById('demo-display');
     const select = document.getElementById('demo-options');
+    const progressBar = document.getElementById('progress-container');
     const examples = {
         "Basic Examples": {
             "assign expression": "basics/assign_expression.c",
@@ -43,18 +55,19 @@
         },
         "Other": {
             "braces issue": "other/braces_issue.c",
-            "dense": "other/dense.c",
+            // "dense": "other/dense.c", <-- it always times out right now...
             "function (alone)": "other/f_alone.c",
             "function (inline)": "other/f_inline.c",
             "main without function": "other/f_main.c",
             "for body": "other/for_body.c",
             "for, not body": "other/for_not_body.c",
+        },
+        "Version": {
+            "Show pymwp version": "",
         }
     }
-
-    function display(text) {
-        displayPre.innerText = text;
-    }
+    const maxTimeout = 60 * 1000;
+    let req = undefined;
 
     function loadOptions() {
         return Object.entries(examples).map(function ([category, options], i) {
@@ -66,17 +79,42 @@
         }).join('');
     }
 
+    function toggleProgressView(showProgress) {
+        if (showProgress) {
+            progressBar.setAttribute("visible", "visible");
+        } else {
+            progressBar.removeAttribute("visible");
+        }
+    }
+
+    function displayResult(requestedExample, result) {
+        if (req === requestedExample) {
+            displayPre.innerText = result;
+            toggleProgressView(false);
+        }
+    }
+
     function analyze(event) {
         const path = event.target.value;
         const xhr = new window.XMLHttpRequest();
-        const onError = () => display("Sorry, demo unavailable! Try again later.");
-        xhr.open('GET', `${base}${path}`, true);
+        const URL = `${base}${path}`
+        displayPre.innerText = `Analyzing ${path}...`
+        toggleProgressView(true);
+        req = path
+
+        xhr.open('GET', URL);
+        xhr.timeout = maxTimeout;
         xhr.onload = _ => {
             if (xhr.readyState === 4) {
-                display(xhr.responseText)
+                displayResult(path, xhr.responseText);
             }
         }
-        xhr.onerror = onError;
+        xhr.ontimeout = function onError() {
+            displayResult(path, "Server timeout.");
+        };
+        xhr.onerror = function onError() {
+            displayResult(path, "Sorry, something went wrong! Try again later.");
+        };
         xhr.send();
     }
 
@@ -84,3 +122,139 @@
     select.onchange = analyze;
 </script>
 
+<style>
+    #demo-display {
+        white-space: pre-wrap;
+        word-break: break-word;
+        box-sizing: border-box;
+        max-width: 95%;
+        font-size: 90%;
+        margin: 2rem auto 5rem auto;
+    }
+
+
+    #progress-container {
+        position: relative;
+        height: 200px;
+        display: none;
+    }
+
+    #progress-container[visible] {
+        display: block;
+    }
+
+    .progress-bar {
+        border-radius: 60px;
+        overflow: hidden;
+        width: 250px;
+        max-width: 80%;
+        margin: 2rem auto;
+        opacity: 0;
+    }
+
+    #progress-container[visible] .progress-bar {
+        animation: fadeIn 0.5s;
+        animation-delay: 0.5s;
+        animation-fill-mode: both;
+    }
+
+    .progress-bar span {
+        display: block;
+    }
+
+    .bar {
+        background: rgba(0, 0, 0, 0.075);
+    }
+
+    .progress {
+        -webkit-animation: loader 8s ease infinite;
+        animation: loader 6s ease infinite;
+        background: #FF8F00;
+        color: #fff;
+        padding: 5px;
+        width: 0;
+    }
+
+    .progress-bar {
+        left: 50%;
+        max-width: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate3d(-50%, -50%, 0);
+    }
+
+    @-webkit-keyframes loader {
+        0% {
+            width: 0;
+        }
+        20% {
+            width: 10%;
+        }
+        25% {
+            width: 24%;
+        }
+        43% {
+            width: 41%;
+        }
+        56% {
+            width: 50%;
+        }
+        66% {
+            width: 52%;
+        }
+        71% {
+            width: 60%;
+        }
+        75% {
+            width: 76%;
+        }
+        94% {
+            width: 86%;
+        }
+        100% {
+            width: 100%;
+        }
+    }
+
+    @keyframes loader {
+        0% {
+            width: 0;
+        }
+        20% {
+            width: 10%;
+        }
+        25% {
+            width: 24%;
+        }
+        43% {
+            width: 41%;
+        }
+        56% {
+            width: 50%;
+        }
+        66% {
+            width: 52%;
+        }
+        71% {
+            width: 60%;
+        }
+        75% {
+            width: 76%;
+        }
+        94% {
+            width: 86%;
+        }
+        100% {
+            width: 100%;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
