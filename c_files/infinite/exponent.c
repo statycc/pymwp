@@ -11,8 +11,8 @@ int main(){
     while (n > 0)
     {
         if (n % 2 == 1)
-            r *= p;
-        p *= p;
-        n /= 2;
+            r = p * r;
+        p = p * p;
+        n = n / 2;
     }
 }
