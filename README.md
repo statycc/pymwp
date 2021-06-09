@@ -5,12 +5,19 @@
 
 Implementation of MWP analysis on C code in Python.
 
-Source code documentation is available at [seiller.github.io/pymwp](https://seiller.github.io/pymwp/).
+
+* * *
+
+### Documentation and Demo
+
+**[seiller.github.io/pymwp](https://seiller.github.io/pymwp/)**
+
+* * *
 
 <!--
     do not remove the next comment ("include-start") or the ending 
     ("include-end"), it is a marker for what to include in the docs, but 
-    feel free to edit the instructions...
+    feel free to edit the instructions inside these markers
 -->
 
 <!--include-start-->
