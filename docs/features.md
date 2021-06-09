@@ -17,8 +17,7 @@ implemented and for which implementation is planned.
 
 - ✅ &nbsp; **ready** - fully implemented and ready to use
 - 🟧 &nbsp; **in progress** - implementation is in progress but not ready
-- 🟥 &nbsp; **planned** - implementation is in a planning stage
-- ⬜ &nbsp; **future**
+- ⬜ &nbsp; **planned** - implementation is in a planning stage
 
 Description | State | Example
 --- | --- | ---
@@ -30,6 +29,7 @@ Description | State | Example
  Constant declarations |  ✅  | `const int x;`
 **Unary operations** | 🟧 | `-x`, `--x`, `x++`, ... 
 **Binary operations** | ✅ |  `x = y + z`
+**Combined assignment operators** | 🟧 | `x += 1` |
 **Conditional statements** || 
  if statement | ✅ | `if(x > 0) { ... }`
  if-else statement | ✅ | `if(x > 0) { ... } else { ... }`
@@ -38,16 +38,12 @@ Description | State | Example
  while loop | ✅ | `while(x < 20) { ... }`
  for loop | 🟧 | `for (i = 0; i < 10; ++i) { ... }`
 **Functions** | 🟧 ||
-**Pointers** ||
- pointers | 🟧 |
- Restricted pointers | ⬜ |  
-**Arrays** ||
- Arrays | 🟧 |
- Variable length arrays | ⬜ |  
+**Pointers** | 🟧 ||
+**Arrays** | 🟧 || 
+ **Header Files Inclusion** | 🟧 || 
 **Comments** ||
  Single-line | ✅ | `// comment`
  Multi-line | ✅ | `/* comment */`
- **Header Files Inclusion** | 🟧 ||
 
 ### Handling of unsupported operations
 
