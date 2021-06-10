@@ -96,8 +96,7 @@
             selectedExample = hash && result.replace(/\//g, '_').indexOf(hash) > 0 ? hash : 0;
             const examples = parseExamples(result);
             if (examples) {
-                select.innerHTML = examples + makeCategory(
-                    ["Version", {"Show version": "/"}], -1);
+                select.innerHTML = examples;
                 select.style.display = "inherit";
                 select.onchange = analyze;
                 displayPre.innerText = "🠕 🠕 🠕 Choose an example to analyze";
