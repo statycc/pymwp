@@ -1,0 +1,7 @@
+__pycache__/
+.git
+.gitignore
+.gcloudignore
+.idea/*
+README.md
+/venv/*

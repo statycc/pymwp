@@ -1,1 +1,5 @@
+Flask
+flask-cors
+requests
 pycparser==2.20
+pymwp
