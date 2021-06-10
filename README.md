@@ -2,6 +2,8 @@
 
 [![build](https://github.com/seiller/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/seiller/pymwp/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/seiller/pymwp/branch/master/graph/badge.svg?token=JHNYDJEWWM)](https://codecov.io/gh/seiller/pymwp)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
+[![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 
 Implementation of MWP analysis on C code in Python.
 
