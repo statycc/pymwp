@@ -14,6 +14,10 @@ The `infinite` folder contains examples of C source code that are assigned matri
 
 The `not_infinite` folder contains examples of C source code that are assigned matrices that do not always contains infinite coefficients.
 
+# "Original" Examples
+
+The `original_paper` folder contains examples taken from or inspired from the "_A Flow Calculus of mwp-Bounds for Complexity Analysis_".
+
 # "Other" Examples
 
 The `other` folder contains examples of C source code of interest.
