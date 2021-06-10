@@ -1,10 +1,8 @@
-## TODO: needed imports
-
 from __future__ import annotations
-from typing import List, Tuple, Optional
+from typing import List, Optional
 from .monomial import Monomial
 
-#
+
 class DeltaGraph:
     """
     DeltaGraph is a dictionary representing a weighted graph
@@ -54,11 +52,11 @@ class DeltaGraph:
     removing redundant/irrelevant choices/paths.
     """
 
-    def __init__(self, monomials: Optional[List[Monomial]]= None):
+    def __init__(self, monomials: Optional[List[Monomial]] = None):
         """Create DeltaGraph
             fill with empty dictionary all monomial_list of monomials given
         """
-        self.graph_dict= {}
+        self.graph_dict = {}
         if monomials:
             for ml in monomials:
                 size = len(ml.list)
@@ -74,7 +72,7 @@ class DeltaGraph:
                     self.graph_dict[size] = {}
                 self.graph_dict[size][ml] = {}
 
-    def addEdge(self,node1,node2,label):
+    def addEdge(self, node1, node2, label):
         """Add an edge of label `label` btwn `node1` and `node2`
         If one node does not exists, it's created
 
@@ -93,16 +91,16 @@ class DeltaGraph:
         # addEdge is called only when len(node1) = len(node2)
         size = len(node1)
         if node1 not in self.graph_dict[size]:
-            self.graph_dict[size][node1]={}
+            self.graph_dict[size][node1] = {}
 
         # self.graph_dict[size][node1]=[(node2,label)]
-        self.graph_dict[size][node1][node2]=label
+        self.graph_dict[size][node1][node2] = label
 
         # If addEdge is always called from insert_tuple
         # node2 should always be in self.graph_dict[size]
         if node2 not in self.graph_dict[size]:
-            self.graph_dict[size][node2]={}
-        self.graph_dict[size][node2][node1]=label
+            self.graph_dict[size][node2] = {}
+        self.graph_dict[size][node2][node1] = label
 
     # monomial_list : Tuple[Tuple[int,int]]
     def insert_tuple(self, monomial_list, simplification=False):
@@ -126,24 +124,23 @@ class DeltaGraph:
             simplification: boolean to inform if simplification is
             necessary
         """
-        n=len(monomial_list)
+        n = len(monomial_list)
 
         if n not in self.graph_dict:
             self.graph_dict[n] = {}
             self.graph_dict[n][monomial_list] = {}
         else:
-            #if simplification:
-            ## Add here the simplification
+            # if simplification:
+            # Add here the simplification
 
             if monomial_list not in self.graph_dict[n]:
                 for listi in list(self.graph_dict[n]):
                     # Already tested when listi[listi][monomial_list] exists
                     # FIXME is it possible ?
                     # if monomial_list not in listi[listi]:
-                    (diff,i)=self.mono_diff(monomial_list,listi)
+                    (diff, i) = self.mono_diff(monomial_list, listi)
                     if diff:
-                        self.addEdge(monomial_list,listi,i)
-
+                        self.addEdge(monomial_list, listi, i)
 
     @staticmethod
     def remove_index(ml, index):
@@ -158,11 +155,12 @@ class DeltaGraph:
         return tuple(filter(lambda x: x[1] != index, list(ml)))
 
     # Remove tuple from graph and related edges
-            #: Tuple[Tuple[int,int]]
+        #: Tuple[Tuple[int,int]]
     def remove_tuple(self, ml, index):
         """Remove given tuple and neighbors connected with same label
 
-        Removes also edge/labels connected to that node (which no longer exists)
+        Removes also edge/labels connected to that node
+        (which no longer exists)
         """
         size = len(ml)
 
@@ -178,7 +176,7 @@ class DeltaGraph:
                 labl = self.graph_dict[size][ml_nb][ml]
                 # If same label then recursively remove neighbour
                 if labl == index:
-                    self.remove_tuple(ml_nb,index)
+                    self.remove_tuple(ml_nb, index)
                 # if not just remove the edge
                 else:
                     del self.graph_dict[size][ml_nb][ml]
@@ -209,21 +207,20 @@ class DeltaGraph:
                 if index:
                     # Differ on 2 different indexes
                     if index != i1:
-                        return (False,index)
+                        return (False, index)
                     else:
-                        diff_count+=1
+                        diff_count += 1
                 else:
-                    (diff,_) = DeltaGraph.mono_diff(ml2,ml1,i1)
+                    (diff, _) = DeltaGraph.mono_diff(ml2, ml1, i1)
                     if diff:
                         index = i1
-                        diff_count+=1
+                        diff_count += 1
                     else:
-                        return (False,i1)
-            i+=1
+                        return (False, i1)
+            i += 1
         return (diff_count == 1), index
 
-
-    def isfull(self,n,mono,index,max_choices=3):
+    def isfull(self, n, mono, index, max_choices=3):
         """Check for cliques of same label
 
         example :
@@ -254,12 +251,12 @@ class DeltaGraph:
         Returns:
             True if there is a clique
         """
-        i=0
+        i = 0
         for mono2 in self.graph_dict[n][mono]:
             j = self.graph_dict[n][mono][mono2]
-            if j==index:
-                i=i+1
-                if i==max_choices-1:
+            if j == index:
+                i = i + 1
+                if i == max_choices - 1:
                     return True
         return False
 
@@ -268,7 +265,7 @@ class DeltaGraph:
         _, listi = zip(*lm)
         return listi
 
-    def fusion(self,list_of_max):
+    def fusion(self, list_of_max):
         """Eliminate clique of same label in delta_graph
 
         example :
@@ -311,13 +308,13 @@ class DeltaGraph:
             eliminates corresponding clique in the delta_graph
         """
         # Start from longest monomial list to the shortest
-        for n in sorted(self.graph_dict,reverse=True):
+        for n in sorted(self.graph_dict, reverse=True):
             # For all monomial list of size n
             for lm in list(self.graph_dict[n]):
                 # For all indexes in deltas of that monomial
                 for index in self.getIndexes(lm):
                     # Check if it's full of same index
-                    if lm in self.graph_dict[n] and self.isfull(n,lm,index,list_of_max[index]):
-                        self.remove_tuple(lm,index)
-                        self.insert_tuple(DeltaGraph.remove_index(lm,index))
-
+                    if lm in self.graph_dict[n] and self.isfull(
+                            n, lm, index, list_of_max[index]):
+                        self.remove_tuple(lm, index)
+                        self.insert_tuple(DeltaGraph.remove_index(lm, index))
