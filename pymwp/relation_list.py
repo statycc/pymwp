@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 from .relation import Relation
+from .delta_graphs import DeltaGraph
 
 
 class RelationList:
@@ -205,8 +206,8 @@ class RelationList:
         """Display relation list."""
         print(str(self))
 
-    def while_correction(self) -> None:
+    def while_correction(self, dg:DeltaGraph) -> None:
         """Apply [`while_correction()`](relation.md#pymwp.relation.Relation
         .while_correction) to all relations in a relation list."""
         for rel in self.relations:
-            rel.while_correction()
+            rel.while_correction(dg)

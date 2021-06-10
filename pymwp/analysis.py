@@ -8,6 +8,7 @@ from pycparser.c_ast import Node, Assignment, If, While, For
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
 from .monomial import Monomial
+from .delta_graphs import DeltaGraph
 from .file_io import save_relation
 
 logger = logging.getLogger(__name__)
@@ -50,14 +51,17 @@ class Analysis:
         function_body = ast.ext[0].body
         index, relations = 0, RelationList()
         total = len(function_body.block_items)
+        dg = DeltaGraph()
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list = Analysis.compute_relation(index, node)
+            index, rel_list = Analysis.compute_relation(index, node, dg)
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
 
         relation = relations.relations[0]
+        combinations = []
+
         combinations = relation.non_infinity(choices, index)
         if not no_save:
             save_relation(file_out, relation, combinations)
@@ -67,11 +71,15 @@ class Analysis:
             logger.info(f'\n{combinations}')
         else:
             logger.info('infinite')
+            # Should not raise here since delta_graph takes
+            # care of it
+            assert False
 
         return relation, combinations
 
     @staticmethod
-    def compute_relation(index: int, node: Node) -> Tuple[int, RelationList]:
+    def compute_relation(index: int, node: Node,
+                         dg: DeltaGraph) -> Tuple[int, RelationList]:
         """Create a relation list corresponding for all possible matrices
         of an AST node.
 
@@ -98,11 +106,11 @@ class Analysis:
                 if x != y:
                     return Analysis.id(index, node)
         if isinstance(node, c_ast.If):
-            return Analysis.if_(index, node)
+            return Analysis.if_(index, node, dg)
         if isinstance(node, c_ast.While):
-            return Analysis.while_(index, node)
+            return Analysis.while_(index, node, dg)
         if isinstance(node, c_ast.For):
-            return Analysis.for_(index, node)
+            return Analysis.for_(index, node, dg)
 
         # TODO: handle uncovered cases
         logger.debug(f"uncovered case! type: {type(node)}")
@@ -130,10 +138,10 @@ class Analysis:
         # x | o   o
         # y | m   m
         vector = [
-                # because x != y
-                Polynomial([Monomial("o")]),
-                Polynomial([Monomial('m')])
-                ]
+            # because x != y
+            Polynomial([Monomial("o")]),
+            Polynomial([Monomial('m')])
+        ]
 
         # build a list of unique variables
         variables = vars_list[0]
@@ -229,7 +237,7 @@ class Analysis:
         return index, RelationList.identity(variables)
 
     @staticmethod
-    def if_(index: int, node: If) -> Tuple[int, RelationList]:
+    def if_(index: int, node: If, dg: DeltaGraph) -> Tuple[int, RelationList]:
         """Analyze an if statement.
 
         Arguments:
@@ -242,14 +250,14 @@ class Analysis:
         logger.debug('computing relation (conditional case)')
         true_relation, false_relation = RelationList(), RelationList()
 
-        index = Analysis.if_branch(node.iftrue, index, true_relation)
-        index = Analysis.if_branch(node.iffalse, index, false_relation)
+        index = Analysis.if_branch(node.iftrue, index, true_relation, dg)
+        index = Analysis.if_branch(node.iffalse, index, false_relation, dg)
 
         relations = false_relation + true_relation
         return index, relations
 
     @staticmethod
-    def if_branch(node, index, relation_list) -> int:
+    def if_branch(node, index, relation_list, dg: DeltaGraph) -> int:
         """Analyze `if` or `else` branch of a conditional statement.
 
         This method will analyze the body of the statement and update
@@ -271,15 +279,17 @@ class Analysis:
         if node is not None:
             if hasattr(node, 'block_items'):
                 for child in node.block_items:
-                    index, rel_list = Analysis.compute_relation(index, child)
+                    index, rel_list = Analysis.compute_relation(
+                        index, child, dg)
                     relation_list.composition(rel_list)
             else:
-                index, rel_list = Analysis.compute_relation(index, node)
+                index, rel_list = Analysis.compute_relation(index, node, dg)
                 relation_list.composition(rel_list)
         return index
 
     @staticmethod
-    def while_(index: int, node: While) -> Tuple[int, RelationList]:
+    def while_(index: int, node: While,
+               dg: DeltaGraph) -> Tuple[int, RelationList]:
         """Analyze while loop.
 
         Arguments:
@@ -293,17 +303,27 @@ class Analysis:
 
         relations = RelationList()
         for child in node.stmt.block_items:
-            index, rel_list = Analysis.compute_relation(index, child)
+            index, rel_list = Analysis.compute_relation(index, child, dg)
             relations.composition(rel_list)
 
         logger.debug('while loop fixpoint')
         relations.fixpoint()
-        relations.while_correction()
+        relations.while_correction(dg)
+
+        dg.fusion()
+
+        if 0 in dg.graph_dict:
+            if dg.graph_dict[0] == {(): {}}:
+                print(dg)
+                logger.info('delta_graphs: infinite')
+                logger.info('Exit now !')
+                exit()
 
         return index, relations
 
     @staticmethod
-    def for_(index: int, node: For) -> Tuple[int, RelationList]:
+    def for_(index: int, node: For,
+             dg: DeltaGraph) -> Tuple[int, RelationList]:
         """Analyze for loop node.
 
         Arguments:
@@ -318,7 +338,7 @@ class Analysis:
 
         relations = RelationList()
         for child in node.stmt.block_items:
-            index, rel_list = Analysis.compute_relation(index, child)
+            index, rel_list = Analysis.compute_relation(index, child, dg)
             relations.composition(rel_list)
 
         relations.fixpoint()

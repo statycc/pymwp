@@ -7,6 +7,7 @@ from itertools import product
 from typing import Optional, Tuple, List
 
 from . import matrix as matrix_utils
+from .delta_graphs import DeltaGraph
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +131,7 @@ class Relation:
 
         return new_relation
 
-    def while_correction(self) -> None:
+    def while_correction(self, dg: DeltaGraph) -> None:
         """Replace invalid scalars in a matrix by i.
 
         Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
@@ -146,6 +147,7 @@ class Relation:
                 for mon in poly.list:
                     if mon.scalar == "p" or (mon.scalar == "w" and i == j):
                         mon.scalar = "i"
+                        dg.import_monomial(mon)
 
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.

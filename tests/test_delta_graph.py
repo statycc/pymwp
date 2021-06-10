@@ -74,8 +74,8 @@ def test_remove_tuple():
 
     try:
 
-        assert m2 not in dg.graph_dict[2][m1]
-        assert m2 not in dg.graph_dict[2]
+        assert dg.graph_dict[2][m1] == {}
+        assert dg.graph_dict[2][m2] == {}
 
         assert dg.graph_dict[3][m3][m4] == 4
         assert dg.graph_dict[3][m4][m3] == 4
@@ -90,8 +90,8 @@ def test_remove_tuple():
     dg.remove_tuple(m6,4)
 
     try:
-        assert m2 not in dg.graph_dict[2][m1]
-        assert m2 not in dg.graph_dict[2]
+        assert dg.graph_dict[2][m1] == {}
+        assert dg.graph_dict[2][m2] == {}
 
         assert dg.graph_dict[3][m3][m4] == 4
         assert dg.graph_dict[3][m4][m3] == 4
@@ -164,9 +164,9 @@ def test_fusion():
     for m in lm:
         dg.insert_tuple(m)
 
-    list_of_max = [3,3,3,3]
+    # list_of_max = [3,3,3,3]
 
-    dg.fusion(list_of_max)
+    dg.fusion()
 
     try:
         assert dg.graph_dict[3] == {}

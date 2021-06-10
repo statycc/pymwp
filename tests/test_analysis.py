@@ -23,20 +23,11 @@ def test_analyze_empty_main(mocker):
 def test_analyze_simple_infinite(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
                  return_value=INFINITE_2C)
-    relation, combinations = Analysis.run("infinite 2", no_save=True)
-
-    assert combinations == []  # no combinations since it is infinite
-    assert relation.variables == ['X0', 'X1']  # expected these variables
-    # check that some deltas match expected
     try:
-        assert str(relation.matrix[0][0].list[0]) == 'm'
-        assert str(relation.matrix[0][0].list[1]) == 'i.delta(0,0)'
-        assert str(relation.matrix[0][0].list[2]) == 'i.delta(1,0)'
-        assert str(relation.matrix[0][0].list[3]) == 'i.delta(2,0)'
-    except AssertionError:
-        relation.show()
-        raise
-
+        _, _ = Analysis.run("infinite 2", no_save=True)
+        assert False
+    except SystemExit:
+        pass
 
 def test_analyze_simple_non_infinite(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',

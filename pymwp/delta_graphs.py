@@ -59,18 +59,10 @@ class DeltaGraph:
         self.graph_dict = {}
         if monomials:
             for ml in monomials:
-                size = len(ml.list)
-                if size not in self.graph_dict:
-                    self.graph_dict[size] = {}
-                self.graph_dict[size][tuple(ml.list)] = {}
+                self.import_monomial(ml)
 
-    def import_monomials(self, monomials_list):
-        if monomials_list:
-            for ml in monomials_list:
-                size = len(ml)
-                if size not in self.graph_dict:
-                    self.graph_dict[size] = {}
-                self.graph_dict[size][ml] = {}
+    def import_monomial(self, m: Monomial):
+        self.insert_tuple(tuple(m.list))
 
     def addEdge(self, node1, node2, label):
         """Add an edge of label `label` btwn `node1` and `node2`
@@ -133,6 +125,7 @@ class DeltaGraph:
             # if simplification:
             # Add here the simplification
 
+            inserted = False
             if monomial_list not in self.graph_dict[n]:
                 for listi in list(self.graph_dict[n]):
                     # Already tested when listi[listi][monomial_list] exists
@@ -140,7 +133,10 @@ class DeltaGraph:
                     # if monomial_list not in listi[listi]:
                     (diff, i) = self.mono_diff(monomial_list, listi)
                     if diff:
+                        inserted = True
                         self.addEdge(monomial_list, listi, i)
+                if not inserted:
+                    self.graph_dict[n][monomial_list] = {}
 
     @staticmethod
     def remove_index(ml, index):
@@ -199,26 +195,36 @@ class DeltaGraph:
             diff: boolean True if the lists differ of one element
             i: the index of the delta which differs
         """
-        diff_count = 0
+        diff_found = False
         i = 0
-        while diff_count < 2 and i < len(ml1):
+        while i < len(ml1):
             if ml1[i] not in ml2:
                 i1 = ml1[i][1]
-                if index:
-                    # Differ on 2 different indexes
+                # We've already recorded one so two diff
+                if diff_found:
+                    return (False, i1)
+                # Case recursive call, we've not found yet
+                # But index is defined by arguments
+                if index is not None:
+                    # If the diff has different index than expected
                     if index != i1:
                         return (False, index)
                     else:
-                        diff_count += 1
+                        # We've found one but still searching more
+                        diff_found = True
+                # Found first diff without init of index
                 else:
+                    # Search in other monomial if it has only one diff
+                    # Of same index `i1`
                     (diff, _) = DeltaGraph.mono_diff(ml2, ml1, i1)
                     if diff:
                         index = i1
-                        diff_count += 1
+                        # Continue searching see if there are more diff
+                        diff_found = True
                     else:
                         return (False, i1)
             i += 1
-        return (diff_count == 1), index
+        return diff_found, index
 
     def isfull(self, n, mono, index, max_choices=3):
         """Check for cliques of same label
@@ -265,7 +271,8 @@ class DeltaGraph:
         _, listi = zip(*lm)
         return listi
 
-    def fusion(self, list_of_max):
+    # def fusion(self, list_of_max, max_i=None):
+    def fusion(self, max_i=3):
         """Eliminate clique of same label in delta_graph
 
         example :
@@ -315,6 +322,13 @@ class DeltaGraph:
                 for index in self.getIndexes(lm):
                     # Check if it's full of same index
                     if lm in self.graph_dict[n] and self.isfull(
-                            n, lm, index, list_of_max[index]):
+                            n, lm, index, max_i):
                         self.remove_tuple(lm, index)
                         self.insert_tuple(DeltaGraph.remove_index(lm, index))
+
+    def __str__(self):
+        res = ""
+        for n in self.graph_dict:
+            res += str(n) + ":" + \
+                str(self.graph_dict[n]) + "\n" + 26 * "-- " + "\n"
+        return res
