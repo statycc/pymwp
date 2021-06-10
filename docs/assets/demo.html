@@ -1,11 +1,6 @@
 <select id="demo-options" aria-label="demo options"></select>
 
-<pre id="demo-display">
-
-    🠕 🠕 🠕 🠕 🠕 🠕
-
-Choose an example to analyze
-</pre>
+<pre id="demo-display">Loading demo...</pre>
 
 <div id="progress-container">
     <div class="progress-bar">
@@ -17,67 +12,11 @@ Choose an example to analyze
 
 <script>
     const base = "https://pymwp1.uk.r.appspot.com/";
+    const progressBar = document.getElementById('progress-container');
     const displayPre = document.getElementById('demo-display');
     const select = document.getElementById('demo-options');
-    const progressBar = document.getElementById('progress-container');
-    const examples = {
-        "Basic Examples": {
-            "assign expression": "basics/assign_expression.c",
-            "assign value": "basics/assign_value.c",
-            "assign variable": "basics/assign_variable.c",
-            "declaration": "basics/declaration",
-            "empty": "basics/empty.c",
-            "empty main": "basics/empty_main.c",
-            "if": "basics/if.c",
-            "if else": "basics/if_else.c",
-            "while 1": "basics/while_1.c",
-            "while 2": "basics/while_2.c",
-            "while if": "basics/while_if.c",
-        },
-        "Infinite": {
-            "exponent": "infinite/exponent.c",
-            "infinite, 2 variables": "infinite/infinite_2.c",
-            "infinite, 3 variables": "infinite/infinite_3.c",
-            "infinite, 4 variables": "infinite/infinite_4.c",
-            "infinite, 5 variables": "infinite/infinite_5.c",
-            "infinite, 6 variables": "infinite/infinite_6.c",
-            "infinite, 7 variables": "infinite/infinite_7.c",
-            "infinite, 8 variables": "infinite/infinite_8.c",
-        },
-        "Not infinite": {
-            "not infinite, 2 variables": "not_infinite/notinfinite_2.c",
-            "not infinite, 3 variables": "not_infinite/notinfinite_3.c",
-            "not infinite, 4 variables": "not_infinite/notinfinite_4.c",
-            "not infinite, 5 variables": "not_infinite/notinfinite_5.c",
-            "not infinite, 6 variables": "not_infinite/notinfinite_6.c",
-            "not infinite, 7 variables": "not_infinite/notinfinite_7.c",
-            "not infinite, 8 variables": "not_infinite/notinfinite_8.c",
-        },
-        "Other": {
-            "braces issue": "other/braces_issue.c",
-            // "dense": "other/dense.c", <-- it always times out right now...
-            "function (alone)": "other/f_alone.c",
-            "function (inline)": "other/f_inline.c",
-            "main without function": "other/f_main.c",
-            "for body": "other/for_body.c",
-            "for, not body": "other/for_not_body.c",
-        },
-        "Version": {
-            "Show pymwp version": "",
-        }
-    }
     const maxTimeout = 60 * 1000;
     let req = undefined;
-
-    function loadOptions() {
-        return Object.entries(examples).map(function ([category, options], i) {
-            const displayOptions = Object.entries(options).map(function ([label, path]) {
-                return `<option value="${path}">${label}</option>`
-            }).join('');
-
-            return `<option disabled ${i === 0 ? "selected" : ""}>${category}</option>${displayOptions}`
-        }).join('');
-    }
 
     function toggleProgressView(showProgress) {
         if (showProgress) {
@@ -94,32 +33,70 @@ Choose an example to analyze
         }
     }
 
-    function analyze(event) {
-        const path = event.target.value;
+    function getSomething(URL, callback) {
         const xhr = new window.XMLHttpRequest();
-        const URL = `${base}${path}`
-        displayPre.innerText = `Analyzing ${path}...`
         toggleProgressView(true);
-        req = path
+        req = URL
 
         xhr.open('GET', URL);
         xhr.timeout = maxTimeout;
-        xhr.onload = _ => {
+        xhr.onload = function () {
             if (xhr.readyState === 4) {
-                displayResult(path, xhr.responseText);
+                callback(xhr.responseText);
             }
         }
-        xhr.ontimeout = function onError() {
-            displayResult(path, "Server timeout.");
+        xhr.ontimeout = function () {
+            displayResult(URL, "Server timeout.");
         };
-        xhr.onerror = function onError() {
-            displayResult(path, "Sorry, something went wrong! Try again later.");
+        xhr.onerror = function () {
+            displayResult(URL, "Sorry, something went wrong! Try again later.");
         };
         xhr.send();
     }
 
-    select.innerHTML = loadOptions();
-    select.onchange = analyze;
+    function analyze(event) {
+        const path = event.target.value;
+        const URL = `${base}${path}`
+        displayPre.innerText = `Analyzing ${path}...`
+        getSomething(URL, function (result) {
+            displayResult(URL, result);
+        });
+    }
+
+    function makeOption([label, path]) {
+        return `<option value="${path}">${label}</option>`
+    }
+
+    function makeCategory([category, options], i) {
+        const selected = i === 0 ? "selected" : ""
+        const categoryTitle = `<option disabled ${selected}>${category}</option>`
+        const categoryOptions = Object.entries(options).map(makeOption).join('')
+        return `${categoryTitle}${categoryOptions}`
+    }
+
+    function parseExamples(result) {
+        try {
+            return Object.entries(JSON.parse(result)).map(makeCategory).join();
+        } catch {
+            displayResult(undefined, "Sorry, demo is unavailable. Try again later.");
+            return false;
+        }
+    }
+
+    (function initDemo() {
+        select.style.display = "none";
+        getSomething(`${base}examples`, function (result) {
+            toggleProgressView(false);
+            const examples = parseExamples(result);
+            if (examples) {
+                select.innerHTML = examples + makeCategory(
+                    ["Version", {"Show version": "/"}], -1);
+                select.style.display = "inherit";
+                select.onchange = analyze;
+                displayPre.innerText = "🠕 🠕 🠕 Choose an example to analyze";
+            }
+        });
+    }());
 </script>
 
 <style>
@@ -131,7 +108,6 @@ Choose an example to analyze
         font-size: 90%;
         margin: 2rem auto 5rem auto;
     }
-
 
     #progress-container {
         position: relative;
