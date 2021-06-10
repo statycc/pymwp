@@ -74,8 +74,8 @@ def test_remove_tuple():
 
     try:
 
-        assert dg.graph_dict[2][m1][m2] == 0
-        assert dg.graph_dict[2][m2][m1] == 2
+        assert m2 not in dg.graph_dict[2][m1]
+        assert m2 not in dg.graph_dict[2]
 
         assert dg.graph_dict[3][m3][m4] == 4
         assert dg.graph_dict[3][m4][m3] == 4
@@ -90,8 +90,9 @@ def test_remove_tuple():
     dg.remove_tuple(m6,4)
 
     try:
-        assert dg.graph_dict[2][m1][m2] == 0
-        assert dg.graph_dict[2][m2][m1] == 2
+        assert m2 not in dg.graph_dict[2][m1]
+        assert m2 not in dg.graph_dict[2]
+
         assert dg.graph_dict[3][m3][m4] == 4
         assert dg.graph_dict[3][m4][m3] == 4
         assert m5 not in dg.graph_dict[3]
@@ -110,8 +111,10 @@ def test_mono_diff():
 
 
     assert DeltaGraph.mono_diff(m3,m4) == (True,4)
-    assert DeltaGraph.mono_diff(m1,m2) == (False,2)
-    assert DeltaGraph.mono_diff(m3,m5) == (False,4)
+    assert DeltaGraph.mono_diff(m4,m3) == (True,4)
+    assert DeltaGraph.mono_diff(m1,m2) == (False,0)
+    assert DeltaGraph.mono_diff(m2,m1) == (False,1)
+    assert DeltaGraph.mono_diff(m3,m5) == (False,3)
 
 def test_isfull():
     m1 = ((0, 1), (0, 2))

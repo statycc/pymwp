@@ -102,9 +102,6 @@ class DeltaGraph:
         # node2 should always be in self.graph_dict[size]
         if node2 not in self.graph_dict[size]:
             self.graph_dict[size][node2]={}
-        # mono_diff is not symetric ! FIXME
-        (diff,label)=self.mono_diff(node2,node1)
-        assert diff
         self.graph_dict[size][node2][node1]=label
 
     # monomial_list : Tuple[Tuple[int,int]]
@@ -187,33 +184,41 @@ class DeltaGraph:
                     del self.graph_dict[size][ml_nb][ml]
 
     @staticmethod
-    def mono_diff(ml1, ml2):
+    def mono_diff(ml1, ml2, index=None):
         """Compares two nodes
         Compares two lists of monomials (of the same lenth)
         and returns (diff, i) where diff is True if and only if
-        both lists differ only on one element,
+        both lists differ only on one element regarding to the same index
         and i is the index of the corresponding delta.
-
-        Note:
-            mono_diff(m1,m2) not always = to mono_diff(m2,m1)
-            Is that true in real cases ? FIXME
 
         Arguments:
             ml1: first monomial_list
             ml2: second monomial_list
+            index: index with to check number of diff
 
         Returns:
             Tuple (diff, i)
             diff: boolean True if the lists differ of one element
             i: the index of the delta which differs
         """
-        index = None
         diff_count = 0
         i = 0
         while diff_count < 2 and i < len(ml1):
             if ml1[i] not in ml2:
-                index = ml1[i][1]
-                diff_count+=1
+                i1 = ml1[i][1]
+                if index:
+                    # Differ on 2 different indexes
+                    if index != i1:
+                        return (False,index)
+                    else:
+                        diff_count+=1
+                else:
+                    (diff,_) = DeltaGraph.mono_diff(ml2,ml1,i1)
+                    if diff:
+                        index = i1
+                        diff_count+=1
+                    else:
+                        return (False,i1)
             i+=1
         return (diff_count == 1), index
 
