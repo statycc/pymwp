@@ -1,7 +1,7 @@
 # relation_list.py
 
 ```python
-from relation_list import RelationList
+from pymwp import RelationList
 ```
 
 ::: pymwp.relation_list 

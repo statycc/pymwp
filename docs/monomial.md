@@ -1,7 +1,7 @@
 # monomial.py
 
 ```python
-from monomial import Monomial
+from pymwp import Monomial
 ```
 
 ::: pymwp.monomial 

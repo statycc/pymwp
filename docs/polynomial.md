@@ -1,7 +1,7 @@
 # polynomial.py
 
 ```python
-from polynomial import Polynomial
+from pymwp import Polynomial
 ```
 
 ::: pymwp.polynomial
