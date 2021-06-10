@@ -54,9 +54,14 @@
         xhr.send();
     }
 
+    function hashUrl(path) {
+        return path.replace('/', '_')
+    }
+
     function analyze(event) {
         const path = event.target.value;
         const URL = `${base}${path}`
+        window.location.hash = path === '/' ? "" : "#" + hashUrl(path);
         displayPre.innerText = `Analyzing ${path}...`
         getSomething(URL, function (result) {
             displayResult(URL, result);
@@ -64,7 +69,7 @@
     }
 
     function makeOption([label, path]) {
-        return `<option value="${path}" ${path.replace('/', '_') === selectedExample ? "selected" : ""}>${label}</option>`
+        return `<option value="${path}" ${hashUrl(path) === selectedExample ? "selected" : ""}>${label}</option>`
     }
 
     function makeCategory([category, options], i) {
@@ -115,6 +120,7 @@
     #progress-container {
         position: relative;
         height: 200px;
+        margin-bottom: 10rem;
         display: none;
     }
 
