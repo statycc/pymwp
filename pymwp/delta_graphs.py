@@ -224,6 +224,36 @@ class DeltaGraph:
 
 
     def isfull(self,n,mono,index,max_choices=3):
+        """Check for cliques of same label
+
+        example :
+
+        m3 = ((0, 1), (2, 2), (0, 3))
+        m4 = ((0, 1), (2, 2), (1, 3))
+        m5 = ((0, 1), (2, 2), (2, 3))
+
+        mono = m4
+        index = 3
+        max_choices = 3
+
+        # m3 --3-- m4
+        #   \\       |
+        #    \\      |
+        #     3     3
+        #      \\    |
+        #       \\   |
+        #         m5
+
+        return True
+
+        Arguments:
+            n: size of nodes or "level"
+            mono: arround that node
+            index: index with to find clique
+
+        Returns:
+            True if there is a clique
+        """
         i=0
         for mono2 in self.graph_dict[n][mono]:
             j = self.graph_dict[n][mono][mono2]
@@ -242,19 +272,11 @@ class DeltaGraph:
         # Start from longest monomial list to the shortest
         for n in sorted(self.graph_dict,reverse=True):
             # For all monomial list of size n
-            for lm in self.graph_dict[n]:
+            for lm in list(self.graph_dict[n]):
                 # For all indexes in deltas of that monomial
                 for index in self.getIndexes(lm):
                     # Check if it's full of same index
-                    if self.isfull(n,lm,index,list_of_max(index)):
+                    if lm in self.graph_dict[n] and self.isfull(n,lm,index,list_of_max[index]):
                         self.remove_tuple(lm,index)
-                        self.insert_tuple(lm.remove_index(index))
+                        self.insert_tuple(DeltaGraph.remove_index(lm,index))
 
-# TODO test on:
-# d(0,1)d(0,2)
-# d(0,1)d(1,2)
-# d(0,1)d(2,2)d(0,3)
-# d(0,1)d(2,2)d(1,3)
-# d(0,1)d(2,2)d(2,3)
-
-# should give d(0,1)

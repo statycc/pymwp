@@ -149,3 +149,28 @@ def test_isfull():
         assert dg.isfull(2,m2,2,2) == True
     except AssertionError:
         raise
+
+def test_fusion():
+    m1 = ((0, 1), (0, 2))
+    m2 = ((0, 1), (1, 2))
+    m3 = ((0, 1), (2, 2), (0, 3))
+    m4 = ((0, 1), (2, 2), (1, 3))
+    m5 = ((0, 1), (2, 2), (2, 3))
+
+    lm = (m1,m2,m3,m4,m5)
+
+    dg = DeltaGraph()
+
+    for m in lm:
+        dg.insert_tuple(m)
+
+    list_of_max = [3,3,3,3]
+
+    dg.fusion(list_of_max)
+
+    try:
+        assert dg.graph_dict[3] == {}
+        assert dg.graph_dict[2] == {}
+        assert dg.graph_dict[1] == {((0,1),):{}}
+    except AssertionError:
+        raise
