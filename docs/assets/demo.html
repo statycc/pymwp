@@ -76,7 +76,7 @@
 
     function parseExamples(result) {
         try {
-            return Object.entries(JSON.parse(result)).map(makeCategory).join();
+            return Object.entries(JSON.parse(result)).map(makeCategory).join('');
         } catch {
             displayResult(undefined, "Sorry, demo is unavailable. Try again later.");
             return false;
