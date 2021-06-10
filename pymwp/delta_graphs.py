@@ -272,11 +272,13 @@ class DeltaGraph:
         """Eliminate clique of same label in delta_graph
 
         example :
+        ```
         m1 = ((0, 1), (0, 2))
         m2 = ((0, 1), (1, 2))
         m3 = ((0, 1), (2, 2), (0, 3))
         m4 = ((0, 1), (2, 2), (1, 3))
         m5 = ((0, 1), (2, 2), (2, 3))
+        ```
 
 
         with list_of_max = [3,3,3,3]
@@ -284,6 +286,7 @@ class DeltaGraph:
 
         delta graph :
 
+        ```
          m1 --2-- m2
          m3 --3-- m4
            \\       |
@@ -292,10 +295,13 @@ class DeltaGraph:
               \\    |
                \\   |
                  m5
+        ```
 
         will simplify to :
 
+        ```
         m0 = ((0,1))
+        ```
 
         Arguments:
             list_of_max: size of clique we want to eliminate regarding to index
