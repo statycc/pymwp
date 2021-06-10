@@ -55,12 +55,13 @@ class Analysis:
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list = Analysis.compute_relation(index, node, dg)
+            index, rel_list, exit = Analysis.compute_relation(index, node, dg)
+            if exit:
+                return relations.relations[0], []
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
 
         relation = relations.relations[0]
-        combinations = []
 
         combinations = relation.non_infinity(choices, index)
         if not no_save:
@@ -79,7 +80,7 @@ class Analysis:
 
     @staticmethod
     def compute_relation(index: int, node: Node,
-                         dg: DeltaGraph) -> Tuple[int, RelationList]:
+                         dg: DeltaGraph) -> Tuple[int, RelationList, bool]:
         """Create a relation list corresponding for all possible matrices
         of an AST node.
 
@@ -88,23 +89,28 @@ class Analysis:
             node: AST node to analyze
 
         Returns:
-            Updated index value and relation list
+            Updated index value and relation list and a boolean telling
+            us if we should stop here
         """
 
         logger.debug("in compute_relation")
 
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
-                return Analysis.binary_op(index, node)
+                index, rel_list = Analysis.binary_op(index, node)
+                return index, rel_list, False
             if isinstance(node.rvalue, c_ast.Constant):
-                return Analysis.constant(index, node)
+                index, rel_list = Analysis.constant(index, node)
+                return index, rel_list, False
             if isinstance(node.rvalue, c_ast.UnaryOp):
-                return Analysis.unary_op(index, node)
+                index, rel_list = Analysis.unary_op(index, node)
+                return index, rel_list, False
             if isinstance(node.rvalue, c_ast.ID):
                 x = node.lvalue.name
                 y = node.rvalue.name
                 if x != y:
-                    return Analysis.id(index, node)
+                    index, rel_list = Analysis.id(index, node)
+                    return index, rel_list, False
         if isinstance(node, c_ast.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, c_ast.While):
@@ -115,7 +121,7 @@ class Analysis:
         # TODO: handle uncovered cases
         logger.debug(f"uncovered case! type: {type(node)}")
 
-        return index, RelationList()
+        return index, RelationList(), False
 
     @staticmethod
     def id(index: int, node: Assignment) -> Tuple[int, RelationList]:
@@ -226,7 +232,7 @@ class Analysis:
             node: unary operator node
 
         Returns:
-            Updated index value and relation list
+            Updated index value and relation list and False
         """
         # TODO : implement unary op
         logger.debug('Computing Relation (third case / unary)')
@@ -237,7 +243,8 @@ class Analysis:
         return index, RelationList.identity(variables)
 
     @staticmethod
-    def if_(index: int, node: If, dg: DeltaGraph) -> Tuple[int, RelationList]:
+    def if_(index: int, node: If, dg: DeltaGraph) -> Tuple[int, RelationList,
+                                                           bool]:
         """Analyze an if statement.
 
         Arguments:
@@ -250,14 +257,20 @@ class Analysis:
         logger.debug('computing relation (conditional case)')
         true_relation, false_relation = RelationList(), RelationList()
 
-        index = Analysis.if_branch(node.iftrue, index, true_relation, dg)
-        index = Analysis.if_branch(node.iffalse, index, false_relation, dg)
+        index, exit = Analysis.if_branch(node.iftrue, index, true_relation, dg)
+        if exit:
+            return index, true_relation, exit
+        index, exit = Analysis.if_branch(
+            node.iffalse, index, false_relation, dg)
+        if exit:
+            return index, false_relation, exit
 
         relations = false_relation + true_relation
-        return index, relations
+        return index, relations, False
 
     @staticmethod
-    def if_branch(node, index, relation_list, dg: DeltaGraph) -> int:
+    def if_branch(node, index, relation_list, dg: DeltaGraph) -> Tuple[int,
+                                                                       bool]:
         """Analyze `if` or `else` branch of a conditional statement.
 
         This method will analyze the body of the statement and update
@@ -279,17 +292,22 @@ class Analysis:
         if node is not None:
             if hasattr(node, 'block_items'):
                 for child in node.block_items:
-                    index, rel_list = Analysis.compute_relation(
+                    index, rel_list, exit = Analysis.compute_relation(
                         index, child, dg)
+                    if exit:
+                        return index, exit
                     relation_list.composition(rel_list)
             else:
-                index, rel_list = Analysis.compute_relation(index, node, dg)
+                index, rel_list, exit = Analysis.compute_relation(
+                    index, node, dg)
+                if exit:
+                    return index, exit
                 relation_list.composition(rel_list)
-        return index
+        return index, False
 
     @staticmethod
     def while_(index: int, node: While,
-               dg: DeltaGraph) -> Tuple[int, RelationList]:
+               dg: DeltaGraph) -> Tuple[int, RelationList, bool]:
         """Analyze while loop.
 
         Arguments:
@@ -297,13 +315,16 @@ class Analysis:
             node: while loop node
 
         Returns:
-            Updated index value and relation list
+            Updated index value and relation list and a boolean saying
+            if we can stop here
         """
         logger.debug("analysing While")
 
         relations = RelationList()
         for child in node.stmt.block_items:
-            index, rel_list = Analysis.compute_relation(index, child, dg)
+            index, rel_list, exit = Analysis.compute_relation(index, child, dg)
+            if exit:
+                return index, rel_list, exit
             relations.composition(rel_list)
 
         logger.debug('while loop fixpoint')
@@ -312,18 +333,19 @@ class Analysis:
 
         dg.fusion()
 
+        exit = False
         if 0 in dg.graph_dict:
             if dg.graph_dict[0] == {(): {}}:
                 print(dg)
                 logger.info('delta_graphs: infinite')
                 logger.info('Exit now !')
-                exit()
+                exit = True
 
-        return index, relations
+        return index, relations, exit
 
     @staticmethod
     def for_(index: int, node: For,
-             dg: DeltaGraph) -> Tuple[int, RelationList]:
+             dg: DeltaGraph) -> Tuple[int, RelationList, bool]:
         """Analyze for loop node.
 
         Arguments:
@@ -338,14 +360,16 @@ class Analysis:
 
         relations = RelationList()
         for child in node.stmt.block_items:
-            index, rel_list = Analysis.compute_relation(index, child, dg)
+            index, rel_list, exit = Analysis.compute_relation(index, child, dg)
+            if exit:
+                return index, rel_list, exit
             relations.composition(rel_list)
 
         relations.fixpoint()
         # TODO: unknown method conditionRel
         #  ref: https://github.com/seiller/pymwp/issues/5
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
-        return index, relations
+        return index, relations, True
 
     @staticmethod
     def create_vector(

@@ -23,11 +23,10 @@ def test_analyze_empty_main(mocker):
 def test_analyze_simple_infinite(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
                  return_value=INFINITE_2C)
-    try:
-        _, _ = Analysis.run("infinite 2", no_save=True)
-        assert False
-    except SystemExit:
-        pass
+    relation, combinations = Analysis.run("infinite 2", no_save=True)
+
+    assert combinations == []  # no combinations since it is infinite
+    assert relation.variables == []  # expected these variables
 
 def test_analyze_simple_non_infinite(mocker):
     mocker.patch('pymwp.analysis.Analysis.parse_c_file',
