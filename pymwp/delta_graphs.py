@@ -269,6 +269,41 @@ class DeltaGraph:
         return listi
 
     def fusion(self,list_of_max):
+        """Eliminate clique of same label in delta_graph
+
+        example :
+        m1 = ((0, 1), (0, 2))
+        m2 = ((0, 1), (1, 2))
+        m3 = ((0, 1), (2, 2), (0, 3))
+        m4 = ((0, 1), (2, 2), (1, 3))
+        m5 = ((0, 1), (2, 2), (2, 3))
+
+
+        with list_of_max = [3,3,3,3]
+        look for cliques of size 3 for each index
+
+        delta graph :
+
+         m1 --2-- m2
+         m3 --3-- m4
+           \\       |
+            \\      |
+             3     3
+              \\    |
+               \\   |
+                 m5
+
+        will simplify to :
+
+        m0 = ((0,1))
+
+        Arguments:
+            list_of_max: size of clique we want to eliminate regarding to index
+            of deltas
+
+        Returns:
+            eliminates corresponding clique in the delta_graph
+        """
         # Start from longest monomial list to the shortest
         for n in sorted(self.graph_dict,reverse=True):
             # For all monomial list of size n
