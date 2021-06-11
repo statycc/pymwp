@@ -5,7 +5,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
 [![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 
-Implementation of MWP analysis on C code in Python.
+**Implementation of MWP analysis on C code in Python.**
 
 * * *
 
@@ -23,7 +23,42 @@ Implementation of MWP analysis on C code in Python.
 
 <!--include-start-->
 
-### Run analysis from source
+## Installation
+
+Install latest release from PyPI
+
+```
+pip install pymwp
+```
+
+### How to Use
+
+Then analyze C files from terminal:
+
+```
+pymwp path/to_some_file.c
+```
+
+You can also use pymwp in a Python script:
+
+```python
+from pymwp import Polynomial, Monomial
+from pymwp.matrix import identity_matrix, show
+
+matrix = identity_matrix(3)
+matrix[0][1] = Polynomial([Monomial('m')])
+matrix[1][0] = Polynomial([Monomial('w')])
+matrix[2][1] = Polynomial([Monomial('p')])
+
+show(matrix)
+```
+
+See [documentation](https://seiller.github.io/pymwp/analysis) for available modules and methods.
+
+### Running from source
+
+If you want to use the latest stable version (possibly ahead of 
+latest release), use the version from source following these steps.
 
 1. Clone the repository
 
