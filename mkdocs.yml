@@ -67,7 +67,7 @@ plugins:
               - "^__init__$"
           rendering:
             show_root_heading: false
-            show_source: false
+            show_source: true
             show_category_heading: false
       watch:
         - pymwp
