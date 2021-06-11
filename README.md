@@ -31,9 +31,9 @@ Install latest release from PyPI
 pip install pymwp
 ```
 
-### How to Use
+## How to Use
 
-Then analyze C files from terminal:
+Analyze C files from terminal:
 
 ```
 pymwp path/to_some_file.c
@@ -55,7 +55,7 @@ show(matrix)
 
 See [documentation](https://seiller.github.io/pymwp/analysis) for available modules and methods.
 
-### Running from source
+## Running from source
 
 If you want to use the latest stable version (possibly ahead of 
 latest release), use the version from source following these steps.
