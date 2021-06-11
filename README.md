@@ -25,7 +25,7 @@
 
 ## Installation
 
-Install latest release from pip
+Install latest release from PyPI
 
 ```
 pip install pymwp
