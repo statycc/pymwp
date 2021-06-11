@@ -17,3 +17,11 @@ pip install -q -r requirements.txt
 ```
 python main.py
 ```
+
+### Available endpoints
+
+| Path | Description |
+--- | --- 
+`/` | Displays pymwp version info
+`/examples` | Lists all examples known to this demo server 
+`/{path}/{file}.c` | Analyze specified example, e.g. `basics/if.c`
