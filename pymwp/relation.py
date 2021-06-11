@@ -131,15 +131,31 @@ class Relation:
         return new_relation
 
     def while_correction(self) -> None:
-        """Replace invalid scalars in a matrix by i.
-
-        Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
+        """Replace invalid scalars in a matrix by $\\infty$.
 
         Following the computation of fixpoint for a while loop node, this
         method checks the resulting matrix and replaces all invalid scalars
-        with $\\infty$ (W rule in MWP paper).
+        with $\\infty$ (W rule in MWP paper):
+
+        - scalar $p$ anywhere in the matrix becomes $\\infty$
+        - scalar $w$ at the diagonal becomes $\\infty$
+
+        Example:
+
+        ```text
+           Before:                After:
+
+           | m  o  o  o  o |      | m  o  o  o  o |
+           | o  w  o  p  o |      | o  i  o  i  o |
+           | o  o  m  o  o |      | o  o  m  o  o |
+           | w  o  o  m  o |      | w  o  o  m  o |
+           | o  o  o  o  p |      | o  o  o  o  i |
+        ```
 
         This method is where $\\infty$ is introduced in a matrix.
+
+        Related discussion: [issue #14](
+        https://github.com/seiller/pymwp/issues/14).
         """
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
@@ -282,9 +298,8 @@ class Relation:
         If the evaluation determines that no infinity will occur, that
         combination will be included in the return value.
 
-        Reference:
-        [itertools.product](https://docs.python.org/3/library/itertools.html
-        #itertools.product)
+        Reference: [itertools.product](
+        https://docs.python.org/3/library/itertools.html#itertools.product)
 
         Example:
 
