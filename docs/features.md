@@ -1,6 +1,4 @@
-# pymwp Features
-
-## Supported C-Language Features
+# Supported C-Language Features 
 
 This section provides a summary of supported C language features pymwp can 
 analyze. It also lists language features that are in the process of being 
