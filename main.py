@@ -7,7 +7,7 @@ from pymwp import __version__, __title__
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
-ex_dir = 'c_files'
+examples_directory = 'c_files'
 CORS(app)
 
 
@@ -18,16 +18,18 @@ def server_error(e):
 
 @app.route('/')
 def version():
+    """Display pymwp version."""
     return Response(f'{__title__} {__version__}', mimetype='text/plain')
 
 
 @app.route('/examples')
 def examples():
+    """List all known examples."""
     result = {}
-    for dirs in os.listdir(ex_dir):
+    for dirs in os.listdir(examples_directory):
         display = dirs.capitalize().replace('_', ' ')
         result[display] = {}
-        for files in os.listdir(ex_dir + "/" + dirs):
+        for files in os.listdir(examples_directory + "/" + dirs):
             fname = files.capitalize().replace('_', ' ')[:-2]
             result[display][fname] = f'{dirs}/{files}'
     result['Version'] = {'Show version': '/'}
@@ -36,13 +38,14 @@ def examples():
 
 @app.route('/<path>/<file>')
 def analyze(path, file):
+    """Run analysis on specified example."""
     return Response(stream_with_context(
         analyze_(path, file)), mimetype='text/plain')
 
 
 def analyze_(base, filename):
     sample = f'{base}/{filename}'
-    file = f'{ex_dir}/{sample}'
+    file = f'{examples_directory}/{sample}'
 
     yield f'{header(f"Program ({sample})")}' + \
           f'{file_text(file) or "(File is empty)"}\n\n'
