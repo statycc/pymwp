@@ -1,14 +1,18 @@
 import sys
 import os
+import platform
 
 from flask import Flask, Response, stream_with_context, jsonify
 from flask_cors import CORS
-from pymwp import __version__, __title__
+from pymwp import __version__
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
-examples_directory = 'c_files'
 CORS(app)
+
+examples_directory = 'c_files'
+source_link = 'https://github.com/seiller/pymwp/blob/master/c_files/'
+pre_parser = "cpp"
 
 
 @app.errorhandler(500)
@@ -18,8 +22,12 @@ def server_error(e):
 
 @app.route('/')
 def version():
-    """Display pymwp version."""
-    return Response(f'{__title__} {__version__}', mimetype='text/plain')
+    """Display pymwp version info."""
+    result = f'pymwp version: {__version__}\n\n' + \
+             f'OS/v: {platform.system()} {platform.release()}\n\n' + \
+             f'C pre-parser: {pre_parser}'
+
+    return Response(result, mimetype='text/plain')
 
 
 @app.route('/examples')
@@ -32,7 +40,7 @@ def examples():
         for files in os.listdir(examples_directory + "/" + dirs):
             fname = files.capitalize().replace('_', ' ')[:-2]
             result[display][fname] = f'{dirs}/{files}'
-    result['Version'] = {'Show version': '/'}
+    result['Version'] = {'Display system info': '/'}
     return jsonify(result)
 
 
@@ -46,14 +54,16 @@ def analyze(path, file):
 def analyze_(base, filename):
     sample = f'{base}/{filename}'
     file = f'{examples_directory}/{sample}'
+    link = f'<a target="_blank" rel="noopener noreferrer"' + \
+           f' href="{source_link}{sample}">{sample} ↗</a>'
 
-    yield f'{header(f"Program ({sample})")}' + \
+    yield f'{header(f"Program ({link})")}' + \
           f'{file_text(file) or "(File is empty)"}\n\n'
 
     try:
         relation, choices = Analysis.run(
             file, no_save=True, use_cpp=True,
-            cpp_path="cpp", cpp_args="-E")
+            cpp_path=pre_parser, cpp_args="-E")
         if len(choices) > 0:
             choice_values = f'Choices: {choices}'
         else:
