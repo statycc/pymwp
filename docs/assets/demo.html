@@ -28,7 +28,7 @@
 
     function displayResult(requestedExample, result) {
         if (req === requestedExample) {
-            displayPre.innerText = result;
+            displayPre.innerHTML = result;
             toggleProgressView(false);
         }
     }

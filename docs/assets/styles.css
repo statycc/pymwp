@@ -29,8 +29,12 @@
     color: var(--md-accent-fg-color);
 }
 
-.md-content__inner{
+.md-content__inner {
     padding-bottom: 3rem;
+}
+
+.md-content article a {
+    color: var(--md-accent-fg-color);
 }
 
 /* tables */

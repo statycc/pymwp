@@ -1,4 +1,4 @@
-This demo allows running pymwp analysis on these **[examples](examples.md)** 
+This demo allows running pymwp analysis on these [examples](examples.md) 
 on the web. 
 
 #### How to interpret the output
