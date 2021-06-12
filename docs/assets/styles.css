@@ -81,7 +81,7 @@ table tr th :last-child, table tr td :last-child {
     box-shadow: none;
 }
 
-.highlight pre {
+details.quote .highlight pre {
     font-size: .75rem;
     line-height: 1.8;
 }
