@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 
 from .constants import Comparison
 from .monomial import Monomial
@@ -32,24 +32,26 @@ class Polynomial:
     iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
     """
 
-    def __init__(self, monomials: Optional[List[Monomial]] = None):
+    def __init__(self, monomials: Optional[Union[str, List[Monomial]]] = None):
         """Create a polynomial.
 
         Example:
 
-        Create polynomial with no monomials
+        Create polynomial with 0-monomial
 
         ```python
         zero = Polynomial()
         ```
 
-        Create polynomial with one default monomial
+        Create polynomial with one monomial with specific scalar, no deltas
 
         ```python
-        poly = Polynomial([Monomial()])
+        poly = Polynomial('w')               # shorthand
+
+        poly = Polynomial([Monomial('w')])   # longer, equivalent
         ```
 
-        Create polynomial with two monomials
+        Create polynomial with two monomials and deltas
 
         ```python
         poly = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
@@ -58,7 +60,10 @@ class Polynomial:
         Arguments:
             monomials: list of monomials
         """
-        self.list = monomials or [Monomial(ZERO_MWP)]
+        if monomials is not None and isinstance(monomials, str):
+            self.list = [Monomial(monomials)]
+        else:
+            self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
         values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)
