@@ -42,13 +42,13 @@ pymwp path/to_some_file.c
 You can also use pymwp in a Python script:
 
 ```python
-from pymwp import Polynomial, Monomial
+from pymwp import Polynomial
 from pymwp.matrix import identity_matrix, show
 
 matrix = identity_matrix(3)
-matrix[0][1] = Polynomial([Monomial('m')])
-matrix[1][0] = Polynomial([Monomial('w')])
-matrix[2][1] = Polynomial([Monomial('p')])
+matrix[0][1] = Polynomial('m')
+matrix[1][0] = Polynomial('w')
+matrix[2][1] = Polynomial('p')
 
 show(matrix)
 ```
@@ -79,7 +79,7 @@ latest release), use the version from source following these steps.
     From project root run:
     
     ```bash
-    python -m pymwp path/to/c/file
+    python -m pymwp path/to_some_file.c
     ```
 
     for example:
