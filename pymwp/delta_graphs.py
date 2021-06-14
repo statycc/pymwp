@@ -341,20 +341,35 @@ class DeltaGraph:
         # then for size 2 (0,2)(1,3) remove all combinations where
         # we have combinatins[2] = 0 and combinations[3] = 1
         # etc…
+        combinations_ = []
+        for c in combinations:
+            str_c = "".join([str(i) for i in c])
+            combinations_.append(str_c)
+
+        str_combinations = ",".join(combinations_)
+        print(str_combinations)
+
         size = len(combinations[0])
         for n in sorted(self.graph_dict):
             # For all monomial list of size n starting with n = 1
             for lm in list(self.graph_dict[n].keys()):
-                match = list(size*".")
+                match = list(size*"d")
                 for t in lm:
                     match[t[1]] = str(t[0])
                 # Back to string
                 str_match = "".join(match)
+                str_match = str_match.replace("d","\\d")
                 print(str_match)
-                pattern = re.compile(str_match)
-                for c in list(combinations):
-                    if DeltaGraph.combination_matches_tuple(c, pattern):
-                        combinations.remove(c)
+                str_combinations = re.sub(str_match,"",str_combinations)
+                print(str_combinations)
+
+        print("after:")
+        print(str_combinations)
+        combinations_ = str_combinations.split(',')
+        print(combinations_)
+        combinations_ = list(filter(lambda x: x != '', combinations_))
+        print(combinations_)
+        return [list(map(int, list(c))) for c in combinations_]
 
     def __str__(self):
         res = ""

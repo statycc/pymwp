@@ -313,7 +313,7 @@ class Relation:
         assignments = product(choices, repeat=index)
         combinations = [list(args) for args in assignments]
 
-        dg.remove_from_combinations(combinations)
+        combinations = dg.remove_from_combinations(combinations)
 
         logger.debug(f"number of assignments to evaluate {len(combinations)}")
         return list(filter(self.eval, combinations))

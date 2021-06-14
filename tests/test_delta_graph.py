@@ -201,7 +201,7 @@ def test_remove_from_combination():
 
     # m1 should remove [0,0] and [0,1]
     dg.insert_tuple(m1)
-    dg.remove_from_combinations(combinations)
+    combinations = dg.remove_from_combinations(combinations)
 
     try:
         assert combinations == [[1,0],[1,1]]
@@ -210,7 +210,7 @@ def test_remove_from_combination():
 
     # m2 should remove [1,0]
     dg.insert_tuple(m2)
-    dg.remove_from_combinations(combinations)
+    combinations = dg.remove_from_combinations(combinations)
 
     try:
         assert combinations == [[1,1]]
@@ -243,7 +243,7 @@ def test_remove_from_combination2():
     print(combinations)
 
     dg.fusion()
-    dg.remove_from_combinations(combinations)
+    combinations = dg.remove_from_combinations(combinations)
 
     try:
         assert combinations == [[1, 1, 0], [1, 1, 1], [1, 1, 2], [1, 2, 0], [1, 2, 1], [1, 2, 2], [2,1, 1], [2, 1, 2], [2, 2, 1], [2, 2, 2]]
