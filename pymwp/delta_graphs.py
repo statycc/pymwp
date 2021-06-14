@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple
 from .monomial import Monomial
-
+import re
 
 class DeltaGraph:
     """
@@ -327,11 +327,13 @@ class DeltaGraph:
                         self.insert_tuple(DeltaGraph.remove_index(lm, index))
 
     @staticmethod
-    def combination_matches_tuple(c: List, lm: Tuple[Tuple[int, int]]):
-        for t in lm:
-            if (c[t[1]] != t[0]):
-                return False
-        return True
+    def combination_matches_tuple(c: List, pattern):
+        str_c = "".join([str(i) for i in c])
+
+        if pattern.match(str_c) == None:
+            return False
+        else:
+            return True
 
     def remove_from_combinations(self, combinations: List):
         # if we have (0,1) in our graph
@@ -339,11 +341,19 @@ class DeltaGraph:
         # then for size 2 (0,2)(1,3) remove all combinations where
         # we have combinatins[2] = 0 and combinations[3] = 1
         # etc…
+        size = len(combinations[0])
         for n in sorted(self.graph_dict):
             # For all monomial list of size n starting with n = 1
             for lm in list(self.graph_dict[n].keys()):
+                match = list(size*".")
+                for t in lm:
+                    match[t[1]] = str(t[0])
+                # Back to string
+                str_match = "".join(match)
+                print(str_match)
+                pattern = re.compile(str_match)
                 for c in list(combinations):
-                    if DeltaGraph.combination_matches_tuple(c, lm):
+                    if DeltaGraph.combination_matches_tuple(c, pattern):
                         combinations.remove(c)
 
     def __str__(self):
