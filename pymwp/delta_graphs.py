@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 from .monomial import Monomial
 import re
 
+
 class DeltaGraph:
     """
     DeltaGraph is a dictionary representing a weighted graph
@@ -94,8 +95,8 @@ class DeltaGraph:
             self.graph_dict[size][node2] = {}
         self.graph_dict[size][node2][node1] = label
 
-    # monomial_list : Tuple[Tuple[int,int]]
-    def insert_tuple(self, monomial_list, simplification=False):
+    def insert_tuple(
+            self, monomial_list: Tuple[Tuple[int, int]], simplification=False):
         """Insert tuple in the graph
 
         it may exists cases where we need to perform simplification
@@ -326,49 +327,47 @@ class DeltaGraph:
                         self.remove_tuple(lm, index)
                         self.insert_tuple(DeltaGraph.remove_index(lm, index))
 
-    @staticmethod
-    def combination_matches_tuple(c: List, pattern):
-        str_c = "".join([str(i) for i in c])
-
-        if pattern.match(str_c) == None:
-            return False
-        else:
-            return True
-
     def remove_from_combinations(self, combinations: List):
-        # if we have (0,1) in our graph
-        # remove all combinations where combinations[1] = 0
-        # then for size 2 (0,2)(1,3) remove all combinations where
-        # we have combinatins[2] = 0 and combinations[3] = 1
-        # etc…
+        """Eliminate combinations matching the tuples in delta_graph
+
+        if we have (0,1) in our graph
+        remove all combinations where combination[1] = 0
+        then for size 2 (0,2)(1,3) remove all combinations where
+        we have combinatin[2] = 0 and combination[3] = 1
+        etc…
+
+        Arguments:
+            Actual combination to filter
+
+        Returns:
+            filtered combinations
+        """
         combinations_ = []
+
+        # Stringify the combinations
         for c in combinations:
             str_c = "".join([str(i) for i in c])
             combinations_.append(str_c)
 
         str_combinations = ",".join(combinations_)
-        print(str_combinations)
 
         size = len(combinations[0])
         for n in sorted(self.graph_dict):
             # For all monomial list of size n starting with n = 1
             for lm in list(self.graph_dict[n].keys()):
-                match = list(size*"d")
+                # Create regex using first a list of char
+                match = list(size * "d")
+                # placing the right values in right places
                 for t in lm:
                     match[t[1]] = str(t[0])
                 # Back to string
                 str_match = "".join(match)
-                str_match = str_match.replace("d","\\d")
-                print(str_match)
-                str_combinations = re.sub(str_match,"",str_combinations)
-                print(str_combinations)
-
-        print("after:")
-        print(str_combinations)
+                str_match = str_match.replace("d", "\\d")
+                # remove all substring match
+                str_combinations = re.sub(str_match, "", str_combinations)
+        # rebuilding the combination as List[List[int]]
         combinations_ = str_combinations.split(',')
-        print(combinations_)
         combinations_ = list(filter(lambda x: x != '', combinations_))
-        print(combinations_)
         return [list(map(int, list(c))) for c in combinations_]
 
     def __str__(self):
