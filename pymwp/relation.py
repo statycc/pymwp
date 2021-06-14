@@ -275,7 +275,7 @@ class Relation:
                     return False
         return True
 
-    def non_infinity(self, choices: List[int], index: int) -> List[list[int]]:
+    def non_infinity(self, choices: List[int], index: int, dg: DeltaGraph) -> List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
         This method computes the Cartesian product of input iterables and
@@ -312,6 +312,8 @@ class Relation:
         # uses itertools.product to generate all possible assignments
         assignments = product(choices, repeat=index)
         combinations = [list(args) for args in assignments]
+
+        dg.remove_from_combinations(combinations)
 
         logger.debug(f"number of assignments to evaluate {len(combinations)}")
         return list(filter(self.eval, combinations))

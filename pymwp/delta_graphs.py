@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from .monomial import Monomial
 
 
@@ -325,6 +325,26 @@ class DeltaGraph:
                             n, lm, index, max_i):
                         self.remove_tuple(lm, index)
                         self.insert_tuple(DeltaGraph.remove_index(lm, index))
+
+    @staticmethod
+    def combination_matches_tuple(c: List, lm: Tuple[Tuple[int, int]]):
+        for t in lm:
+            if (c[t[1]] != t[0]):
+                return False
+        return True
+
+    def remove_from_combinations(self, combinations: List):
+        # if we have (0,1) in our graph
+        # remove all combinations where combinations[1] = 0
+        # then for size 2 (0,2)(1,3) remove all combinations where
+        # we have combinatins[2] = 0 and combinations[3] = 1
+        # etc…
+        for n in sorted(self.graph_dict):
+            # For all monomial list of size n starting with n = 1
+            for lm in list(self.graph_dict[n].keys()):
+                for c in list(combinations):
+                    if DeltaGraph.combination_matches_tuple(c, lm):
+                        combinations.remove(c)
 
     def __str__(self):
         res = ""

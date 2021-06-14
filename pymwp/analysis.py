@@ -63,7 +63,7 @@ class Analysis:
 
         relation = relations.relations[0]
 
-        combinations = relation.non_infinity(choices, index)
+        combinations = relation.non_infinity(choices, index, dg)
         if not no_save:
             save_relation(file_out, relation, combinations)
 
