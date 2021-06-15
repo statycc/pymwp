@@ -1,7 +1,7 @@
 # analysis.py
 
 ```python
-from pymwp.analysis import Analysis
+from pymwp import Analysis
 ```
 
 ::: pymwp.analysis

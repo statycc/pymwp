@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Optional, List, Tuple, Union
 
-from .constants import Comparison
+from .constants import Comparison, SetInclusion
 from .monomial import Monomial
 from .semiring import ZERO_MWP, sum_mwp
-from .constants import SetInclusion
 
 logger = logging.getLogger(__name__)
 
