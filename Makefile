@@ -12,6 +12,8 @@ clean: clean-build clean-pyc
 
 clean-build:
 	rm -fr output/
+	rm -fr dist/
+	rm -fr build/
 	rm -fr .pytest_cache/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
