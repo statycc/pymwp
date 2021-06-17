@@ -5,7 +5,15 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
 [![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 
-**Implementation of MWP analysis on C code in Python.**
+<!--desc-start-->
+
+pymwp is a tool for automatically performing static analysis on 
+programs written in C. It analyzes resource usage and determines if a 
+program stays within polynomial bounds. See 
+[this page](https://seiller.github.io/pymwp/features/) for a list of C 
+language features that are currently supported by pymwp.
+
+<!--desc-end--> 
 
 * * *
 
@@ -33,11 +41,18 @@ pip install pymwp
 
 ## How to Use
 
-Analyze C files from terminal:
+To analyze a C file, run:
 
 ```
 pymwp path/to_some_file.c
 ```
+
+For all available options and help, run:
+
+```
+pymwp
+```
+
 
 You can also use pymwp in a Python script:
 
@@ -88,7 +103,7 @@ latest release), use the version from source following these steps.
     python -m pymwp c_files/basics/if.c
     ```
     
-    to see all available options see help
+    for all available options and help, run:
     
     ```bash
     python -m pymwp

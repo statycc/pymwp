@@ -9,8 +9,8 @@ use_directory_urls: true
 
 
 nav:
-- Overview: index.md
-- Features: features.md
+- Installation & Use: index.md
+- Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
 - All documented modules:
