@@ -1,12 +1,13 @@
 from pytest import raises
-from pymwp.analysis import Analysis
+from pymwp import Analysis
 from .sample_ast import EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, \
     IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED
 
+PARSE_METHOD = 'pymwp.analysis.Analysis.parse_c_file'
+
 
 def test_analyze_empty_file(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=None)
+    mocker.patch(PARSE_METHOD, return_value=None)
     # should return non-zero exit
     with raises(SystemExit):
         Analysis.run('empty input')
@@ -21,8 +22,7 @@ def test_analyze_empty_main(mocker):
 
 
 def test_analyze_simple_infinite(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=INFINITE_2C)
+    mocker.patch(PARSE_METHOD, return_value=INFINITE_2C)
     relation, combinations = Analysis.run("infinite 2", no_save=True)
 
     assert combinations == []  # no combinations since it is infinite
@@ -39,8 +39,7 @@ def test_analyze_simple_infinite(mocker):
 
 
 def test_analyze_simple_non_infinite(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=NOT_INFINITE_2C)
+    mocker.patch(PARSE_METHOD, return_value=NOT_INFINITE_2C)
     relation, combinations = Analysis.run("not infinite 2", no_save=True)
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
@@ -52,8 +51,7 @@ def test_analyze_simple_non_infinite(mocker):
 
 
 def test_analyze_if_with_braces(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=IF_WITH_BRACES)
+    mocker.patch(PARSE_METHOD, return_value=IF_WITH_BRACES)
     relation, combinations = Analysis.run("if_braces", no_save=True)
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
@@ -71,8 +69,7 @@ def test_analyze_if_with_braces(mocker):
 
 
 def test_analyze_if_without_braces(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=IF_WO_BRACES)
+    mocker.patch(PARSE_METHOD, return_value=IF_WO_BRACES)
     relation, combinations = Analysis.run("if_wo_braces", no_save=True)
 
     # should have exact same result as previous test...
@@ -91,8 +88,7 @@ def test_analyze_if_without_braces(mocker):
 
 
 def test_analyze_variable_ignore(mocker):
-    mocker.patch('pymwp.analysis.Analysis.parse_c_file',
-                 return_value=VARIABLE_IGNORED)
+    mocker.patch(PARSE_METHOD, return_value=VARIABLE_IGNORED)
     relation, combinations = Analysis.run("variable_ignored", no_save=True)
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],

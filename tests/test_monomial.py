@@ -1,5 +1,5 @@
 from pytest import raises
-from pymwp.monomial import Monomial
+from pymwp import Monomial
 from pymwp.constants import SetInclusion
 
 
@@ -108,6 +108,7 @@ def test_insert_return_empty_on_conflict():
     deltas = Monomial.insert_delta(deltas, delta)
     assert deltas == []
 
+
 def test_contains_true():
     deltas1 = [(0, 0), (1, 1), (2, 2)]
     deltas2 = [(0, 0), (1, 1), (2, 2)]
@@ -115,6 +116,7 @@ def test_contains_true():
     m2 = Monomial('m', deltas2)
     assert m1.contains(m2)
     assert m2.contains(m1)
+
 
 def test_contains_true_2():
     deltas1 = [(0, 0), (2, 2)]
@@ -124,6 +126,7 @@ def test_contains_true_2():
     assert m2.contains(m1)
     assert not m1.contains(m2)
 
+
 def test_inclusion_1():
     deltas1 = [(0, 0), (2, 2)]
     deltas2 = [(0, 0), (1, 1), (2, 2)]
@@ -131,6 +134,7 @@ def test_inclusion_1():
     m2 = Monomial('m', deltas2)
     assert m2.inclusion(m1) == SetInclusion.CONTAINS
     assert m1.inclusion(m2) == SetInclusion.INCLUDED
+
 
 def test_inclusion_2():
     deltas1 = [(0, 0), (2, 2), (3, 3)]
@@ -140,6 +144,7 @@ def test_inclusion_2():
     assert m2.inclusion(m1) == SetInclusion.EMPTY
     assert m1.inclusion(m2) == SetInclusion.EMPTY
 
+
 def test_inclusion_3():
     deltas1 = [(0, 0), (2, 2)]
     deltas2 = [(0, 0), (1, 1), (2, 2)]
@@ -147,6 +152,7 @@ def test_inclusion_3():
     m2 = Monomial('m', deltas2)
     assert m1.inclusion(m2) == SetInclusion.INCLUDED
     assert m2.inclusion(m1) == SetInclusion.CONTAINS
+
 
 def test_inclusion_4():
     deltas1 = [(0, 0), (2, 2)]

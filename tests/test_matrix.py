@@ -3,8 +3,7 @@ import builtins
 from pymwp.matrix import init_matrix, identity_matrix, encode, decode, \
     matrix_sum, matrix_prod, resize, equals, fixpoint, show
 from pymwp.matrix import ZERO as o, UNIT as m
-from pymwp.monomial import Monomial
-from pymwp.polynomial import Polynomial
+from pymwp import Monomial, Polynomial
 
 
 def test_init_matrix_creates_zero_matrix():
@@ -98,6 +97,7 @@ def test_matrix_prod():
         print("Should be :")
         print((m * p3) + (o * m) + (p1 * p4))
         raise
+
 
 def test_encode():
     p = Polynomial([Monomial('m', [(0, 1)])])
