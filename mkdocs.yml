@@ -9,7 +9,7 @@ use_directory_urls: true
 
 
 nav:
-- Overview: index.md
+- Installation & Use: index.md
 - Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
