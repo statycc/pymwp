@@ -47,13 +47,17 @@ def examples():
 @app.route('/<path>/<file>')
 def analyze(path, file):
     """Run analysis on specified example."""
+    if not os.path.isdir(os.path.join(examples_directory, path)):
+        return 'invalid example category!', 500
+    if not os.path.isfile(os.path.join(examples_directory, path, file)):
+        return 'example does not exits!', 500
     return Response(stream_with_context(
         analyze_(path, file)), mimetype='text/plain')
 
 
 def analyze_(base, filename):
-    sample = f'{base}/{filename}'
-    file = f'{examples_directory}/{sample}'
+    sample = os.path.join(base, filename)
+    file = os.path.join(examples_directory, sample)
     link = f'<a target="_blank" rel="noopener noreferrer"' + \
            f' href="{source_link}{sample}">{sample} ↗</a>'
 
