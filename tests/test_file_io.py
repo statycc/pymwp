@@ -30,11 +30,11 @@ def test_save_relation(mocker):
     mocker.patch('builtins.open')
     mocker.patch('json.dump')
 
-    filename = 'fakepath/deep_path/output.txt'
+    filename = 'fake_path/deep/path/output.txt'
     save_relation(filename, Relation(), [[]])
 
     # it creates directory path when dir/s do not exist
-    os.makedirs.assert_called_once_with('fakepath/deep_path')
+    os.makedirs.assert_called_once_with('fake_path/deep/path')
     # it saves json
     json.dump.assert_called_once()
 

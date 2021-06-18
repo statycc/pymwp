@@ -2,6 +2,8 @@ from pytest import raises
 from pymwp import Monomial
 from pymwp.constants import SetInclusion
 
+"""Unit test Monomial class methods."""
+
 
 def test_create_monomial_without_deltas():
     mono = Monomial('o', [])
