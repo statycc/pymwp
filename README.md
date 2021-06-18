@@ -7,11 +7,9 @@
 
 <!--desc-start-->
 
-pymwp is a tool for automatically performing static analysis on 
-programs written in C. It analyzes resource usage and determines if a 
-program stays within polynomial bounds. See 
-[this page](https://seiller.github.io/pymwp/features/) for a list of C 
-language features that are currently supported by pymwp.
+pymwp is a tool for automatically performing static analysis on programs written in C, inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
+It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
+You can run our [many examples](https://seiller.github.io/pymwp/examples/) on-line [in our demo](https://seiller.github.io/pymwp/demo/) before [installing it](https://seiller.github.io/pymwp/), or consult our list of [supported C language features](https://seiller.github.io/pymwp/features/).
 
 <!--desc-end--> 
 
@@ -19,7 +17,7 @@ language features that are currently supported by pymwp.
 
 ### Documentation and Demo
 
-**[seiller.github.io/pymwp](https://seiller.github.io/pymwp/)**
+Refer to **[seiller.github.io/pymwp](https://seiller.github.io/pymwp/)** for a documentation of our modules, an [on-line demo](https://seiller.github.io/pymwp/demo/) as well as a presentation of [our examples](https://seiller.github.io/pymwp/examples/).
 
 * * *
 
