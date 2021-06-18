@@ -2,10 +2,12 @@ import os
 import json
 
 from pymwp.file_io import default_file_out, save_relation, load_relation
-from pymwp.relation import Relation
+from pymwp import Relation
 
 
 def test_file_out_name_wo_path():
+    """Generating output filename from just a filename without path returns
+    result with output directory path."""
     input_file = "my_c_file.c"
     out_file = default_file_out(input_file)
 
@@ -13,6 +15,7 @@ def test_file_out_name_wo_path():
 
 
 def test_file_out_name_with_path():
+    """Generating output filename removes original filepath."""
     input_file = "my_dir/of/files/example.c"
     out_file = default_file_out(input_file)
 
@@ -20,22 +23,24 @@ def test_file_out_name_with_path():
 
 
 def test_save_relation(mocker):
+    """Method generates directory when it does not exist then saves."""
     # mock all built-ins
     mocker.patch('os.path.exists', return_value=False)
     mocker.patch('os.makedirs')
     mocker.patch('builtins.open')
     mocker.patch('json.dump')
 
-    filename = 'fakepath/deep_path/output.txt'
+    filename = 'fake_path/deep/path/output.txt'
     save_relation(filename, Relation(), [[]])
 
     # it creates directory path when dir/s do not exist
-    os.makedirs.assert_called_once_with('fakepath/deep_path')
+    os.makedirs.assert_called_once_with('fake_path/deep/path')
     # it saves json
     json.dump.assert_called_once()
 
 
 def test_load_relation(mocker):
+    """Method generates expected object instance."""
     # mock built-ins
     mocker.patch('json.load', return_value={
         "relation": {"variables": ["x", "y"],
