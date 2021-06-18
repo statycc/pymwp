@@ -5,6 +5,12 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
 [![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 
+<!--
+    do not remove start and end comments (e.g. "include-start", "include-end").
+    They are markers for what to include in the docs, but feel free to edit 
+    the inner content.
+-->
+
 <!--desc-start-->
 
 pymwp is a tool for automatically performing static analysis on programs written in C, inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
@@ -13,19 +19,9 @@ You can run our [many examples](https://seiller.github.io/pymwp/examples/) on-li
 
 <!--desc-end--> 
 
-* * *
-
-### Documentation and Demo
+## Documentation and Demo
 
 Refer to **[seiller.github.io/pymwp](https://seiller.github.io/pymwp/)** for a documentation of our modules, an [on-line demo](https://seiller.github.io/pymwp/demo/) as well as a presentation of [our examples](https://seiller.github.io/pymwp/examples/).
-
-* * *
-
-<!--
-    do not remove the next comment ("include-start") or the ending 
-    ("include-end"), it is a marker for what to include in the docs, but 
-    feel free to edit the instructions inside these markers
--->
 
 <!--include-start-->
 
