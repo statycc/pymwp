@@ -3,11 +3,11 @@ import builtins
 from pymwp.matrix import init_matrix, identity_matrix, encode, decode, \
     matrix_sum, matrix_prod, resize, equals, fixpoint, show
 from pymwp.matrix import ZERO as o, UNIT as m
-from pymwp.monomial import Monomial
-from pymwp.polynomial import Polynomial
+from pymwp import Monomial, Polynomial
 
 
 def test_init_matrix_creates_zero_matrix():
+    """Creates matrix of 0s everywhere."""
     matrix = init_matrix(2)
 
     assert matrix[0][0] == o
@@ -17,6 +17,7 @@ def test_init_matrix_creates_zero_matrix():
 
 
 def test_identity_matrix_creates_expected_matrix():
+    """m at diagonal and 0 everywhere else."""
     matrix = identity_matrix(3)
 
     assert matrix[0][0] == m
@@ -31,6 +32,9 @@ def test_identity_matrix_creates_expected_matrix():
 
 
 def test_resize_modifies_matrix_size():
+    """Resizing matrix changes matrix size correctly, it preserves the
+    polynomials from the input matrix, and when enlarging, the newly added
+    positions are filled with identity matrix values."""
     poly = Polynomial([Monomial('m')])
     before_resize = init_matrix(2, poly)
     after_resize = resize(before_resize, 5)
@@ -53,6 +57,7 @@ def test_resize_modifies_matrix_size():
 
 
 def test_matrix_sum():
+    """Matrix sum should add two matrices element-wise."""
     expected = Polynomial([Monomial('m', [(0, 0)]), Monomial('w', [(1, 1)])])
 
     mat_a = init_matrix(2, Polynomial([Monomial('m', [(0, 0)])]))
@@ -66,6 +71,8 @@ def test_matrix_sum():
 
 
 def test_matrix_prod():
+    """Matrix product test -- here we check using an elaborate test case
+    that the product is what it should be, at each position."""
     p1 = Polynomial([Monomial('p', [(0, 1)]), Monomial('w', [(1, 1)])])
     p2 = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
     p3 = Polynomial([Monomial('m', [(0, 2)]), Monomial('w', [(1, 2)])])
@@ -99,7 +106,9 @@ def test_matrix_prod():
         print((m * p3) + (o * m) + (p1 * p4))
         raise
 
+
 def test_encode():
+    """Encoding converts matrix of polynomials to a list of dictionaries."""
     p = Polynomial([Monomial('m', [(0, 1)])])
     mat = init_matrix(2, p)
     encoded = encode(mat)
@@ -114,6 +123,7 @@ def test_encode():
 
 
 def test_decode():
+    """Decode converts dictionary object to matrix of polynomials."""
     sample = [
         [[{'scalar': 'm', 'deltas': [(0, 1)]}],
          [{'scalar': 'm', 'deltas': [(0, 1)]}]],
@@ -128,6 +138,7 @@ def test_decode():
 
 
 def test_matrix_equals():
+    """Two polynomial matrices are equal when their monomials match exactly."""
     p1 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
     p2 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
     p3 = Polynomial([Monomial('m', [(0, 0)])])
@@ -142,6 +153,7 @@ def test_matrix_equals():
 
 
 def test_matrix_not_equals():
+    """Two matrices where monomials differ by deltas are not equal."""
     p1 = Polynomial([Monomial('m', [(0, 1)])])
     p2 = Polynomial([Monomial('m', [(1, 1)])])
 
@@ -152,6 +164,7 @@ def test_matrix_not_equals():
 
 
 def test_matrix_size_not_equals():
+    """Two matrices of different size are not equal."""
     m1 = [[o, o, o], [o, o, o], [o, o, o]]
     m2 = [[o, o], [o, o]]
 
@@ -159,6 +172,7 @@ def test_matrix_size_not_equals():
 
 
 def test_fixpoint():
+    """M^* of zero matrix is identity matrix."""
     before = [[o, o, o], [o, o, o], [o, o, o]]
     after = fixpoint(before)
 
@@ -174,6 +188,8 @@ def test_fixpoint():
 
 
 def test_show(mocker):
+    """Matrix show calls print for N times, where N is number of rows
+    to display each row."""
     my_matrix = [[o, o, o], [o, o, o], [o, o, o]]
     mocker.patch('builtins.print')
     show(my_matrix)
@@ -182,6 +198,8 @@ def test_show(mocker):
 
 
 def test_show_with_extras(mocker):
+    """Matrix show calls print per each row, and 2 more times to print
+    header and footer when those arguments are provided."""
     my_matrix = [[o, o, o], [o, o, o], [o, o, o]]
     mocker.patch('builtins.print')
     show(my_matrix, prefix="foo", postfix="bar")

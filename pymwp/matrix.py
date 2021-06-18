@@ -92,10 +92,10 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
     Returns:
         Encoded matrix.
     """
-    return [[[mon.to_dict()
-              for mon in polynomial.list]
-             for polynomial in row]
-            for (i, row) in enumerate(matrix)]
+    return [[
+        [mono.to_dict() for mono in polynomial.list]
+        for polynomial in row]
+        for (i, row) in enumerate(matrix)]
 
 
 def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:

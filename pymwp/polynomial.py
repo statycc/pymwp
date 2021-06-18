@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Optional, List, Tuple, Union
 
-from .constants import Comparison
+from .constants import Comparison, SetInclusion
 from .monomial import Monomial
 from .semiring import ZERO_MWP, sum_mwp
-from .constants import SetInclusion
 
 logger = logging.getLogger(__name__)
 
@@ -417,17 +416,22 @@ class Polynomial:
 
     @staticmethod
     def sort_monomials(monomials: list) -> list:
-        """Given a list of monomials this method
-        will return them in order.
+        """Given a list of monomials this method will return them in order.
 
-        The sort is performed by first dividing the list of
-        monomials into halves recursively until each half
-        contains at most one monomial. Then the sort will
-        begin to combine (or zip) the halves into a
-        sorted list.
+        The sort is performed by first dividing the list of monomials into
+        halves recursively until each half contains at most one monomial.
+        Then the sort will begin to combine (or zip) the halves into a sorted
+        list.
 
-        The original list argument is not mutated by
-        this sort operation; does not sort in place.
+        The sort performs comparison of deltas, and orders the monomials based
+        on the delta values. If two monomials have the same deltas, we compute
+        new scalar value, and if it is not 0, we keep the result monomial.
+        Note that if we get 2 monomials with same deltas, and only at most 1
+        is kept, with possibly updated scalar. This means sort can return a
+        result that is shorter than the input argument.
+
+        The original list argument is not mutated by this sort operation, i.e.
+        this is not sort in place.
 
         Arguments:
             monomials: list of monomials to sort
@@ -466,7 +470,7 @@ class Polynomial:
                 new_list.append(rhead)
                 right = rtail
 
-            # both list heads are equal
+            # list heads are equal i.e. same deltas.
             if comparison == Comparison.EQUAL:
                 monomial = lhead
                 # append to list as long as scalar
