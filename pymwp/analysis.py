@@ -347,7 +347,7 @@ class Analysis:
                 - variables[1][0] is left operand of binary operation
                 - variables[1][1] is right operand of binary operation
                 - note: left/right operand is not present if it is a constant,
-                therefore check that
+                therefore check length of variables[1] before use/unpacking.
 
         Returns:
              Updated index, list of Polynomial vectors
