@@ -17,6 +17,10 @@ USAGE:
 
     python utilities/profile.py --help
 
+To run cProfile on a single file:
+
+    python -m cProfile -m pymwp path/to_c_file
+
 """
 
 import os
