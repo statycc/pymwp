@@ -5,132 +5,247 @@ import asyncio
 import pstats
 import logging
 import time
+import argparse
 
 from os import listdir, makedirs, remove
-from functools import reduce
+from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
 logger = logging.getLogger(__name__)
-cwd = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-
-# max timeout, in seconds
-TIMEOUT = 30
-
-# number of lines to include in profile
-STAT_LINES = 50
-
-# examples directory
-EXAMPLES_DIR = 'c_files'
-
-# output directory
-OUTPUT_DIR = os.path.join(cwd, 'profile')
-
-# .git ignore file name
-IGNORE = ".gitignore"
-
-CPROFILE = 'python3 -m cProfile'
-
-# pymwp analysis command
-ANALYSIS_CMD = '-m pymwp --no-save '
-
-# list of C files to profile
-# finds all files in subdirectories of examples directory
-C_FILES = list(reduce(lambda x, y: x + y, [[
-    os.path.join(cwd, EXAMPLES_DIR, d, f)
-    for f in listdir(os.path.join(cwd, EXAMPLES_DIR, d)) if
-    os.path.isfile(os.path.join(cwd, EXAMPLES_DIR, d, f))]
-    for d in listdir(os.path.join(cwd, EXAMPLES_DIR)) if
-    os.path.isdir(os.path.join(cwd, EXAMPLES_DIR, d))
-]))
-
-# measure longest example filename
-LONGEST_FILENAME = len(max([
-    os.path.basename(os.path.splitext(c)[0])
-    for c in C_FILES], key=len))
+cwd = abspath(join(dirname(__file__), '../../'))
 
 
-def setup_logger(level=logging.DEBUG):
+class Profiler:
+
+    def __init__(self, src, dest, lines, timeout, sort):
+        """Initialize profiler utility"""
+        self._output_dir = dest
+        self._timeout = timeout
+        self._sort = sort
+        self._start_time = self._end_time = 0
+        self._lines = lines if lines > 0 else None
+        self._file_list = Profiler.find_c_files(src)
+        self._pad = Profiler.longest_file_name(self._file_list)
+        self.ignore = ".gitignore"
+        self.divider_len = 50
+
+    @property
+    def file_list(self):
+        """List of files to profile"""
+        return self._file_list
+
+    @property
+    def file_count(self):
+        """Number of C files to profile."""
+        return len(self._file_list)
+
+    @property
+    def output(self):
+        """Directory where to store results"""
+        return self._output_dir
+
+    @property
+    def timeout(self):
+        """Max timeout, per file"""
+        return self._timeout
+
+    @property
+    def lines(self):
+        """Number of pstat lines to output"""
+        return self._lines
+
+    @property
+    def pad(self):
+        """Longest file name in file_list"""
+        return self._pad
+
+    @property
+    def sort(self):
+        """cProfile stats sort order."""
+        return self._sort
+
+    @property
+    def total_time(self):
+        """Total time to run profile on all files."""
+        return self._end_time - self._start_time
+
+    @staticmethod
+    def find_c_files(src):
+        """Recursively look for C files in src directory."""
+        files = []
+        for parent_path, _, filenames in os.walk(src):
+            for f in filenames:
+                extension = basename(splitext(f)[1])
+                if extension == '.c':
+                    files.append(join(parent_path, f))
+        return files
+
+    @staticmethod
+    def filename_only(file):
+        """Get file name without path or extension."""
+        return basename(splitext(file)[0])
+
+    @staticmethod
+    def longest_file_name(file_list):
+        """Compute length of longest filename in src directory, excluding
+        path."""
+        if file_list is None or len(file_list) == 0:
+            return 0
+        return len(max([
+            Profiler.filename_only(c)
+            for c in file_list], key=len))
+
+    def ensure_output_dir(self):
+        """Make sure output directory exists."""
+        # make output directory
+        if not exists(self.output):
+            makedirs(self.output)
+        # add .gitignore file
+        if not exists(join(self.output, self.ignore)):
+            with open(join(self.output, self.ignore), 'w') as ignore:
+                ignore.write("*")
+
+    def clear_temp_files(self):
+        """Remove temporary files from output directory."""
+        # for all files in output directory
+        for f in [join(self.output, f) for f in listdir(self.output)]:
+            # must be a file, not txt file, and not .gitignore
+            clean_it = isfile(join(self.output, f)) \
+                       and '.txt' not in f \
+                       and self.ignore not in f
+            if clean_it:
+                remove(f)
+
+    def plain_profile(self, out_file):
+        """convert cProfile to plain text."""
+        with open(out_file + ".txt", 'w') as stream:
+            pstats.Stats(out_file, stream=stream) \
+                .sort_stats(pstats.SortKey.TIME) \
+                .print_stats(self.lines)
+
+        if isfile(out_file):
+            remove(out_file)
+
+    def build_cmd(self, file_in, file_out):
+        """Build cProfile command"""
+        return ' '.join([
+            'python3 -m cProfile', f'-s {self.sort}', f'-o {file_out}',
+            '-m pymwp --no-save ', file_in
+        ])
+
+    def run(self):
+        """Run cProfile on all discovered files"""
+        self.pre_log()
+        self.ensure_output_dir()
+        self._start_time = time.monotonic()
+        for file in sorted(self.file_list):
+            asyncio.run(self.profile_file(file))
+        self._end_time = time.monotonic()
+        self.clear_temp_files()
+        self.post_log()
+
+    async def profile_file(self, c_file):
+        """Profile single C file"""
+        file_name = Profiler.filename_only(c_file)
+        out_file = join(self.output, file_name)
+        start_time = time.monotonic()
+        cmd = self.build_cmd(c_file, out_file)
+        message = ''
+
+        proc = await asyncio.create_subprocess_shell(
+            cmd, cwd=cwd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
+        task = asyncio.Task(proc.communicate())
+        done, pending = await asyncio.wait([task], timeout=self.timeout)
+        end_time = time.monotonic()
+
+        if pending:
+            message = 'timeout'
+            proc.kill()
+        await task
+
+        if proc.returncode not in [0, -9]:
+            message = 'error'
+
+        if proc.returncode == 0:
+            message = 'done'
+            self.plain_profile(out_file)
+
+        logger.info(
+            f'{file_name.ljust(self.pad)}... {message} ' +
+            f': {(end_time - start_time):.2f}s')
+
+    def pre_log(self):
+        """Print info before running profiler."""
+        self.__log(f'Profiling {self.file_count} examples...')
+
+    def post_log(self):
+        """Print info after running profiler."""
+        self.__log(f'Finished after {self.total_time:.2f} seconds.')
+
+    def __log(self, msg):
+        """Log something using print and visual dividers."""
+        divider = '=' * self.divider_len
+        print(f'{divider}\n{msg}\n{divider}')
+
+
+def main():
+    """Run profiler using provided args"""
+    setup_logger()
+    args = _args(argparse.ArgumentParser())
+    Profiler(
+        src=args.in_,
+        dest=args.out,
+        timeout=args.timeout,
+        lines=args.lines,
+        sort=args.sort
+    ).run()
+
+
+def setup_logger():
     """Initialize logger."""
     fmt = "[%(asctime)s]: %(message)s"
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
-    logger.setLevel(level)
+    logger.setLevel(logging.FATAL - 40)
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
 
 
-def ensure_output_dir_exist():
-    if not os.path.exists(OUTPUT_DIR):
-        makedirs(OUTPUT_DIR)
-    if not os.path.exists(os.path.join(OUTPUT_DIR, IGNORE)):
-        with open(os.path.join(OUTPUT_DIR, IGNORE), 'w') as ignore:
-            ignore.write("*")
-
-
-def clear_temp_files():
-    for f in [os.path.join(OUTPUT_DIR, f) for f in listdir(OUTPUT_DIR)
-              if os.path.isfile(os.path.join(OUTPUT_DIR, f)) \
-                 and '.txt' not in f and IGNORE not in f]:
-        remove(f)
-
-
-def plain_profile(out_file):
-    """convert cProfile to plain text"""
-    with open(out_file + ".txt", 'w') as stream:
-        pstats.Stats(out_file, stream=stream) \
-            .sort_stats(pstats.SortKey.TIME) \
-            .print_stats(STAT_LINES)
-
-    if os.path.isfile(out_file):
-        remove(out_file)
-
-
-async def profile(c_file):
-    """Profile single c file"""
-    file_only = os.path.splitext(c_file)[0]
-    file_name = os.path.basename(file_only)
-    out_file = os.path.join(OUTPUT_DIR, file_name)
-    start_time = time.monotonic()
-    output = f'-o {out_file}'  # if True else ''
-    sort = '-s tottime'
-
-    cmd = ' '.join([CPROFILE, sort, output, ANALYSIS_CMD, c_file])
-    proc = await asyncio.create_subprocess_shell(
-        cmd, cwd=cwd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE)
-    task = asyncio.Task(proc.communicate())
-    done, pending = await asyncio.wait([task], timeout=TIMEOUT)
-    if pending:
-        message = 'timeout'
-        proc.kill()
-    await task
-    if proc.returncode not in [0, -9]:
-        message = 'error'
-    if proc.returncode == 0:
-        message = 'done'
-        plain_profile(out_file)
-
-    logger.info(
-        f'{file_name.ljust(LONGEST_FILENAME)}... {message} ' +
-        f': {(time.monotonic() - start_time):.2f}s')
-
-
-def main():
-    """Profile examples"""
-    start_time = time.monotonic()
-    setup_logger(logging.FATAL - 40)
-    ensure_output_dir_exist()
-    for file in sorted(C_FILES):
-        asyncio.run(profile(file))
-    clear_temp_files()
-    end = time.monotonic() - start_time
-    print(
-        f'{"=" * 50}' +
-        f'\nProfiled {len(C_FILES)} examples.' +
-        f'\nFinished after {end:.2f} seconds.'
-        f'\n{"=" * 50}'
+def _args(parser, args=None):
+    """define available arguments"""
+    parser.add_argument(
+        '--in',
+        action='store',
+        dest="in_",
+        default='c_files',
+        help='directory path to C-files (default: c_files)',
     )
+    parser.add_argument(
+        "--out",
+        action="store",
+        default=os.path.join(cwd, 'profile'),
+        help="directory path for storing results",
+    )
+    parser.add_argument(
+        "--sort",
+        action="store",
+        default='tottime',
+        help="cProfile property to sort by",
+    )
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        default=30,
+        help='Max. timeout for profiling single example')
+    parser.add_argument(
+        '--lines',
+        type=int,
+        default=-1,
+        help='How many lines of cProfiler output to include, ' +
+             'e.g. to profile top 10 methods, set this value to 10.')
+    return parser.parse_args(args)
 
 
 if __name__ == '__main__':
