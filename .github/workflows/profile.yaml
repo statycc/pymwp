@@ -19,5 +19,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
 
-      - name: Run Profile
-        run: make profile
+    - name: Try run profiler
+      run: |
+        make profile
