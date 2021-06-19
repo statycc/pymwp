@@ -130,10 +130,10 @@ class Analysis:
         # x | o   o
         # y | m   m
         vector = [
-                # because x != y
-                Polynomial([Monomial("o")]),
-                Polynomial([Monomial('m')])
-                ]
+            # because x != y
+            Polynomial([Monomial("o")]),
+            Polynomial([Monomial('m')])
+        ]
 
         # build a list of unique variables
         variables = vars_list[0]
@@ -329,21 +329,25 @@ class Analysis:
 
     @staticmethod
     def create_vector(
-            index: int, node: Assignment, variables_list: List[List[str]]
+            index: int, node: Assignment, variables: List[List[str]]
     ) -> Tuple[int, List[Polynomial]]:
-        """Create a polynomial vector.
+        """Build a polynomial vector based on operator and the operands
+        of a binary operation statement.
 
         For an AST node that represents a binary operation, this method
         generates a vector of polynomials based on the properties of that
-        node.
-
-        The returned value depends on the type of operator, how many
-        operands are constants, and if the operands are equal.
+        operation. The returned vector depends on the type of operator,
+        how many operands are constants, and if the operands are equal.
 
         Arguments:
             index: delta index
             node: AST node under analysis
-            variables_list: list of known variables
+            variables: list of unique variables in this operation where:
+                - variables[0][0] is the variable on left side of assignment
+                - variables[1][0] is left operand of binary operation
+                - variables[1][1] is right operand of binary operation
+                - note: left/right operand is not present if it is a constant,
+                therefore check length of variables[1] before use/unpacking.
 
         Returns:
              Updated index, list of Polynomial vectors
@@ -351,22 +355,26 @@ class Analysis:
 
         dependence_type = None
         p1_scalars, p2_scalars = None, None
-        const_count = 2 - len(variables_list[1])
-        if const_count == 0:
-            operand_match = variables_list[1][0] == variables_list[1][1]
-        else:
-            operand_match = False
-        # x = … (if x not in …)
-        prepend_zero = variables_list[0][0] not in variables_list[1]
+        const_count = 2 - len(variables[1])
+        unknown = 'u'
+
+        # Do right hand side operators match each other.
+        # when they are different we create a vector of
+        # 2 polynomials, and 1 polynomial otherwise.
+        operand_match = const_count == 0 and variables[1][0] == variables[1][1]
+
+        # x = … (if x not in …), i.e. when left side variable does not
+        # occur on the right side of assignment, we prepend 0 to vector
+        prepend_zero = variables[0][0] not in variables[1]
 
         # determine dependence type
-        if node.rvalue.op in ["+", "-"]:
-            dependence_type = "+" if const_count == 0 else 'u'
+        if node.rvalue.op in ["+"]:
+            dependence_type = "+" if const_count == 0 else unknown
         elif node.rvalue.op in ["*"]:
-            dependence_type = "*" if const_count == 0 else 'u'
+            dependence_type = "*" if const_count == 0 else unknown
 
-        # determine scalars
-        if dependence_type == 'u':
+        # determine what scalars polynomial should have
+        if dependence_type == unknown:
             p1_scalars = 'm', 'm', 'm'
 
         if dependence_type == '*':
@@ -381,14 +389,21 @@ class Analysis:
                 p1_scalars = 'w', 'm', 'p'
                 p2_scalars = 'w', 'p', 'm'
 
-        # build vector of polynomials
+        # now build vector of 0 or more polynomials
         vector = []
+
+        # when left variable does not occur on right side of assignment
         if prepend_zero:
             vector.append(Polynomial([Monomial("o")]))
+
+        # we _should_ have at least this one, but will be None if the
+        # operator is not + or * so check
         if p1_scalars:
             vector.append(Polynomial(
                 [Monomial(scalar, [(val, index)])
                  for val, scalar in enumerate(p1_scalars)]))
+
+        # when there are two different, non-constant operands on right
         if p2_scalars:
             vector.append(Polynomial(
                 [Monomial(scalar, [(val, index)])
