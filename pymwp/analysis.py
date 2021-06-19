@@ -368,7 +368,7 @@ class Analysis:
         prepend_zero = variables[0][0] not in variables[1]
 
         # determine dependence type
-        if node.rvalue.op in ["+"]:
+        if node.rvalue.op in ["+", "-"]:
             dependence_type = "+" if const_count == 0 else unknown
         elif node.rvalue.op in ["*"]:
             dependence_type = "*" if const_count == 0 else unknown
