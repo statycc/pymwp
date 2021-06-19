@@ -22,6 +22,7 @@ nav:
   - Relation: relation.md
   - Relation List: relation_list.md
   - Semiring: semiring.md
+- Utilities: utilities.md
 - Source Code: https://github.com/seiller/pymwp
 - License: https://github.com/seiller/pymwp/blob/master/LICENCE.md
 

@@ -3,24 +3,7 @@
 """
 This is a utility script for running cProfile on a bunch of C files.
 
-USAGE:
-
-    1) Run with defaults:
-
-    make profile
-
-    2) Run with custom arguments:
-
-    python utilities/profile.py [ARGS]
-
-    3) To see available args:
-
-    python utilities/profile.py --help
-
-To run cProfile on a single file:
-
-    python -m cProfile -m pymwp path/to_c_file
-
+USAGE: see docs/utilities.md
 """
 
 import os
@@ -151,8 +134,8 @@ class Profiler:
     def build_cmd(self, file_in, file_out):
         """Build cProfile command"""
         return ' '.join([
-            'python3 -m cProfile', f'-s {self.sort}', f'-o {file_out}',
-            '-m pymwp --no-save ', file_in
+            'python3 -m cProfile', f'-s {self.sort}',
+            f'-o {file_out}', '-m pymwp --no-save ', file_in
         ])
 
     def run(self):
@@ -180,12 +163,13 @@ class Profiler:
             stderr=asyncio.subprocess.PIPE)
         task = asyncio.Task(proc.communicate())
         done, pending = await asyncio.wait([task], timeout=self.timeout)
-        end_time = time.monotonic()
 
         if pending:
             message = 'timeout'
             proc.kill()
         await task
+
+        end_time = time.monotonic()
 
         if proc.returncode not in [0, -9]:
             message = 'error'
@@ -254,7 +238,7 @@ def _args(parser, args=None):
     parser.add_argument(
         "--sort",
         action="store",
-        default='tottime',
+        default='calls',
         help="cProfile property to sort by",
     )
     parser.add_argument(
