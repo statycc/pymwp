@@ -50,4 +50,4 @@ lint-only:
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
-	python tests/utilities/run_profile.py
+	python3 tests/utilities/run_profile.py

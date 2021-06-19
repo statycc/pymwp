@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import asyncio
 import pstats
@@ -10,7 +12,7 @@ from functools import reduce
 logger = logging.getLogger(__name__)
 cwd = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 
-# max timeout
+# max timeout, in seconds
 TIMEOUT = 30
 
 # number of lines to include in profile
@@ -24,6 +26,8 @@ OUTPUT_DIR = os.path.join(cwd, 'profile')
 
 # .git ignore file name
 IGNORE = ".gitignore"
+
+CPROFILE = 'python3 -m cProfile'
 
 # pymwp analysis command
 ANALYSIS_CMD = '-m pymwp --no-save '
@@ -87,14 +91,14 @@ async def profile(c_file):
     file_name = os.path.basename(file_only)
     out_file = os.path.join(OUTPUT_DIR, file_name)
     start_time = time.monotonic()
+    output = f'-o {out_file}'  # if True else ''
+    sort = '-s tottime'
 
-    cmd = f'python -m cProfile -o {out_file} -s tottime ' + \
-          f'{ANALYSIS_CMD} {c_file}'
+    cmd = ' '.join([CPROFILE, sort, output, ANALYSIS_CMD, c_file])
     proc = await asyncio.create_subprocess_shell(
         cmd, cwd=cwd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
-
     task = asyncio.Task(proc.communicate())
     done, pending = await asyncio.wait([task], timeout=TIMEOUT)
     if pending:
