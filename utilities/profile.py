@@ -1,5 +1,24 @@
 #!/usr/bin/env python
 
+"""
+This is a utility script for running cProfile on a bunch of C files.
+
+USAGE:
+
+    1) Run with defaults:
+
+    make profile
+
+    2) Run with custom arguments:
+
+    python utilities/profile.py [ARGS]
+
+    3) To see available args:
+
+    python utilities/profile.py --help
+
+"""
+
 import os
 import asyncio
 import pstats
@@ -11,7 +30,7 @@ from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
 logger = logging.getLogger(__name__)
-cwd = abspath(join(dirname(__file__), '../../'))
+cwd = abspath(join(dirname(__file__), '../'))  # set cwd to repository root
 
 
 class Profiler:
@@ -177,7 +196,7 @@ class Profiler:
 
     def pre_log(self):
         """Print info before running profiler."""
-        self.__log(f'Profiling {self.file_count} examples...')
+        self.__log(f'Profiling {self.file_count} C files...')
 
     def post_log(self):
         """Print info after running profiler."""
@@ -190,7 +209,7 @@ class Profiler:
 
 
 def main():
-    """Run profiler using provided args"""
+    """Run profiler using provided args."""
     setup_logger()
     args = _args(argparse.ArgumentParser())
     Profiler(
@@ -214,7 +233,7 @@ def setup_logger():
 
 
 def _args(parser, args=None):
-    """define available arguments"""
+    """Define available arguments."""
     parser.add_argument(
         '--in',
         action='store',
@@ -225,7 +244,7 @@ def _args(parser, args=None):
     parser.add_argument(
         "--out",
         action="store",
-        default=os.path.join(cwd, 'profile'),
+        default=join(cwd, 'profile'),
         help="directory path for storing results",
     )
     parser.add_argument(
