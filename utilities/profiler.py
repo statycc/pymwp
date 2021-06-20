@@ -10,9 +10,10 @@ import os
 import asyncio
 import pstats
 import logging
-import time
 import argparse
 import subprocess
+import signal
+import time
 
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
@@ -23,52 +24,22 @@ cwd = abspath(join(dirname(__file__), '../'))  # set cwd to repository root
 
 class Profiler:
 
-    def __init__(self, src, dest, lines, timeout, sort):
+    def __init__(self, src, dest, lines, timeout, sort, skip):
         """Initialize profiler utility"""
-        self._output_dir = dest
-        self._timeout = timeout
-        self._sort = sort
-        self._start_time = self._end_time = 0
-        self._lines = lines if lines > 0 else None
-        self._file_list = Profiler.find_c_files(src)
-        self._pad = Profiler.longest_file_name(self._file_list)
+        self.output = dest
+        self.timeout = timeout
+        self.sort = sort
+        self.start_time = self._end_time = 0
+        self.lines = lines if lines > 0 else None
+        self.file_list = Profiler.find_c_files(src, skip)
+        self.pad = Profiler.longest_file_name(self.file_list)
         self.ignore = ".gitignore"
         self.divider_len = 50
 
     @property
-    def file_list(self):
-        """List of files to profile"""
-        return self._file_list
-
-    @property
     def file_count(self):
         """Number of C files to profile."""
-        return len(self._file_list)
-
-    @property
-    def output(self):
-        """Directory where to store results"""
-        return self._output_dir
-
-    @property
-    def timeout(self):
-        """Max timeout, per file"""
-        return self._timeout
-
-    @property
-    def lines(self):
-        """Number of pstat lines to output"""
-        return self._lines
-
-    @property
-    def pad(self):
-        """Longest file name in file_list"""
-        return self._pad
-
-    @property
-    def sort(self):
-        """cProfile stats sort order."""
-        return self._sort
+        return len(self.file_list)
 
     @property
     def total_time(self):
@@ -76,13 +47,14 @@ class Profiler:
         return self._end_time - self._start_time
 
     @staticmethod
-    def find_c_files(src):
+    def find_c_files(src, skip_list):
         """Recursively look for C files in src directory."""
         files = []
         for parent_path, _, filenames in os.walk(src):
             for f in filenames:
+                name = Profiler.filename_only(f)
                 extension = basename(splitext(f)[1])
-                if extension == '.c':
+                if extension == '.c' and name not in skip_list:
                     files.append(join(parent_path, f))
         return files
 
@@ -106,6 +78,10 @@ class Profiler:
         # make output directory
         if not exists(self.output):
             makedirs(self.output)
+        else:  # or clear it
+            for root, dirs, files in os.walk(self.output):
+                for file in files:
+                    os.remove(os.path.join(root, file))
         # add .gitignore file
         if not exists(join(self.output, self.ignore)):
             with open(join(self.output, self.ignore), 'w') as ignore:
@@ -124,19 +100,20 @@ class Profiler:
 
     def plain_profile(self, out_file):
         """convert cProfile to plain text."""
-        with open(out_file + ".txt", 'w') as stream:
-            pstats.Stats(out_file, stream=stream) \
-                .sort_stats(pstats.SortKey.TIME) \
-                .print_stats(self.lines)
+        if exists(out_file) and isfile(out_file):
+            with open(out_file + ".txt", 'w') as stream:
+                pstats.Stats(out_file, stream=stream) \
+                    .strip_dirs() \
+                    .sort_stats(self.sort) \
+                    .print_stats(self.lines)
 
-        if isfile(out_file):
             remove(out_file)
 
-    def build_cmd(self, file_in, file_out):
+    @staticmethod
+    def build_cmd(file_in, file_out):
         """Build cProfile command"""
         return ' '.join([
             'python3 -m cProfile',
-            f'-s {self.sort}',
             f'-o {file_out}',
             '-m pymwp --no-save --silent',
             file_in
@@ -157,7 +134,7 @@ class Profiler:
         """Profile single C file"""
         file_name = Profiler.filename_only(c_file)
         out_file = join(self.output, file_name)
-        cmd = self.build_cmd(c_file, out_file)
+        cmd = Profiler.build_cmd(c_file, out_file)
 
         timeout = False
         start_time = time.monotonic()
@@ -168,18 +145,21 @@ class Profiler:
         )
         try:
             proc.communicate(timeout=self.timeout)
+            end_time = time.monotonic()
         except subprocess.TimeoutExpired:
-            proc.kill()
+            end_time = time.monotonic()
+            proc.send_signal(signal.SIGINT)  # raise stop signal
+            time.sleep(1)  # give some time to terminate to capture stats
+            proc.kill()  # now force kill it
             timeout = True
-        end_time = time.monotonic()
 
         if timeout:
             message = 'timeout'
         elif proc.returncode == 0:
             message = 'done'
-            self.plain_profile(out_file)
         else:
             message = 'error'
+        self.plain_profile(out_file)
 
         logger.info(f'{file_name.ljust(self.pad)}... {message}: ' +
                     f'{(end_time - start_time):.2f}s')
@@ -208,7 +188,8 @@ def main():
         dest=args.out,
         timeout=args.timeout,
         lines=args.lines,
-        sort=args.sort
+        sort=args.sort,
+        skip=args.skip,
     ).run()
 
 
@@ -241,20 +222,26 @@ def _args(parser, args=None):
     parser.add_argument(
         "--sort",
         action="store",
-        default='tottime',
+        default='ncalls',
         help="cProfile property to sort by",
     )
     parser.add_argument(
         '--timeout',
         type=int,
         default=10,
-        help='max. timeout for profiling single example')
+        help='max. timeout for profiling one execution')
     parser.add_argument(
         '--lines',
         type=int,
         default=-1,
         help='how many lines of cProfiler output to include, ' +
              'e.g. to profile top 10 methods, set this value to 10.')
+    parser.add_argument(
+        '--skip',
+        nargs='+',
+        default=[],
+        help='space separated list of files to skip (e.g. --skip dense if)'
+    )
 
     return parser.parse_args(args)
 

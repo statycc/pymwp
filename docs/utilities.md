@@ -19,7 +19,7 @@ python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
 
 ### Profiling multiple executions
 
-[Profiler](https://github.com/seiller/pymwp/blob/master/utilities/profile.py) is a wrapper for cProfile. It enables profiling multiple executions of analysis on a directory of C files (it will recursively search for C files). This utility is not distributed with pymwp package; you must run from source to use it.
+[Profiler](https://github.com/seiller/pymwp/blob/master/utilities/profiler.py) is a wrapper for cProfile. It enables profiling multiple executions of analysis on a directory of C files (it will recursively search for C files). This utility is not distributed with pymwp package; you must run from source to use it.
 
 
 The results of each execution are stored in corresponding files.
@@ -35,18 +35,18 @@ The results of each execution are stored in corresponding files.
 2. Run with custom arguments:
 
     ```
-    python utilities/profile.py {args}
+    python utilities/profiler.py {args}
     ```
 
 3. To see a list of available args:
 
     ```
-    python utilities/profile.py --help
+    python utilities/profiler.py --help
     ```
     
 1 of 3 possible outputs is displayed for each profiled execution:
 
-- done : profiling subprocess terminated without error, note: even if analysis ends with non-0 exit code, it falls into this category since it does not crash the process.
+- done : profiling subprocess terminated without error, note: even if analysis ends with non-0 exit code, it falls into this category if it does not crash the process.
 - error : profiling subprocess terminated in error.
 - timeout : profiling subprocess did not terminate within time limit and was forced to quit.
     
