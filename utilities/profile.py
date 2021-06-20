@@ -12,6 +12,7 @@ import pstats
 import logging
 import time
 import argparse
+import subprocess
 
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
@@ -134,8 +135,11 @@ class Profiler:
     def build_cmd(self, file_in, file_out):
         """Build cProfile command"""
         return ' '.join([
-            'python3 -m cProfile', f'-s {self.sort}',
-            f'-o {file_out}', '-m pymwp --no-save ', file_in
+            'python3 -m cProfile',
+            f'-s {self.sort}',
+            f'-o {file_out}',
+            '-m pymwp --no-save --silent',
+            file_in
         ])
 
     def run(self):
@@ -157,17 +161,16 @@ class Profiler:
         cmd = self.build_cmd(c_file, out_file)
         message = ''
 
-        proc = await asyncio.create_subprocess_shell(
-            cmd, cwd=cwd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
-        task = asyncio.Task(proc.communicate())
-        done, pending = await asyncio.wait([task], timeout=self.timeout)
-
-        if pending:
-            message = 'timeout'
+        proc = subprocess.Popen(
+            [cmd], cwd=cwd, shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        try:
+            proc.communicate(timeout=self.timeout)
+        except subprocess.TimeoutExpired:
             proc.kill()
-        await task
+            message = 'timeout'
 
         end_time = time.monotonic()
 
@@ -184,7 +187,8 @@ class Profiler:
 
     def pre_log(self):
         """Print info before running profiler."""
-        self.__log(f'Profiling {self.file_count} C files...')
+        self.__log(f'Profiling {self.file_count} C files... ' +
+                   f'(limit: {self.timeout} sec)')
 
     def post_log(self):
         """Print info after running profiler."""
@@ -193,7 +197,7 @@ class Profiler:
     def __log(self, msg):
         """Log something using print and visual dividers."""
         divider = '=' * self.divider_len
-        print(f'{divider}\n{msg}\n{divider}')
+        logger.info(f'\n{divider}\n{msg}\n{divider}')
 
 
 def main():
@@ -238,13 +242,13 @@ def _args(parser, args=None):
     parser.add_argument(
         "--sort",
         action="store",
-        default='calls',
+        default='tottime',
         help="cProfile property to sort by",
     )
     parser.add_argument(
         '--timeout',
         type=int,
-        default=30,
+        default=10,
         help='Max. timeout for profiling single example')
     parser.add_argument(
         '--lines',
@@ -252,6 +256,7 @@ def _args(parser, args=None):
         default=-1,
         help='How many lines of cProfiler output to include, ' +
              'e.g. to profile top 10 methods, set this value to 10.')
+
     return parser.parse_args(args)
 
 
