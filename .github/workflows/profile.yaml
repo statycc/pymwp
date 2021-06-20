@@ -3,7 +3,15 @@ name: Profile
 on:
   schedule:
     - cron:  '0 0 * * *'  # run daily at midnight
-
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Manual run'
+    
 jobs:
   profile-examples:
     runs-on: ubuntu-latest
@@ -24,5 +32,5 @@ jobs:
         with:
           name: stats
           path: |
-            profile
+            profile/*.txt
           retention-days: 7
