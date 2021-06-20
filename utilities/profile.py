@@ -157,10 +157,10 @@ class Profiler:
         """Profile single C file"""
         file_name = Profiler.filename_only(c_file)
         out_file = join(self.output, file_name)
-        start_time = time.monotonic()
         cmd = self.build_cmd(c_file, out_file)
-        message = ''
 
+        timeout = False
+        start_time = time.monotonic()
         proc = subprocess.Popen(
             [cmd], cwd=cwd, shell=True,
             stdout=subprocess.PIPE,
@@ -170,20 +170,19 @@ class Profiler:
             proc.communicate(timeout=self.timeout)
         except subprocess.TimeoutExpired:
             proc.kill()
-            message = 'timeout'
-
+            timeout = True
         end_time = time.monotonic()
 
-        if proc.returncode not in [0, -9]:
-            message = 'error'
-
-        if proc.returncode == 0:
+        if timeout:
+            message = 'timeout'
+        elif proc.returncode == 0:
             message = 'done'
             self.plain_profile(out_file)
+        else:
+            message = 'error'
 
-        logger.info(
-            f'{file_name.ljust(self.pad)}... {message} ' +
-            f': {(end_time - start_time):.2f}s')
+        logger.info(f'{file_name.ljust(self.pad)}... {message}: ' +
+                    f'{(end_time - start_time):.2f}s')
 
     def pre_log(self):
         """Print info before running profiler."""
@@ -237,7 +236,7 @@ def _args(parser, args=None):
         "--out",
         action="store",
         default=join(cwd, 'profile'),
-        help="directory path for storing results",
+        help="directory path for storing results (default: profile)",
     )
     parser.add_argument(
         "--sort",
@@ -249,12 +248,12 @@ def _args(parser, args=None):
         '--timeout',
         type=int,
         default=10,
-        help='Max. timeout for profiling single example')
+        help='max. timeout for profiling single example')
     parser.add_argument(
         '--lines',
         type=int,
         default=-1,
-        help='How many lines of cProfiler output to include, ' +
+        help='how many lines of cProfiler output to include, ' +
              'e.g. to profile top 10 methods, set this value to 10.')
 
     return parser.parse_args(args)
