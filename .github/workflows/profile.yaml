@@ -4,14 +4,8 @@ on:
   schedule:
     - cron:  '0 0 * * *'  # run daily at midnight
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Manual run'
-    
+    branches: [ master ]
+
 jobs:
   profile-examples:
     runs-on: ubuntu-latest
