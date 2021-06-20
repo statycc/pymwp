@@ -197,7 +197,7 @@ class Profiler:
     def __log(self, msg):
         """Log something using print and visual dividers."""
         divider = '=' * self.divider_len
-        print(f'{divider}\n{msg}\n{divider}')
+        logger.info(f'\n{divider}\n{msg}\n{divider}')
 
 
 def main():
