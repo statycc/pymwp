@@ -12,6 +12,7 @@ import pstats
 import logging
 import time
 import argparse
+import subprocess
 
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
@@ -160,22 +161,18 @@ class Profiler:
         cmd = self.build_cmd(c_file, out_file)
         message = ''
 
-        proc = await asyncio.create_subprocess_shell(
-            cmd, cwd=cwd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
-
-        task = asyncio.ensure_future(proc.communicate())
-
+        proc = subprocess.Popen(
+            [cmd], cwd=cwd, shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         try:
-            await asyncio.wait_for(task, timeout=self.timeout)
-        except asyncio.TimeoutError:
+            proc.communicate(timeout=self.timeout)
+        except subprocess.TimeoutExpired:
             logger.info('timeout!')
             proc.kill()
-            await proc.communicate()
+            proc.communicate()
             message = 'timeout'
-        finally:
-            task.cancel()
 
         end_time = time.monotonic()
 
