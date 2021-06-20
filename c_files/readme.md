@@ -4,7 +4,7 @@
 
 ## Basics Examples
 
-In the `basics` folder:
+The `basics` folder contains examples of simple C source code performing operations that corresponds to simple derivation trees.
 
 | file | description |
 | --- | --- |
@@ -19,6 +19,14 @@ In the `basics` folder:
 `while_1.c` | while loop with assignment
 `while_2.c` | while loop with binary operation
 `while_if.c` | while loop followed by `if...else`
+
+## Improvment Examples
+
+The `improvment_paper` folder contains examples used in the _An extended and more practical mwp flow analysis_
+
+| file | description |
+| --- | --- |
+`example3` | An illustration of the sum of two choices.
 
 ## Infinite Examples
 
@@ -52,7 +60,7 @@ The `not_infinite` folder contains examples of C source code that are assigned m
 
 ## Original Examples
 
-The `original_paper` folder contains examples taken from or inspired from the "_A Flow Calculus of mwp-Bounds for Complexity Analysis_".
+The `original_paper` folder contains examples taken from or inspired from the ["_A Flow Calculus of mwp-Bounds for Complexity Analysis_"](https://doi.org/10.1145/1555746.1555752) paper.
 
 | file | description |
 | --- | --- |
