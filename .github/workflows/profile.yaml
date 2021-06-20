@@ -1,4 +1,4 @@
-nname: Python utility test
+name: Python utility test
 
 on:
   push:
