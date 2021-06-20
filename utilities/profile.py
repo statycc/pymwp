@@ -166,21 +166,18 @@ class Profiler:
             stderr=asyncio.subprocess.PIPE)
 
         task = asyncio.ensure_future(proc.communicate())
-        done, pending = await asyncio.wait([task], timeout=self.timeout)
 
-        if pending:
+        try:
+            await asyncio.wait_for(task, timeout=self.timeout)
+        except asyncio.TimeoutError:
+            proc.kill()
+            await proc.communicate()
             message = 'timeout'
-            if proc.returncode is None:
-                try:
-                    proc.kill()
-                except ProcessLookupError:
-                    pass
-        await task
 
         end_time = time.monotonic()
 
         if proc.returncode not in [0, -9]:
-            message = f'error'
+            message = 'error'
 
         if proc.returncode == 0:
             message = 'done'
