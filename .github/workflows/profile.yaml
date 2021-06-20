@@ -3,6 +3,8 @@ name: Profile
 on:
   schedule:
     - cron:  '0 0 * * *'  # run daily at midnight
+  push:
+    branches: [ master ]
 
 jobs:
   profile-test:
