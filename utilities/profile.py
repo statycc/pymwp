@@ -169,7 +169,6 @@ class Profiler:
         try:
             proc.communicate(timeout=self.timeout)
         except subprocess.TimeoutExpired:
-            logger.info('timeout!')
             proc.kill()
             message = 'timeout'
 
