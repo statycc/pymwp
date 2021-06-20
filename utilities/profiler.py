@@ -35,8 +35,8 @@ class Profiler:
         self.pad = Profiler.longest_file_name(self.file_list)
         self.ignore = ".gitignore"
         self.divider_len = 50
-        self.stat_filter = '.py' if args.no_builtin else None
-        self.stat_callers = args.callers
+        self.no_external = args.no_external
+        self.callers = args.callers
 
     @property
     def file_count(self):
@@ -82,10 +82,6 @@ class Profiler:
         # make output directory
         if not exists(self.output):
             makedirs(self.output)
-        else:  # or clear it
-            for root, dirs, files in os.walk(self.output):
-                for file in files:
-                    os.remove(os.path.join(root, file))
         # add .gitignore file
         if not exists(join(self.output, self.ignore)):
             with open(join(self.output, self.ignore), 'w') as ignore:
@@ -102,18 +98,24 @@ class Profiler:
             if clean_it:
                 remove(f)
 
-    def plain_profile(self, out_file):
-        """convert cProfile to plain text."""
+    def write_stats(self, out_file):
+        """convert cProfile to plain text and saves to txt file."""
         if exists(out_file) and isfile(out_file):
             with open(out_file + ".txt", 'w') as stream:
                 ps = pstats.Stats(out_file, stream=stream)
-                # stats
-                ps.strip_dirs() \
-                    .sort_stats(self.sort) \
-                    .print_stats(self.stat_filter, self.lines)
+                # write profile stats
+                if self.no_external:
+                    ps.sort_stats(self.sort) \
+                        .print_stats('pymwp/pymwp', self.lines)
+                else:
+                    ps.strip_dirs() \
+                        .sort_stats(self.sort) \
+                        .print_stats(self.lines)
                 # top 10 caller stats
-                if self.stat_callers:
-                    ps.print_callers(10)
+                if self.callers:
+                    ps.strip_dirs() \
+                        .sort_stats(self.sort) \
+                        .print_callers(10)
             remove(out_file)
 
     @staticmethod
@@ -166,7 +168,7 @@ class Profiler:
             message = 'done'
         else:
             message = 'error'
-        self.plain_profile(out_file)
+        self.write_stats(out_file)
 
         logger.info(f'{file_name.ljust(self.pad)}... {message}: ' +
                     f'{(end_time - start_time):.2f}s')
@@ -251,9 +253,9 @@ def _args(parser, args=None):
              '(e.g. --only dense empty) will profile only matching files'
     )
     parser.add_argument(
-        "--no-builtin",
+        "--no-external",
         action='store_true',
-        help="exclude built-in methods from cProfile results"
+        help="exclude package external methods from cProfile results"
     )
     parser.add_argument(
         "--callers",
