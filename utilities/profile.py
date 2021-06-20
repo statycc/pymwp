@@ -134,8 +134,11 @@ class Profiler:
     def build_cmd(self, file_in, file_out):
         """Build cProfile command"""
         return ' '.join([
-            'python3 -m cProfile', f'-s {self.sort}',
-            f'-o {file_out}', '-m pymwp --no-save ', file_in
+            'python3 -m cProfile',
+            f'-s {self.sort}',
+            f'-o {file_out}',
+            '-m pymwp --no-save --silent',
+            file_in
         ])
 
     def run(self):
@@ -184,7 +187,8 @@ class Profiler:
 
     def pre_log(self):
         """Print info before running profiler."""
-        self.__log(f'Profiling {self.file_count} C files...')
+        self.__log(f'Profiling {self.file_count} C files... ' +
+                   f'(limit: {self.timeout} sec)')
 
     def post_log(self):
         """Print info after running profiler."""
@@ -238,7 +242,7 @@ def _args(parser, args=None):
     parser.add_argument(
         "--sort",
         action="store",
-        default='calls',
+        default='tottime',
         help="cProfile property to sort by",
     )
     parser.add_argument(
@@ -252,6 +256,7 @@ def _args(parser, args=None):
         default=-1,
         help='How many lines of cProfiler output to include, ' +
              'e.g. to profile top 10 methods, set this value to 10.')
+
     return parser.parse_args(args)
 
 
