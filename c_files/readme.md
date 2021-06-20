@@ -20,9 +20,9 @@ The `basics` folder contains examples of simple C source code performing operati
 `while_2.c` | while loop with binary operation
 `while_if.c` | while loop followed by `if...else`
 
-## Improvment Examples
+## Improvement Examples
 
-The `improvment_paper` folder contains examples used in the _An extended and more practical mwp flow analysis_
+The `improvement_paper` folder contains examples used in the _An extended and more practical mwp flow analysis_
 
 | file | description |
 | --- | --- |
