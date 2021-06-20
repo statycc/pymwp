@@ -97,7 +97,8 @@ class Relation:
         return not self.variables or not self.matrix
 
     def __str__(self):
-        right_pad = len(max(self.variables, key=len))
+        right_pad = len(max(self.variables, key=len)) \
+            if self.variables else 0
         return '\n'.join(
             [var.ljust(right_pad) + '  |' + ''.join(poly) for var, poly in
              [(var, [str(self.matrix[i][j]) for j in range(len(self.matrix))])
