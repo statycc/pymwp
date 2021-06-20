@@ -19,19 +19,19 @@ from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
 logger = logging.getLogger(__name__)
-cwd = abspath(join(dirname(__file__), '../'))  # set cwd to repository root
+cwd = abspath(join(dirname(__file__), '../'))  # repository root
 
 
 class Profiler:
 
-    def __init__(self, src, dest, lines, timeout, sort, skip):
+    def __init__(self, src, dest, lines, timeout, sort, skip, only):
         """Initialize profiler utility"""
         self.output = dest
         self.timeout = timeout
         self.sort = sort
         self.start_time = self._end_time = 0
         self.lines = lines if lines > 0 else None
-        self.file_list = Profiler.find_c_files(src, skip)
+        self.file_list = Profiler.find_c_files(src, skip, only)
         self.pad = Profiler.longest_file_name(self.file_list)
         self.ignore = ".gitignore"
         self.divider_len = 50
@@ -47,14 +47,16 @@ class Profiler:
         return self._end_time - self._start_time
 
     @staticmethod
-    def find_c_files(src, skip_list):
+    def find_c_files(src, skip_list, incl_list):
         """Recursively look for C files in src directory."""
         files = []
         for parent_path, _, filenames in os.walk(src):
             for f in filenames:
                 name = Profiler.filename_only(f)
                 extension = basename(splitext(f)[1])
-                if extension == '.c' and name not in skip_list:
+                if extension == '.c' and \
+                        name not in skip_list and \
+                        (len(incl_list) == 0 or name in incl_list):
                     files.append(join(parent_path, f))
         return files
 
@@ -190,6 +192,7 @@ def main():
         lines=args.lines,
         sort=args.sort,
         skip=args.skip,
+        only=args.only
     ).run()
 
 
@@ -223,24 +226,32 @@ def _args(parser, args=None):
         "--sort",
         action="store",
         default='ncalls',
-        help="cProfile property to sort by",
+        help="property to sort by (default: ncalls)",
     )
     parser.add_argument(
         '--timeout',
         type=int,
         default=10,
-        help='max. timeout for profiling one execution')
+        help='max. timeout in seconds for one execution (default: 10)')
     parser.add_argument(
         '--lines',
         type=int,
         default=-1,
-        help='how many lines of cProfiler output to include, ' +
+        help='how many lines of profiler stats to collect ' +
              'e.g. to profile top 10 methods, set this value to 10.')
     parser.add_argument(
         '--skip',
         nargs='+',
         default=[],
-        help='space separated list of files to skip (e.g. --skip dense if)'
+        help='space separated list of files to exclude ' +
+             '(e.g. --skip dense if) will not profile matching files'
+    )
+    parser.add_argument(
+        '--only',
+        nargs='+',
+        default=[],
+        help='space separated list of files to include ' +
+             '(e.g. --only dense empty) will profile only matching files'
     )
 
     return parser.parse_args(args)
