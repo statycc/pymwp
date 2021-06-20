@@ -164,18 +164,23 @@ class Profiler:
             cmd, cwd=cwd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE)
-        task = asyncio.Task(proc.communicate())
+
+        task = asyncio.ensure_future(proc.communicate())
         done, pending = await asyncio.wait([task], timeout=self.timeout)
 
         if pending:
             message = 'timeout'
-            proc.kill()
+            if proc.returncode is None:
+                try:
+                    proc.kill()
+                except ProcessLookupError:
+                    pass
         await task
 
         end_time = time.monotonic()
 
         if proc.returncode not in [0, -9]:
-            message = 'error'
+            message = f'error'
 
         if proc.returncode == 0:
             message = 'done'
@@ -248,7 +253,7 @@ def _args(parser, args=None):
     parser.add_argument(
         '--timeout',
         type=int,
-        default=30,
+        default=10,
         help='Max. timeout for profiling single example')
     parser.add_argument(
         '--lines',
