@@ -26,7 +26,7 @@ The `improvment_paper` folder contains examples used in the _An extended and mor
 
 | file | description |
 | --- | --- |
-`example3` | An illustration of the sum of two choices.
+`example3.c` | An illustration of the sum of two choices.
 
 ## Infinite Examples
 
