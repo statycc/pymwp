@@ -171,7 +171,6 @@ class Profiler:
         except subprocess.TimeoutExpired:
             logger.info('timeout!')
             proc.kill()
-            proc.communicate()
             message = 'timeout'
 
         end_time = time.monotonic()
