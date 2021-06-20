@@ -26,7 +26,7 @@ Description | State | Example
  Variable declarations |  ✅  | `int x;` 
  Constant declarations |  ✅  | `const int x;`
 **Unary operations** | 🟧 | `-x`, `--x`, `x++`, ... 
-**Binary operations** (+, *) | ✅ |  `x = y + z`
+**Binary operations** (+, *, -) | ✅ |  `x = y + z`
 **Ternary operations** | 🟧 |  `x = y + z * w`
 **Combined assignment operators** | 🟧 | `x += 1` |
 **Conditional statements** || 
