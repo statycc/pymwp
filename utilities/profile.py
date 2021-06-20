@@ -170,9 +170,12 @@ class Profiler:
         try:
             await asyncio.wait_for(task, timeout=self.timeout)
         except asyncio.TimeoutError:
+            logger.info('timeout!')
             proc.kill()
             await proc.communicate()
             message = 'timeout'
+        finally:
+            task.cancel()
 
         end_time = time.monotonic()
 
