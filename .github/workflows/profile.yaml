@@ -24,7 +24,7 @@ jobs:
       - name: Save profiler results
         uses: actions/upload-artifact@v2
         with:
-          name: cProfile results for examples
+          name: cProfile results
           path: |
             profile/*.txt
           retention-days: 7

@@ -24,17 +24,19 @@ cwd = abspath(join(dirname(__file__), '../'))  # repository root
 
 class Profiler:
 
-    def __init__(self, src, dest, lines, timeout, sort, skip, only):
+    def __init__(self, src, dest, args):
         """Initialize profiler utility"""
         self.output = dest
-        self.timeout = timeout
-        self.sort = sort
-        self.start_time = self._end_time = 0
-        self.lines = lines if lines > 0 else None
-        self.file_list = Profiler.find_c_files(src, skip, only)
+        self.sort = args.sort
+        self.timeout = args.timeout
+        self.start_time = self.end_time = 0
+        self.lines = args.lines if args.lines > 0 else None
+        self.file_list = Profiler.find_c_files(src, args.skip, args.only)
         self.pad = Profiler.longest_file_name(self.file_list)
         self.ignore = ".gitignore"
         self.divider_len = 50
+        self.stat_filter = '.py' if args.no_builtin else None
+        self.stat_callers = args.callers
 
     @property
     def file_count(self):
@@ -44,7 +46,7 @@ class Profiler:
     @property
     def total_time(self):
         """Total time to run profile on all files."""
-        return self._end_time - self._start_time
+        return self.end_time - self.start_time
 
     @staticmethod
     def find_c_files(src, skip_list, incl_list):
@@ -104,11 +106,14 @@ class Profiler:
         """convert cProfile to plain text."""
         if exists(out_file) and isfile(out_file):
             with open(out_file + ".txt", 'w') as stream:
-                pstats.Stats(out_file, stream=stream) \
-                    .strip_dirs() \
+                ps = pstats.Stats(out_file, stream=stream)
+                # stats
+                ps.strip_dirs() \
                     .sort_stats(self.sort) \
-                    .print_stats(self.lines)
-
+                    .print_stats(self.stat_filter, self.lines)
+                # top 10 caller stats
+                if self.stat_callers:
+                    ps.print_callers(10)
             remove(out_file)
 
     @staticmethod
@@ -125,10 +130,10 @@ class Profiler:
         """Run cProfile on all discovered files"""
         self.pre_log()
         self.ensure_output_dir()
-        self._start_time = time.monotonic()
+        self.start_time = time.monotonic()
         for file in sorted(self.file_list):
             asyncio.run(self.profile_file(file))
-        self._end_time = time.monotonic()
+        self.end_time = time.monotonic()
         self.clear_temp_files()
         self.post_log()
 
@@ -151,7 +156,7 @@ class Profiler:
         except subprocess.TimeoutExpired:
             end_time = time.monotonic()
             proc.send_signal(signal.SIGINT)  # raise stop signal
-            time.sleep(1)  # give some time to terminate to capture stats
+            time.sleep(2)  # give some time to terminate to capture stats
             proc.kill()  # now force kill it
             timeout = True
 
@@ -185,15 +190,7 @@ def main():
     """Run profiler using provided args."""
     setup_logger()
     args = _args(argparse.ArgumentParser())
-    Profiler(
-        src=args.in_,
-        dest=args.out,
-        timeout=args.timeout,
-        lines=args.lines,
-        sort=args.sort,
-        skip=args.skip,
-        only=args.only
-    ).run()
+    Profiler(args.in_, args.out, args).run()
 
 
 def setup_logger():
@@ -225,8 +222,8 @@ def _args(parser, args=None):
     parser.add_argument(
         "--sort",
         action="store",
-        default='ncalls',
-        help="property to sort by (default: ncalls)",
+        default='calls',
+        help="property to sort by (default: calls)",
     )
     parser.add_argument(
         '--timeout',
@@ -244,7 +241,7 @@ def _args(parser, args=None):
         nargs='+',
         default=[],
         help='space separated list of files to exclude ' +
-             '(e.g. --skip dense if) will not profile matching files'
+             '(e.g. --skip dense infinite_2) will not profile matching files'
     )
     parser.add_argument(
         '--only',
@@ -253,7 +250,16 @@ def _args(parser, args=None):
         help='space separated list of files to include ' +
              '(e.g. --only dense empty) will profile only matching files'
     )
-
+    parser.add_argument(
+        "--no-builtin",
+        action='store_true',
+        help="exclude built-in methods from cProfile results"
+    )
+    parser.add_argument(
+        "--callers",
+        action='store_true',
+        help="include caller stats"
+    )
     return parser.parse_args(args)
 
 
