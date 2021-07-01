@@ -74,6 +74,27 @@ def test_polynomial_times_by_non_empty():
 
     assert (p1 * p2) == expected
 
+def test_polynomial_times_by_non_empty2():
+    mono1 = Monomial('m', [(2, 2)])
+    mono12 = Monomial('m', [(1, 1)])
+    mono2 = Monomial('m', [(0, 0)])
+    mono22 = Monomial('m', [(3, 3)])
+    m = Polynomial([mono1,mono12])
+    p = Polynomial([mono2,mono22])
+    c = p * m
+    expected = Polynomial([
+        Monomial('m', [(0, 0), (1, 1)]),
+        Monomial('m', [(0, 0), (2, 2)]),
+        Monomial('m', [(1, 1), (3, 3)]),
+        Monomial('m', [(2, 2), (3, 3)])])
+    try:
+        assert c == expected
+    except AssertionError:
+        print("expected:")
+        print(expected)
+        print("prod:")
+        print(c)
+        raise
 
 def test_polynomial_equals_empty_are_equal():
     """Two default polynomials are equal."""
