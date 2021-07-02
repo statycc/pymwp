@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import math
+import progressbar
 from itertools import product
 from typing import Optional, Tuple, List
 
@@ -242,7 +244,7 @@ class Relation:
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
-    def eval(self, choices: List[int]) -> bool:
+    def eval(self, choices: List[int], dg: DeltaGraph) -> bool:
         """Evaluate relation matrix against a list of choices to
             determine if any of them results in infinity.
 
@@ -268,6 +270,9 @@ class Relation:
            `False` if infinity occurs during evaluation of choices and `True`
            otherwise.
         """
+
+        if dg.contains_combination(choices):
+            return False
 
         for row in self.matrix:
             for poly in row:
@@ -310,13 +315,21 @@ class Relation:
         logger.debug(f"relation contains {self.variables} variables")
 
         # uses itertools.product to generate all possible assignments
-        assignments = product(choices, repeat=index)
-        combinations = [list(args) for args in assignments]
+        combinations = product(choices, repeat=index)
 
-        dg.remove_from_combinations(combinations)
+        # dg.remove_from_combinations(combinations)
 
-        logger.debug(f"number of assignments to evaluate {len(combinations)}")
-        return list(filter(self.eval, combinations))
+        size = math.pow(len(choices),index)
+
+        logger.debug(f"number of assignments to evaluate {size}")
+
+
+        res = []
+        for combination in progressbar.progressbar(combinations,max_value=size):
+            if self.eval(list(combination),dg):
+                res.append(list(combination))
+
+        return res
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""

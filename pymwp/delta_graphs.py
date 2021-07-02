@@ -333,7 +333,7 @@ class DeltaGraph:
                 return False
         return True
 
-    def remove_from_combinations(self, combinations: List):
+    def contains_combination(self, combination):
         # if we have (0,1) in our graph
         # remove all combinations where combinations[1] = 0
         # then for size 2 (0,2)(1,3) remove all combinations where
@@ -342,9 +342,9 @@ class DeltaGraph:
         for n in sorted(self.graph_dict):
             # For all monomial list of size n starting with n = 1
             for lm in list(self.graph_dict[n].keys()):
-                for c in list(combinations):
-                    if DeltaGraph.combination_matches_tuple(c, lm):
-                        combinations.remove(c)
+                if DeltaGraph.combination_matches_tuple(combination, lm):
+                    return True
+        return False
 
     def __str__(self):
         res = ""
