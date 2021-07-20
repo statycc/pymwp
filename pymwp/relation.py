@@ -213,6 +213,7 @@ class Relation:
         if set(self.variables) != set(other.variables):
             return False
 
+        # not sure homogenisation is necessary here … FIXME
         er1, er2 = Relation.homogenisation(self, other)
 
         for row1, row2 in zip(er1.matrix, er2.matrix):
