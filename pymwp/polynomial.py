@@ -289,7 +289,7 @@ class Polynomial:
                 t1 = table[smallest][0].deltas
                 for j in range(len(index_list)):
                     t2 = table[index_list[j]][0].deltas
-                    if Polynomial.compare(t1, t2) == Comparison.LARGER:
+                    if Polynomial.compare(t1, t2) == Comparison.SMALLER:
                         index_list.insert(j, smallest)
                         inserted = True
                         break
