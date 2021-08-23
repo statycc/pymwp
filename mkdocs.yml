@@ -9,9 +9,10 @@ use_directory_urls: true
 
 
 nav:
-- Overview: index.md
-- Features: features.md
+- Installation & Use: index.md
+- Supported Features: features.md
 - Examples: examples.md
+- Demo: demo.md
 - All documented modules:
   - Analysis: analysis.md
   - File I/O: file_io.md
@@ -21,8 +22,9 @@ nav:
   - Relation: relation.md
   - Relation List: relation_list.md
   - Semiring: semiring.md
+- Utilities: utilities.md
 - Source Code: https://github.com/seiller/pymwp
-- License: https://github.com/seiller/pymwp/LICENSE
+- License: https://github.com/seiller/pymwp/blob/master/LICENCE.md
 
 theme:
   name: material
@@ -66,7 +68,7 @@ plugins:
               - "^__init__$"
           rendering:
             show_root_heading: false
-            show_source: false
+            show_source: true
             show_category_heading: false
       watch:
         - pymwp

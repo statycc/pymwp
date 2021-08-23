@@ -100,8 +100,10 @@ class Relation:
         return not self.variables or not self.matrix
 
     def __str__(self):
+        right_pad = len(max(self.variables, key=len)) \
+            if self.variables else 0
         return '\n'.join(
-            [var + '    |   ' + ''.join(poly) for var, poly in
+            [var.ljust(right_pad) + '  |' + ''.join(poly) for var, poly in
              [(var, [str(self.matrix[i][j]) for j in range(len(self.matrix))])
               for i, var in enumerate(self.variables)]])
 
@@ -134,15 +136,33 @@ class Relation:
         return new_relation
 
     def while_correction(self, dg: DeltaGraph) -> None:
-        """Replace invalid scalars in a matrix by i.
-
+        """Replace invalid scalars in a matrix by $\\infty$.
+        
         Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
 
         Following the computation of fixpoint for a while loop node, this
         method checks the resulting matrix and replaces all invalid scalars
-        with $\\infty$ (W rule in MWP paper).
+        with $\\infty$ (W rule in MWP paper):
+
+        - scalar $p$ anywhere in the matrix becomes $\\infty$
+        - scalar $w$ at the diagonal becomes $\\infty$
+
+        Example:
+
+        ```text
+           Before:                After:
+
+           | m  o  o  o  o |      | m  o  o  o  o |
+           | o  w  o  p  o |      | o  i  o  i  o |
+           | o  o  m  o  o |      | o  o  m  o  o |
+           | w  o  o  m  o |      | w  o  o  m  o |
+           | o  o  o  o  p |      | o  o  o  o  i |
+        ```
 
         This method is where $\\infty$ is introduced in a matrix.
+
+        Related discussion: [issue #14](
+        https://github.com/seiller/pymwp/issues/14).
         """
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
@@ -290,9 +310,8 @@ class Relation:
         If the evaluation determines that no infinity will occur, that
         combination will be included in the return value.
 
-        Reference:
-        [itertools.product](https://docs.python.org/3/library/itertools.html
-        #itertools.product)
+        Reference: [itertools.product](
+        https://docs.python.org/3/library/itertools.html#itertools.product)
 
         Example:
 

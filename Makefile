@@ -5,6 +5,7 @@ help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "pre-commit - run unit tests and linter"
+	@echo "profle - run cProfile on all examples"
 	@echo "test - run unit tests only"
 	@echo "lint - check code style only"
 
@@ -12,6 +13,9 @@ clean: clean-build clean-pyc
 
 clean-build:
 	rm -fr output/
+	rm -fr dist/
+	rm -fr build/
+	rm -fr profile/
 	rm -fr .pytest_cache/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
@@ -30,6 +34,8 @@ test: dev-env test-only
 
 lint: dev-env lint-only
 
+profile: dev-env cprofile
+
 dev-env:
 	test -d venv || python3 -m venv venv;
 	source venv/bin/activate;
@@ -43,3 +49,5 @@ lint-only:
 	@echo "\nchecking code style...\n"
 	flake8 ./pymwp --count --show-source --statistics
 
+cprofile:
+	python3 utilities/profiler.py --lines=100

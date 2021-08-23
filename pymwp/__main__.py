@@ -21,7 +21,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    log_level = 40
+    log_level = 0 if args.silent else 40
     log_filename = args.logfile
     setup_logger(logging.FATAL - log_level, log_filename=log_filename)
     file_out = args.out or default_file_out(args.file)
@@ -71,6 +71,11 @@ def _parse_args(
         action='store',
         default='-E',
         help='arguments to pass to C pre-processor (default: -E)',
+    )
+    parser.add_argument(
+        "--silent",
+        action='store_true',
+        help="silence logging; only show fatal errors"
     )
     parser.add_argument(
         "--version",

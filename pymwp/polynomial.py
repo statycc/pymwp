@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 
-from .constants import Comparison
+from .constants import Comparison, SetInclusion
 from .monomial import Monomial
 from .semiring import ZERO_MWP, sum_mwp
-from .constants import SetInclusion
 
 logger = logging.getLogger(__name__)
 
@@ -32,24 +31,26 @@ class Polynomial:
     iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
     """
 
-    def __init__(self, monomials: Optional[List[Monomial]] = None):
+    def __init__(self, monomials: Optional[Union[str, List[Monomial]]] = None):
         """Create a polynomial.
 
         Example:
 
-        Create polynomial with no monomials
+        Create polynomial with 0-monomial
 
         ```python
         zero = Polynomial()
         ```
 
-        Create polynomial with one default monomial
+        Create polynomial with one monomial with specific scalar, no deltas
 
         ```python
-        poly = Polynomial([Monomial()])
+        poly = Polynomial('w')               # shorthand
+
+        poly = Polynomial([Monomial('w')])   # longer, equivalent
         ```
 
-        Create polynomial with two monomials
+        Create polynomial with two monomials and deltas
 
         ```python
         poly = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
@@ -58,7 +59,10 @@ class Polynomial:
         Arguments:
             monomials: list of monomials
         """
-        self.list = monomials or [Monomial(ZERO_MWP)]
+        if monomials is not None and isinstance(monomials, str):
+            self.list = [Monomial(monomials)]
+        else:
+            self.list = monomials or [Monomial(ZERO_MWP)]
 
     def __str__(self):
         values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)
@@ -191,7 +195,7 @@ class Polynomial:
                 j = j + 1
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
-        return Polynomial(sorted_monomials)
+        return Polynomial(sorted_monomials).remove_zeros()
 
     def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.
@@ -286,7 +290,7 @@ class Polynomial:
                 t1 = table[smallest][0].deltas
                 for j in range(len(index_list)):
                     t2 = table[index_list[j]][0].deltas
-                    if Polynomial.compare(t1, t2) == Comparison.LARGER:
+                    if Polynomial.compare(t1, t2) == Comparison.SMALLER:
                         index_list.insert(j, smallest)
                         inserted = True
                         break
@@ -294,7 +298,7 @@ class Polynomial:
                     index_list.append(smallest)
             # 7. repeat until done
 
-        return Polynomial(result)
+        return Polynomial(result).remove_zeros()
 
     def eval(self, argument_list: list[int]) -> str:
         """Evaluate polynomial.
@@ -413,17 +417,22 @@ class Polynomial:
 
     @staticmethod
     def sort_monomials(monomials: list) -> list:
-        """Given a list of monomials this method
-        will return them in order.
+        """Given a list of monomials this method will return them in order.
 
-        The sort is performed by first dividing the list of
-        monomials into halves recursively until each half
-        contains at most one monomial. Then the sort will
-        begin to combine (or zip) the halves into a
-        sorted list.
+        The sort is performed by first dividing the list of monomials into
+        halves recursively until each half contains at most one monomial.
+        Then the sort will begin to combine (or zip) the halves into a sorted
+        list.
 
-        The original list argument is not mutated by
-        this sort operation; does not sort in place.
+        The sort performs comparison of deltas, and orders the monomials based
+        on the delta values. If two monomials have the same deltas, we compute
+        new scalar value, and if it is not 0, we keep the result monomial.
+        Note that if we get 2 monomials with same deltas, and only at most 1
+        is kept, with possibly updated scalar. This means sort can return a
+        result that is shorter than the input argument.
+
+        The original list argument is not mutated by this sort operation, i.e.
+        this is not sort in place.
 
         Arguments:
             monomials: list of monomials to sort
@@ -462,7 +471,7 @@ class Polynomial:
                 new_list.append(rhead)
                 right = rtail
 
-            # both list heads are equal
+            # list heads are equal i.e. same deltas.
             if comparison == Comparison.EQUAL:
                 monomial = lhead
                 # append to list as long as scalar
@@ -478,3 +487,26 @@ class Polynomial:
         # doesn't matter; just append whatever
         # remains of left or right tail
         return new_list + right + left
+
+    def remove_zeros(self) -> Polynomial:
+        """Removes all encountered 0s from a polynomial.
+
+        Before returning, if the list is empty, the result produces a
+            0-monomial.
+
+        Arguments:
+            polynomial: from which to remove zeros
+
+        Returns:
+            polynomial with list of monomials for which zeros are
+            removed, unless 0 is the only monomial.
+        """
+        filtered_monomials = list(filter(
+            lambda mono: mono.scalar != ZERO_MWP, self.list))
+
+        if len(filtered_monomials) == 0:
+            self.list = [Monomial(ZERO_MWP)]
+        else:
+            self.list = filtered_monomials
+
+        return self

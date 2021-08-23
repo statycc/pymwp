@@ -1,0 +1,30 @@
+name: Profile
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'  # run daily at midnight
+  workflow_dispatch:
+    branches: [ master ]
+
+jobs:
+  profile-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Latest pip
+        run: |
+          python -m pip install --upgrade pip
+      - name: Run profiler
+        run: |
+          make profile
+      - name: Save profiler results
+        uses: actions/upload-artifact@v2
+        with:
+          name: cProfile results
+          path: |
+            profile/*.txt
+          retention-days: 7

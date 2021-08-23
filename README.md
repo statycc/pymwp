@@ -2,20 +2,72 @@
 
 [![build](https://github.com/seiller/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/seiller/pymwp/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/seiller/pymwp/branch/master/graph/badge.svg?token=JHNYDJEWWM)](https://codecov.io/gh/seiller/pymwp)
-
-Implementation of MWP analysis on C code in Python.
-
-Source code documentation is available at [seiller.github.io/pymwp](https://seiller.github.io/pymwp/).
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
+[![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 
 <!--
-    do not remove the next comment ("include-start") or the ending 
-    ("include-end"), it is a marker for what to include in the docs, but 
-    feel free to edit the instructions...
+    do not remove start and end comments (e.g. "include-start", "include-end").
+    They are markers for what to include in the docs, but feel free to edit 
+    the inner content.
 -->
+
+<!--desc-start-->
+
+pymwp is a tool for automatically performing static analysis on programs written in C, inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
+It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
+You can run our [many examples](https://seiller.github.io/pymwp/examples/) on-line [in our demo](https://seiller.github.io/pymwp/demo/) before [installing it](https://seiller.github.io/pymwp/), or consult our list of [supported C language features](https://seiller.github.io/pymwp/features/).
+
+<!--desc-end--> 
+
+## Documentation and Demo
+
+Refer to **[seiller.github.io/pymwp](https://seiller.github.io/pymwp/)** for a documentation of our modules, an [on-line demo](https://seiller.github.io/pymwp/demo/) as well as a presentation of [our examples](https://seiller.github.io/pymwp/examples/).
 
 <!--include-start-->
 
-### How to run the analysis
+## Installation
+
+Install latest release from PyPI
+
+```
+pip install pymwp
+```
+
+## How to Use
+
+To analyze a C file, run:
+
+```
+pymwp path/to_some_file.c
+```
+
+For all available options and help, run:
+
+```
+pymwp
+```
+
+
+You can also use pymwp in a Python script:
+
+```python
+from pymwp import Polynomial
+from pymwp.matrix import identity_matrix, show
+
+matrix = identity_matrix(3)
+matrix[0][1] = Polynomial('m')
+matrix[1][0] = Polynomial('w')
+matrix[2][1] = Polynomial('p')
+
+show(matrix)
+```
+
+See [documentation](https://seiller.github.io/pymwp/analysis) for available modules and methods.
+
+## Running from source
+
+If you want to use the latest stable version (possibly ahead of 
+latest release), use the version from source following these steps.
 
 1. Clone the repository
 
@@ -36,7 +88,7 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
     From project root run:
     
     ```bash
-    python -m pymwp path/to/c/file
+    python -m pymwp path/to_some_file.c
     ```
 
     for example:
@@ -45,7 +97,7 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
     python -m pymwp c_files/basics/if.c
     ```
     
-    to see all available options see help
+    for all available options and help, run:
     
     ```bash
     python -m pymwp
@@ -53,34 +105,4 @@ Source code documentation is available at [seiller.github.io/pymwp](https://seil
 
 <!--include-end--> 
 
-* * *
 
-### Checking code changes
-
-Any changes to source code must pass lint + unit tests and these are
-checked automatically. Here are some helpful commands for checking your changes:
-
-In the project root, run:
-
-```text
-make pre-commit   # check everything
-```
-
-```text
-make test         # check unit tests only (1
-```
-
-```text
-make lint         # check code style only (2
-```
-
-```text
-make clean        # clean generated files
-```
-
-
-1) Unit tests are in `tests` directory. You can run unit tests on specific files or the entire source. 
-See [pytest documentation](https://docs.pytest.org/en/stable/contents.html) for more details.
-
-2) This project uses [flake8](https://flake8.pycqa.org/en/latest/index.html) for linting.
-You can use it to check specific files or run it against all Python source files by specifying a path.

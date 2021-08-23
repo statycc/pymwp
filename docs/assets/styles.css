@@ -29,8 +29,13 @@
     color: var(--md-accent-fg-color);
 }
 
+.md-content__inner {
+    padding-bottom: 3rem;
+}
 
-
+.md-content article a {
+    color: var(--md-accent-fg-color);
+}
 
 /* tables */
 table {
@@ -46,13 +51,18 @@ table tr th {
     font-weight: bold;
     text-align: center;
     margin: 0;
-    padding: 6px 13px;
+    padding: 6px 13px !important;
 }
 
 table tr td {
     text-align: center;
     margin: 0;
-    padding: 6px 13px;
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+}
+
+table tr td code {
+    padding: 0 !important;
 }
 
 table tr th :first-child, table tr td :first-child {
@@ -73,4 +83,9 @@ table tr th :last-child, table tr td :last-child {
     transition: none;
     background-color: transparent;
     box-shadow: none;
+}
+
+details.quote .highlight pre {
+    font-size: .75rem;
+    line-height: 1.8;
 }
