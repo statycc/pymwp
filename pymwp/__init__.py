@@ -9,6 +9,7 @@ __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "CC BY-NC 4.0"
 
+from pymwp.delta_graphs import DeltaGraph
 from pymwp.version import __version__
 from pymwp.relation_list import RelationList
 from pymwp.relation import Relation

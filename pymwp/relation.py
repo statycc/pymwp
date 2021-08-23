@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import logging
+import math
+import progressbar
 from itertools import product
 from typing import Optional, Tuple, List
 
 from . import matrix as matrix_utils
+from .delta_graphs import DeltaGraph
 
 logger = logging.getLogger(__name__)
 
@@ -132,8 +135,10 @@ class Relation:
 
         return new_relation
 
-    def while_correction(self) -> None:
+    def while_correction(self, dg: DeltaGraph) -> None:
         """Replace invalid scalars in a matrix by $\\infty$.
+        
+        Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
 
         Following the computation of fixpoint for a while loop node, this
         method checks the resulting matrix and replaces all invalid scalars
@@ -164,6 +169,7 @@ class Relation:
                 for mon in poly.list:
                     if mon.scalar == "p" or (mon.scalar == "w" and i == j):
                         mon.scalar = "i"
+                        dg.import_monomial(mon)
 
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
@@ -227,6 +233,7 @@ class Relation:
         if set(self.variables) != set(other.variables):
             return False
 
+        # not sure homogenisation is necessary here … FIXME
         er1, er2 = Relation.homogenisation(self, other)
 
         for row1, row2 in zip(er1.matrix, er2.matrix):
@@ -258,7 +265,7 @@ class Relation:
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
-    def eval(self, choices: List[int]) -> bool:
+    def eval(self, choices: List[int], dg: DeltaGraph) -> bool:
         """Evaluate relation matrix against a list of choices to
             determine if any of them results in infinity.
 
@@ -285,13 +292,16 @@ class Relation:
            otherwise.
         """
 
+        if dg.contains_combination(choices):
+            return False
+
         for row in self.matrix:
             for poly in row:
                 if poly.eval(choices) == 'i':
                     return False
         return True
 
-    def non_infinity(self, choices: List[int], index: int) -> List[list[int]]:
+    def non_infinity(self, choices: List[int], index: int, dg: DeltaGraph) -> List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
         This method computes the Cartesian product of input iterables and
@@ -325,11 +335,21 @@ class Relation:
         logger.debug(f"relation contains {self.variables} variables")
 
         # uses itertools.product to generate all possible assignments
-        assignments = product(choices, repeat=index)
-        combinations = [list(args) for args in assignments]
+        combinations = product(choices, repeat=index)
 
-        logger.debug(f"number of assignments to evaluate {len(combinations)}")
-        return list(filter(self.eval, combinations))
+        # dg.remove_from_combinations(combinations)
+
+        size = math.pow(len(choices),index)
+
+        logger.debug(f"number of assignments to evaluate {size}")
+
+
+        res = []
+        for combination in progressbar.progressbar(combinations,max_value=size):
+            if self.eval(list(combination),dg):
+                res.append(list(combination))
+
+        return res
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""

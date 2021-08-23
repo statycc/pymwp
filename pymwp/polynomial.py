@@ -158,8 +158,9 @@ class Polynomial:
             # handle case where first list is shorter
             # by just appending what remains of the
             # other list of monomials
-            if new_list == []:
-                new_list = new_list + polynomial.list[j:]
+            # FIXME FOR WHAT ?
+            # if new_list == []:
+            #     new_list = new_list + polynomial.list[j:]
 
             # handle case where first list is shorter
             # by just appending what remains of the
