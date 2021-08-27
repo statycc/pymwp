@@ -3,7 +3,7 @@ import logging
 from subprocess import CalledProcessError
 from typing import List, Tuple
 from pycparser import parse_file, c_ast
-from pycparser.c_ast import Node, Assignment, If, While, For
+from pycparser.c_ast import Node, Assignment, If, While, For, Compound
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -117,6 +117,8 @@ class Analysis:
             return Analysis.while_(index, node, dg)
         if isinstance(node, c_ast.For):
             return Analysis.for_(index, node, dg)
+        if isinstance(node, c_ast.Compound):
+            return Analysis.compound_(index, node, dg)
 
         # TODO: handle uncovered cases
         logger.debug(f"uncovered case! type: {type(node)}")
@@ -250,6 +252,7 @@ class Analysis:
         Arguments:
             index: delta index
             node: if-statement AST node
+            dg: DeltaGraph instance
 
         Returns:
             Updated index value and relation list
@@ -285,6 +288,7 @@ class Analysis:
             node: AST if statement branch node
             index: current delta index value
             relation_list: current relation list state
+            dg: DeltaGraph instance
 
         Returns:
             Updated index value
@@ -313,6 +317,7 @@ class Analysis:
         Arguments:
             index: delta index
             node: while loop node
+            dg: DeltaGraph instance
 
         Returns:
             Updated index value and relation list and a boolean saying
@@ -351,6 +356,7 @@ class Analysis:
         Arguments:
             index: delta index
             node: for loop node
+            dg: DeltaGraph instance
 
         Returns:
             Updated index value and relation list
@@ -370,6 +376,34 @@ class Analysis:
         #  ref: https://github.com/seiller/pymwp/issues/5
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations, True
+
+    @staticmethod
+    def compound_(
+            index: int, node: Compound, dg: DeltaGraph
+    ) -> Tuple[int, RelationList, bool]:
+        """Compound AST node contains zero or more children and is
+        created by braces in source code.
+
+        We analyze such compound node by recursively analysing its children.
+
+        Arguments:
+            index: delta index
+            node: compound AST node
+            dg: DeltaGraph instance
+
+        Returns:
+            Updated index value and relation list
+        """
+        relations, exit_ = RelationList(), False
+        if node.block_items:
+            for node in node.block_items:
+                index, rel_list, ex = Analysis.compute_relation(
+                    index, node, dg)
+                relations.composition(rel_list)
+                if ex:
+                    exit_ = True
+                    break
+        return index, relations, exit_
 
     @staticmethod
     def create_vector(

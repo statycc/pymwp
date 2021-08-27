@@ -588,54 +588,34 @@ NOT_INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
 ])
 
 VARIABLE_IGNORED = FileAST(ext=[FuncDef(decl=Decl(
-    name='main',
-    quals=[
-    ],
-    storage=[
-    ],
-    funcspec=[
-    ],
-    type=FuncDecl(args=None,
-                  type=TypeDecl(
-                      declname='main',
-                      quals=[
-                      ],
-                      type=IdentifierType(
-                          names=[
-                              'int'
-                          ]
-                      )
-                  )
-                  ),
-    init=None,
-    bitsize=None
-),
-    param_decls=None,
-    body=Compound(
-        block_items=[
-                     Assignment(op='=',
-                                lvalue=ID(
-                                    name='X2'
-                                ),
-                                rvalue=BinaryOp(
-                                    op='+',
-                                    left=ID(
-                                        name='X3'
-                                    ),
-                                    right=ID(
-                                        name='X1'
-                                    )
-                                )
-                                ),
-                     Assignment(op='=',
-                                lvalue=ID(
-                                    name='X4'
-                                ),
-                                rvalue=ID(
-                                    name='X2'
-                                )
-                                )
-                     ]
-    )
-)
-])
+    name='main', quals=[], storage=[], funcspec=[],
+    type=FuncDecl(args=None, type=TypeDecl(
+        declname='main', quals=[], type=IdentifierType(names=['int']))),
+    init=None, bitsize=None), param_decls=None,
+    body=Compound(block_items=[
+        Assignment(op='=', lvalue=ID(name='X2'), rvalue=BinaryOp(
+            op='+', left=ID(name='X3'), right=ID(name='X1'))),
+        Assignment(op='=', lvalue=ID(name='X4'), rvalue=ID(name='X2'))]))])
+
+EXTRA_BRACES = FileAST(ext=[FuncDef(decl=Decl(
+    name='main', quals=[], storage=[], funcspec=[],
+    type=FuncDecl(args=None, type=TypeDecl(
+        declname='main', quals=[],
+        type=IdentifierType(names=['int']))),
+    init=None, bitsize=None), param_decls=None,
+    body=Compound(block_items=[
+        Decl(name='x', quals=[], storage=[], funcspec=[],
+             type=TypeDecl(declname='x', quals=[],
+                           type=IdentifierType(names=['int'])),
+             init=None, bitsize=None),
+        Decl(name='y', quals=[], storage=[], funcspec=[],
+             type=TypeDecl(
+                 declname='y', quals=[], type=IdentifierType(names=['int'])),
+             init=None, bitsize=None),
+        Compound(
+            block_items=[If(cond=BinaryOp(
+                op='>', left=ID(name='x'), right=ID(name='y')),
+                iftrue=Compound(block_items=[Assignment(
+                    op='=', lvalue=ID(name='x'), rvalue=ID(name='y'))
+                ]), iffalse=None
+            )])]))])
