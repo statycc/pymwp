@@ -231,6 +231,7 @@ class DeltaGraph:
 
         example :
 
+        ```Python
         m3 = ((0, 1), (2, 2), (0, 3))
         m4 = ((0, 1), (2, 2), (1, 3))
         m5 = ((0, 1), (2, 2), (2, 3))
@@ -248,6 +249,7 @@ class DeltaGraph:
         #         m5
 
         return True
+        ```
 
         Arguments:
             n: size of nodes or "level"
