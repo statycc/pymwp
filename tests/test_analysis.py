@@ -1,8 +1,8 @@
 from pytest import raises
-from pymwp import Analysis
+from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
-    EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, \
-    IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED
+    EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
+    VARIABLE_IGNORED, EXTRA_BRACES
 
 PARSE_METHOD = 'pymwp.analysis.Analysis.parse_c_file'
 
@@ -85,7 +85,7 @@ def test_analyze_if_without_braces(mocker):
 
 
 def test_analyze_variable_ignore(mocker):
-    """Analysis picks up variable one left of assignment,
+    """Analysis picks up variable on left of assignment,
     see issue #11: https://github.com/seiller/pymwp/issues/11 """
     mocker.patch(PARSE_METHOD, return_value=VARIABLE_IGNORED)
     relation, combinations = Analysis.run("variable_ignored", no_save=True)
@@ -112,3 +112,16 @@ def test_analyze_variable_ignore(mocker):
     except AssertionError:
         relation.show()
         raise
+
+
+def test_extra_braces_are_ignored(mocker):
+    """Analysis ignores superfluous braces in C program,
+    see issue: #25: https://github.com/seiller/pymwp/issues/25"""
+    mocker.patch(PARSE_METHOD, return_value=EXTRA_BRACES)
+    relation, combinations = Analysis.run("extra_braces", no_save=True)
+
+    assert set(relation.variables) == {'x', 'y'}
+    assert relation.matrix[0][0] == Polynomial('m')
+    assert relation.matrix[0][1] == Polynomial('o')
+    assert relation.matrix[1][0] == Polynomial('m')
+    assert relation.matrix[1][1] == Polynomial('m')
