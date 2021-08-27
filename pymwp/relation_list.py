@@ -121,6 +121,11 @@ class RelationList:
             r1 + r2 for r1 in self.relations
             for r2 in other.relations])
 
+    @property
+    def first(self):
+        """Gets the first relation in relation list."""
+        return self.relations[0]
+
     def replace_column(self, vector: list, variable: str) -> None:
         """For each relation in a relation list, replace column with a provided
          vector, in place.
@@ -206,7 +211,7 @@ class RelationList:
         """Display relation list."""
         print(str(self))
 
-    def while_correction(self, dg:DeltaGraph) -> None:
+    def while_correction(self, dg: DeltaGraph) -> None:
         """Apply [`while_correction()`](relation.md#pymwp.relation.Relation
         .while_correction) to all relations in a relation list."""
         for rel in self.relations:

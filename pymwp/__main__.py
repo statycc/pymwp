@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
 
-"""Provides command line interface with arguments"""
+"""
+Provides command line interface to executing pymwp analysis with arguments.
+
+This method enables executing MWP analysis through command line.
+
+If user has installed pymwp through pip, this will be the entry point
+of that command when calling:  `pymwp c/file/path --args`
+
+The command behavior is to run the analysis on the specified file,
+applying the optional flags.
+
+The available arguments are specified below in `_parse_args` -method.
+
+This method also initializes the program logger that displays debugging
+information on the screen. The logger default to log level DEBUG. Analysis
+output can be muted by specifying command line argument `--silent`.
+"""
 
 import argparse
 import sys

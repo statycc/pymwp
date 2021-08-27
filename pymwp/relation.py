@@ -163,6 +163,9 @@ class Relation:
 
         Related discussion: [issue #14](
         https://github.com/seiller/pymwp/issues/14).
+
+        Arguments:
+            dg: DeltaGraph instance
         """
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
@@ -286,6 +289,7 @@ class Relation:
 
         Arguments:
             choices: a list of indices to select for each monomial.
+            dg: DeltaGraph instance
 
         Returns:
            `False` if infinity occurs during evaluation of choices and `True`
@@ -301,7 +305,8 @@ class Relation:
                     return False
         return True
 
-    def non_infinity(self, choices: List[int], index: int, dg: DeltaGraph) -> List[list[int]]:
+    def non_infinity(self, choices: List[int], index: int, dg: DeltaGraph) -> \
+            List[list[int]]:
         """Find all combinations of choices that do not evaluate to infinity.
 
         This method computes the Cartesian product of input iterables and
@@ -326,6 +331,7 @@ class Relation:
         Arguments:
             choices: integer list of choices
             index: length of generated product
+            dg: DeltaGraph instance
 
         Returns:
             All combinations that do not result in $\\infty$ when evaluated
@@ -337,16 +343,15 @@ class Relation:
         # uses itertools.product to generate all possible assignments
         combinations = product(choices, repeat=index)
 
-        # dg.remove_from_combinations(combinations)
-
-        size = math.pow(len(choices),index)
+        size = math.pow(len(choices), index)
 
         logger.debug(f"number of assignments to evaluate {size}")
 
-
         res = []
-        for combination in progressbar.progressbar(combinations,max_value=size):
-            if self.eval(list(combination),dg):
+        for combination in progressbar.progressbar(
+                combinations, max_value=size):
+            # append when result is non-empty list
+            if self.eval(list(combination), dg) and combination:
                 res.append(list(combination))
 
         return res
