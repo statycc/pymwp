@@ -72,9 +72,8 @@ class Analysis:
 
         logger.debug(f'\nMATRIX{relations}')
         if not combinations and relations.first.variables:
-            logger.info('infinite')
-            # Should not raise here since delta_graph takes care of it
-            assert False
+            logger.info('infinite!')
+            exit()
             # We can get empty combinations for simple programs
             # => also check that some variables exist, so we do not raise
             # infinity on simple programs

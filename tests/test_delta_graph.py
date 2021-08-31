@@ -1,4 +1,3 @@
-from itertools import product
 from pymwp.delta_graphs import DeltaGraph
 from pytest import raises
 

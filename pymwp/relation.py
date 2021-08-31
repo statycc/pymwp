@@ -10,6 +10,7 @@ from typing import Optional, Tuple, List
 
 from . import matrix as matrix_utils
 from .delta_graphs import DeltaGraph
+from .delta_iter import create_delta_list, Deltaiter
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +138,7 @@ class Relation:
 
     def while_correction(self, dg: DeltaGraph) -> None:
         """Replace invalid scalars in a matrix by $\\infty$.
-        
+
         Related discussion: [#14](https://github.com/seiller/pymwp/issues/14).
 
         Following the computation of fixpoint for a while loop node, this
@@ -268,7 +269,7 @@ class Relation:
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
-    def eval(self, choices: List[int], dg: DeltaGraph) -> bool:
+    def eval(self, choices: List[int]) -> bool:
         """Evaluate relation matrix against a list of choices to
             determine if any of them results in infinity.
 
@@ -295,9 +296,6 @@ class Relation:
            `False` if infinity occurs during evaluation of choices and `True`
            otherwise.
         """
-
-        if dg.contains_combination(choices):
-            return False
 
         for row in self.matrix:
             for poly in row:
@@ -341,18 +339,24 @@ class Relation:
         logger.debug(f"relation contains {self.variables} variables")
 
         # uses itertools.product to generate all possible assignments
-        combinations = product(choices, repeat=index)
+        # combinations = product(choices, repeat=index)
+
+        max_list = [len(choices)]*index
+        print(max_list)
+        delta_i = Deltaiter(max_list,create_delta_list(index,dg))
 
         size = math.pow(len(choices), index)
 
         logger.debug(f"number of assignments to evaluate {size}")
 
         res = []
-        for combination in progressbar.progressbar(
-                combinations, max_value=size):
-            # append when result is non-empty list
-            if self.eval(list(combination), dg) and combination:
-                res.append(list(combination))
+
+        b = True
+        while b:
+            v = delta_i.value()
+            if self.eval(v):
+                res.append(list(v))
+            b = delta_i.next()
 
         return res
 
