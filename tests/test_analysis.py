@@ -27,7 +27,7 @@ def test_analyze_simple_infinite(mocker):
     relation, combinations = Analysis.run("infinite 2", no_save=True)
 
     assert combinations == []  # no combinations since it is infinite
-    assert relation.variables == []  # expected these variables
+    assert relation.variables == []  # {'X0', 'X1'}  # expected variables
 
 
 def test_analyze_simple_non_infinite(mocker):
@@ -36,7 +36,7 @@ def test_analyze_simple_non_infinite(mocker):
     relation, combinations = Analysis.run("not infinite 2", no_save=True)
 
     # match expected choices and variables
-    assert relation.variables == ['X0', 'X1']
+    assert set(relation.variables) == {'X0', 'X1'}
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # match *some* deltas from the matrix
@@ -51,7 +51,7 @@ def test_analyze_if_with_braces(mocker):
     relation, combinations = Analysis.run("if_braces", no_save=True)
 
     # match choices and variables
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
+    assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # all monomials are 0s
@@ -71,7 +71,7 @@ def test_analyze_if_without_braces(mocker):
     relation, combinations = Analysis.run("if_wo_braces", no_save=True)
 
     # match choices and variables
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
+    assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # all monomials are 0s
@@ -92,7 +92,7 @@ def test_analyze_variable_ignore(mocker):
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
-    assert relation.variables == ['X2', 'X3', 'X1', 'X4']
+    assert set(relation.variables) == {'X2', 'X3', 'X1', 'X4'}
 
     wmp = '+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
     wpm = '+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'

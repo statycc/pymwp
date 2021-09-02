@@ -49,10 +49,15 @@ class Analysis:
         Analysis.validate_ast(ast)
 
         function_body = ast.ext[0].body
-        index, relations, combinations = 0, RelationList(), []
         total = len(function_body.block_items)
+        relations = RelationList()
         delta_infty = False
         dg = DeltaGraph()
+        combinations = []
+        index = 0
+
+        # variables = Analysis.find_variables(function_body)
+        # relations = RelationList(variables=variables)
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
@@ -71,17 +76,30 @@ class Analysis:
             save_relation(file_out, relations.first, combinations)
 
         logger.debug(f'\nMATRIX{relations}')
-        if not combinations and relations.first.variables:
+        if not combinations:
             logger.info('infinite')
             # Should not raise here since delta_graph takes care of it
-            assert False
-            # We can get empty combinations for simple programs
-            # => also check that some variables exist, so we do not raise
-            # infinity on simple programs
         else:
             logger.info(f'CHOICES:\n{combinations}')
 
         return relations.first, combinations
+
+    @staticmethod
+    def find_variables(root: Node):
+        variables = []
+
+        def recurse_nodes(node_):
+            if isinstance(node_, c_ast.Decl):
+                variables.append(node_.name)
+            if hasattr(node_, 'block_items'):
+                for sub_node in node_.block_items:
+                    recurse_nodes(sub_node)
+
+        if hasattr(root, 'block_items'):
+            for node in root.block_items:
+                recurse_nodes(node)
+
+        return variables
 
     @staticmethod
     def compute_relation(index: int, node: Node, dg: DeltaGraph) \
@@ -101,6 +119,8 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
+        if isinstance(node, c_ast.Decl):
+            return index, RelationList(), False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 index, rel_list = Analysis.binary_op(index, node)
@@ -547,9 +567,9 @@ class Analysis:
             ast: AST object
         """
 
-        invalid = ast is None or ast.ext is None or len(ast.ext) == 0
-        invalid = invalid or ast.ext[0].body is None or ast.ext[
-            0].body.block_items is None
+        invalid = ast is None or ast.ext is None or len(ast.ext) == 0 or \
+                  ast.ext[0].body is None or \
+                  ast.ext[0].body.block_items is None
 
         if invalid:
             logger.error('Input C file is invalid or empty.')

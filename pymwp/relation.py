@@ -337,8 +337,8 @@ class Relation:
             All combinations that do not result in $\\infty$ when evaluated
             against the this relation.
         """
-        logger.debug(f"computing combinations choices {choices} index {index}")
-        logger.debug(f"relation contains {self.variables} variables")
+        logger.debug(f"evaluating choices: {choices}, index: {index}")
+        logger.debug(f"relation variables: {self.variables}")
 
         # uses itertools.product to generate all possible assignments
         combinations = product(choices, repeat=index)
