@@ -27,7 +27,7 @@ def test_analyze_simple_infinite(mocker):
     relation, combinations = Analysis.run("infinite 2", no_save=True)
 
     assert combinations == []  # no combinations since it is infinite
-    assert relation.variables == []  # {'X0', 'X1'}  # expected variables
+    assert set(relation.variables) == {'X0', 'X1'}  # expected variables
 
 
 def test_analyze_simple_non_infinite(mocker):
