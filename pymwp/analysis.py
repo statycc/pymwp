@@ -49,15 +49,10 @@ class Analysis:
         Analysis.validate_ast(ast)
 
         function_body = ast.ext[0].body
+        index, relations, combinations = 0, RelationList(), []
         total = len(function_body.block_items)
-        relations = RelationList()
         delta_infty = False
         dg = DeltaGraph()
-        combinations = []
-        index = 0
-
-        # variables = Analysis.find_variables(function_body)
-        # relations = RelationList(variables=variables)
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
@@ -76,30 +71,21 @@ class Analysis:
             save_relation(file_out, relations.first, combinations)
 
         logger.debug(f'\nMATRIX{relations}')
-        if not combinations:
+
+        if delta_infty:
             logger.info('infinite')
-            # Should not raise here since delta_graph takes care of it
+
+        # Should not raise here since delta_graph takes care of it
+        # conditional on: (1) that some variable(s) exist, so we do not
+        # conclude infinity on simple programs and
+        # (2) regarding index > see: issue #43
+        elif not combinations and relations.first.variables and index > 0:
+            logger.info('infinite undetected by delta graph')
+            assert False
         else:
             logger.info(f'CHOICES:\n{combinations}')
 
         return relations.first, combinations
-
-    @staticmethod
-    def find_variables(root: Node):
-        variables = []
-
-        def recurse_nodes(node_):
-            if isinstance(node_, c_ast.Decl):
-                variables.append(node_.name)
-            if hasattr(node_, 'block_items'):
-                for sub_node in node_.block_items:
-                    recurse_nodes(sub_node)
-
-        if hasattr(root, 'block_items'):
-            for node in root.block_items:
-                recurse_nodes(node)
-
-        return variables
 
     @staticmethod
     def compute_relation(index: int, node: Node, dg: DeltaGraph) \
@@ -119,8 +105,6 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
-        if isinstance(node, c_ast.Decl):
-            return index, RelationList(), False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 index, rel_list = Analysis.binary_op(index, node)
@@ -567,9 +551,9 @@ class Analysis:
             ast: AST object
         """
 
-        invalid = ast is None or ast.ext is None or len(ast.ext) == 0 or \
-                  ast.ext[0].body is None or \
-                  ast.ext[0].body.block_items is None
+        invalid = ast is None or ast.ext is None or len(ast.ext) == 0
+        invalid = invalid or ast.ext[0].body is None or ast.ext[
+            0].body.block_items is None
 
         if invalid:
             logger.error('Input C file is invalid or empty.')
