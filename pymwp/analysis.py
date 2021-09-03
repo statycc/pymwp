@@ -51,7 +51,7 @@ class Analysis:
         function_body = ast.ext[0].body
         index, combinations = 0, []
         variables = Analysis.find_variables(function_body)
-        relations = RelationList(variables=variables)
+        relations = RelationList.identity(variables=variables)
         total = len(function_body.block_items)
         delta_infty = False
         dg = DeltaGraph()

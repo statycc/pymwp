@@ -207,11 +207,11 @@ class Relation:
            a new relation that is a product of inputs.
         """
 
-        logger.debug("starting composition with homogenisation")
+        logger.debug("starting composition...")
         er1, er2 = Relation.homogenisation(self, other)
-        logger.debug("composing matrix product")
+        logger.debug("composing matrix product...")
         new_matrix = matrix_utils.matrix_prod(er1.matrix, er2.matrix)
-        logger.debug("relation composition done")
+        logger.debug("...relation composition done!")
         return Relation(er1.variables, new_matrix)
 
     def equal(self, other: Relation) -> bool:
@@ -395,6 +395,8 @@ class Relation:
 
         if r2.is_empty:
             return r1, Relation.identity(r1.variables)
+
+        logger.debug("matrix homogenisation...")
 
         # build a list of all distinct variables; maintain order
         extended_vars = r1.variables + [v for v in r2.variables
