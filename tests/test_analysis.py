@@ -128,16 +128,18 @@ def test_extra_braces_are_ignored(mocker):
 
 
 def test_assigning_value_yields_matrix_result(mocker):
-    """Analyzing should not yield empty result on programs with only
-    declaration statements. see issue #43:
-    https://github.com/seiller/pymwp/issues/43"""
+    """Analyzing should yield a result with matrix for programs with only
+    declaration statements.
+    issue #43: https://github.com/seiller/pymwp/issues/43"""
     mocker.patch(PARSE_METHOD, return_value=ASSIGN_VALUE_ONLY)
-    # assign value only
+    # declare and assign in single statement
     relation1, combinations2 = Analysis.run("assign_value", no_save=True)
-    # declare then assign should give same result
+    # declare then assign in two steps
     mocker.patch(PARSE_METHOD, return_value=DECL_AND_ASSIGN_VALUE)
     relation2, combinations2 = Analysis.run("decl_and_assign", no_save=True)
 
+    # both programs should give same result
+    # but right now they do not :(
     assert relation1.variables == relation2.variables == ['y']
-    assert relation1.matrix[0][0] == relation2.matrix[0][0] == Polynomial('m')
-
+    assert str(relation1.matrix[0][0]) == str(relation2.matrix[0][0]) == str(
+        Polynomial('m'))
