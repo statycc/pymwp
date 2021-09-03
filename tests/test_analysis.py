@@ -2,7 +2,7 @@ from pytest import raises
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES
+    VARIABLE_IGNORED, EXTRA_BRACES, DECL_AND_ASSIGN_VALUE, ASSIGN_VALUE_ONLY
 
 PARSE_METHOD = 'pymwp.analysis.Analysis.parse_c_file'
 
@@ -125,3 +125,19 @@ def test_extra_braces_are_ignored(mocker):
     assert relation.matrix[0][1] == Polynomial('o')
     assert relation.matrix[1][0] == Polynomial('m')
     assert relation.matrix[1][1] == Polynomial('m')
+
+
+def test_assigning_value_yields_matrix_result(mocker):
+    """Analyzing should not yield empty result on programs with only
+    declaration statements. see issue #43:
+    https://github.com/seiller/pymwp/issues/43"""
+    mocker.patch(PARSE_METHOD, return_value=ASSIGN_VALUE_ONLY)
+    # assign value only
+    relation1, combinations2 = Analysis.run("assign_value", no_save=True)
+    # declare then assign should give same result
+    mocker.patch(PARSE_METHOD, return_value=DECL_AND_ASSIGN_VALUE)
+    relation2, combinations2 = Analysis.run("decl_and_assign", no_save=True)
+
+    assert relation1.variables == relation2.variables == ['y']
+    assert relation1.matrix[0][0] == relation2.matrix[0][0] == Polynomial('m')
+

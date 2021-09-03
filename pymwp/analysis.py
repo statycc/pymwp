@@ -90,18 +90,35 @@ class Analysis:
         return relations.first, combinations
 
     @staticmethod
-    def find_variables(root: Node):
+    def find_variables(function_body: Compound) -> List[str]:
+        """Finds all variables (declarations) in function body.
+
+        This method scans recursively AST nodes looking for
+        variable declarations. For each declaration, the
+        name of the variable will be recorded. Method returns
+        a list of all discovered variable names.
+
+        Arguments:
+            function_body: AST node containing a function body.
+
+        Returns:
+            List of all discovered variable names, or
+            empty list if no declarations were found.
+        """
         variables = []
 
         def recurse_nodes(node_):
+            # only look for declarations
             if isinstance(node_, c_ast.Decl):
                 variables.append(node_.name)
             if hasattr(node_, 'block_items'):
                 for sub_node in node_.block_items:
                     recurse_nodes(sub_node)
 
-        if hasattr(root, 'block_items'):
-            for node in root.block_items:
+        # if body contains statements, search it for
+        # declaration nodes
+        if hasattr(function_body, 'block_items'):
+            for node in function_body.block_items:
                 recurse_nodes(node)
 
         return variables

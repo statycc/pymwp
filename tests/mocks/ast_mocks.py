@@ -185,3 +185,29 @@ EXTRA_BRACES = FileAST(ext=[FuncDef(decl=Decl(
                     op='=', lvalue=ID(name='x'), rvalue=ID(name='y'))
                 ]), iffalse=None
             )])]))])
+
+DECL_AND_ASSIGN_VALUE = FileAST(ext=[
+    FuncDef(decl=Decl(
+        name='main', quals=[], storage=[], funcspec=[],
+        type=FuncDecl(args=None, type=TypeDecl(
+            declname='main', quals=[], type=IdentifierType(names=['int']))),
+        init=None, bitsize=None), param_decls=None,
+        body=Compound(block_items=[
+            Decl(name='y', quals=[], storage=[], funcspec=[], type=TypeDecl(
+                declname='y', quals=[], type=IdentifierType(names=['int'])),
+                 init=None, bitsize=None),
+            Assignment(op='=', lvalue=ID(name='y'),
+                       rvalue=Constant(type='int', value='0'))]))])
+
+ASSIGN_VALUE_ONLY = FileAST(ext=[
+    FuncDef(decl=Decl(
+        name='main', quals=[], storage=[], funcspec=[],
+        type=FuncDecl(args=None, type=TypeDecl(
+            declname='main', quals=[],
+            type=IdentifierType(names=['int']))),
+        init=None, bitsize=None), param_decls=None,
+        body=Compound(block_items=[
+            Decl(name='y', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='y', quals=[],
+                               type=IdentifierType(names=['int'])),
+                 init=Constant(type='int', value='0'), bitsize=None)]))])
