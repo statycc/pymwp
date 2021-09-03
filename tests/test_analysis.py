@@ -142,4 +142,4 @@ def test_assigning_value_yields_matrix_result(mocker):
     # but right now they do not :(
     assert relation1.variables == relation2.variables == ['y']
     assert str(relation1.matrix[0][0]) == str(relation2.matrix[0][0]) == str(
-        Polynomial('m'))
+        Polynomial('o'))

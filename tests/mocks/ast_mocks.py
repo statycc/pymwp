@@ -193,8 +193,9 @@ DECL_AND_ASSIGN_VALUE = FileAST(ext=[
             declname='main', quals=[], type=IdentifierType(names=['int']))),
         init=None, bitsize=None), param_decls=None,
         body=Compound(block_items=[
-            Decl(name='y', quals=[], storage=[], funcspec=[], type=TypeDecl(
-                declname='y', quals=[], type=IdentifierType(names=['int'])),
+            Decl(name='y', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='y', quals=[],
+                               type=IdentifierType(names=['int'])),
                  init=None, bitsize=None),
             Assignment(op='=', lvalue=ID(name='y'),
                        rvalue=Constant(type='int', value='0'))]))])

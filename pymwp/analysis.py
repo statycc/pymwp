@@ -3,7 +3,7 @@ import logging
 from subprocess import CalledProcessError
 from typing import List, Tuple
 from pycparser import parse_file, c_ast
-from pycparser.c_ast import Node, Assignment, If, While, For, Compound
+from pycparser.c_ast import Node, Assignment, If, While, For, Compound, Decl
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -141,14 +141,15 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
-        if isinstance(node, c_ast.Decl):
-            return index, RelationList(), False
+        if isinstance(node, c_ast.Decl) and hasattr(node, 'init'):
+            index, rel_list = Analysis.decl_init(index, node)
+            return index, rel_list, False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 index, rel_list = Analysis.binary_op(index, node)
                 return index, rel_list, False
             if isinstance(node.rvalue, c_ast.Constant):
-                index, rel_list = Analysis.constant(index, node)
+                index, rel_list = Analysis.constant(index, node.lvalue.name)
                 return index, rel_list, False
             if isinstance(node.rvalue, c_ast.UnaryOp):
                 index, rel_list = Analysis.unary_op(index, node)
@@ -252,8 +253,31 @@ class Analysis:
         return index, rel_list
 
     @staticmethod
-    def constant(index: int, node: Assignment) -> Tuple[int, RelationList]:
-        """Analyze a constant.
+    def decl_init(index: int, node: Decl) -> Tuple[int, RelationList]:
+        """Analyze variable declaration, with or without initialization.
+
+        Arguments:
+            index: delta index
+            node: node representing declaration.
+
+        Returns:
+            Updated index value and relation list and exit flag (always false)
+        """
+        relations = RelationList()
+        # handle declaration with initialization
+        # if isinstance(node.init, c_ast.Constant):
+        #     idx, init_rel = Analysis.constant(index, node.name)
+        #     decl_rel = RelationList.identity([node.name])
+        #     decl_rel.composition(init_rel)
+        #     return idx, decl_rel
+        # else:
+        #     pass
+        return index, relations
+
+    @staticmethod
+    def constant(index: int, variable_name: str) -> Tuple[int, RelationList]:
+        """Analyze a constant assignment of form: x = c where x is some
+        variable and c is constant.
 
         From MWP paper:
 
@@ -263,15 +287,13 @@ class Analysis:
 
         Arguments:
             index: delta index
-            node: node representing a constant
+            variable_name: name of variable to which constant is being assigned
 
         Returns:
             Updated index value and relation list
         """
-
-        logger.debug('Computing Relation (second case / constant)')
-        var_name = node.lvalue.name
-        return index, RelationList([var_name])
+        logger.debug('Constant value node')
+        return index, RelationList([variable_name])
 
     @staticmethod
     def unary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
