@@ -37,12 +37,14 @@ def test_analyze_simple_non_infinite(mocker):
 
     # match expected choices and variables
     assert set(relation.variables) == {'X0', 'X1'}
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+    assert combinations == [[0, 0], [0, 1], [0, 2],
+                            [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
-    # match *some* deltas from the matrix
-    assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
-    assert str(relation.matrix[0][0].list[1]) == 'w.delta(1,0)'
-    assert str(relation.matrix[0][0].list[2]) == 'w.delta(2,0)'
+    # match deltas
+    assert relation.matrix[0][0] == Polynomial('o')
+    assert relation.matrix[0][1] == Polynomial('o')
+    assert relation.matrix[1][0] == Polynomial('o')
+    assert relation.matrix[1][1] == Polynomial('o')
 
 
 def test_analyze_if_with_braces(mocker):

@@ -58,9 +58,9 @@ class Analysis:
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list, exit_ = Analysis.compute_relation(index, node, dg)
-            if exit_:
-                delta_infty = True
+            index, rel_list, delta_infty = Analysis \
+                .compute_relation(index, node, dg)
+            if delta_infty:
                 break
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
@@ -99,11 +99,11 @@ class Analysis:
         a list of all discovered variable names.
 
         Arguments:
-            function_body: AST node containing a function body.
+            function_body: AST node with sub-nodes.
 
         Returns:
             List of all discovered variable names, or
-            empty list if no declarations were found.
+            empty list if no variables were found.
         """
         variables = []
 
@@ -115,8 +115,7 @@ class Analysis:
                 for sub_node in node_.block_items:
                     recurse_nodes(sub_node)
 
-        # if body contains statements, search it for
-        # declaration nodes
+        # search for declarations
         if hasattr(function_body, 'block_items'):
             for node in function_body.block_items:
                 recurse_nodes(node)
@@ -141,8 +140,8 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
-        if isinstance(node, c_ast.Decl) and hasattr(node, 'init'):
-            index, rel_list = Analysis.decl_init(index, node)
+        if isinstance(node, c_ast.Decl):
+            index, rel_list = Analysis.decl(index, node)
             return index, rel_list, False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
@@ -253,7 +252,7 @@ class Analysis:
         return index, rel_list
 
     @staticmethod
-    def decl_init(index: int, node: Decl) -> Tuple[int, RelationList]:
+    def decl(index: int, node: Decl) -> Tuple[int, RelationList]:
         """Analyze variable declaration, with or without initialization.
 
         Arguments:
@@ -264,14 +263,14 @@ class Analysis:
             Updated index value and relation list and exit flag (always false)
         """
         relations = RelationList()
-        # handle declaration with initialization
-        # if isinstance(node.init, c_ast.Constant):
-        #     idx, init_rel = Analysis.constant(index, node.name)
-        #     decl_rel = RelationList.identity([node.name])
-        #     decl_rel.composition(init_rel)
-        #     return idx, decl_rel
-        # else:
-        #     pass
+        if hasattr(node, 'init'):
+            if isinstance(node.init, c_ast.Constant):
+                idx, init_rel = Analysis.constant(index, node.name)
+                decl_rel = RelationList.identity([node.name])
+                decl_rel.composition(init_rel)
+                return idx, decl_rel
+        else:
+            pass
         return index, relations
 
     @staticmethod
