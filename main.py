@@ -70,10 +70,7 @@ def analyze_(base, filename):
 
     try:
         relation, choices = Analysis.run(ast, no_save=True)
-        if len(choices) > 0:
-            choice_values = f'Choices: {choices}'
-        else:
-            choice_values = "Infinite"
+        choice_values = f'Choices: {choices}'
         yield f'{header("Matrix")}{relation}\n\n' + \
               f'{header("Evaluation")}{choice_values}'
     except:
