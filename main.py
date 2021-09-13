@@ -61,7 +61,6 @@ def analyze_(base, filename):
     sample = os.path.join(base, filename)
     file = os.path.join(examples_directory, sample)
     logger = logging.getLogger("pymwp")
-    ast = __main__.parse_c_file(file, True, pre_parser, "-E", logger)
     link = f'<a target="_blank" rel="noopener noreferrer"' + \
            f' href="{source_link}{sample}">{sample} ↗</a>'
 
@@ -69,6 +68,7 @@ def analyze_(base, filename):
           f'{file_text(file) or "(File is empty)"}\n\n'
 
     try:
+        ast = __main__.parse_c_file(file, True, pre_parser, "-E", logger)
         relation, choices = Analysis.run(ast, no_save=True)
         choice_values = f'Choices: {choices}'
         yield f'{header("Matrix")}{relation}\n\n' + \
