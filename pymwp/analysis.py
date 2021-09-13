@@ -3,7 +3,7 @@ import logging
 from subprocess import CalledProcessError
 from typing import List, Tuple
 from pycparser import parse_file, c_ast
-from pycparser.c_ast import Node, Assignment, If, While, For, Compound, Decl
+from pycparser.c_ast import Node, Assignment, If, While, For, Compound
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -91,7 +91,7 @@ class Analysis:
 
     @staticmethod
     def find_variables(function_body: Compound) -> List[str]:
-        """Finds all variables (declarations) in function body.
+        """Finds all local variable declarations in function body.
 
         This method scans recursively AST nodes looking for
         variable declarations. For each declaration, the
@@ -141,8 +141,7 @@ class Analysis:
         logger.debug("in compute_relation")
 
         if isinstance(node, c_ast.Decl):
-            index, rel_list = Analysis.decl(index, node)
-            return index, rel_list, False
+            return index, RelationList(), False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 index, rel_list = Analysis.binary_op(index, node)
@@ -250,28 +249,6 @@ class Analysis:
         rel_list.replace_column(vector, vars_list[0][0])
 
         return index, rel_list
-
-    @staticmethod
-    def decl(index: int, node: Decl) -> Tuple[int, RelationList]:
-        """Analyze variable declaration, with or without initialization.
-
-        Arguments:
-            index: delta index
-            node: node representing declaration.
-
-        Returns:
-            Updated index value and relation list and exit flag (always false)
-        """
-        relations = RelationList()
-        if hasattr(node, 'init'):
-            if isinstance(node.init, c_ast.Constant):
-                idx, init_rel = Analysis.constant(index, node.name)
-                decl_rel = RelationList.identity([node.name])
-                decl_rel.composition(init_rel)
-                return idx, decl_rel
-        else:
-            pass
-        return index, relations
 
     @staticmethod
     def constant(index: int, variable_name: str) -> Tuple[int, RelationList]:
@@ -610,9 +587,11 @@ class Analysis:
             ast: AST object
         """
 
+        # "noqa: E127" means ignore the indent on this since
+        # editor and linter disagree on where it should be, apparently
         invalid = ast is None or ast.ext is None or len(ast.ext) == 0 or \
                   ast.ext[0].body is None or \
-                  ast.ext[0].body.block_items is None
+                  ast.ext[0].body.block_items is None  # noqa: E127
 
         if invalid:
             logger.error('Input C file is invalid or empty.')
