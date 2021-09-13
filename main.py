@@ -1,10 +1,11 @@
 import sys
 import os
 import platform
+import logging
 
 from flask import Flask, Response, stream_with_context, jsonify
 from flask_cors import CORS
-from pymwp import __version__
+from pymwp import __version__, __main__
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
@@ -51,6 +52,7 @@ def analyze(path, file):
         return 'invalid example category!', 500
     if not os.path.isfile(os.path.join(examples_directory, path, file)):
         return 'example does not exits!', 500
+
     return Response(stream_with_context(
         analyze_(path, file)), mimetype='text/plain')
 
@@ -58,6 +60,8 @@ def analyze(path, file):
 def analyze_(base, filename):
     sample = os.path.join(base, filename)
     file = os.path.join(examples_directory, sample)
+    logger = logging.getLogger("pymwp")
+    ast = __main__.parse_c_file(file, True, pre_parser, "-E", logger)
     link = f'<a target="_blank" rel="noopener noreferrer"' + \
            f' href="{source_link}{sample}">{sample} ↗</a>'
 
@@ -65,9 +69,7 @@ def analyze_(base, filename):
           f'{file_text(file) or "(File is empty)"}\n\n'
 
     try:
-        relation, choices = Analysis.run(
-            file, no_save=True, use_cpp=True,
-            cpp_path=pre_parser, cpp_args="-E")
+        relation, choices = Analysis.run(ast, no_save=True)
         if len(choices) > 0:
             choice_values = f'Choices: {choices}'
         else:
