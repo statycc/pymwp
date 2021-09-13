@@ -2,7 +2,7 @@ from pytest import raises
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES, DECL_AND_ASSIGN_VALUE, ASSIGN_VALUE_ONLY
+    VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY
 
 PARSE_METHOD = 'pymwp.analysis.Analysis.parse_c_file'
 
