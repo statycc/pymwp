@@ -1,56 +1,35 @@
-from pytest import raises
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
-    EMPTY_MAIN, INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
+    INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
     VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY
 
-PARSE_METHOD = 'pymwp.analysis.Analysis.parse_c_file'
 
-
-def test_analyze_empty_file(mocker):
-    """Empty C file raises non-zero system exit"""
-    mocker.patch(PARSE_METHOD, return_value=None)
-    with raises(SystemExit):
-        Analysis.run('empty input')
-
-
-def test_analyze_empty_main(mocker):
-    """Empty main method raises non-zero system exit"""
-    mocker.patch(PARSE_METHOD, return_value=EMPTY_MAIN)
-    with raises(SystemExit):
-        Analysis.run('empty main')
-
-
-def test_analyze_simple_infinite(mocker):
+def test_analyze_simple_infinite():
     """Check analysis result for infinite/infinite_2.c"""
-    mocker.patch(PARSE_METHOD, return_value=INFINITE_2C)
-    relation, combinations = Analysis.run("infinite 2", no_save=True)
+    relation, combinations = Analysis.run(INFINITE_2C, no_save=True)
 
     assert combinations == []  # no combinations since it is infinite
     assert set(relation.variables) == {'X0', 'X1'}  # expected variables
 
 
-def test_analyze_simple_non_infinite(mocker):
+def test_analyze_simple_non_infinite():
     """Check analysis result for not_infinite/notinfinite_2.c"""
-    mocker.patch(PARSE_METHOD, return_value=NOT_INFINITE_2C)
-    relation, combinations = Analysis.run("not infinite 2", no_save=True)
+    relation, combinations = Analysis.run(NOT_INFINITE_2C, no_save=True)
 
     # match expected choices and variables
     assert set(relation.variables) == {'X0', 'X1'}
     assert combinations == [[0, 0], [0, 1], [0, 2],
                             [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
-
     # match *some* deltas from the matrix
     assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
     assert str(relation.matrix[0][0].list[1]) == 'w.delta(1,0)'
     assert str(relation.matrix[0][0].list[2]) == 'w.delta(2,0)'
 
 
-def test_analyze_if_with_braces(mocker):
+def test_analyze_if_with_braces():
     """If...else program using curly braces; result is 0-matrix."""
-    mocker.patch(PARSE_METHOD, return_value=IF_WITH_BRACES)
-    relation, combinations = Analysis.run("if_braces", no_save=True)
+    relation, combinations = Analysis.run(IF_WITH_BRACES, no_save=True)
 
     # match choices and variables
     assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
@@ -66,11 +45,10 @@ def test_analyze_if_with_braces(mocker):
         raise
 
 
-def test_analyze_if_without_braces(mocker):
+def test_analyze_if_without_braces():
     """If...else program NOT using curly braces; result is 0-matrix, expect
     exact same output as previous test."""
-    mocker.patch(PARSE_METHOD, return_value=IF_WO_BRACES)
-    relation, combinations = Analysis.run("if_wo_braces", no_save=True)
+    relation, combinations = Analysis.run(IF_WO_BRACES, no_save=True)
 
     # match choices and variables
     assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
@@ -86,11 +64,10 @@ def test_analyze_if_without_braces(mocker):
         raise
 
 
-def test_analyze_variable_ignore(mocker):
+def test_analyze_variable_ignore():
     """Analysis picks up variable on left of assignment,
     see issue #11: https://github.com/seiller/pymwp/issues/11 """
-    mocker.patch(PARSE_METHOD, return_value=VARIABLE_IGNORED)
-    relation, combinations = Analysis.run("variable_ignored", no_save=True)
+    relation, combinations = Analysis.run(VARIABLE_IGNORED, no_save=True)
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
@@ -116,11 +93,10 @@ def test_analyze_variable_ignore(mocker):
         raise
 
 
-def test_extra_braces_are_ignored(mocker):
+def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
     see issue: #25: https://github.com/seiller/pymwp/issues/25"""
-    mocker.patch(PARSE_METHOD, return_value=EXTRA_BRACES)
-    relation, combinations = Analysis.run("extra_braces", no_save=True)
+    relation, combinations = Analysis.run(EXTRA_BRACES, no_save=True)
 
     assert set(relation.variables) == {'x', 'y'}
     assert relation.matrix[0][0] == Polynomial('m')
@@ -129,13 +105,11 @@ def test_extra_braces_are_ignored(mocker):
     assert relation.matrix[1][1] == Polynomial('m')
 
 
-def test_assigning_value_yields_matrix_result(mocker):
+def test_assigning_value_yields_matrix_result():
     """Analyzing should yield a result with matrix for programs with
     declaration only.
     issue #43: https://github.com/seiller/pymwp/issues/43"""
-    mocker.patch(PARSE_METHOD, return_value=ASSIGN_VALUE_ONLY)
-    relation, combinations = Analysis.run("assign_value", no_save=True)
+    relation, combinations = Analysis.run(ASSIGN_VALUE_ONLY, no_save=True)
 
     assert relation.variables == ['y']
-
     assert relation.matrix[0][0] == Polynomial('m')

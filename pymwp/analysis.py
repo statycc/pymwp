@@ -1,8 +1,6 @@
-import sys
 import logging
-from subprocess import CalledProcessError
 from typing import List, Tuple
-from pycparser import parse_file, c_ast
+from pycparser import c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For, Compound
 
 from .relation_list import RelationList, Relation
@@ -19,34 +17,20 @@ class Analysis:
 
     @staticmethod
     def run(
-            file_in: str, file_out: str = None, no_save: bool = False,
-            use_cpp: bool = True, cpp_path: str = None, cpp_args: str = None
+            ast: c_ast, file_out: str = None, no_save: bool = False
     ) -> Tuple[Relation, List[List[int]]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
-            file_in: C source code file path
+            ast: parsed C source code AST
             file_out: where to store result
             no_save: Set true when analysis result should not be saved to file
-            use_cpp: Set to True if you want to execute the C pre-processor
-                on the file prior to parsing it.
-            cpp_path: If use_cpp is True, this is the path to 'cpp' on your
-                system. If no path is provided, it attempts to just execute
-                'cpp', so it must be in your PATH.
-            cpp_args: If use_cpp is True, set this to the command line
-                arguments strings to cpp. Be careful with quotes - it's best
-                to pass a raw string (r'') here. If several arguments are
-                required, pass a list of strings.
 
         Returns:
               Computed relation and list of non-infinity choices.
-
         """
 
         choices = [0, 1, 2]
-        logger.info(f'Starting analysis of {file_in}')
-        ast = Analysis.parse_c_file(file_in, use_cpp, cpp_path, cpp_args)
-        Analysis.validate_ast(ast)
 
         function_body = ast.ext[0].body
         index, combinations = 0, []
@@ -536,63 +520,3 @@ class Analysis:
                  for val, scalar in enumerate(p2_scalars)]))
 
         return index + 1, vector
-
-    @staticmethod
-    def parse_c_file(
-            file: str, use_cpp: bool, cpp_path: str, cpp_args: str
-    ) -> c_ast:
-        """Parse C file using pycparser.
-
-        Arguments:
-            file: path to C file
-            use_cpp: Set to True if you want to execute the C pre-processor
-                on the file prior to parsing it.
-            cpp_path: If use_cpp is True, this is the path to 'cpp' on your
-                system. If no path is provided, it attempts to just execute
-                'cpp', so it must be in your PATH.
-            cpp_args: If use_cpp is True, set this to the command line
-                arguments strings to cpp. Be careful with quotes - it's best
-                to pass a raw string (r'') here. If several arguments are
-                required, pass a list of strings.
-
-        Returns:
-            Generated AST
-        """
-        try:
-            ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-            if use_cpp:
-                info = f'parsed with preprocessor: {cpp_path} {cpp_args}'
-            else:
-                info = 'parsed without preprocessor'
-            logger.debug(info)
-            return ast
-        except CalledProcessError:
-            logger.error('Failed to parse C file. Terminating.')
-            sys.exit(1)
-
-    @staticmethod
-    def validate_ast(ast: c_ast) -> None:
-        """Check if successfully parsed AST can be analyzed.
-
-        Here we check that the C input file contains some source code
-        (has body) and that that body is not empty (has block_items).
-        These types of inputs do not cause the parser to error, so we
-        need to check these separately from parse error.
-
-        If the input is invalid terminate immediately.
-
-        Ref: [issue #4](https://github.com/seiller/pymwp/issues/4)
-
-        Arguments:
-            ast: AST object
-        """
-
-        # "noqa: E127" means ignore the indent on this since
-        # editor and linter disagree on where it should be, apparently
-        invalid = ast is None or ast.ext is None or len(ast.ext) == 0 or \
-                  ast.ext[0].body is None or \
-                  ast.ext[0].body.block_items is None  # noqa: E127
-
-        if invalid:
-            logger.error('Input C file is invalid or empty.')
-            sys.exit(1)

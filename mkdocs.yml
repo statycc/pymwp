@@ -2,8 +2,8 @@ site_name: pymwp
 site_description: "Implementation of MWP analysis on C code in Python."
 docs_dir: docs
 site_dir: pages
-repo_url: https://github.com/seiller/pymwp
-repo_name: seiller/pymwp
+repo_url: https://github.com/statycc/pymwp
+repo_name: statycc/pymwp
 edit_uri: blob/master/docs/
 use_directory_urls: true
 
@@ -24,8 +24,8 @@ nav:
   - Relation List: relation_list.md
   - Semiring: semiring.md
 - Utilities: utilities.md
-- Source Code: https://github.com/seiller/pymwp
-- License: https://github.com/seiller/pymwp/blob/master/LICENCE.md
+- Source Code: https://github.com/statycc/pymwp
+- License: https://github.com/statycc/pymwp/blob/master/LICENCE.md
 
 theme:
   name: material
