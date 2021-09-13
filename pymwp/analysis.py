@@ -33,16 +33,18 @@ class Analysis:
         choices = [0, 1, 2]
 
         function_body = ast.ext[0].body
-        index, relations, combinations = 0, RelationList(), []
+        index, combinations = 0, []
+        variables = Analysis.find_variables(function_body)
+        relations = RelationList.identity(variables=variables)
         total = len(function_body.block_items)
         delta_infty = False
         dg = DeltaGraph()
 
         for i, node in enumerate(function_body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list, exit_ = Analysis.compute_relation(index, node, dg)
-            if exit_:
-                delta_infty = True
+            index, rel_list, delta_infty = Analysis \
+                .compute_relation(index, node, dg)
+            if delta_infty:
                 break
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
@@ -72,6 +74,39 @@ class Analysis:
         return relations.first, combinations
 
     @staticmethod
+    def find_variables(function_body: Compound) -> List[str]:
+        """Finds all local variable declarations in function body.
+
+        This method scans recursively AST nodes looking for
+        variable declarations. For each declaration, the
+        name of the variable will be recorded. Method returns
+        a list of all discovered variable names.
+
+        Arguments:
+            function_body: AST node with sub-nodes.
+
+        Returns:
+            List of all discovered variable names, or
+            empty list if no variables were found.
+        """
+        variables = []
+
+        def recurse_nodes(node_):
+            # only look for declarations
+            if isinstance(node_, c_ast.Decl):
+                variables.append(node_.name)
+            if hasattr(node_, 'block_items'):
+                for sub_node in node_.block_items:
+                    recurse_nodes(sub_node)
+
+        # search for declarations
+        if hasattr(function_body, 'block_items'):
+            for node in function_body.block_items:
+                recurse_nodes(node)
+
+        return variables
+
+    @staticmethod
     def compute_relation(index: int, node: Node, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Create a relation list corresponding for all possible matrices
@@ -89,12 +124,14 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
+        if isinstance(node, c_ast.Decl):
+            return index, RelationList(), False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 index, rel_list = Analysis.binary_op(index, node)
                 return index, rel_list, False
             if isinstance(node.rvalue, c_ast.Constant):
-                index, rel_list = Analysis.constant(index, node)
+                index, rel_list = Analysis.constant(index, node.lvalue.name)
                 return index, rel_list, False
             if isinstance(node.rvalue, c_ast.UnaryOp):
                 index, rel_list = Analysis.unary_op(index, node)
@@ -198,8 +235,9 @@ class Analysis:
         return index, rel_list
 
     @staticmethod
-    def constant(index: int, node: Assignment) -> Tuple[int, RelationList]:
-        """Analyze a constant.
+    def constant(index: int, variable_name: str) -> Tuple[int, RelationList]:
+        """Analyze a constant assignment of form: x = c where x is some
+        variable and c is constant.
 
         From MWP paper:
 
@@ -209,15 +247,13 @@ class Analysis:
 
         Arguments:
             index: delta index
-            node: node representing a constant
+            variable_name: name of variable to which constant is being assigned
 
         Returns:
             Updated index value and relation list
         """
-
-        logger.debug('Computing Relation (second case / constant)')
-        var_name = node.lvalue.name
-        return index, RelationList([var_name])
+        logger.debug('Constant value node')
+        return index, RelationList([variable_name])
 
     @staticmethod
     def unary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:

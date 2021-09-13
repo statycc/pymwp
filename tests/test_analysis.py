@@ -1,7 +1,7 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES
+    VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY
 
 
 def test_analyze_simple_infinite():
@@ -9,7 +9,7 @@ def test_analyze_simple_infinite():
     relation, combinations = Analysis.run(INFINITE_2C, no_save=True)
 
     assert combinations == []  # no combinations since it is infinite
-    assert relation.variables == []  # expected these variables
+    assert set(relation.variables) == {'X0', 'X1'}  # expected variables
 
 
 def test_analyze_simple_non_infinite():
@@ -17,8 +17,9 @@ def test_analyze_simple_non_infinite():
     relation, combinations = Analysis.run(NOT_INFINITE_2C, no_save=True)
 
     # match expected choices and variables
-    assert relation.variables == ['X0', 'X1']
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+    assert set(relation.variables) == {'X0', 'X1'}
+    assert combinations == [[0, 0], [0, 1], [0, 2],
+                            [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # match *some* deltas from the matrix
     assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
@@ -31,7 +32,7 @@ def test_analyze_if_with_braces():
     relation, combinations = Analysis.run(IF_WITH_BRACES, no_save=True)
 
     # match choices and variables
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
+    assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # all monomials are 0s
@@ -50,7 +51,7 @@ def test_analyze_if_without_braces():
     relation, combinations = Analysis.run(IF_WO_BRACES, no_save=True)
 
     # match choices and variables
-    assert relation.variables == ['x', 'x1', 'x2', 'x3', 'y']
+    assert set(relation.variables) == {'x', 'x1', 'x2', 'x3', 'y'}
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
     # all monomials are 0s
@@ -70,7 +71,7 @@ def test_analyze_variable_ignore():
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
-    assert relation.variables == ['X2', 'X3', 'X1', 'X4']
+    assert set(relation.variables) == {'X2', 'X3', 'X1', 'X4'}
 
     wmp = '+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
     wpm = '+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'
@@ -102,3 +103,13 @@ def test_extra_braces_are_ignored():
     assert relation.matrix[0][1] == Polynomial('o')
     assert relation.matrix[1][0] == Polynomial('m')
     assert relation.matrix[1][1] == Polynomial('m')
+
+
+def test_assigning_value_yields_matrix_result():
+    """Analyzing should yield a result with matrix for programs with
+    declaration only.
+    issue #43: https://github.com/seiller/pymwp/issues/43"""
+    relation, combinations = Analysis.run(ASSIGN_VALUE_ONLY, no_save=True)
+
+    assert relation.variables == ['y']
+    assert relation.matrix[0][0] == Polynomial('m')

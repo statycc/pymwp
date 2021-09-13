@@ -3,5 +3,5 @@ int main() {
     int y;
     {
     if(x > y){x = y;}
-}
+    }
 }
