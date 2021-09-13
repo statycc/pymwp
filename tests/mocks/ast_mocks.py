@@ -1,27 +1,13 @@
 """
-Sample ASTs for unit testing Analysis
+Preprocessed ASTs for unit testing analysis.py
 
-here we mock the outputs of pycparser.parse_file
+Here we mock the outputs of pycparser.parse_file
 
-These ASTs match the examples in c_files by name, or tests/mocks
+These ASTs match the examples in c_files by name, or C files in tests/mocks
 """
 
 from pycparser.c_ast import FileAST, FuncDef, Decl, FuncDecl, TypeDecl, \
     IdentifierType, Compound, Constant, While, BinaryOp, ID, Assignment, If
-
-EMPTY_MAIN = FileAST(ext=[FuncDef(decl=Decl(
-    name='main', quals=[], storage=[],
-    funcspec=[],
-    type=FuncDecl(
-        args=None,
-        type=TypeDecl(
-            declname='main',
-            quals=[],
-            type=IdentifierType(
-                names=['int']))),
-    init=None, bitsize=None),
-    param_decls=None,
-    body=Compound(block_items=None))])
 
 INFINITE_2C = FileAST(ext=[FuncDef(
     decl=Decl(name='main', quals=[],
