@@ -455,6 +455,7 @@ class Analysis:
             index: delta index
             node: AST node under analysis
             variables: list of unique variables in this operation where:
+
                 - variables[0][0] is the variable on left side of assignment
                 - variables[1][0] is left operand of binary operation
                 - variables[1][1] is right operand of binary operation

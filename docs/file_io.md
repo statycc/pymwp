@@ -8,6 +8,13 @@ To generate file name for storing results
 from pymwp.file_io import default_file_out
 ```
 
+To parse a C file (for analysis):
+
+```python
+from pymwp.file_io import parse
+```
+
+
 To save or restore results as JSON:
 
 ```python
