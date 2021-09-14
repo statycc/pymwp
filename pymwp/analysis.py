@@ -18,7 +18,7 @@ class Analysis:
     @staticmethod
     def run(
             ast: c_ast, file_out: str = None, no_save: bool = False
-    ) -> Tuple[Relation, List[List[int]]]:
+    ) -> Tuple[Relation, List[List[int]], bool]:
         """Run MWP analysis on specified input file.
 
         Arguments:
@@ -27,11 +27,14 @@ class Analysis:
             no_save: Set true when analysis result should not be saved to file
 
         Returns:
-              Computed relation and list of non-infinity choices.
+              - Computed relation,
+              - list of non-infinity choices
+              - infinite/not infinite (boolean flag)
         """
 
-        choices = [0, 1, 2]
+        logger.debug("starting analysis")
 
+        choices = [0, 1, 2]
         function_body = ast.ext[0].body
         index, combinations = 0, []
         variables = Analysis.find_variables(function_body)
@@ -53,25 +56,24 @@ class Analysis:
         if not delta_infty:
             combinations = relations.first.non_infinity(choices, index, dg)
 
+        # the evaluation is infinite when either of these conditions holds:
+        infinite = delta_infty or (relations.first.variables and index > 0 and
+                                   not combinations)
+
+        # save result to file unless explicitly disabled
         if not no_save:
             save_relation(file_out, relations.first, combinations)
 
+        # display results
         logger.debug(f'\nMATRIX{relations}')
 
-        if delta_infty:
-            logger.info('infinite')
-
-        # Should not raise here since delta_graph takes care of it
-        # conditional on: (1) that some variable(s) exist, so we do not
-        # conclude infinity on simple programs and
-        # (2) regarding index > see: issue #43
-        elif not combinations and relations.first.variables and index > 0:
-            logger.info('infinite undetected by delta graph')
-            assert False
+        if infinite:
+            logger.info('RESULT: infinite')
         else:
             logger.info(f'CHOICES:\n{combinations}')
 
-        return relations.first, combinations
+        # return results to caller
+        return relations.first, combinations, infinite
 
     @staticmethod
     def find_variables(function_body: Compound) -> List[str]:
