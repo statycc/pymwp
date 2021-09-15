@@ -1,7 +1,7 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY
+    VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY, PARAMS
 
 
 def test_analyze_simple_infinite():
@@ -117,3 +117,12 @@ def test_assigning_value_yields_matrix_result():
 
     assert relation.variables == ['y']
     assert relation.matrix[0][0] == Polynomial('m')
+
+
+def test_analysis_identifies_function_params():
+    """Analysis will identify variables from function declaration
+    issue #51: https://github.com/seiller/pymwp/issues/51
+    """
+    relation = Analysis.run(PARAMS, no_save=True)[0]
+
+    assert set(relation.variables) == {'x1', 'x2', 'x3'}
