@@ -7,14 +7,8 @@ These ASTs match the examples in c_files by name, or tests/mocks
 """
 
 from pycparser.c_ast import FileAST, FuncDef, Decl, FuncDecl, TypeDecl, \
-    IdentifierType, Compound, Constant, While, BinaryOp, ID, Assignment, If
-
-EMPTY_MAIN = FileAST(ext=[FuncDef(decl=Decl(
-    name='main', quals=[], storage=[], funcspec=[],
-    type=FuncDecl(args=None, type=TypeDecl(
-        declname='main', quals=[], type=IdentifierType(
-            names=['int']))), init=None, bitsize=None),
-    param_decls=None, body=Compound(block_items=None))])
+    IdentifierType, Compound, Constant, While, BinaryOp, ID, Assignment, If, \
+    ParamList
 
 INFINITE_2C = FileAST(ext=[FuncDef(
     decl=Decl(name='main', quals=[], storage=[], funcspec=[], type=FuncDecl(
@@ -212,3 +206,30 @@ ASSIGN_VALUE_ONLY = FileAST(ext=[
                  type=TypeDecl(declname='y', quals=[],
                                type=IdentifierType(names=['int'])),
                  init=Constant(type='int', value='0'), bitsize=None)]))])
+
+PARAMS = FileAST(ext=[
+    FuncDef(decl=Decl(
+        name='main', quals=[], storage=[], funcspec=[],
+        type=FuncDecl(args=ParamList(params=[
+            Decl(name='x1', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(
+                     declname='x1', quals=[],
+                     type=IdentifierType(names=['int'])),
+                 init=None, bitsize=None),
+            Decl(name='x2', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(
+                     declname='x2', quals=[],
+                     type=IdentifierType(names=['int'])),
+                 init=None, bitsize=None),
+            Decl(name='x3', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(
+                     declname='x3', quals=[],
+                     type=IdentifierType(names=['int'])),
+                 init=None, bitsize=None)]),
+            type=TypeDecl(
+                declname='main', quals=[],
+                type=IdentifierType(names=['int']))), init=None, bitsize=None),
+        param_decls=None,
+        body=Compound(block_items=[Assignment(
+            op='=', lvalue=ID(name='x1'),
+            rvalue=Constant(type='int', value='1'))]))])
