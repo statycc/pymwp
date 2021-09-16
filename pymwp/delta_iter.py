@@ -4,22 +4,31 @@ from .delta_graphs import DeltaGraph
 
 def create_delta_list(n, delta_graph: DeltaGraph):
     output = []
+    zeroes = []
     for _ in range(n + 1):
         output.append([])
+        zeroes.append([])
     for dg in delta_graph.graph_dict.values():
         # Here ↓ monomial_list is a tuple
         for monomial_list in dg.keys():
             delta_list = list(monomial_list)
             i = delta_list[-1][1]
-            output[i].append(delta_list)
-    return output
+            if delta_list[-1][0]==0:
+                zeroes[i].append(delta_list)
+            else:
+                output[i].append(delta_list)
+    return (output,zeroes)
 
 
 class Deltaiter:
     def __init__(self, max_list, delta_list):
-        self.delta_list = delta_list
+        self.delta_list = delta_list[0]
+        self.delta_list_zeroes = delta_list[1]
         self.max_list = max_list
         self.table = [0] * len(max_list)
+        (j,bool)=self.check(0)
+        if not bool:
+            self.next()
 
     def value(self):
         return self.table
@@ -28,9 +37,9 @@ class Deltaiter:
         (i, bool) = self.plus_one(len(self.max_list) - 1)
         valid = False
         while not valid:
-            valid = self.check(i)
+            (j,valid) = self.check(i)
             if not valid:
-                (i, bool) = self.plus_one(i)
+                (i, bool) = self.plus_one(j)
         return bool
 
     def plus_one(self, i):
@@ -45,8 +54,12 @@ class Deltaiter:
     def check(self, i):
         for list_of_deltas in self.delta_list[i]:
             if not self.valid(list_of_deltas):
-                return False
-        return True
+                return (i,False)
+        for j in range(i,len(self.table)):
+            for list_of_deltas in self.delta_list_zeroes[j]:
+                if not self.valid(list_of_deltas):
+                    return (j,False)
+        return (-1,True)
 
     def valid(self, list_of_deltas):
         for delta in list_of_deltas:
