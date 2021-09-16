@@ -8,7 +8,10 @@ from pymwp import __version__
 from pymwp.file_io import parse
 from pymwp.analysis import Analysis
 
-version_id = os.environ['CURRENT_VERSION_ID'] if hasattr(os, 'CURRENT_VERSION_ID') else 'demo-server'
+try:
+    version_id = google.appengine.api.modules.modules.get_current_module_name()
+except:
+    version_id = 'demo-server'
 
 app = Flask(__name__)
 CORS(app)
