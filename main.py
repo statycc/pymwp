@@ -1,11 +1,11 @@
 import sys
 import os
 import platform
-import logging
 
 from flask import Flask, Response, stream_with_context, jsonify
 from flask_cors import CORS
-from pymwp import __version__, __main__
+from pymwp import __version__
+from pymwp.file_io import parse
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
@@ -60,7 +60,6 @@ def analyze(path, file):
 def analyze_(base, filename):
     sample = os.path.join(base, filename)
     file = os.path.join(examples_directory, sample)
-    logger = logging.getLogger("pymwp")
     link = f'<a target="_blank" rel="noopener noreferrer"' + \
            f' href="{source_link}{sample}">{sample} ↗</a>'
 
@@ -68,9 +67,9 @@ def analyze_(base, filename):
           f'{file_text(file) or "(File is empty)"}\n\n'
 
     try:
-        ast = __main__.parse_c_file(file, True, pre_parser, "-E", logger)
-        relation, choices = Analysis.run(ast, no_save=True)
-        choice_values = f'Choices: {choices}'
+        ast = parse(file, cpp_path=pre_parser)
+        relation, choices, infinity = Analysis.run(ast, no_save=True)
+        choice_values = f'Choices: {choices}' if not infinity else 'infinite'
         yield f'{header("Matrix")}{relation}\n\n' + \
               f'{header("Evaluation")}{choice_values}'
     except:
