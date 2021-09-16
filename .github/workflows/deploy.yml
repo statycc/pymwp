@@ -1,8 +1,13 @@
-name: Deploy demo server
+name: Deploy demo
+
+# deploy on direct pushes to this branch
+# and on new releases of this repository
 
 on:
   push:
     branches: [ demo-server ]
+  release:
+    types: [ created ]
 
 jobs:
   deploy-server:
