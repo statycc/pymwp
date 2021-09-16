@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
         name: demo
+        url: https://statycc.github.io/pymwp/demo
     steps:
     - uses: actions/checkout@v2
 
