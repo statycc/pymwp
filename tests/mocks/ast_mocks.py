@@ -14,8 +14,9 @@ INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
     name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
         args=ParamList(params=[
             Decl(name='X0', quals=[], storage=[], funcspec=[],
-                 type=TypeDecl(declname='X0', quals=[],
-                               type=IdentifierType(names=['int'])), init=None,
+                 type=TypeDecl(
+                     declname='X0', quals=[],
+                     type=IdentifierType(names=['int'])), init=None,
                  bitsize=None),
             Decl(name='X1', quals=[], storage=[], funcspec=[],
                  type=TypeDecl(declname='X1', quals=[],
@@ -23,19 +24,13 @@ INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
                  bitsize=None)]), type=TypeDecl(
             declname='foo', quals=[], type=IdentifierType(names=['int']))),
     init=None, bitsize=None), param_decls=None,
-    body=Compound(block_items=[
-        Assignment(op='=', lvalue=ID(name='X0'),
-                   rvalue=Constant(type='int', value='1')),
-        Assignment(op='=', lvalue=ID(name='X1'),
-                   rvalue=Constant(type='int', value='1')), While(
-            cond=BinaryOp(op='<', left=ID(name='X1'),
-                          right=Constant(type='int', value='10')),
-            stmt=Compound(block_items=[
-                Assignment(
-                    op='=', lvalue=ID(name='X0'), rvalue=BinaryOp(
-                        op='*', left=ID(name='X1'), right=ID(name='X0'))),
-                Assignment(op='=', lvalue=ID(name='X1'), rvalue=BinaryOp(
-                    op='+', left=ID(name='X1'), right=ID(name='X0')))]))]))])
+    body=Compound(block_items=[While(cond=BinaryOp(
+        op='<', left=ID(name='X1'), right=Constant(type='int', value='10')),
+        stmt=Compound(block_items=[
+            Assignment(op='=', lvalue=ID(name='X0'), rvalue=BinaryOp(
+                op='*', left=ID(name='X1'), right=ID(name='X0'))),
+            Assignment(op='=', lvalue=ID(name='X1'), rvalue=BinaryOp(
+                op='+', left=ID(name='X1'), right=ID(name='X0')))]))]))])
 
 IF_WO_BRACES = FileAST(ext=[FuncDef(decl=Decl(
     name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(

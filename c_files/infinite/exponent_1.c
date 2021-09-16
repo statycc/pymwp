@@ -4,11 +4,8 @@
  * Inspired from https://stackoverflow.com/a/213897
  */
 
-int main(){
-    int x;
-    int n;
-    int p = x;
-    int r;
+int main(int x, int n, int p, int r){
+    p = x;
     while (n > 0)
     {
         if (n % 2 == 1)
