@@ -8,11 +8,14 @@ from pymwp import __version__
 from pymwp.file_io import parse
 from pymwp.analysis import Analysis
 
+version_id = os.environ['CURRENT_VERSION_ID'] if hasattr(os, 'CURRENT_VERSION_ID') else 'demo-server'
+
 app = Flask(__name__)
 CORS(app)
 
 examples_directory = 'c_files'
 source_link = 'https://github.com/seiller/pymwp/blob/master/c_files/'
+server_link = f'https://github.com/statycc/pymwp/tree/{version_id}'
 pre_parser = "cpp"
 
 
@@ -26,7 +29,9 @@ def version():
     """Display pymwp version info."""
     result = f'pymwp version: {__version__}\n\n' + \
              f'OS/v: {platform.system()} {platform.release()}\n\n' + \
-             f'C pre-parser: {pre_parser}'
+             f'C pre-parser: {pre_parser}\n\n' + \
+             f'source code version: <a  target="_blank" rel="noopener noreferrer" ' \
+                 f'href="{server_link}">{version_id or "localhost"}</a>'
 
     return Response(result, mimetype='text/plain')
 
