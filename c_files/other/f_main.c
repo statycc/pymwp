@@ -6,7 +6,6 @@
  * (3) f_main.c  - analysis of main in isolation, without f
  */
 
-int foo(int x, int y) {
-    x = 1;
-    y = 1; // f(x);
+int foo(int y, int x, int x1, int x2, int x3) {
+    y = bar(x, x1, x2, x3);
 }
