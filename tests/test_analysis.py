@@ -1,7 +1,7 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES, BASICS_ASSIGN_VALUE, PARAMS
+    VARIABLE_IGNORED, OTHER_BRACES_ISSUES, BASICS_ASSIGN_VALUE, PARAMS
 
 
 def test_analyze_infinite2():
@@ -100,7 +100,7 @@ def test_analyze_variable_ignore():
 def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
     see issue: #25: https://github.com/seiller/pymwp/issues/25"""
-    relation, combinations = Analysis.run(EXTRA_BRACES, no_save=True)[:2]
+    relation, combinations = Analysis.run(OTHER_BRACES_ISSUES, no_save=True)[:2]
 
     assert set(relation.variables) == {'x', 'y'}
     assert relation.matrix[0][0] == Polynomial('m')

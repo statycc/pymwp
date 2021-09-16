@@ -171,7 +171,7 @@ VARIABLE_IGNORED = FileAST(ext=[FuncDef(decl=Decl(
                                    right=ID(name='X1'))),
         Assignment(op='=', lvalue=ID(name='X4'), rvalue=ID(name='X2'))]))])
 
-EXTRA_BRACES = FileAST(ext=[FuncDef(decl=Decl(
+OTHER_BRACES_ISSUES = FileAST(ext=[FuncDef(decl=Decl(
     name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
         args=ParamList(params=[
             Decl(name='x', quals=[], storage=[], funcspec=[],

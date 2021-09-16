@@ -6,9 +6,7 @@
  * (3) f_main.c  - analysis of main in isolation, without f
  */
 
-int main() {
-    int x;
-    int y;
+int foo(int x, int y) {
     x = 1;
     y = 1; // f(x);
 }
