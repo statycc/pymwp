@@ -21,4 +21,4 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT }}
         credentials: ${{ secrets.GCP_SA_KEY }}
         promote: false
-        version: ${{ env.hash }}"
+        version: ${{ env.hash }}
