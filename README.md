@@ -13,8 +13,6 @@ This is a simple Python Flask server that runs pymwp analysis.
 
 ### Running locally
 
-1. Install dependencies
-
 ```bash
 # install dependencies
 pip install -q -r requirements.txt
@@ -25,5 +23,5 @@ python main.py
 
 ### Deployment
 
-Server deployment runs automatically on commits to demo-server branch.
+Server deployment runs automatically on commits to `demo-server` branch.
 

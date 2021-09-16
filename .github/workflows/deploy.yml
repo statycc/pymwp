@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
         name: demo
-        url: ${{ secrets.DEMO_URL }}
-
     steps:
     - uses: actions/checkout@v2
 
