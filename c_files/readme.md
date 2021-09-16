@@ -9,11 +9,9 @@ The `basics` folder contains examples of simple C source code performing operati
 | file | description |
 | --- | --- |
 `assign_expression.c` | assign result of binary operation to variable
-`assign_value.c` | assign literal value
 `assign_variable.c` | assign using variable
-`declaration.c` | `int` variable declaration
 `empty.c` | program file without any content
-`empty_main.c` | main method with empty body
+`empty_function.c` | function with empty body
 `if.c` | assignment within conditional statement
 `if_else.c` | conditional statement with `if` and `else`
 `while_1.c` | while loop with assignment
