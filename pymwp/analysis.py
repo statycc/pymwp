@@ -1,7 +1,8 @@
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from pycparser import c_ast
-from pycparser.c_ast import Node, Assignment, If, While, For, Compound
+from pycparser.c_ast import Node, Assignment, If, While, For, Compound, \
+    ParamList
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -35,9 +36,9 @@ class Analysis:
         logger.debug("starting analysis")
 
         choices = [0, 1, 2]
-        function_body = ast.ext[0].body
         index, combinations = 0, []
-        variables = Analysis.find_variables(function_body)
+        function_body, args = ast.ext[0].body, ast.ext[0].decl.type.args
+        variables = Analysis.find_variables(function_body, args)
         relations = RelationList.identity(variables=variables)
         total = len(function_body.block_items)
         delta_infty = False
@@ -76,8 +77,11 @@ class Analysis:
         return relations.first, combinations, infinite
 
     @staticmethod
-    def find_variables(function_body: Compound) -> List[str]:
-        """Finds all local variable declarations in function body.
+    def find_variables(
+            function_body: Compound, param_list: Optional[ParamList]
+    ) -> List[str]:
+        """Finds all local variable declarations in function body and
+        parameter list.
 
         This method scans recursively AST nodes looking for
         variable declarations. For each declaration, the
@@ -85,7 +89,8 @@ class Analysis:
         a list of all discovered variable names.
 
         Arguments:
-            function_body: AST node with sub-nodes.
+            function_body: AST node with sub-nodes
+            param_list: AST function parameter list
 
         Returns:
             List of all discovered variable names, or
@@ -101,9 +106,14 @@ class Analysis:
                 for sub_node in node_.block_items:
                     recurse_nodes(sub_node)
 
-        # search for declarations
+        # search function body for local declarations
         if hasattr(function_body, 'block_items'):
             for node in function_body.block_items:
+                recurse_nodes(node)
+
+        # process param list which is a list of declarations
+        if param_list and hasattr(param_list, 'params'):
+            for node in param_list.params:
                 recurse_nodes(node)
 
         return variables
