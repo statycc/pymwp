@@ -1,10 +1,10 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, EXTRA_BRACES, ASSIGN_VALUE_ONLY, PARAMS
+    VARIABLE_IGNORED, EXTRA_BRACES, BASICS_ASSIGN_VALUE, PARAMS
 
 
-def test_analyze_simple_infinite():
+def test_analyze_infinite2():
     """Check analysis result for infinite/infinite_2.c"""
     relation, combinations, infty = Analysis.run(INFINITE_2C, no_save=True)
 
@@ -13,7 +13,7 @@ def test_analyze_simple_infinite():
     assert set(relation.variables) == {'X0', 'X1'}  # expected variables
 
 
-def test_analyze_simple_non_infinite():
+def test_analyze_non_infinite_2():
     """Check analysis result for not_infinite/notinfinite_2.c"""
     relation, combinations, infty = Analysis.run(NOT_INFINITE_2C, no_save=True)
 
@@ -82,9 +82,9 @@ def test_analyze_variable_ignore():
     o = '+o'
     m = '+m'
     res = [
+        [m, wpm, o, wpm],
         [o, o, o, o],
-        [wmp, m, o, wmp],
-        [wpm, o, m, wpm],
+        [o, wmp, m, wmp],
         [o, o, o, o],
     ]
 
@@ -113,10 +113,10 @@ def test_assigning_value_yields_matrix_result():
     """Analyzing should yield a result with matrix for programs with
     declaration only.
     issue #43: https://github.com/seiller/pymwp/issues/43"""
-    relation, combinations = Analysis.run(ASSIGN_VALUE_ONLY, no_save=True)[:2]
+    relation = Analysis.run(BASICS_ASSIGN_VALUE, no_save=True)[0]
 
     assert relation.variables == ['y']
-    assert relation.matrix[0][0] == Polynomial('m')
+    assert relation.matrix[0][0] == Polynomial('o')
 
 
 def test_analysis_identifies_function_params():

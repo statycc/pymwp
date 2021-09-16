@@ -1,11 +1,5 @@
-int main() {
-  int x;
-  int y;
+int foo(int x, int y, int x1, int x2, int x3) {
   x = 1;
-
-  int x1;
-  int x2;
-  int x3;
   x1 = 1;
   x2 = 2;
   if (x > 0) x3 = 1;

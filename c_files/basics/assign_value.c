@@ -3,6 +3,6 @@
  * a constant value to it results in the correct analysis.
  */
 
-int main(){
-    int y = 0;
+int foo(int y){
+    y = 0;
 } 
