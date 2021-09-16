@@ -63,19 +63,11 @@ IF_WO_BRACES = FileAST(ext=[FuncDef(decl=Decl(
                                                 type=IdentifierType(
                                                     names=['int']))),
     init=None, bitsize=None), param_decls=None,
-    body=Compound(block_items=[
-        Assignment(op='=', lvalue=ID(name='x'),
-                   rvalue=Constant(type='int', value='1')),
-        Assignment(op='=', lvalue=ID(name='x1'),
-                   rvalue=Constant(type='int', value='1')),
-        Assignment(op='=', lvalue=ID(name='x2'),
-                   rvalue=Constant(type='int', value='2')), If(
-            cond=BinaryOp(op='>', left=ID(name='x'),
-                          right=Constant(type='int', value='0')),
-            iftrue=Assignment(op='=', lvalue=ID(name='x3'),
-                              rvalue=Constant(type='int', value='1')),
-            iffalse=Assignment(op='=', lvalue=ID(name='x3'),
-                               rvalue=ID(name='x2'))),
+    body=Compound(block_items=[If(cond=BinaryOp(
+        op='>', left=ID(name='x'), right=Constant(type='int', value='0')),
+        iftrue=Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x1')),
+        iffalse=Assignment(op='=', lvalue=ID(name='x3'),
+                           rvalue=ID(name='x2'))),
         Assignment(op='=', lvalue=ID(name='y'), rvalue=ID(name='x3'))]))])
 
 IF_WITH_BRACES = FileAST(ext=[FuncDef(decl=Decl(
@@ -104,22 +96,12 @@ IF_WITH_BRACES = FileAST(ext=[FuncDef(decl=Decl(
                                                 type=IdentifierType(
                                                     names=['int']))),
     init=None, bitsize=None), param_decls=None,
-    body=Compound(block_items=[
-        Assignment(op='=', lvalue=ID(name='x'),
-                   rvalue=Constant(type='int', value='1')),
-        Assignment(op='=', lvalue=ID(name='x1'),
-                   rvalue=Constant(type='int', value='1')),
-        Assignment(op='=', lvalue=ID(name='x2'),
-                   rvalue=Constant(type='int', value='2')), If(
-            cond=BinaryOp(op='>', left=ID(name='x'),
-                          right=Constant(type='int', value='0')),
-            iftrue=Compound(
-                block_items=[Assignment(
-                    op='=', lvalue=ID(name='x3'),
-                    rvalue=Constant(type='int', value='1'))]),
-            iffalse=Compound(block_items=[
-                Assignment(op='=', lvalue=ID(name='x3'),
-                           rvalue=ID(name='x2'))])),
+    body=Compound(block_items=[If(cond=BinaryOp(
+        op='>', left=ID(name='x'), right=Constant(type='int', value='0')),
+        iftrue=Compound(block_items=[
+            Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x1'))]),
+        iffalse=Compound(block_items=[
+            Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x2'))])),
         Assignment(op='=', lvalue=ID(name='y'), rvalue=ID(name='x3'))]))])
 
 NOT_INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
@@ -218,9 +200,9 @@ PARAMS = FileAST(ext=[FuncDef(decl=Decl(
             Decl(name='x3', quals=[], storage=[], funcspec=[],
                  type=TypeDecl(declname='x3', quals=[],
                                type=IdentifierType(names=['int'])), init=None,
-                 bitsize=None)]), type=TypeDecl(
-            declname='foo', quals=[], type=IdentifierType(names=['int']))),
+                 bitsize=None)]), type=TypeDecl(declname='foo', quals=[],
+                                                type=IdentifierType(
+                                                    names=['int']))),
     init=None, bitsize=None), param_decls=None,
     body=Compound(block_items=[
-        Assignment(op='=', lvalue=ID(name='x1'),
-                   rvalue=Constant(type='int', value='1'))]))])
+        Assignment(op='=', lvalue=ID(name='x1'), rvalue=ID(name='x2'))]))])
