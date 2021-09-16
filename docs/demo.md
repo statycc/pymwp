@@ -1,7 +1,7 @@
 This demo allows running pymwp analysis on these [examples](examples.md) 
 on the web. 
 
-#### How to interpret the output
+**How to interpret the output**
 
 There will be 3 outputs:
 
