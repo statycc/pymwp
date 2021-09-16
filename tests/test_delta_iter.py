@@ -18,21 +18,21 @@ def test_create_delta_list():
     for m in lm:
         dg.insert_tuple(m)
 
-    dl = create_delta_list(4,dg)
+    (dl,dlz) = create_delta_list(4,dg)
 
     assert (dl[0] == [])
-    assert (dl[1] == [list(m1)])
+    assert (dlz[1] == [list(m1)])
     assert (dl[2] == [list(m2)])
     assert (dl[3] == [])
     assert (dl[4] == list(map(list,[m3,m4,m6])))
 
 def test_delta_iter_no_dg():
     dg = DeltaGraph()
-    dl = create_delta_list(2,dg)
+    (dl,dlz) = create_delta_list(2,dg)
 
     assert (dl[0] == [])
 
-    delta_i = Deltaiter([3,3],dl)
+    delta_i = Deltaiter([3,3],(dl,dlz))
 
     print(delta_i.value())
     assert (delta_i.value() == [0,0])
@@ -64,11 +64,11 @@ def test_delta_iter_with_dg():
     for m in lm:
         dg.insert_tuple(m)
 
-    dl = create_delta_list(2,dg)
+    (dl,dlz) = create_delta_list(2,dg)
 
     assert (dl[0] == [])
 
-    delta_i = Deltaiter([3,3],dl)
+    delta_i = Deltaiter([3,3],(dl,dlz))
 
     assert (delta_i.value() == [0,0])
     delta_i.next()
