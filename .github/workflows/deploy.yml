@@ -10,6 +10,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Get Hash
+      id: hash
+      run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
+
     - name: Deploy to App Engine
       uses: google-github-actions/deploy-appengine@v0.2.0
       with:
@@ -17,4 +21,4 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT }}
         credentials: ${{ secrets.GCP_SA_KEY }}
         promote: false
-        version: v1
+        version: ${{ env.hash }}"
