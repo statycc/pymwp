@@ -1,7 +1,5 @@
-int main() {
-    int x;
-    int y;
+int foo(int x, int y) {
     {
     if(x > y){x = y;}
-}
+    }
 }

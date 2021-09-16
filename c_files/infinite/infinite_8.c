@@ -1,5 +1,4 @@
-int main(){
-    int X0=1, X1=1, X2=1, X3=1, X4=1, X5=1;
+int foo(int X0, int X1, int X2, int X3, int X4, int X5){
     if (X3 == 0){
         X1 = X2+X1;
     }

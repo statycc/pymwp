@@ -5,12 +5,7 @@
  * Inspired from https://stackoverflow.com/a/213322
  */
 
-int main(){
-    int base;
-    int exp;
-    int i = 0;
-    int result = 1;
-    
+int foo(int base, int exp, int i, int result){
     while (i < exp){
         result = result * base;
         i = i + 1;
