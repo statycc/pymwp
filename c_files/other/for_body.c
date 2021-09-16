@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-int main() {
-    int y = 1;
+int foo(int y) {
     for (int x = 0; x < y; x++){y++; printf("%d", x);}
 } 

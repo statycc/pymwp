@@ -4,7 +4,7 @@
  * mwp-Bounds for Complexity Analysis".
   */
 
-int main(){
+int foo(int X1, int X2, int X3){
     if (0) {X3 = X1 + X1;}
     else{X3 = X3 + X2;}
 }

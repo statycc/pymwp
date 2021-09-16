@@ -4,7 +4,7 @@
  * mwp-Bounds for Complexity Analysis"
  */
 
-int main(){
+int foo(int X1, int X2, int X3){
     while (X > 0){
         X1 = X2 + X3;
     }

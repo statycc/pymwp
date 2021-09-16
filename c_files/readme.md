@@ -9,11 +9,9 @@ The `basics` folder contains examples of simple C source code performing operati
 | file | description |
 | --- | --- |
 `assign_expression.c` | assign result of binary operation to variable
-`assign_value.c` | assign literal value
 `assign_variable.c` | assign using variable
-`declaration.c` | `int` variable declaration
 `empty.c` | program file without any content
-`empty_main.c` | main method with empty body
+`empty_function.c` | function with empty body
 `if.c` | assignment within conditional statement
 `if_else.c` | conditional statement with `if` and `else`
 `while_1.c` | while loop with assignment
@@ -84,8 +82,8 @@ The `other` folder contains examples of C source code of interest.
 `braces_issues.c` | Example with superfluous braces
 `dense.c` | Example that generates a full matrix
 `explosion.c` | Explosion of the number of cases
-`f_alone.c` | Analyze standalone function `f`
-`f_inline.c` | Analyze same function `f`, but inside `main` method
-`f_main.c` | Analysis of `main` without call to function `f`
+`f_alone.c` | Analyze standalone function `bar`
+`f_inline.c` | Analyze same function `bar` but inlined within `foo` method
+`f_main.c` | Analysis of `foo` without call to function `bar`
 `for_body.c` | `for` loop and header file
 `for_not_body.c` | loop example using `for`

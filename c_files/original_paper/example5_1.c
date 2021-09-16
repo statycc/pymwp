@@ -5,6 +5,6 @@
  * This example is re-used from Example 3.3.
  */
 
-int main(){
+int foo(int X1, int X2){
      X1 + X2;
 }
