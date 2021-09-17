@@ -130,7 +130,7 @@ class Monomial:
 
         - output scalar is a product of the input scalars
         - two lists of deltas are merged according
-          to rules of insert_delta <utility.insert_delta>
+          to rules of insert_delta
 
         Arguments:
             monomial: the second monomial

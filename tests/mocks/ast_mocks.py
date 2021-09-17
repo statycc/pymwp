@@ -61,8 +61,7 @@ IF_WO_BRACES = FileAST(ext=[FuncDef(decl=Decl(
     body=Compound(block_items=[If(cond=BinaryOp(
         op='>', left=ID(name='x'), right=Constant(type='int', value='0')),
         iftrue=Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x1')),
-        iffalse=Assignment(op='=', lvalue=ID(name='x3'),
-                           rvalue=ID(name='x2'))),
+        iffalse=Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x2'))),
         Assignment(op='=', lvalue=ID(name='y'), rvalue=ID(name='x3'))]))])
 
 IF_WITH_BRACES = FileAST(ext=[FuncDef(decl=Decl(

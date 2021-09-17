@@ -158,7 +158,7 @@ class Polynomial:
             # handle case where first list is shorter
             # by just appending what remains of the
             # other list of monomials
-            # FIXME FOR WHAT ?
+            #  FIXME FOR WHAT ?
             # if new_list == []:
             #     new_list = new_list + polynomial.list[j:]
 
@@ -510,3 +510,35 @@ class Polynomial:
             self.list = filtered_monomials
 
         return self
+
+    @staticmethod
+    def from_scalars(index: int, *scalars: str):
+        """Build a polynomial of multiple monomials with deltas.
+
+        Example:
+
+            arguments:
+
+                - index: 5
+                - scalars: m, w, p
+
+            result:
+
+            ```Python
+            Polynomial(
+                Monomial('m', [(0, 5), (1, 5), (2, 5)]),
+                Monomial('w', [(0, 5), (1, 5), (2, 5)]),
+                Monomial('p', [(0, 5), (1, 5), (2, 5)]))
+            ```
+
+        Arguments:
+            index: delta index
+            scalars: scalar values
+
+        Returns:
+             Generated polynomial
+         """
+
+        monomials = [Monomial(scalar, [(number, index)])
+                     for number, scalar in enumerate(scalars)]
+        return Polynomial(monomials)

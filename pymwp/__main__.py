@@ -37,9 +37,8 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    log_level = 0 if args.silent else 40
-    log_filename = args.logfile
-    setup_logger(logging.FATAL - log_level, log_filename=log_filename)
+    log_level = logging.FATAL - (0 if args.silent else 40)
+    setup_logger(log_level, args.logfile)
     file_out = args.out or default_file_out(args.file)
 
     ast = parse(args.file, not args.no_cpp, args.cpp, args.cpp_args)
@@ -102,8 +101,8 @@ def _parse_args(
 
 
 def setup_logger(
-        level: int = logging.ERROR,
-        log_filename: Optional[str] = None) -> logging.Logger:
+        level: int = logging.ERROR, log_filename: Optional[str] = None
+) -> None:
     """Create a configured instance of logger.
 
     Arguments:

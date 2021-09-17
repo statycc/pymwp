@@ -112,7 +112,7 @@ class RelationList:
         return RelationList(relation_list=[Relation.identity(variables)])
 
     def __str__(self) -> str:
-        relations = '\n'.join([f'{r}' for r in self.relations])
+        relations = '\n\n'.join([f'{r}' for r in self.relations])
         divider = '\n' + ('-' * 72)
         return divider + '\n' + relations + divider
 

@@ -127,11 +127,10 @@ class Analysis:
         Arguments:
             index: delta index
             node: AST node to analyze
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and relation list and a boolean telling
-            us if we should stop here
+            Updated index value, relation list, and an exit flag.
         """
 
         logger.debug("in compute_relation")
@@ -140,20 +139,13 @@ class Analysis:
             return index, RelationList(), False
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
-                index, rel_list = Analysis.binary_op(index, node)
-                return index, rel_list, False
+                return Analysis.binary_op(index, node)
             if isinstance(node.rvalue, c_ast.Constant):
-                index, rel_list = Analysis.constant(index, node.lvalue.name)
-                return index, rel_list, False
+                return Analysis.constant(index, node.lvalue.name)
             if isinstance(node.rvalue, c_ast.UnaryOp):
-                index, rel_list = Analysis.unary_op(index, node)
-                return index, rel_list, False
+                return Analysis.unary_op(index, node)
             if isinstance(node.rvalue, c_ast.ID):
-                x = node.lvalue.name
-                y = node.rvalue.name
-                if x != y:
-                    index, rel_list = Analysis.id(index, node)
-                    return index, rel_list, False
+                return Analysis.id(index, node)
         if isinstance(node, c_ast.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, c_ast.While):
@@ -169,7 +161,8 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def id(index: int, node: Assignment) -> Tuple[int, RelationList]:
+    def id(index: int, node: Assignment) \
+            -> Tuple[int, RelationList, bool]:
         """Analyze x = y (with x != y) and y not a const
 
         Arguments:
@@ -177,11 +170,14 @@ class Analysis:
             node: AST node representing a simple assignment
 
         Returns:
-            Updated index value and relation list
+            Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation x = y')
         x = node.lvalue.name
         y = node.rvalue.name
+        if x == y or isinstance(node.rvalue, c_ast.Constant):
+            return index, RelationList(), False
+
+        logger.debug('Computing Relation x = y')
         vars_list = [[x], [y]]
 
         # create a vector of polynomials based on operator type
@@ -204,10 +200,11 @@ class Analysis:
         rel_list = RelationList.identity(variables)
         rel_list.replace_column(vector, vars_list[0][0])
 
-        return index + 1, rel_list
+        return index + 1, rel_list, False
 
     @staticmethod
-    def binary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
+    def binary_op(index: int, node: Assignment) \
+            -> Tuple[int, RelationList, bool]:
         """Analyze binary operation, e.g. `x = y + z`.
 
         Arguments:
@@ -215,39 +212,29 @@ class Analysis:
             node: AST node representing a binary operation
 
         Returns:
-            Updated index value and relation list
+            Updated index value, relation list, and an exit flag.
         """
         logger.debug('Computing Relation (first case / binary op)')
-        x = node.lvalue.name
-        vars_list = [[x], []]
-
-        # get left operand name if not a constant
-        if not isinstance(node.rvalue.left, c_ast.Constant):
-            y = node.rvalue.left.name
-            vars_list[1].append(y)
-
-        # get right operand name if not a constant
-        if not isinstance(node.rvalue.right, c_ast.Constant):
-            z = node.rvalue.right.name
-            vars_list[1].append(z)
+        x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
+        non_constants = tuple([v.name if hasattr(v, 'name') else None
+                               for v in [x, y, z]])
 
         # create a vector of polynomials based on operator type
-        index, vector = Analysis.create_vector(index, node, vars_list)
+        index, vector = Analysis.create_vector(
+            index, node.rvalue.op, non_constants)
 
-        # build a list of unique variables
-        variables = vars_list[0]
-        for var in vars_list[1]:
-            if var not in variables:
-                variables.append(var)
+        # build a list of unique variables but maintain order
+        variables = list(dict.fromkeys(non_constants))
 
         # create relation list
         rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, vars_list[0][0])
+        rel_list.replace_column(vector, x.name)
 
-        return index, rel_list
+        return index, rel_list, False
 
     @staticmethod
-    def constant(index: int, variable_name: str) -> Tuple[int, RelationList]:
+    def constant(index: int, variable_name: str) \
+            -> Tuple[int, RelationList, bool]:
         """Analyze a constant assignment of form: x = c where x is some
         variable and c is constant.
 
@@ -262,13 +249,14 @@ class Analysis:
             variable_name: name of variable to which constant is being assigned
 
         Returns:
-            Updated index value and relation list
+            Updated index value, relation list, and an exit flag.
         """
         logger.debug('Constant value node')
-        return index, RelationList([variable_name])
+        return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_op(index: int, node: Assignment) -> Tuple[int, RelationList]:
+    def unary_op(index: int, node: Assignment) \
+            -> Tuple[int, RelationList, bool]:
         """Analyze unary operator.
 
         Arguments:
@@ -276,7 +264,7 @@ class Analysis:
             node: unary operator node
 
         Returns:
-            Updated index value and relation list and False
+            Updated index value, relation list, and an exit flag.
         """
         # TODO : implement unary op
         logger.debug('Computing Relation (third case / unary)')
@@ -284,7 +272,7 @@ class Analysis:
         # list_var = None  # list_var(exp)
         # variables = [var_name] + list_var
         variables = [var_name]
-        return index, RelationList.identity(variables)
+        return index, RelationList.identity(variables), False
 
     @staticmethod
     def if_(index: int, node: If, dg: DeltaGraph) \
@@ -294,10 +282,10 @@ class Analysis:
         Arguments:
             index: delta index
             node: if-statement AST node
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and relation list, and exit flag
+            Updated index value, relation list, and an exit flag.
         """
         logger.debug('computing relation (conditional case)')
         true_relation, false_relation = RelationList(), RelationList()
@@ -305,11 +293,11 @@ class Analysis:
         index, exit_ = Analysis.if_branch(
             node.iftrue, index, true_relation, dg)
         if exit_:
-            return index, true_relation, exit_
+            return index, true_relation, True
         index, exit_ = Analysis.if_branch(
             node.iffalse, index, false_relation, dg)
         if exit_:
-            return index, false_relation, exit_
+            return index, false_relation, True
 
         relations = false_relation + true_relation
         return index, relations, False
@@ -332,10 +320,10 @@ class Analysis:
             node: AST if statement branch node
             index: current delta index value
             relation_list: current relation list state
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and exit flag
+            Updated index value, relation list, and an exit flag.
         """
         if node is not None:
             # when branch has braces
@@ -362,11 +350,10 @@ class Analysis:
         Arguments:
             index: delta index
             node: while loop node
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and relation list and a boolean saying
-            if we can stop here
+            Updated index value, relation list, and an exit flag.
         """
         logger.debug("analysing While")
 
@@ -402,30 +389,30 @@ class Analysis:
         Arguments:
             index: delta index
             node: for loop node
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and relation list and exit flag
+            Updated index value, relation list, and an exit flag.
         """
         logger.debug("analysing for:")
 
         relations = RelationList()
         for child in node.stmt.block_items:
-            index, rel_list, exit = Analysis.compute_relation(index, child, dg)
-            if exit:
-                return index, rel_list, exit
+            index, rel_list, exit_ = Analysis.compute_relation(
+                index, child, dg)
+            if exit_:
+                return index, rel_list, True
             relations.composition(rel_list)
 
         relations.fixpoint()
         # TODO: unknown method conditionRel
         #  ref: https://github.com/seiller/pymwp/issues/5
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
-        return index, relations, True
+        return index, relations, False
 
     @staticmethod
-    def compound_(
-            index: int, node: Compound, dg: DeltaGraph
-    ) -> Tuple[int, RelationList, bool]:
+    def compound_(index: int, node: Compound, dg: DeltaGraph) \
+            -> Tuple[int, RelationList, bool]:
         """Compound AST node contains zero or more children and is
         created by braces in source code.
 
@@ -434,10 +421,10 @@ class Analysis:
         Arguments:
             index: delta index
             node: compound AST node
-            dg: DeltaGraph instance
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
-            Updated index value and relation list and exit flag
+            Updated index value, relation list, and an exit flag.
         """
         relations = RelationList()
         if node.block_items:
@@ -451,10 +438,10 @@ class Analysis:
 
     @staticmethod
     def create_vector(
-            index: int, node: Assignment, variables: List[List[str]]
+            index: int, operator: str, variables: Tuple[Optional[str], ...]
     ) -> Tuple[int, List[Polynomial]]:
         """Build a polynomial vector based on operator and the operands
-        of a binary operation statement.
+        of a binary operation statement that has form `x = y (operator) z`.
 
         For an AST node that represents a binary operation, this method
         generates a vector of polynomials based on the properties of that
@@ -463,73 +450,38 @@ class Analysis:
 
         Arguments:
             index: delta index
-            node: AST node under analysis
-            variables: list of unique variables in this operation where:
-
-                - variables[0][0] is the variable on left side of assignment
-                - variables[1][0] is left operand of binary operation
-                - variables[1][1] is right operand of binary operation
-                - note: left/right operand is not present if it is a constant,
-                therefore check length of variables[1] before use/unpacking.
+            operator: operator
+            variables: variables in this operation `x = y (op) z` in order,
+                where `y` or `z` is `None` if constant
 
         Returns:
              Updated index, list of Polynomial vectors
         """
 
-        dependence_type = None
-        p1_scalars, p2_scalars = None, None
-        const_count = 2 - len(variables[1])
-        unknown = 'u'
-
-        # Do right hand side operators match each other.
-        # when they are different we create a vector of
-        # 2 polynomials, and 1 polynomial otherwise.
-        operand_match = const_count == 0 and variables[1][0] == variables[1][1]
-
-        # x = … (if x not in …), i.e. when left side variable does not
-        # occur on the right side of assignment, we prepend 0 to vector
-        prepend_zero = variables[0][0] not in variables[1]
-
-        # determine dependence type
-        if node.rvalue.op in ["+", "-"]:
-            dependence_type = "+" if const_count == 0 else unknown
-        elif node.rvalue.op in ["*"]:
-            dependence_type = "*" if const_count == 0 else unknown
-
-        # determine what scalars polynomial should have
-        if dependence_type == unknown:
-            p1_scalars = 'm', 'm', 'm'
-
-        if dependence_type == '*':
-            p1_scalars = 'w', 'w', 'w'
-            if not operand_match:
-                p2_scalars = 'w', 'w', 'w'
-
-        if dependence_type == '+':
-            if operand_match:
-                p1_scalars = 'w', 'p', 'w'
-            else:
-                p1_scalars = 'w', 'm', 'p'
-                p2_scalars = 'w', 'p', 'm'
-
-        # now build vector of 0 or more polynomials
+        x, y, z = variables
         vector = []
 
         # when left variable does not occur on right side of assignment
-        if prepend_zero:
-            vector.append(Polynomial([Monomial("o")]))
+        # x = … (if x not in …), i.e. when left side variable does not
+        # occur on the right side of assignment, we prepend 0 to vector
+        if x != y and x != z:
+            vector.append(Polynomial('o'))
 
-        # we _should_ have at least this one, but will be None if the
-        # operator is not + or * so check
-        if p1_scalars:
-            vector.append(Polynomial(
-                [Monomial(scalar, [(val, index)])
-                 for val, scalar in enumerate(p1_scalars)]))
+        if operator in {"+", "-", "*"} and (y is None or z is None):
+            vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
 
-        # when there are two different, non-constant operands on right
-        if p2_scalars:
-            vector.append(Polynomial(
-                [Monomial(scalar, [(val, index)])
-                 for val, scalar in enumerate(p2_scalars)]))
+        elif operator == '*' and y == z:
+            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+
+        elif operator == '*' and y != z:
+            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+
+        elif operator in {'+', '-'} and y == z:
+            vector.append(Polynomial.from_scalars(index, 'w', 'p', 'w'))
+
+        elif operator in {'+', '-'} and y != z:
+            vector.append(Polynomial.from_scalars(index, 'w', 'm', 'p'))
+            vector.append(Polynomial.from_scalars(index, 'w', 'p', 'm'))
 
         return index + 1, vector
