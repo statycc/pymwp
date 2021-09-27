@@ -85,5 +85,4 @@ The `other` folder contains examples of C source code of interest.
 `f_alone.c` | Analyze standalone function `bar`
 `f_inline.c` | Analyze same function `bar` but inlined within `foo` method
 `f_main.c` | Analysis of `foo` without call to function `bar`
-`for_body.c` | `for` loop and header file
 `for_not_body.c` | loop example using `for`
