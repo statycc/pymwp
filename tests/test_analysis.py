@@ -59,14 +59,14 @@ def test_analyze_variable_ignore():
                             [2, 0], [2, 1], [2, 2]]
     assert set(relation.variables) == {'X2', 'X3', 'X1', 'X4'}
 
-    wmp = '+w.delta(0,0)+m.delta(1,0)+p.delta(2,0)'
-    wpm = '+w.delta(0,0)+p.delta(1,0)+m.delta(2,0)'
+    mpw = '+m.delta(0,0)+p.delta(1,0)+w.delta(2,0)'
+    pmw = '+p.delta(0,0)+m.delta(1,0)+w.delta(2,0)'
     o = '+o'
     m = '+m'
     res = [
-        [m, wpm, o, wpm],
+        [m, pmw, o, pmw],
         [o, o, o, o],
-        [o, wmp, m, wmp],
+        [o, mpw, m, mpw],
         [o, o, o, o],
     ]
 
