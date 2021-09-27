@@ -481,7 +481,7 @@ class Analysis:
             vector.append(Polynomial.from_scalars(index, 'w', 'p', 'w'))
 
         elif operator in {'+', '-'} and y != z:
-            vector.append(Polynomial.from_scalars(index, 'w', 'm', 'p'))
-            vector.append(Polynomial.from_scalars(index, 'w', 'p', 'm'))
+            vector.append(Polynomial.from_scalars(index, 'm', 'p', 'w'))
+            vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
 
         return index + 1, vector
