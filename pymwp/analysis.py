@@ -155,7 +155,6 @@ class Analysis:
         if isinstance(node, c_ast.Compound):
             return Analysis.compound_(index, node, dg)
 
-        # TODO: handle uncovered cases
         logger.debug(f"uncovered case! type: {type(node)}")
 
         return index, RelationList(), False
@@ -266,7 +265,6 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        # TODO : implement unary op
         logger.debug('Computing Relation (third case / unary)')
         var_name = node.lvalue.name
         # list_var = None  # list_var(exp)

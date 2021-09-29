@@ -107,7 +107,7 @@ class DeltaGraph:
 
         Note:
             Is it possible that we've already computed that diff in
-            the other way ? (symetry)
+            the other way ? (symmetry)
             Answer:
                 AFA it's called now, NO
 

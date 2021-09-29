@@ -158,7 +158,7 @@ class Monomial:
 
         return mono_product
 
-    def eval(self, argument_list: list[int]) -> str:
+    def eval(self, argument_list: List[int]) -> str:
         """Evaluate delta values against argument list.
 
         The result of eval is determined as follows:

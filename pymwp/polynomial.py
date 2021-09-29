@@ -151,16 +151,9 @@ class Polynomial:
 
             tobe_inserted, i = Polynomial.inclusion(new_list, mono2, i)
 
-            if not (tobe_inserted):
+            if not tobe_inserted:
                 j = j + 1
                 continue
-
-            # handle case where first list is shorter
-            # by just appending what remains of the
-            # other list of monomials
-            #  FIXME FOR WHAT ?
-            # if new_list == []:
-            #     new_list = new_list + polynomial.list[j:]
 
             # handle case where first list is shorter
             # by just appending what remains of the
@@ -168,7 +161,7 @@ class Polynomial:
             if i == len(new_list):
                 for m in polynomial.list[j:]:
                     tobe_inserted, i = Polynomial.inclusion(new_list, m, i)
-                    if (tobe_inserted):
+                    if tobe_inserted:
                         new_list = new_list + [m]
                 break
 
@@ -187,11 +180,9 @@ class Polynomial:
                 j = j + 1
 
             # when both list heads are the same
-            # recompute scalar and move to next
-            # element
+            # recompute scalar and move to next element
             else:
-                new_list[i].scalar = \
-                    sum_mwp(mono1.scalar, mono2.scalar)
+                new_list[i].scalar = sum_mwp(mono1.scalar, mono2.scalar)
                 j = j + 1
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
@@ -268,16 +259,12 @@ class Polynomial:
             if i not in index_list:
                 index_list.append(i)
 
-        if len(self.list) > 1000 or len(polynomial.list) > 1000:
-            logger.debug(f'p1 {len(self.list)}, p2: {len(polynomial.list)}')
-
         # 3: start main part
         result = []
         while index_list:
             # 4. get first element and append to result
             # 5. remove from index and table
             smallest = index_list.pop(0)
-            # TODO 
             mono2 = table[smallest].pop(0)
             tobe_inserted, _ = Polynomial.inclusion(result, mono2)
             if tobe_inserted:

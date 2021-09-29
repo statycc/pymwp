@@ -233,13 +233,16 @@ class Relation:
             true when two relations are equal
             and false otherwise.
         """
+
+        # must have same variables in same order
         if set(self.variables) != set(other.variables):
             return False
 
-        # not sure homogenisation is necessary here … FIXME
-        er1, er2 = Relation.homogenisation(self, other)
+        # must have matrix of same size
+        if len(self.matrix) != len(other.matrix):
+            return False
 
-        for row1, row2 in zip(er1.matrix, er2.matrix):
+        for row1, row2 in zip(self.matrix, self.matrix):
             for poly1, poly2 in zip(row1, row2):
                 if poly1 != poly2:
                     return False
