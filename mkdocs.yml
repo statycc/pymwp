@@ -13,7 +13,7 @@ nav:
 - Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
-- All documented modules:
+- Modules:
   - Analysis: analysis.md
   - Delta Graph: delta_graphs.md
   - File I/O: file_io.md
