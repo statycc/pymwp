@@ -25,8 +25,8 @@ The `improvement_paper` folder contains examples from extended implementation pa
 | file | description |
 | --- | --- |
 `example3.c` | An illustration of the sum of two choices.
-`example5.c` | Examples with function call
-`example_5_inlined.c` | Example of an inlined function call
+`example5_a.c` | Examples with function call
+`example5_b.c` | Example of an inlined function call
 
 
 ## Infinite Examples

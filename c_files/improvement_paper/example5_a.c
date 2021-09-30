@@ -1,8 +1,8 @@
 /*
  * This example is a part of a collection:
  *
- * (1) example5.c - calls function f from foo
- * (2) example_5_inlined.c - f is inlined within foo
+ * (1) example5_a.c - calls function f from foo
+ * (2) example5_b.c - f is inlined within foo
  */
 
 int f(int X1, int X2){
