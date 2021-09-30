@@ -34,47 +34,57 @@ class Analysis:
         """
 
         logger.debug("starting analysis")
+        single_function = len(ast.ext) == 1
+        result, function_name = {}, ''
 
-        choices = [0, 1, 2]
-        index, combinations = 0, []
-        function_body, args = ast.ext[0].body, ast.ext[0].decl.type.args
-        variables = Analysis.find_variables(function_body, args)
-        relations = RelationList.identity(variables=variables)
-        total = len(function_body.block_items)
-        delta_infty = False
-        dg = DeltaGraph()
+        for ast_ext in ast:
+            choices = [0, 1, 2]
+            index, combinations = 0, []
+            function_name = ast_ext.decl.name
+            function_body = ast_ext.body
+            args = ast_ext.decl.type.args
+            variables = Analysis.find_variables(function_body, args)
+            logger.debug(f"variables of {function_name}: {variables}")
 
-        for i, node in enumerate(function_body.block_items):
-            logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list, delta_infty = Analysis \
-                .compute_relation(index, node, dg)
-            if delta_infty:
-                break
-            logger.debug(f'computing composition...{i} of {total}')
-            relations.composition(rel_list)
+            relations = RelationList.identity(variables=variables)
+            total = len(function_body.block_items)
+            delta_infty = False
+            dg = DeltaGraph()
 
-        # skip evaluation when delta graph has detected infinity
-        if not delta_infty:
-            combinations = relations.first.non_infinity(choices, index, dg)
+            for i, node in enumerate(function_body.block_items):
+                logger.debug(f'computing relation...{i} of {total}')
+                index, rel_list, delta_infty = Analysis \
+                    .compute_relation(index, node, dg)
+                if delta_infty:
+                    break
+                logger.debug(f'computing composition...{i} of {total}')
+                relations.composition(rel_list)
 
-        # the evaluation is infinite when either of these conditions holds:
-        infinite = delta_infty or (relations.first.variables and index > 0 and
-                                   not combinations)
+            # skip evaluation when delta graph has detected infinity
+            if not delta_infty:
+                combinations = relations.first.non_infinity(choices, index, dg)
 
-        # save result to file unless explicitly disabled
-        if not no_save:
-            save_relation(file_out, relations.first, combinations)
+            # the evaluation is infinite when either of these conditions holds:
+            infinite = delta_infty or (
+                    relations.first.variables and index > 0 and
+                    not combinations)
 
-        # display results
-        logger.debug(f'\nMATRIX{relations}')
+            # save result to file unless explicitly disabled
+            if not no_save:
+                save_relation(file_out, relations.first, combinations)
 
-        if infinite:
-            logger.info('RESULT: infinite')
-        else:
-            logger.info(f'CHOICES:\n{combinations}')
+            # display results
+            logger.debug(f'\nMATRIX{relations}')
+
+            if infinite:
+                logger.info(f'RESULT: {function_name} is infinite')
+            else:
+                logger.info(f'CHOICES:\n{combinations}')
+
+            result[function_name] = relations.first, combinations, infinite
 
         # return results to caller
-        return relations.first, combinations, infinite
+        return result[function_name] if single_function else result
 
     @staticmethod
     def find_variables(

@@ -25,6 +25,9 @@ The `improvement_paper` folder contains examples used in the _An extended and mo
 | file | description |
 | --- | --- |
 `example3.c` | An illustration of the sum of two choices.
+`example5.c` | Examples with function call
+`example_5_inlined.c` | Example of an inlined function call
+
 
 ## Infinite Examples
 

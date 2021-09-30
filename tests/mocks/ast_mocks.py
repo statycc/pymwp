@@ -8,7 +8,7 @@ These ASTs match the examples in c_files by name, or tests/mocks
 
 from pycparser.c_ast import FileAST, FuncDef, Decl, FuncDecl, TypeDecl, \
     IdentifierType, Compound, Constant, While, BinaryOp, ID, Assignment, If, \
-    ParamList
+    ParamList, FuncCall, Return, ExprList
 
 INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
     name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
@@ -61,7 +61,8 @@ IF_WO_BRACES = FileAST(ext=[FuncDef(decl=Decl(
     body=Compound(block_items=[If(cond=BinaryOp(
         op='>', left=ID(name='x'), right=Constant(type='int', value='0')),
         iftrue=Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x1')),
-        iffalse=Assignment(op='=', lvalue=ID(name='x3'), rvalue=ID(name='x2'))),
+        iffalse=Assignment(op='=', lvalue=ID(name='x3'),
+                           rvalue=ID(name='x2'))),
         Assignment(op='=', lvalue=ID(name='y'), rvalue=ID(name='x3'))]))])
 
 IF_WITH_BRACES = FileAST(ext=[FuncDef(decl=Decl(
@@ -200,3 +201,51 @@ PARAMS = FileAST(ext=[FuncDef(decl=Decl(
     init=None, bitsize=None), param_decls=None,
     body=Compound(block_items=[
         Assignment(op='=', lvalue=ID(name='x1'), rvalue=ID(name='x2'))]))])
+
+EX5_FUNCTION_CALL = FileAST(ext=[FuncDef(decl=Decl(
+    name='f', quals=[], storage=[], funcspec=[], type=FuncDecl(
+        args=ParamList(params=[
+            Decl(name='X1', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X1', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='x2', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='x2', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None)]), type=TypeDecl(declname='f', quals=[],
+                                                type=IdentifierType(
+                                                    names=['int']))),
+    init=None, bitsize=None), param_decls=None, body=Compound(block_items=[
+    While(cond=ID(name='X1'), stmt=Compound(block_items=[
+        Assignment(op='=', lvalue=ID(name='X2'),
+                   rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                   right=ID(name='X2')))])),
+    Return(expr=ID(name='X2'))])), FuncDef(
+    decl=Decl(name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
+        args=ParamList(params=[
+            Decl(name='X1', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X1', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X2', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X2', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X3', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X3', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None)]), type=TypeDecl(declname='foo', quals=[],
+                                                type=IdentifierType(
+                                                    names=['int']))),
+              init=None, bitsize=None), param_decls=None, body=Compound(
+        block_items=[Assignment(op='=', lvalue=ID(name='X3'),
+                                rvalue=BinaryOp(op='+', left=ID(name='X1'),
+                                                right=ID(name='X1'))),
+                     Assignment(op='=', lvalue=ID(name='X2'),
+                                rvalue=BinaryOp(op='+', left=ID(name='X3'),
+                                                right=ID(name='X1'))),
+                     Assignment(op='=', lvalue=ID(name='X1'),
+                                rvalue=FuncCall(name=ID(name='f'),
+                                                args=ExprList(
+                                                    exprs=[ID(name='X2'), ID(
+                                                        name='X2')])))]))])
