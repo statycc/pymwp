@@ -2,7 +2,7 @@
 
 <!-- To reword, but that's the idea. -->
 
-## Basics Examples
+## Basic Examples
 
 The `basics` folder contains examples of simple C source code performing operations that corresponds to simple derivation trees.
 
@@ -20,7 +20,7 @@ The `basics` folder contains examples of simple C source code performing operati
 
 ## Improvement Examples
 
-The `improvement_paper` folder contains examples used in the _An extended and more practical mwp flow analysis_
+The `improvement_paper` folder contains examples from extended implementation paper. <!-- TODO: add paper name -->
 
 | file | description |
 | --- | --- |
@@ -85,7 +85,4 @@ The `other` folder contains examples of C source code of interest.
 `braces_issues.c` | Example with superfluous braces
 `dense.c` | Example that generates a full matrix
 `explosion.c` | Explosion of the number of cases
-`f_alone.c` | Analyze standalone function `bar`
-`f_inline.c` | Analyze same function `bar` but inlined within `foo` method
-`f_main.c` | Analysis of `foo` without call to function `bar`
 `for_not_body.c` | loop example using `for`
