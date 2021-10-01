@@ -66,6 +66,7 @@ plugins:
           selection:
             new_path_syntax: yes
             filters:
+              - "!^_"
               - "^__init__$"
           rendering:
             show_root_heading: false

@@ -115,8 +115,7 @@ def parse(
             required, pass a list of strings. default: `-E`
 
     Raises:
-        System.exit: if file cannot be parsed or it appears invalid/
-        un-analyzable.
+        System.exit: if file cannot be parsed or is invalid/un-analyzable.
 
     Returns:
         Generated AST

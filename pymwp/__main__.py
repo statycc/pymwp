@@ -31,21 +31,21 @@ from .version import __version__
 def main():
     """Implementation of MWP analysis on C code in Python."""
     parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
-    args = _parse_args(parser)
+    args = __parse_args(parser)
 
     if not args.file:
         parser.print_help()
         sys.exit(1)
 
     log_level = logging.FATAL - (0 if args.silent else 40)
-    setup_logger(log_level, args.logfile)
+    __setup_logger(log_level, args.logfile)
     file_out = args.out or default_file_out(args.file)
 
     ast = parse(args.file, not args.no_cpp, args.cpp, args.cpp_args)
     Analysis.run(ast, file_out, args.no_save)
 
 
-def _parse_args(
+def __parse_args(
         parser: argparse.ArgumentParser,
         args: Optional[List] = None) -> argparse.Namespace:
     """Setup available program arguments."""
@@ -100,7 +100,7 @@ def _parse_args(
     return parser.parse_args(args)
 
 
-def setup_logger(
+def __setup_logger(
         level: int = logging.ERROR, log_filename: Optional[str] = None
 ) -> None:
     """Create a configured instance of logger.

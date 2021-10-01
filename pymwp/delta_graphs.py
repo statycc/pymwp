@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from .monomial import Monomial
 
 
@@ -61,17 +61,22 @@ class DeltaGraph:
             for ml in monomials:
                 self.import_monomial(ml)
 
-    def import_monomial(self, m: Monomial):
+    def import_monomial(self, m: Monomial) -> None:
+        """import monomial
+
+        Arguments:
+            m: monomial
+        """
         self.insert_tuple(tuple(m.list))
 
-    def addEdge(self, node1, node2, label):
+    def add_edge(self, node1, node2, label) -> None:
         """Add an edge of label `label` btwn `node1` and `node2`
         If one node does not exists, it's created
 
-        Symetry is also added in the graph
+        Symmetry is also added in the graph
 
         Note:
-            node2 should always exists if addEdge is always called
+            node2 should always exists if add_edge is always called
             from insert_tuple
 
         Arguments:
@@ -80,7 +85,7 @@ class DeltaGraph:
             label: label over the edge
 
         """
-        # addEdge is called only when len(node1) = len(node2)
+        # add_edge is called only when len(node1) = len(node2)
         size = len(node1)
         if node1 not in self.graph_dict[size]:
             self.graph_dict[size][node1] = {}
@@ -88,14 +93,14 @@ class DeltaGraph:
         # self.graph_dict[size][node1]=[(node2,label)]
         self.graph_dict[size][node1][node2] = label
 
-        # If addEdge is always called from insert_tuple
+        # If add_edge is always called from insert_tuple
         # node2 should always be in self.graph_dict[size]
         if node2 not in self.graph_dict[size]:
             self.graph_dict[size][node2] = {}
         self.graph_dict[size][node2][node1] = label
 
     # monomial_list : Tuple[Tuple[int,int]]
-    def insert_tuple(self, monomial_list, simplification=False):
+    def insert_tuple(self, monomial_list, simplification=False) -> None:
         """Insert tuple in the graph
 
         it may exists cases where we need to perform simplification
@@ -105,16 +110,18 @@ class DeltaGraph:
         else compare it with all monomial_list of same size with
         mono_diff
 
+        <!--
         Note:
             Is it possible that we've already computed that diff in
             the other way ? (symmetry)
             Answer:
                 AFA it's called now, NO
+        -->
 
         Arguments:
             monomial_list: tuple to insert in the graph
             simplification: boolean to inform if simplification is
-            necessary
+                necessary
         """
         n = len(monomial_list)
 
@@ -134,12 +141,12 @@ class DeltaGraph:
                     (diff, i) = self.mono_diff(monomial_list, listi)
                     if diff:
                         inserted = True
-                        self.addEdge(monomial_list, listi, i)
+                        self.add_edge(monomial_list, listi, i)
                 if not inserted:
                     self.graph_dict[n][monomial_list] = {}
 
     @staticmethod
-    def remove_index(ml, index):
+    def remove_index(ml: List[Monomial], index: int) -> Tuple:
         """Remove delta with given index
         Arguments:
             ml: monomial_list as tuple
@@ -151,8 +158,8 @@ class DeltaGraph:
         return tuple(filter(lambda x: x[1] != index, list(ml)))
 
     # Remove tuple from graph and related edges
-        #: Tuple[Tuple[int,int]]
-    def remove_tuple(self, ml, index):
+    #: Tuple[Tuple[int,int]]
+    def remove_tuple(self, ml: List[Monomial], index: int):
         """Remove given tuple and neighbors connected with same label
 
         Removes also edge/labels connected to that node
@@ -178,7 +185,10 @@ class DeltaGraph:
                     del self.graph_dict[size][ml_nb][ml]
 
     @staticmethod
-    def mono_diff(ml1, ml2, index=None):
+    def mono_diff(
+            ml1: List[Monomial], ml2: List[Monomial],
+            index: Optional[int] = None
+    ) -> Tuple[bool, Union[int, Monomial]]:
         """Compares two nodes
         Compares two lists of monomials (of the same lenth)
         and returns (diff, i) where diff is True if and only if
@@ -202,13 +212,13 @@ class DeltaGraph:
                 i1 = ml1[i][1]
                 # We've already recorded one so two diff
                 if diff_found:
-                    return (False, i1)
+                    return False, i1
                 # Case recursive call, we've not found yet
                 # But index is defined by arguments
                 if index is not None:
                     # If the diff has different index than expected
                     if index != i1:
-                        return (False, index)
+                        return False, index
                     else:
                         # We've found one but still searching more
                         diff_found = True
@@ -222,11 +232,12 @@ class DeltaGraph:
                         # Continue searching see if there are more diff
                         diff_found = True
                     else:
-                        return (False, i1)
+                        return False, i1
             i += 1
         return diff_found, index
 
-    def isfull(self, n, mono, index, max_choices=3):
+    def is_full(self, n: int, mono: Monomial, index: int,
+                max_choices: Optional[int] = 3) -> bool:
         """Check for cliques of same label
 
         example :
@@ -255,6 +266,7 @@ class DeltaGraph:
             n: size of nodes or "level"
             mono: arround that node
             index: index with to find clique
+            max_choices: optional
 
         Returns:
             True if there is a clique
@@ -269,12 +281,20 @@ class DeltaGraph:
         return False
 
     @staticmethod
-    def getIndexes(lm):
+    def get_indexes(lm: List[Monomial]) -> List[int]:
+        """Given a list of monomials, get only its indices
+
+        Arguments:
+            lm: list of monomials
+
+        Returns:
+            list of indices.
+        """
         _, listi = zip(*lm)
         return listi
 
     # def fusion(self, list_of_max, max_i=None):
-    def fusion(self, max_i=3):
+    def fusion(self, max_i: Optional[int] = 3) -> None:
         """Eliminate clique of same label in delta_graph
 
         example :
@@ -310,7 +330,7 @@ class DeltaGraph:
         ```
 
         Arguments:
-            list_of_max: size of clique we want to eliminate regarding to index
+            max_i: size of clique we want to eliminate regarding to index
             of deltas
 
         Returns:
@@ -321,26 +341,42 @@ class DeltaGraph:
             # For all monomial list of size n
             for lm in list(self.graph_dict[n]):
                 # For all indexes in deltas of that monomial
-                for index in self.getIndexes(lm):
+                for index in self.get_indexes(lm):
                     # Check if it's full of same index
-                    if lm in self.graph_dict[n] and self.isfull(
+                    if lm in self.graph_dict[n] and self.is_full(
                             n, lm, index, max_i):
                         self.remove_tuple(lm, index)
                         self.insert_tuple(DeltaGraph.remove_index(lm, index))
 
     @staticmethod
-    def combination_matches_tuple(c: List, lm: Tuple[Tuple[int, int]]):
+    def combination_matches_tuple(
+            c: List, lm: Tuple[Tuple[int, int]]
+    ) -> bool:
+        """(description)
+
+        Arguments:
+            c: list
+            lm: tuple
+
+        Returns:
+            true/false
+        """
         for t in lm:
-            if (c[t[1]] != t[0]):
+            if c[t[1]] != t[0]:
                 return False
         return True
 
-    def contains_combination(self, combination):
-        # if we have (0,1) in our graph
-        # remove all combinations where combinations[1] = 0
-        # then for size 2 (0,2)(1,3) remove all combinations where
-        # we have combinatins[2] = 0 and combinations[3] = 1
-        # etc…
+    def contains_combination(self, combination: List) -> bool:
+        """If we have (0,1) in our graph remove all combinations where
+        combinations[1] = 0 then for size 2 (0,2)(1,3) remove all combinations
+        where we have combinations[2] = 0 and combinations[3] = 1 etc…
+
+        Arguments:
+            combination:  list
+
+        Returns:
+            true/false
+        """
         for n in sorted(self.graph_dict):
             # For all monomial list of size n starting with n = 1
             for lm in list(self.graph_dict[n].keys()):
@@ -352,5 +388,5 @@ class DeltaGraph:
         res = ""
         for n in self.graph_dict:
             res += str(n) + ":" + \
-                str(self.graph_dict[n]) + "\n" + 26 * "-- " + "\n"
+                   str(self.graph_dict[n]) + "\n" + 26 * "-- " + "\n"
         return res
