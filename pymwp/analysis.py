@@ -2,7 +2,7 @@ import logging
 from typing import List, Tuple, Optional
 from pycparser import c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For, Compound, \
-    ParamList
+    ParamList, FuncCall
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -147,6 +147,8 @@ class Analysis:
 
         if isinstance(node, c_ast.Decl):
             return index, RelationList(), False
+        if isinstance(node, FuncCall):
+            return Analysis.func_call(index)
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 return Analysis.binary_op(index, node)
@@ -156,6 +158,8 @@ class Analysis:
                 return Analysis.unary_op(index, node)
             if isinstance(node.rvalue, c_ast.ID):
                 return Analysis.id(index, node)
+            if isinstance(node.rvalue, FuncCall):
+                return Analysis.func_call(index)
         if isinstance(node, c_ast.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, c_ast.While):
@@ -493,3 +497,11 @@ class Analysis:
             vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
 
         return index + 1, vector
+
+    @staticmethod
+    def func_call(index: int) \
+            -> Tuple[int, RelationList, bool]:
+        """Function call handler stub."""
+        logger.debug('Function call detected!\nThis feature is not yet '
+                     'supported, but will be added soon')
+        return index, RelationList(), False
