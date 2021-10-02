@@ -1,0 +1,28 @@
+# YAML 1.2
+---
+authors: 
+  -
+    affiliation: "School of Computer and Cyber Sciences, Augusta University"
+    family-names: Aubert
+    given-names: "Clément"
+    orcid: "https://orcid.org/0000-0001-6346-3043"
+  -
+    affiliation: "LIPN – UMR 7030 Université Sorbonne Paris Nord"
+    family-names: Rubiano
+    given-names: Thomas
+  -
+    affiliation: "School of Computer and Cyber Sciences, Augusta University"
+    family-names: Rusch
+    given-names: Neea
+    orcid: "https://orcid.org/0000-0002-7354-5330"
+  -
+    affiliation: "LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS"
+    family-names: Seiller
+    given-names: Thomas
+    orcid: "https://orcid.org/0000-0001-6313-0898"
+cff-version: "1.1.0"
+license: "CC-BY-NC-4.0"
+message: "Thanks for using the following metadata to cite this software."
+repository-code: "https://github.com/statycc/pymwp/"
+title: "pymwp: MWP analysis in Python"
+...
