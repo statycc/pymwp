@@ -141,13 +141,13 @@ def test_isfull():
         dg.insert_tuple(m)
 
     try:
-        assert dg.isfull(3,m3,3,3) == True
-        assert dg.isfull(3,m4,3,3) == True
-        assert dg.isfull(3,m5,3,3) == True
-        assert dg.isfull(2,m1,2,3) == False
-        assert dg.isfull(2,m2,2,3) == False
-        assert dg.isfull(2,m1,2,2) == True
-        assert dg.isfull(2,m2,2,2) == True
+        assert dg.is_full(3, m3, 3, 3) == True
+        assert dg.is_full(3, m4, 3, 3) == True
+        assert dg.is_full(3, m5, 3, 3) == True
+        assert dg.is_full(2, m1, 2, 3) == False
+        assert dg.is_full(2, m2, 2, 3) == False
+        assert dg.is_full(2, m1, 2, 2) == True
+        assert dg.is_full(2, m2, 2, 2) == True
     except AssertionError:
         raise
 

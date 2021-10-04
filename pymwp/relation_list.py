@@ -140,7 +140,7 @@ class RelationList:
                 variable.
 
         Raises:
-              ValueError: if variable does not exists some relation belonging
+            ValueError: if variable does not exists some relation belonging
                 to this relation list.
         """
 

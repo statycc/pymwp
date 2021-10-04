@@ -481,9 +481,6 @@ class Polynomial:
         Before returning, if the list is empty, the result produces a
             0-monomial.
 
-        Arguments:
-            polynomial: from which to remove zeros
-
         Returns:
             polynomial with list of monomials for which zeros are
             removed, unless 0 is the only monomial.
@@ -499,7 +496,7 @@ class Polynomial:
         return self
 
     @staticmethod
-    def from_scalars(index: int, *scalars: str):
+    def from_scalars(index: int, *scalars: str) -> Polynomial:
         """Build a polynomial of multiple monomials with deltas.
 
         Example:
