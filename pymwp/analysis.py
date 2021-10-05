@@ -1,8 +1,8 @@
 import logging
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union, Dict
 from pycparser import c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For, Compound, \
-    ParamList
+    ParamList, FuncCall
 
 from .relation_list import RelationList, Relation
 from .polynomial import Polynomial
@@ -19,7 +19,7 @@ class Analysis:
     @staticmethod
     def run(
             ast: c_ast, file_out: str = None, no_save: bool = False
-    ) -> Tuple[Relation, List[List[int]], bool]:
+    ) -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
@@ -34,47 +34,57 @@ class Analysis:
         """
 
         logger.debug("starting analysis")
+        single_function = len(ast.ext) == 1
+        result, function_name = {}, ''
 
-        choices = [0, 1, 2]
-        index, combinations = 0, []
-        function_body, args = ast.ext[0].body, ast.ext[0].decl.type.args
-        variables = Analysis.find_variables(function_body, args)
-        relations = RelationList.identity(variables=variables)
-        total = len(function_body.block_items)
-        delta_infty = False
-        dg = DeltaGraph()
+        for ast_ext in ast:
+            choices = [0, 1, 2]
+            index, combinations = 0, []
+            function_name = ast_ext.decl.name
+            function_body = ast_ext.body
+            args = ast_ext.decl.type.args
+            variables = Analysis.find_variables(function_body, args)
+            logger.debug(f"variables of {function_name}: {variables}")
 
-        for i, node in enumerate(function_body.block_items):
-            logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list, delta_infty = Analysis \
-                .compute_relation(index, node, dg)
-            if delta_infty:
-                break
-            logger.debug(f'computing composition...{i} of {total}')
-            relations.composition(rel_list)
+            relations = RelationList.identity(variables=variables)
+            total = len(function_body.block_items)
+            delta_infty = False
+            dg = DeltaGraph()
 
-        # skip evaluation when delta graph has detected infinity
-        if not delta_infty:
-            combinations = relations.first.non_infinity(choices, index, dg)
+            for i, node in enumerate(function_body.block_items):
+                logger.debug(f'computing relation...{i} of {total}')
+                index, rel_list, delta_infty = Analysis \
+                    .compute_relation(index, node, dg)
+                if delta_infty:
+                    break
+                logger.debug(f'computing composition...{i} of {total}')
+                relations.composition(rel_list)
 
-        # the evaluation is infinite when either of these conditions holds:
-        infinite = delta_infty or (relations.first.variables and index > 0 and
-                                   not combinations)
+            # skip evaluation when delta graph has detected infinity
+            if not delta_infty:
+                combinations = relations.first.non_infinity(choices, index, dg)
 
-        # save result to file unless explicitly disabled
-        if not no_save:
-            save_relation(file_out, relations.first, combinations)
+            # the evaluation is infinite when either of these conditions holds:
+            infinite = delta_infty or (
+                    relations.first.variables and index > 0 and
+                    not combinations)
 
-        # display results
-        logger.debug(f'\nMATRIX{relations}')
+            # save result to file unless explicitly disabled
+            if not no_save:
+                save_relation(file_out, relations.first, combinations)
 
-        if infinite:
-            logger.info('RESULT: infinite')
-        else:
-            logger.info(f'CHOICES:\n{combinations}')
+            # display results
+            logger.debug(f'\nMATRIX{relations}')
+
+            if infinite:
+                logger.info(f'RESULT: {function_name} is infinite')
+            else:
+                logger.info(f'CHOICES:\n{combinations}')
+
+            result[function_name] = relations.first, combinations, infinite
 
         # return results to caller
-        return relations.first, combinations, infinite
+        return result[function_name] if single_function else result
 
     @staticmethod
     def find_variables(
@@ -137,6 +147,8 @@ class Analysis:
 
         if isinstance(node, c_ast.Decl):
             return index, RelationList(), False
+        if isinstance(node, FuncCall):
+            return Analysis.func_call(index)
         if isinstance(node, c_ast.Assignment):
             if isinstance(node.rvalue, c_ast.BinaryOp):
                 return Analysis.binary_op(index, node)
@@ -146,6 +158,8 @@ class Analysis:
                 return Analysis.unary_op(index, node)
             if isinstance(node.rvalue, c_ast.ID):
                 return Analysis.id(index, node)
+            if isinstance(node.rvalue, FuncCall):
+                return Analysis.func_call(index)
         if isinstance(node, c_ast.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, c_ast.While):
@@ -483,3 +497,11 @@ class Analysis:
             vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
 
         return index + 1, vector
+
+    @staticmethod
+    def func_call(index: int) \
+            -> Tuple[int, RelationList, bool]:
+        """Function call handler stub."""
+        logger.debug('Function call detected!\nThis feature is not yet '
+                     'supported, but will be added soon')
+        return index, RelationList(), False

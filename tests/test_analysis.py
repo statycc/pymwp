@@ -1,7 +1,8 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, OTHER_BRACES_ISSUES, BASICS_ASSIGN_VALUE, PARAMS
+    VARIABLE_IGNORED, OTHER_BRACES_ISSUES, BASICS_ASSIGN_VALUE, PARAMS, \
+    FUNCTION_CALL
 
 
 def test_analyze_infinite2():
@@ -109,3 +110,15 @@ def test_analysis_identifies_function_params():
     relation = Analysis.run(PARAMS, no_save=True)[0]
 
     assert set(relation.variables) == {'x1', 'x2', 'x3'}
+
+
+def test_analysis_returns_all_functions():
+    """If input file contains multiple functions result contains
+    evaluation of each function (example 5)
+    """
+    result = Analysis.run(FUNCTION_CALL, no_save=True)
+    f, _, _ = result['f']
+    foo, _, _ = result['foo']
+
+    assert set(f.variables) == {'X1', 'X2'}
+    assert set(foo.variables) == {'X1', 'X2', 'X3'}
