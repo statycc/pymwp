@@ -11,8 +11,8 @@
 int foo(int X1, int X2, int X3, int X_1, int R) {
     X3 = X1 + X1;
     X2 = X3 + X1;
-    X_1 = X2;  // rename input variables
-    R = X2;    // rename returned variable
-    while(X_1) { R = R + R; }  // chunk
-    X1 = R;    // return is removed
+    X_1 = X2;  /* rename input variables */
+    R = X2;    /* rename returned variable */
+    while(X_1) { R = R + R; }  /* chunk */
+    X1 = R;    /* return is removed */
 }
