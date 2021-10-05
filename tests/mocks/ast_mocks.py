@@ -202,15 +202,15 @@ PARAMS = FileAST(ext=[FuncDef(decl=Decl(
     body=Compound(block_items=[
         Assignment(op='=', lvalue=ID(name='x1'), rvalue=ID(name='x2'))]))])
 
-EX5_FUNCTION_CALL = FileAST(ext=[FuncDef(decl=Decl(
+FUNCTION_CALL = FileAST(ext=[FuncDef(decl=Decl(
     name='f', quals=[], storage=[], funcspec=[], type=FuncDecl(
         args=ParamList(params=[
             Decl(name='X1', quals=[], storage=[], funcspec=[],
                  type=TypeDecl(declname='X1', quals=[],
                                type=IdentifierType(names=['int'])), init=None,
                  bitsize=None),
-            Decl(name='x2', quals=[], storage=[], funcspec=[],
-                 type=TypeDecl(declname='x2', quals=[],
+            Decl(name='X2', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X2', quals=[],
                                type=IdentifierType(names=['int'])), init=None,
                  bitsize=None)]), type=TypeDecl(declname='f', quals=[],
                                                 type=IdentifierType(

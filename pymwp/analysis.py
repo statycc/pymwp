@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union, Dict
 from pycparser import c_ast
 from pycparser.c_ast import Node, Assignment, If, While, For, Compound, \
     ParamList, FuncCall
@@ -19,7 +19,7 @@ class Analysis:
     @staticmethod
     def run(
             ast: c_ast, file_out: str = None, no_save: bool = False
-    ) -> Tuple[Relation, List[List[int]], bool]:
+    ) -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
