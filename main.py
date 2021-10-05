@@ -22,28 +22,14 @@ def server_error(e):
     return 'An internal error occurred. ' + str(e), 500
 
 
-@app.route('/')
-def version():
-    """Display pymwp version info."""
-    result = f'pymwp version: {__version__}\n\n' + \
-             f'OS/v: {platform.system()} {platform.release()}\n\n' + \
-             f'C pre-parser: {pre_parser}'
-
-    return Response(result, mimetype='text/plain')
+@app.route('/v2/')
+def version_v2():
+    return version()
 
 
-@app.route('/examples')
-def examples():
-    """List all known examples."""
-    result = {}
-    for dirs in os.listdir(examples_directory):
-        display = dirs.capitalize().replace('_', ' ')
-        result[display] = {}
-        for files in os.listdir(examples_directory + "/" + dirs):
-            fname = files.capitalize().replace('_', ' ')[:-2]
-            result[display][fname] = f'{dirs}/{files}'
-    result['Version'] = {'Display system info': '/'}
-    return jsonify(result)
+@app.route('/v2/examples')
+def examples_v2():
+    return examples()
 
 
 @app.route('/v2/<category>/<filename>')
@@ -71,6 +57,30 @@ def analyze_v2(category, filename):
         result['error_msg'] = type_.__name__, value
 
     return Response(jsons.dumps(result), mimetype='application/json')
+
+
+@app.route('/')
+def version():
+    """Display pymwp version info."""
+    result = f'pymwp version: {__version__}\n\n' + \
+             f'OS/v: {platform.system()} {platform.release()}\n\n' + \
+             f'C pre-parser: {pre_parser}'
+
+    return Response(result, mimetype='text/plain')
+
+
+@app.route('/examples')
+def examples():
+    """List all known examples."""
+    result = {}
+    for dirs in os.listdir(examples_directory):
+        display = dirs.capitalize().replace('_', ' ')
+        result[display] = {}
+        for files in os.listdir(examples_directory + "/" + dirs):
+            fname = files.capitalize().replace('_', ' ')[:-2]
+            result[display][fname] = f'{dirs}/{files}'
+    result['Version'] = {'Display system info': '/'}
+    return jsonify(result)
 
 
 @app.route('/<path>/<file>')
