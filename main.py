@@ -2,23 +2,18 @@ import sys
 import os
 import platform
 
+import jsons as jsons
 from flask import Flask, Response, stream_with_context, jsonify
 from flask_cors import CORS
 from pymwp import __version__
 from pymwp.file_io import parse
 from pymwp.analysis import Analysis
 
-try:
-    version_id = google.appengine.api.modules.modules.get_current_module_name()
-except:
-    version_id = 'demo-server'
-
 app = Flask(__name__)
 CORS(app)
 
+source_link = 'https://github.com/statycc/pymwp/tree/main/c_files/'
 examples_directory = 'c_files'
-source_link = 'https://github.com/seiller/pymwp/blob/master/c_files/'
-server_link = f'https://github.com/statycc/pymwp/tree/{version_id}'
 pre_parser = "cpp"
 
 
@@ -32,9 +27,7 @@ def version():
     """Display pymwp version info."""
     result = f'pymwp version: {__version__}\n\n' + \
              f'OS/v: {platform.system()} {platform.release()}\n\n' + \
-             f'C pre-parser: {pre_parser}\n\n' + \
-             f'source code version: <a  target="_blank" rel="noopener noreferrer" ' \
-                 f'href="{server_link}">{version_id or "localhost"}</a>'
+             f'C pre-parser: {pre_parser}'
 
     return Response(result, mimetype='text/plain')
 
@@ -51,6 +44,33 @@ def examples():
             result[display][fname] = f'{dirs}/{files}'
     result['Version'] = {'Display system info': '/'}
     return jsonify(result)
+
+
+@app.route('/v2/<category>/<filename>')
+def analyze_v2(category, filename):
+    """Run analysis on specified example."""
+    if not os.path.isdir(os.path.join(examples_directory, category)):
+        return 'invalid example category!', 500
+    if not os.path.isfile(os.path.join(examples_directory, category, filename)):
+        return 'example does not exits!', 500
+
+    sample = os.path.join(category, filename)
+    file = os.path.join(examples_directory, sample)
+
+    result = {
+        'url': f'{source_link}{sample}',
+        'program': file_text(file) or "(File is empty)",
+    }
+
+    try:
+        ast = parse(file, cpp_path=pre_parser)
+        result['result'] = Analysis.run(ast, no_save=True)
+    except:
+        type_, value, tb = sys.exc_info()
+        result['error'] = True
+        result['error_msg'] = type_.__name__, value
+
+    return Response(jsons.dumps(result), mimetype='application/json')
 
 
 @app.route('/<path>/<file>')
