@@ -27,10 +27,10 @@ jobs:
 
     - name: Run unit tests
       run: |
-        pytest --cov=./pymwp tests
+        pytest --cov=./pymwp tests --cov-report xml
 
     - name: Report coverage
       uses: codecov/codecov-action@v2.1.0
       with:
-        files: ./coverage
+        files: ./coverage.xml
         fail_ci_if_error: false

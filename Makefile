@@ -45,6 +45,10 @@ test-only:
 	@echo "\nrunning unit tests...\n"
 	pytest --cov=./pymwp tests
 
+test-missing:
+	@echo "\nrunning unit tests...\n"
+	pytest --cov-report term-missing --cov=./pymwp tests
+
 lint-only:
 	@echo "\nchecking code style...\n"
 	flake8 ./pymwp --count --show-source --statistics
