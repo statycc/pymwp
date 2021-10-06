@@ -67,7 +67,7 @@ class DeltaGraph:
         Arguments:
             m: monomial
         """
-        self.insert_tuple(tuple(m.list))
+        self.insert_tuple(tuple(m.deltas))
 
     def add_edge(self, node1, node2, label) -> None:
         """Add an edge of label `label` btwn `node1` and `node2`

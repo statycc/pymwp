@@ -61,13 +61,6 @@ class Monomial:
         if deltas:
             Monomial.insert_deltas(self, deltas)
 
-        # monomial.list is alias for monomial.deltas; earlier
-        # versions of code used attribute name list but "list"
-        # shadows a built-in name in Python. The next line can
-        # be removed after all references to monomial.list are
-        # removed
-        self.list = getattr(self, 'deltas')
-
     def __str__(self) -> str:
         deltas = [".delta({0},{1})".format(*delta)
                   for delta in self.deltas]
@@ -87,8 +80,8 @@ class Monomial:
             False if one delta of m not in self
             True otherwise
         """
-        for b in m.list:
-            if not (b in self.list):
+        for b in m.deltas:
+            if not (b in self.deltas):
                 return False
         return True
 
@@ -152,7 +145,7 @@ class Monomial:
         # result already contains deltas from "self"
         # so we are adding to it the deltas from
         # the second monomial passed in as argument
-        elif monomial.list:
+        elif monomial.deltas:
             # TODO here insert only those not contained ?
             Monomial.insert_deltas(mono_product, monomial.deltas)
 
