@@ -19,7 +19,7 @@ python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
 
 ### Profiling multiple executions
 
-[Profiler](https://github.com/seiller/pymwp/blob/master/utilities/profiler.py) is a wrapper for cProfile. It enables profiling multiple executions of analysis on a directory of C files (it will recursively search for C files). This utility is not distributed with pymwp package; you must run from source to use it.
+[Profiler](https://github.com/statycc/pymwp/blob/master/utilities/profiler.py) is a wrapper for cProfile. It enables profiling multiple executions of analysis on a directory of C files (it will recursively search for C files). This utility is not distributed with pymwp package; you must run from source to use it.
 
 
 The results of each execution are stored in corresponding files.

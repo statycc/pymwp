@@ -53,7 +53,7 @@ def test_analyze_if_braces_do_not_matter():
 
 def test_analyze_variable_ignore():
     """Analysis picks up variable on left of assignment,
-    see issue #11: https://github.com/seiller/pymwp/issues/11 """
+    see issue #11: https://github.com/statycc/pymwp/issues/11 """
     relation, combinations = Analysis.run(VARIABLE_IGNORED, no_save=True)[:2]
 
     assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
@@ -82,7 +82,7 @@ def test_analyze_variable_ignore():
 
 def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
-    see issue: #25: https://github.com/seiller/pymwp/issues/25"""
+    see issue: #25: https://github.com/statycc/pymwp/issues/25"""
     relation, combinations = Analysis.run(OTHER_BRACES_ISSUES, no_save=True)[
                              :2]
 
@@ -96,7 +96,7 @@ def test_extra_braces_are_ignored():
 def test_assigning_value_yields_matrix_result():
     """Analyzing should yield a result with matrix for programs with
     declaration only.
-    issue #43: https://github.com/seiller/pymwp/issues/43"""
+    issue #43: https://github.com/statycc/pymwp/issues/43"""
     relation = Analysis.run(BASICS_ASSIGN_VALUE, no_save=True)[0]
 
     assert relation.variables == ['y']
@@ -105,7 +105,7 @@ def test_assigning_value_yields_matrix_result():
 
 def test_analysis_identifies_function_params():
     """Analysis will identify variables from function declaration
-    issue #51: https://github.com/seiller/pymwp/issues/51
+    issue #51: https://github.com/statycc/pymwp/issues/51
     """
     relation = Analysis.run(PARAMS, no_save=True)[0]
 

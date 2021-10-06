@@ -418,7 +418,7 @@ class Analysis:
 
         relations.fixpoint()
         # TODO: unknown method conditionRel
-        #  ref: https://github.com/seiller/pymwp/issues/5
+        #  ref: https://github.com/statycc/pymwp/issues/5
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations, False
 

@@ -151,7 +151,7 @@ def test_polynomial_remove_zeros_with_deltas():
     contains non-0 monomial -AND- some deltas, after addition, only the
     non-zero monomial remains in the result.
 
-    see: https://github.com/seiller/pymwp/issues/16
+    see: https://github.com/statycc/pymwp/issues/16
     """
     zero = Polynomial([Monomial('o')])
     poly = Polynomial([Monomial('m', [(0, 0), (1, 1)])])

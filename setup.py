@@ -21,10 +21,10 @@ setuptools.setup(
     description="Implementation of MWP analysis on C code in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/seiller/pymwp",
+    url="https://github.com/statycc/pymwp",
     project_urls={
-        "Bug Tracker": "https://github.com/seiller/pymwp/issues",
-        "Documentation": "https://seiller.github.io/pymwp/",
+        "Bug Tracker": "https://github.com/statycc/pymwp/issues",
+        "Documentation": "https://statycc.github.io/pymwp/",
     },
     package_data={"": ["LICENSE"], },
     include_package_data=True,
