@@ -1,7 +1,8 @@
-<select id="demo-options" aria-label="demo options"></select>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
 
-<pre id="demo-display">Loading demo...</pre>
-
+<div id="examples">Select example to analyze: <select id="demo-options" aria-label="demo options"></select></div>
+<div id="demo-output">Loading demo...</div>
 <div id="progress-container">
     <div class="progress-bar">
       <span class="bar">
@@ -11,109 +12,307 @@
 </div>
 
 <script>
-    const base = "https://pymwp1.uk.r.appspot.com/";
-    const progressBar = document.getElementById('progress-container');
-    const displayPre = document.getElementById('demo-display');
-    const select = document.getElementById('demo-options');
-    const maxTimeout = 60 * 1000;
-    let req = undefined, selectedExample;
+    const base = "https://pymwp1.uk.r.appspot.com/v2/",
+        hash = location.hash ? location.hash.substr(1) : false,
+        progressBar = document.getElementById('progress-container'),
+        displayOut = document.getElementById('demo-output'),
+        select = document.getElementById('demo-options'),
+        examplesContainer = document.getElementById('examples'),
+        defaultError = 'Sorry, something went wrong! Try again later.',
+        maxTimeout = 60 * 1000;
+    let req = undefined;
 
-    function toggleProgressView(showProgress) {
-        if (showProgress) {
-            progressBar.setAttribute("visible", "visible");
-        } else {
-            progressBar.removeAttribute("visible");
-        }
+    const hashUrl = path => path.replace('/', '_');
+
+    const displayTextResult = (result, title) => setDisplay(buildTextResult(result, title));
+
+    const highlightOutput = () =>
+        displayOut.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
+
+    const displaySystemInfo = _ => get(base, ({result}) =>
+        displayTextResult(result, "System version info"));
+
+    const toggleProgressView = showProgress => showProgress ?
+        progressBar.setAttribute("visible", "visible") :
+        progressBar.removeAttribute("visible");
+
+    const makeOption = (label, value, selected = false, disabled = false) => {
+        const option = document.createElement('option');
+        if (selected) option.setAttribute('selected', 'selected');
+        if (disabled) option.setAttribute('disabled', 'disabled');
+        if (!disabled && value) option.setAttribute('value', value);
+        option.innerText = label;
+        return option;
     }
 
-    function displayResult(requestedExample, result) {
-        if (req === requestedExample) {
-            displayPre.innerHTML = result;
-            toggleProgressView(false);
-        }
+    const makeCategory = ([category, options], i) => {
+        select.append(
+            makeOption(category.toUpperCase(), undefined, false, true))
+        Object.entries(options)
+            .map(([label, path]) => makeOption(label, path, hashUrl(path) === hash))
+            .forEach(opt => select.append(opt));
     }
 
-    function getSomething(URL, callback) {
+    const setDisplay = (node) => {
+        displayOut.innerHTML = ""
+        if (Array.isArray(node)) {
+            node.forEach(n => displayOut.append(n))
+        } else displayOut.appendChild(node);
+        toggleProgressView(false);
+    }
+
+    const buildTextResult = (result, title) => {
+        const div = document.createElement('div');
+        const header = document.createElement('h2');
+        header.innerText = title;
+        const text = document.createElement('pre');
+        text.className = 'wrap';
+        text.innerText = result;
+        div.appendChild(header)
+        div.appendChild(text);
+        return div;
+    }
+
+    const buildProgramOutput = (source, url, name) => {
+        const div = document.createElement('div');
+        const header = document.createElement('h2');
+        header.innerText = 'Program'
+        const para = document.createElement('p');
+        para.innerText = 'The exact program that was analyzed ';
+        const pre = document.createElement('pre')
+        const code = document.createElement('code');
+        code.className = 'language-C';
+        code.innerText = source;
+        pre.append(code);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'nofollow noopener')
+        link.innerText = `${name} ↗`;
+        div.append(header);
+        div.append(para);
+        div.append(pre);
+        div.append(link);
+        return div;
+    }
+
+    const analyze = (event) => {
+        const path = event.target.value;
+        const URL = `${base}${path}`;
+        window.location.hash = `#${hashUrl(path)}`;
+        displayOut.innerText = `Analyzing ${path}...`;
+        get(URL, displayAnalysisResult);
+    }
+
+    const get = (URL, callback) => {
+        req = URL;
+
         const xhr = new window.XMLHttpRequest();
-        toggleProgressView(true);
-        req = URL
-
         xhr.open('GET', URL);
         xhr.timeout = maxTimeout;
-        xhr.onload = function () {
-            if (xhr.readyState === 4) {
-                callback(xhr.responseText);
+        xhr.ontimeout = () => displayTextResult("That took too long", "Server timeout")
+        xhr.onerror = () => displayTextResult(defaultError, "Unavailable")
+        xhr.onload = () => {
+            if (xhr.readyState !== 4) return;
+            try {
+                if (req === URL) callback(JSON.parse(xhr.response));
+            } catch (e) {
+                if (req === URL) displayTextResult(defaultError, "Unavailable")
             }
-        }
-        xhr.ontimeout = function () {
-            displayResult(URL, "Server timeout.");
         };
-        xhr.onerror = function () {
-            displayResult(URL, "Sorry, something went wrong! Try again later.");
-        };
+        toggleProgressView(true);
         xhr.send();
     }
 
-    function hashUrl(path) {
-        return path.replace('/', '_')
+    const plainCodeBlock = (content) => {
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        pre.className = 'wrap';
+        code.className = 'python';
+        code.innerText = content;
+        pre.append(code);
+        return pre;
     }
 
-    function analyze(event) {
-        const path = event.target.value;
-        const URL = `${base}${path}`
-        window.location.hash = path === '/' ? "" : "#" + hashUrl(path);
-        displayPre.innerText = `Analyzing ${path}...`
-        getSomething(URL, function (result) {
-            displayResult(URL, result);
-        });
+    const partialResult = (title, details, child, offset = 2) => {
+        const div = document.createElement('div');
+        const eval = document.createElement('h' + offset);
+        div.append(eval);
+        const label = document.createElement('p');
+        div.append(label);
+        eval.innerText = title;
+        label.innerText = details;
+        if (child) div.append(child);
+        return div;
     }
 
-    function makeOption([label, path]) {
-        return `<option value="${path}" ${hashUrl(path) === selectedExample ? "selected" : ""}>${label}</option>`
+    const renderMatrixValue = ({list = []}) => {
+        const td = document.createElement('td');
+        const code = document.createElement('code');
+        code.innerHTML = list.map(({deltas, scalar}) => {
+            const d = deltas.map(([i, j]) => `(${i},${j})`).join(',')
+            return `${scalar}` + (d ? `<span>(${d})</span>` : '');
+        }).join('\n');
+        td.append(code)
+        return td;
     }
 
-    function makeCategory([category, options], i) {
-        const selected = i === selectedExample ? "selected" : ""
-        const categoryTitle = `<option disabled ${selected}>${category}</option>`
-        const categoryOptions = Object.entries(options).map(makeOption).join('')
-        return `${categoryTitle}${categoryOptions}`
+    const renderMatrixRow = (variableName, rowData) => {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        const code = document.createElement('code');
+        code.innerText = variableName;
+        td.append(code)
+        tr.append(td)
+        rowData.map(renderMatrixValue).map(cell => tr.append(cell));
+        return tr;
     }
 
-    function parseExamples(result) {
-        try {
-            return Object.entries(JSON.parse(result)).map(makeCategory).join('');
-        } catch {
-            displayResult(undefined, "Sorry, demo is unavailable. Try again later.");
-            return false;
+    const renderMatrix = (relation) => {
+        const {matrix, variables} = relation;
+        const div = document.createElement('div');
+        const table = document.createElement('table');
+        div.className = 'table-wrapper';
+        div.append(table)
+        for (let i = 0; i < variables.length; i++)
+            table.append(renderMatrixRow(variables[i], matrix[i]))
+        return div;
+    }
+
+    function buildFunctionResult([functionName, [relation, combinations, infinite]]) {
+        const div = document.createElement('div');
+        const offset = functionName ? 3 : 2;
+        if (functionName) {
+            const header = document.createElement('h2');
+            header.innerText = `Function: ${functionName}`;
+            div.append(header);
         }
+        div.append(partialResult('Evaluation', `Result is infinite: ${infinite}`, undefined, offset));
+        div.append(partialResult('Matrix', '', renderMatrix(relation), offset));
+        if (!infinite) div.append(partialResult('Choices', '',
+            plainCodeBlock(`[${combinations.join('], [')}]`), offset));
+        return div;
+    }
+
+    function displayAnalysisResult(response) {
+        const {url, program, name, result, error = false} = response;
+        const output = [buildProgramOutput(program, url, name)];
+        if (error)
+            output.push(buildTextResult(
+                'Analysis terminated with non-0 exit code. ' +
+                'This happens when file cannot be analyzed (empty or invalid ' +
+                'input that yields no result) or if an error occurs during ' +
+                `analysis.\n\n${response.error_msg}`, 'Evaluation'));
+        else {
+            if (Array.isArray(result)) {
+                output.push(buildFunctionResult([undefined, result]))
+            } else {
+                Object.entries(result)
+                    .map(buildFunctionResult)
+                    .forEach(item => output.push(item))
+            }
+        }
+        setDisplay(output);
+        highlightOutput();
+        toggleProgressView(false);
     }
 
     (function initDemo() {
-        select.style.display = "none";
-        getSomething(`${base}examples`, function (result) {
+        examplesContainer.style.display = "none";
+        get(`${base}examples`, (result) => {
             toggleProgressView(false);
-            const hash = location.hash ? location.hash.substr(1) : false
-            selectedExample = hash && result.replace(/\//g, '_').indexOf(hash) > 0 ? hash : 0;
-            const examples = parseExamples(result);
-            if (examples) {
-                select.innerHTML = examples;
-                select.style.display = "inherit";
-                select.onchange = analyze;
-                displayPre.innerText = "🠕 🠕 🠕 Choose an example to analyze";
-                if (selectedExample !== 0) select.dispatchEvent(new Event('change'));
-            }
+            select.append(makeOption('--available examples--', undefined, !hash, true));
+            Object.entries(result).map(makeCategory);
+            examplesContainer.style.display = "block";
+            select.onchange = event => (event.target.value === "/") ?
+                displaySystemInfo() : analyze(event);
+            displayOut.innerText = ""
+            if (hash) select.dispatchEvent(new Event('change'));
         });
     }());
 </script>
 
 <style>
-    #demo-display {
+    .md-sidebar.md-sidebar--secondary,
+    .md-content__button.md-icon {
+        display: none
+    }
+
+    #demo-output {
+        margin: 2rem 0 5rem 0;
+    }
+
+    #demo-output .wrap, #demo-output .wrap code {
+        max-width: 100%;
         white-space: pre-wrap;
         word-break: break-word;
+    }
+
+    #demo-output label::after {
+        content: ": ";
+    }
+
+    #demo-output .table-wrapper {
+        display: block;
+        max-width: 100%;
+        overflow: auto;
+        position: relative;
+    }
+
+    #demo-output .table-wrapper table, #demo-output .table-wrapper table tr > td {
+        border-color: #ddd;
+    }
+
+    #demo-output .table-wrapper table {
+        border-width: 3px;
+        border-style: solid;
+    }
+
+    #demo-output .table-wrapper table tr > td {
+        border-right-width: 1px;
+        border-right-style: solid;
+        padding: 4px 2px;
+        line-height: 1;
+        text-align: left;
+        vertical-align: top;
+        min-width: 100px;
+        background: #fff;
+        max-width: 300px;
+    }
+
+    #demo-output .table-wrapper table tr > td:last-child {
+        border-right: none;
+    }
+
+    #demo-output .table-wrapper table tr > td:first-child {
+        font-weight: bold;
+        border-right-width: 2px;
+        position: sticky;
+        min-width: 60px !important;
+        width: 60px !important;
+        max-width: 60px !important;
+        padding: 8px 10px;
         box-sizing: border-box;
-        max-width: 95%;
-        font-size: 90%;
-        margin: 2rem auto 5rem auto;
+        left: 0;
+        z-index: 1;
+        background: #f5f5f5;
+    }
+
+    #demo-output .table-wrapper table tr > td:first-child code {
+        box-sizing: border-box;
+        padding: 0;
+        white-space: nowrap;
+        min-width: 40px !important;
+        width: 40px !important;
+        max-width: 40px !important;
+        overflow: hidden;
+        display: block;
+        text-overflow: ellipsis;
+    }
+
+    #demo-output .table-wrapper table tr td code {
+        background: transparent;
+        white-space: pre-wrap;
     }
 
     #progress-container {
