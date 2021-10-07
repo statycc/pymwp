@@ -46,7 +46,7 @@ def test_load_relation(mocker):
         "foo": {
             "relation": {"variables": ["x", "y"],
                          "matrix": [
-                             [[{"scalar": "m", "deltas": []}],
+                             [[{"scalar": "m", "deltas": [(0, 0)]}],
                               [{"scalar": "o", "deltas": []}]],
                              [[{"scalar": "o", "deltas": []}],
                               [{"scalar": "o", "deltas": []}]]]},
@@ -62,11 +62,12 @@ def test_load_relation(mocker):
 
     (relation, combinations, infinity) = result["foo"]
     assert isinstance(relation, Relation)
-    # first_poly = relation.matrix[0][0].list[0]
+
+    first_poly = relation.matrix[0][0].list[0]
 
     # # now check that composed relation matches expectation
-    # assert combinations == [[0, 0, 0], [1, 0, 0]]
-    # assert relation.variables == ["x", "y"]
-    # assert first_poly.scalar == "m"
-    # assert first_poly.deltas == [(0, 0)]
-    # assert not infinity
+    assert combinations == [[0, 0, 0], [1, 0, 0]]
+    assert relation.variables == ["x", "y"]
+    assert first_poly.scalar == "m"
+    assert first_poly.deltas == [(0, 0)]
+    assert not infinity
