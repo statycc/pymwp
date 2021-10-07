@@ -238,11 +238,11 @@ class Relation:
         if set(self.variables) != set(other.variables):
             return False
 
-        # must have matrix of same size
-        if len(self.matrix) != len(other.matrix):
-            return False
+        # not sure homogenisation is necessary here
+        # --> yes we need it
+        er1, er2 = Relation.homogenisation(self, other)
 
-        for row1, row2 in zip(self.matrix, self.matrix):
+        for row1, row2 in zip(er1.matrix, er2.matrix):
             for poly1, poly2 in zip(row1, row2):
                 if poly1 != poly2:
                     return False

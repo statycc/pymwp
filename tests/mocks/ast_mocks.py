@@ -32,6 +32,76 @@ INFINITE_2C = FileAST(ext=[FuncDef(decl=Decl(
             Assignment(op='=', lvalue=ID(name='X1'), rvalue=BinaryOp(
                 op='+', left=ID(name='X1'), right=ID(name='X0')))]))]))])
 
+INFINITE_8C = FileAST(ext=[FuncDef(decl=Decl(
+    name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
+        args=ParamList(params=[
+            Decl(name='X0', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X0', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X1', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X1', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X2', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X2', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X3', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X3', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X4', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X4', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None),
+            Decl(name='X5', quals=[], storage=[], funcspec=[],
+                 type=TypeDecl(declname='X5', quals=[],
+                               type=IdentifierType(names=['int'])), init=None,
+                 bitsize=None)]), type=TypeDecl(declname='foo', quals=[],
+                                                type=IdentifierType(
+                                                    names=['int']))),
+    init=None, bitsize=None), param_decls=None, body=Compound(
+    block_items=[If(cond=BinaryOp(op='==', left=ID(name='X3'),
+                                  right=Constant(type='int', value='0')),
+                    iftrue=Compound(block_items=[
+                        Assignment(op='=', lvalue=ID(name='X1'),
+                                   rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                                   right=ID(name='X1')))]),
+                    iffalse=None), While(
+        cond=BinaryOp(op='<', left=ID(name='X4'),
+                      right=Constant(type='int', value='100')), stmt=Compound(
+            block_items=[Assignment(op='=', lvalue=ID(name='X2'),
+                                    rvalue=BinaryOp(op='+', left=ID(name='X3'),
+                                                    right=ID(name='X5'))),
+                         Assignment(op='=', lvalue=ID(name='X3'),
+                                    rvalue=BinaryOp(op='+', left=ID(name='X4'),
+                                                    right=ID(name='X5'))),
+                         Assignment(op='=', lvalue=ID(name='X4'),
+                                    rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                                    right=ID(name='X5'))), If(
+                    cond=BinaryOp(op='==', left=ID(name='X3'),
+                                  right=Constant(type='int', value='0')),
+                    iftrue=Compound(block_items=[
+                        Assignment(op='=', lvalue=ID(name='X0'),
+                                   rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                                   right=ID(name='X2')))]),
+                    iffalse=Compound(block_items=[
+                        Assignment(op='=', lvalue=ID(name='X2'),
+                                   rvalue=BinaryOp(op='+', left=ID(name='X3'),
+                                                   right=ID(name='X4')))]))])),
+                 If(cond=BinaryOp(op='==', left=ID(name='X3'),
+                                  right=Constant(type='int', value='0')),
+                    iftrue=Compound(block_items=[
+                        Assignment(op='=', lvalue=ID(name='X1'),
+                                   rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                                   right=ID(name='X1')))]),
+                    iffalse=Compound(block_items=[
+                        Assignment(op='=', lvalue=ID(name='X2'),
+                                   rvalue=BinaryOp(op='+', left=ID(name='X3'),
+                                                   right=ID(
+                                                       name='X1')))]))]))])
+
 IF_WO_BRACES = FileAST(ext=[FuncDef(decl=Decl(
     name='foo', quals=[], storage=[], funcspec=[], type=FuncDecl(
         args=ParamList(params=[
