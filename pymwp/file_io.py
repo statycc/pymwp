@@ -3,11 +3,10 @@ import sys
 import json
 import logging
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from pycparser import parse_file, c_ast
 from subprocess import CalledProcessError
 
-from .relation_list import RelationList
 from .relation import Relation
 from .matrix import decode
 
@@ -28,8 +27,9 @@ def default_file_out(input_file: str) -> str:
     return os.path.join("output", f"{file_name}.json")
 
 
-def save_relation(file_name: str, relation: Relation,
-                  choices: List[List[int]]) -> None:
+def save_relation(
+        file_name: str, analysis_result:
+        Dict[str, Tuple[Relation, List[List[int]], bool]]) -> None:
     """Save analysis result to file as JSON.
 
     Expected behavior:
@@ -40,13 +40,26 @@ def save_relation(file_name: str, relation: Relation,
 
     Arguments:
         file_name: filename where to write
-        relation: analysis result relation
-        choices: non-infinity choices
+        analysis_result: dictionary of analyzed functions, where:
+
+            - `key`: name of analyzed function
+            - `value`: triple with following positional values:
+
+                - `[0]`: final relation produced by analysis
+                - `[1]`: list of non-infinity choices
+                - `[2]`: `True` when function does not have polynomial bounds
     """
-    info = {
-        "relation": relation.to_dict(),
-        "choices": choices
-    }
+
+    file_content = {}
+
+    for function_name, result in analysis_result.items():
+        relation, choices, infinity = result
+
+        file_content[function_name] = {
+            "relation": relation.to_dict(),
+            "choices": choices,
+            "infinity": infinity
+        }
 
     # ensure directory path exists
     dir_path, _ = os.path.split(file_name)
@@ -55,12 +68,13 @@ def save_relation(file_name: str, relation: Relation,
 
     # write to file
     with open(file_name, "w") as outfile:
-        json.dump(info, outfile, indent=4)
+        json.dump(file_content, outfile, indent=4)
 
     logger.info(f'saved result in {file_name}')
 
 
-def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
+def load_relation(file_name: str) \
+        -> Dict[str, Tuple[Relation, List[List[int]], bool]]:
     """Load previous analysis result from file.
 
     This method is the reverse of
@@ -74,22 +88,36 @@ def load_relation(file_name: str) -> Tuple[RelationList, List[List[int]]]:
           Exception: if `file_name` does not exist or cannot be read.
 
     Returns:
-        parsed relation list and combinations
+        parsed result from file where:
 
+        - `key`: name of analyzed function
+        - `value`: triple with following positional values:
+
+            - `[0]`: final relation produced by analysis
+            - `[1]`: list of non-infinity choices
+            - `[2]`: `True` when function does not have polynomial bounds
     """
     # read the file
     with open(file_name) as file_object:
         data = json.load(file_object)
 
-    # parse its data
-    matrix = data["relation"]["matrix"]
-    variables = data["relation"]["variables"]
-    combinations = data["combinations"]
+    result = {}
 
-    # generate objects
-    relation = Relation(variables, decode(matrix))
-    relation_list = RelationList(relation_list=[relation])
-    return relation_list, combinations
+    for function_name, value in data.items():
+        # parse its data
+        matrix = value["relation"]["matrix"]
+        variables = value["relation"]["variables"]
+        combinations = value["choices"]
+        infinity = value["infinity"]
+
+        # generate objects
+        result[str(function_name)] = [
+            Relation(variables, decode(matrix)),
+            combinations,
+            infinity
+        ]
+
+    return result
 
 
 def parse(

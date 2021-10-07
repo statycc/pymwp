@@ -31,7 +31,7 @@ def test_save_relation(mocker):
     mocker.patch('json.dump')
 
     filename = 'fake_path/deep/path/output.txt'
-    save_relation(filename, Relation(), [[]])
+    save_relation(filename, {'foo': (Relation(), [[]], False)})
 
     # it creates directory path when dir/s do not exist
     os.makedirs.assert_called_once_with('fake_path/deep/path')
@@ -43,23 +43,27 @@ def test_load_relation(mocker):
     """Method generates expected object instance."""
     # mock built-ins
     mocker.patch('json.load', return_value={
-        "relation": {"variables": ["x", "y"],
-                     "matrix": [
-                         [[{"scalar": "m", "deltas": [(0, 0)]}],
-                          [{"scalar": "o", "deltas": []}]],
-                         [[{"scalar": "o", "deltas": []}],
-                          [{"scalar": "o", "deltas": []}]]]},
-        "combinations": [[0, 0, 0], [1, 0, 0]]
+        "foo": {
+            "relation": {"variables": ["x", "y"],
+                         "matrix": [
+                             [[{"scalar": "m", "deltas": [(0, 0)]}],
+                              [{"scalar": "o", "deltas": []}]],
+                             [[{"scalar": "o", "deltas": []}],
+                              [{"scalar": "o", "deltas": []}]]]},
+            "choices": [[0, 0, 0], [1, 0, 0]],
+            "infinity": False
+        }
     })
     mocker.patch('builtins.open')
 
     # load the relation
-    relation_list, combinations = load_relation("whatever.txt")
-    first_relation = relation_list.relations[0]
-    first_poly = first_relation.matrix[0][0].list[0]
+    result = load_relation("whatever.txt")
+    relation, combinations, infinity = result["foo"]
+    first_poly = relation.matrix[0][0].list[0]
 
     # now check that composed relation matches expectation
     assert combinations == [[0, 0, 0], [1, 0, 0]]
-    assert first_relation.variables == ["x", "y"]
+    assert relation.variables == ["x", "y"]
     assert first_poly.scalar == "m"
     assert first_poly.deltas == [(0, 0)]
+    assert not infinity
