@@ -24,12 +24,10 @@ jobs:
         pip install -r requirements-dev.txt
 
     - name: Lint source
-      run: |
-        flake8 ./pymwp --count --show-source --statistics
+      run:  make lint-only
 
     - name: Run unit tests
-      run: |
-        pytest --cov=./ --cov-report=xml
+      run: pytest --cov=./pymwp tests --cov-report=xml
 
     - name: Report coverage
       uses: codecov/codecov-action@v2.1.0

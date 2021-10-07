@@ -42,15 +42,15 @@ dev-env:
 	pip3 install -q -r requirements-dev.txt
 
 test-only:
-	@echo "\nrunning unit tests...\n"
+	@echo "running unit tests..."
 	pytest --cov=./pymwp tests
 
 test-missing:
-	@echo "\nrunning unit tests...\n"
+	@echo "running unit tests..."
 	pytest --cov-report term-missing --cov=./pymwp tests
 
 lint-only:
-	@echo "\nchecking code style...\n"
+	@echo "checking code style..."
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
