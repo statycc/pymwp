@@ -69,10 +69,6 @@ class Analysis:
                     relations.first.variables and index > 0 and
                     not combinations)
 
-            # save result to file unless explicitly disabled
-            if not no_save:
-                save_relation(file_out, relations.first, combinations)
-
             # display results
             logger.debug(f'\nMATRIX{relations}')
 
@@ -82,6 +78,10 @@ class Analysis:
                 logger.info(f'CHOICES:\n{combinations}')
 
             result[function_name] = relations.first, combinations, infinite
+
+        # save result to file unless explicitly disabled
+        if not no_save:
+            save_relation(file_out, result)
 
         # return results to caller
         return result[function_name] if single_function else result
