@@ -18,7 +18,8 @@ class Analysis:
 
     @staticmethod
     def run(
-            ast: c_ast, file_out: str = None, no_save: bool = False
+            ast: c_ast, file_out: str = None,
+            no_save: bool = False, no_eval: bool = False
     ) -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
         """Run MWP analysis on specified input file.
 
@@ -26,6 +27,7 @@ class Analysis:
             ast: parsed C source code AST
             file_out: where to store result
             no_save: Set true when analysis result should not be saved to file
+            no_eval: Skip evaluation phase
 
         Returns:
               - Computed relation,
@@ -45,6 +47,7 @@ class Analysis:
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
             logger.debug(f"variables of {function_name}: {variables}")
+            evaluated = False
 
             relations = RelationList.identity(variables=variables)
             total = len(function_body.block_items)
@@ -61,23 +64,27 @@ class Analysis:
                 relations.composition(rel_list)
 
             # skip evaluation when delta graph has detected infinity
-            if not delta_infty:
+            # or caller has manually disabled evaluation
+            if not delta_infty and not no_eval:
                 combinations = relations.first.non_infinity(choices, index, dg)
+                evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
             infinite = delta_infty or (
                     relations.first.variables and index > 0 and
-                    not combinations)
+                    (evaluated and not combinations))
 
-            # display results
-            logger.debug(f'\nMATRIX{relations}')
-
+            # record and display results
             if infinite:
+                result[function_name] = None, None, True
                 logger.info(f'RESULT: {function_name} is infinite')
             else:
-                logger.info(f'CHOICES:\n{combinations}')
-
-            result[function_name] = relations.first, combinations, infinite
+                result[function_name] = relations.first, combinations, False
+                logger.info(f'\nMATRIX{relations}')
+                if not evaluated:
+                    logger.info('Skipped evaluation')
+                else:
+                    logger.info(f'CHOICES:\n{combinations}')
 
         # save result to file unless explicitly disabled
         if not no_save:

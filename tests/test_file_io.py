@@ -58,10 +58,14 @@ def test_load_relation(mocker):
 
     # load the relation
     result = load_relation("whatever.txt")
-    relation, combinations, infinity = result["foo"]
+    assert 'foo' in result
+
+    (relation, combinations, infinity) = result["foo"]
+    assert isinstance(relation, Relation)
+
     first_poly = relation.matrix[0][0].list[0]
 
-    # now check that composed relation matches expectation
+    # # now check that composed relation matches expectation
     assert combinations == [[0, 0, 0], [1, 0, 0]]
     assert relation.variables == ["x", "y"]
     assert first_poly.scalar == "m"
