@@ -3,7 +3,7 @@ import sys
 import json
 import logging
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from pycparser import parse_file, c_ast
 from subprocess import CalledProcessError
 
@@ -11,6 +11,7 @@ from .relation import Relation
 from .matrix import decode
 
 logger = logging.getLogger(__name__)
+RESULT_TYPE = Tuple[Optional[Relation], Optional[List[List[int]]], bool]
 
 
 def default_file_out(input_file: str) -> str:
@@ -28,8 +29,8 @@ def default_file_out(input_file: str) -> str:
 
 
 def save_relation(
-        file_name: str, analysis_result:
-        Dict[str, Tuple[Relation, List[List[int]], bool]]) -> None:
+        file_name: str, analysis_result: Dict[str, RESULT_TYPE]
+) -> None:
     """Save analysis result to file as JSON.
 
     Expected behavior:
@@ -56,7 +57,7 @@ def save_relation(
         relation, choices, infinity = result
 
         file_content[function_name] = {
-            "relation": relation.to_dict(),
+            "relation": relation.to_dict() if relation else None,
             "choices": choices,
             "infinity": infinity
         }
@@ -73,8 +74,7 @@ def save_relation(
     logger.info(f'saved result in {file_name}')
 
 
-def load_relation(file_name: str) \
-        -> Dict[str, Tuple[Relation, List[List[int]], bool]]:
+def load_relation(file_name: str) -> Dict[str, RESULT_TYPE]:
     """Load previous analysis result from file.
 
     This method is the reverse of
@@ -104,18 +104,17 @@ def load_relation(file_name: str) \
     result = {}
 
     for function_name, value in data.items():
+        relation = None
         # parse its data
-        matrix = value["relation"]["matrix"]
-        variables = value["relation"]["variables"]
+        if value["relation"]:
+            matrix = value["relation"]["matrix"]
+            variables = value["relation"]["variables"]
+            relation = Relation(variables, decode(matrix))
         combinations = value["choices"]
         infinity = value["infinity"]
 
         # generate objects
-        result[str(function_name)] = [
-            Relation(variables, decode(matrix)),
-            combinations,
-            infinity
-        ]
+        result[function_name] = relation, combinations, infinity
 
     return result
 

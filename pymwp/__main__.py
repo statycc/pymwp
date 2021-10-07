@@ -42,7 +42,7 @@ def main():
     file_out = args.out or default_file_out(args.file)
 
     ast = parse(args.file, not args.no_cpp, args.cpp, args.cpp_args)
-    Analysis.run(ast, file_out, args.no_save)
+    Analysis.run(ast, file_out, args.no_save, args.no_eval)
 
 
 def __parse_args(
@@ -66,16 +66,6 @@ def __parse_args(
         help="save log messages into a file",
     )
     parser.add_argument(
-        "--no-save",
-        action='store_true',
-        help="skip writing result to file"
-    )
-    parser.add_argument(
-        "--no-cpp",
-        action='store_true',
-        help="disable execution of C pre-processor on the input file"
-    )
-    parser.add_argument(
         '--cpp',
         action='store',
         default='gcc',
@@ -88,9 +78,24 @@ def __parse_args(
         help='arguments to pass to C pre-processor (default: -E)',
     )
     parser.add_argument(
+        "--no-cpp",
+        action='store_true',
+        help="disable execution of C pre-processor on the input file"
+    )
+    parser.add_argument(
+        "--no-eval",
+        action="store_true",
+        help="Skip evaluation (no impact if bound does not exist)",
+    )
+    parser.add_argument(
+        "--no-save",
+        action='store_true',
+        help="skip writing result to file"
+    )
+    parser.add_argument(
         "--silent",
         action='store_true',
-        help="silence logging; only show fatal errors"
+        help="silence logging: only fatal errors will display"
     )
     parser.add_argument(
         "--version",

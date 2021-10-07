@@ -43,23 +43,23 @@
         if (!disabled && value) option.setAttribute('value', value);
         option.innerText = label;
         return option;
-    }
+    };
 
-    const makeCategory = ([category, options], i) => {
+    const makeCategory = ([category, options]) => {
         select.append(
             makeOption(category.toUpperCase(), undefined, false, true))
         Object.entries(options)
             .map(([label, path]) => makeOption(label, path, hashUrl(path) === hash))
             .forEach(opt => select.append(opt));
-    }
+    };
 
     const setDisplay = (node) => {
-        displayOut.innerHTML = ""
+        displayOut.innerHTML = "";
         if (Array.isArray(node)) {
             node.forEach(n => displayOut.append(n))
         } else displayOut.appendChild(node);
         toggleProgressView(false);
-    }
+    };
 
     const buildTextResult = (result, title) => {
         const div = document.createElement('div');
@@ -71,7 +71,7 @@
         div.appendChild(header)
         div.appendChild(text);
         return div;
-    }
+    };
 
     const buildProgramOutput = (source, url, name) => {
         const div = document.createElement('div');
@@ -94,7 +94,7 @@
         div.append(pre);
         div.append(link);
         return div;
-    }
+    };
 
     const analyze = (event) => {
         const path = event.target.value;
@@ -102,7 +102,7 @@
         window.location.hash = `#${hashUrl(path)}`;
         displayOut.innerText = `Analyzing ${path}...`;
         get(URL, displayAnalysisResult);
-    }
+    };
 
     const get = (URL, callback) => {
         req = URL;
@@ -110,8 +110,14 @@
         const xhr = new window.XMLHttpRequest();
         xhr.open('GET', URL);
         xhr.timeout = maxTimeout;
-        xhr.ontimeout = () => displayTextResult("That took too long", "Server timeout")
-        xhr.onerror = () => displayTextResult(defaultError, "Unavailable")
+        xhr.ontimeout = () => {
+            if (req === URL)
+                displayTextResult("That took too long", "Server timeout")
+        };
+        xhr.onerror = () => {
+            if (req === URL)
+                displayTextResult(defaultError, "Unavailable")
+        };
         xhr.onload = () => {
             if (xhr.readyState !== 4) return;
             try {
@@ -122,9 +128,9 @@
         };
         toggleProgressView(true);
         xhr.send();
-    }
+    };
 
-    const plainCodeBlock = (content) => {
+    const textBlock = (content) => {
         const pre = document.createElement('pre');
         const code = document.createElement('code');
         pre.className = 'wrap';
@@ -132,7 +138,7 @@
         code.innerText = content;
         pre.append(code);
         return pre;
-    }
+    };
 
     const partialResult = (title, details, child, offset = 2) => {
         const div = document.createElement('div');
@@ -144,7 +150,7 @@
         label.innerText = details;
         if (child) div.append(child);
         return div;
-    }
+    };
 
     const renderMatrixValue = ({list = []}) => {
         const td = document.createElement('td');
@@ -155,29 +161,38 @@
         }).join('\n');
         td.append(code)
         return td;
-    }
+    };
 
     const renderMatrixRow = (variableName, rowData) => {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
         const code = document.createElement('code');
         code.innerText = variableName;
-        td.append(code)
-        tr.append(td)
+        td.append(code);
+        tr.append(td);
         rowData.map(renderMatrixValue).map(cell => tr.append(cell));
         return tr;
-    }
+    };
 
     const renderMatrix = (relation) => {
         const {matrix, variables} = relation;
         const div = document.createElement('div');
         const table = document.createElement('table');
         div.className = 'table-wrapper';
-        div.append(table)
+        div.append(table);
+        const tr = document.createElement('tr');
+        for (let i = -1; i < variables.length; i++) {
+            const td = document.createElement('td');
+            const code = document.createElement('code');
+            if (i >= 0) code.innerText = variables[i];
+            td.append(code);
+            tr.append(td);
+        }
+        table.append(tr);
         for (let i = 0; i < variables.length; i++)
             table.append(renderMatrixRow(variables[i], matrix[i]))
         return div;
-    }
+    };
 
     function buildFunctionResult([functionName, [relation, combinations, infinite]]) {
         const div = document.createElement('div');
@@ -187,10 +202,16 @@
             header.innerText = `Function: ${functionName}`;
             div.append(header);
         }
-        div.append(partialResult('Evaluation', `Result is infinite: ${infinite}`, undefined, offset));
-        div.append(partialResult('Matrix', '', renderMatrix(relation), offset));
-        if (!infinite) div.append(partialResult('Choices', '',
-            plainCodeBlock(`[${combinations.join('], [')}]`), offset));
+        if (infinite) {
+            div.append(partialResult('Evaluation', `Infinite: no polynomial bound exists.`, undefined, offset));
+        } else {
+            if (relation)
+                div.append(partialResult('Matrix', '',
+                    renderMatrix(relation), offset));
+            if (combinations)
+                div.append(partialResult('Choices', '',
+                    textBlock(`[${combinations.join('], [')}]`), offset));
+        }
         return div;
     }
 
@@ -253,10 +274,13 @@
     }
 
     #demo-output .table-wrapper {
-        display: block;
+        display: inline-block;
         max-width: 100%;
         overflow: auto;
         position: relative;
+        border: 1px solid #ddd;
+        border-top: none;
+        box-sizing: border-box;
     }
 
     #demo-output .table-wrapper table, #demo-output .table-wrapper table tr > td {
@@ -264,8 +288,10 @@
     }
 
     #demo-output .table-wrapper table {
-        border-width: 3px;
-        border-style: solid;
+        border: none;
+        border-collapse: collapse;
+        margin: 0 !important;
+        display: table;
     }
 
     #demo-output .table-wrapper table tr > td {
@@ -285,8 +311,6 @@
     }
 
     #demo-output .table-wrapper table tr > td:first-child {
-        font-weight: bold;
-        border-right-width: 2px;
         position: sticky;
         min-width: 60px !important;
         width: 60px !important;
@@ -295,10 +319,29 @@
         box-sizing: border-box;
         left: 0;
         z-index: 1;
+    }
+
+    #demo-output .table-wrapper table tr:first-child td,
+
+    #demo-output .table-wrapper table tr > td:first-child {
         background: #f5f5f5;
     }
 
+    #demo-output .table-wrapper table tr td:first-child::after {
+        content: "";
+        position: absolute;
+        width: 2px;
+        background: #ddd;
+        height: 100%;
+        right: -1px;
+        top: 0;
+        bottom: 0;
+    }
+
+    #demo-output .table-wrapper table tr:first-child code,
+
     #demo-output .table-wrapper table tr > td:first-child code {
+        font-weight: bold;
         box-sizing: border-box;
         padding: 0;
         white-space: nowrap;

@@ -10,8 +10,8 @@ def test_analyze_infinite2():
     relation, combinations, infty = Analysis.run(INFINITE_2C, no_save=True)
 
     assert infty  # result should be infinite
-    assert combinations == []  # no combinations since it is infinite
-    assert set(relation.variables) == {'X0', 'X1'}  # expected variables
+    assert combinations is None  # no combinations since it is infinite
+    assert relation is None  # no relation since infinite
 
 
 def test_analyze_non_infinite_2():
@@ -123,8 +123,8 @@ def test_analysis_returns_all_functions():
     evaluation of each function (example 5)
     """
     result = Analysis.run(FUNCTION_CALL, no_save=True)
-    f, _, _ = result['f']
+    _, _, f_infty = result['f']
     foo, _, _ = result['foo']
 
-    assert set(f.variables) == {'X1', 'X2'}
+    assert f_infty
     assert set(foo.variables) == {'X1', 'X2', 'X3'}
