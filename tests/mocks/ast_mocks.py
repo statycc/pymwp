@@ -3,7 +3,7 @@ Sample ASTs for unit testing Analysis
 
 here we mock the outputs of pycparser.parse_file
 
-These ASTs match the examples in c_files by name, or tests/mocks
+These ASTs match the examples in c_files by name, or tests/test_examples
 """
 
 from pycparser.c_ast import FileAST, FuncDef, Decl, FuncDecl, TypeDecl, \
