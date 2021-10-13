@@ -3,4 +3,4 @@ int foo(int y) {
      * loop x{y = y + x;}
      */
     for (int x = 0; x < 10; x++){y = y + x;}
-} 
+}

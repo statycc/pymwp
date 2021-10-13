@@ -13,6 +13,6 @@ int foo(int X1, int X2, int X3, int X_1, int R) {
     X2 = X3 + X1;
     X_1 = X2;  /* rename input variables */
     R = X2;    /* rename returned variable */
-    while(X_1) { R = R + R; }  /* chunk */
+    while(X_1) { R = X_1 + X_1; }  /* chunk */
     X1 = R;    /* return is removed */
 }
