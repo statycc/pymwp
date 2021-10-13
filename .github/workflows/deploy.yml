@@ -28,5 +28,5 @@ jobs:
         deliverables: app.yaml
         project_id: ${{ secrets.GCP_PROJECT }}
         credentials: ${{ secrets.GCP_SA_KEY }}
-        promote: false
+        promote: true
         version: ${{ env.hash }}
