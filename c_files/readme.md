@@ -2,6 +2,8 @@
 
 <!-- To reword, but that's the idea. -->
 
+<!--start-->
+
 ## Basic Examples
 
 The `basics` folder contains examples of simple C source code performing operations that corresponds to simple derivation trees.
@@ -10,10 +12,9 @@ The `basics` folder contains examples of simple C source code performing operati
 | --- | --- |
 `assign_expression.c` | assign result of binary operation to variable
 `assign_variable.c` | assign using variable
-`empty.c` | program file without any content
-`empty_function.c` | function with empty body
 `if.c` | assignment within conditional statement
 `if_else.c` | conditional statement with `if` and `else`
+`inline_variable.c` | local variable declaration
 `while_1.c` | while loop with assignment
 `while_2.c` | while loop with binary operation
 `while_if.c` | while loop followed by `if...else`
@@ -31,7 +32,7 @@ The `improvement_paper` folder contains examples from extended implementation pa
 
 ## Infinite Examples
 
-The `infinite` folder contains examples of C source code that are assigned matrices that always contains infinite coefficients, no matter the choices.
+The `infinite` folder contains examples of C source code that are assigned matrices that always contain infinite coefficients, no matter the choices.
 
 | file | description |
 | --- | --- |
@@ -47,7 +48,7 @@ The `infinite` folder contains examples of C source code that are assigned matri
 
 ## Not Infinite Examples
 
-The `not_infinite` folder contains examples of C source code that are assigned matrices that do not always contains infinite coefficients.
+The `not_infinite` folder contains examples of C source code that are assigned matrices that do not always contain infinite coefficients.
 
 | file | description |
 | --- | --- |
@@ -82,7 +83,10 @@ The `other` folder contains examples of C source code of interest.
 
 | file | description |
 | --- | --- |
-`braces_issues.c` | Example with superfluous braces
-`dense.c` | Example that generates a full matrix
+`dense.c` | Produces a 3 x 3 dense matrix.
+`dense_loop.c` | Produces a dense matrix with infinite coefficients in it.
 `explosion.c` | Explosion of the number of cases
-`for_not_body.c` | loop example using `for`
+`for_loop.c` | Loop example using `for`
+`simplified_dense.c` | Simplified dense matrix <!-- how is this different? -->
+
+<!--end-->
