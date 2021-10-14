@@ -19,9 +19,9 @@ The `basics` folder contains examples of simple C source code performing operati
 `while_2.c` | while loop with binary operation
 `while_if.c` | while loop followed by `if...else`
 
-## Improvement Examples
+## Implementation Examples
 
-The `improvement_paper` folder contains examples from extended implementation paper. <!-- TODO: add paper name -->
+The `implementation_paper` folder contains examples from implementation paper. <!-- TODO: add paper name -->
 
 | file | description |
 | --- | --- |
