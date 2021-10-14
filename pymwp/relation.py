@@ -137,8 +137,6 @@ class Relation:
 
     def while_correction(self, dg: DeltaGraph) -> None:
         """Replace invalid scalars in a matrix by $\\infty$.
-        
-        Related discussion: [#14](https://github.com/statycc/pymwp/issues/14).
 
         Following the computation of fixpoint for a while loop node, this
         method checks the resulting matrix and replaces all invalid scalars

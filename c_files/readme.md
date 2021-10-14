@@ -21,7 +21,7 @@ The `basics` folder contains examples of simple C source code performing operati
 
 ## Implementation Examples
 
-The `implementation_paper` folder contains examples from implementation paper. <!-- TODO: add paper name -->
+The `implementation_paper` folder contains examples from "_Implementing the mwp-flow analysis_" paper. <!-- TODO: add link -->
 
 | file | description |
 | --- | --- |
