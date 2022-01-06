@@ -526,3 +526,9 @@ class Polynomial:
         monomials = [Monomial(scalar, [(number, index)])
                      for number, scalar in enumerate(scalars)]
         return Polynomial(monomials)
+
+    @property
+    def eval2(self):
+        """List of monomial deltas whose scalar is infinity."""
+        return [tuple(mono.deltas) for mono in
+                [m for m in self.list if m.scalar == 'i']]

@@ -429,3 +429,36 @@ class Relation:
 
         return Relation(extended_vars, matrix1), Relation(extended_vars,
                                                           matrix2)
+
+    def eval2(self, choices, index):
+        """Eval experiment"""
+
+        result, del_set = set(), set()
+
+        # list bad choices
+        for row in self.matrix:
+            for poly in row:
+                result.update(poly.eval2)
+
+        # prune by length
+        result = sorted(list(result), key=len)
+        while result:
+            first: List[Tuple[int, int]] = result.pop(0)
+            del_set.add(first)
+            i = len(result) - 1
+            while i >= 0:  # and check len
+                # if shorter contains longer => remove longer
+                if set(first).issubset(set(result[i])):
+                    del result[i]
+                i -= 1
+
+        if len(del_set) > 0:  # some infinity choices exist
+            sep = "\n    "
+            show = sep.join([
+                "".join([str(t) for t in r]) for r in
+                sorted(del_set, key=lambda item: (len(item), item))])
+            logger.debug(f"invalid choices:{sep}{show}")
+        else:
+            logger.debug("All choices are valid")
+
+        # (choices x index) - del_set
