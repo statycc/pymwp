@@ -80,7 +80,7 @@ latest release), use the version from source following these steps.
     install required packages
 
     ```bash
-    pip install -q -r requirements.txt
+    python -m pip install -q -r requirements.txt
     ``` 
 
 3. Run the analysis
