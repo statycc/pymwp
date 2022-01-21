@@ -1,8 +1,7 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, OTHER_BRACES_ISSUES, BASICS_ASSIGN_VALUE, PARAMS, \
-    FUNCTION_CALL, INFINITE_8C
+    VARIABLE_IGNORED, BRACES_ISSUES, PARAMS, FUNCTION_CALL, INFINITE_8C
 
 
 def test_analyze_infinite2():
@@ -89,7 +88,7 @@ def test_analyze_variable_ignore():
 def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
     see issue: #25: https://github.com/statycc/pymwp/issues/25"""
-    relation, combinations = Analysis.run(OTHER_BRACES_ISSUES, no_save=True)[
+    relation, combinations = Analysis.run(BRACES_ISSUES, no_save=True)[
                              :2]
 
     assert set(relation.variables) == {'x', 'y'}
@@ -97,16 +96,6 @@ def test_extra_braces_are_ignored():
     assert relation.matrix[0][1] == Polynomial('o')
     assert relation.matrix[1][0] == Polynomial('m')
     assert relation.matrix[1][1] == Polynomial('m')
-
-
-def test_assigning_value_yields_matrix_result():
-    """Analyzing should yield a result with matrix for programs with
-    declaration only.
-    issue #43: https://github.com/statycc/pymwp/issues/43"""
-    relation = Analysis.run(BASICS_ASSIGN_VALUE, no_save=True)[0]
-
-    assert relation.variables == ['y']
-    assert relation.matrix[0][0] == Polynomial('o')
 
 
 def test_analysis_identifies_function_params():
@@ -120,11 +109,11 @@ def test_analysis_identifies_function_params():
 
 def test_analysis_returns_all_functions():
     """If input file contains multiple functions result contains
-    evaluation of each function (example 5)
+    evaluation of each function (example 5a)
     """
     result = Analysis.run(FUNCTION_CALL, no_save=True)
     _, _, f_infty = result['f']
     foo, _, _ = result['foo']
 
-    assert f_infty
-    assert set(foo.variables) == {'X1', 'X2', 'X3'}
+    assert not f_infty
+    assert set(foo.variables) == {'X1', 'X2'}
