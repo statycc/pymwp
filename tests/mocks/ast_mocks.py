@@ -24,22 +24,17 @@ INFINITE_2C = FileAST(ext=[FuncDef(
                        init=None, bitsize=None)]),
                   type=TypeDecl(declname='foo', quals=[], align=None,
                                 type=IdentifierType(names=['int']))),
-              init=None, bitsize=None), param_decls=None, body=Compound(
-        block_items=[While(cond=BinaryOp(op='<', left=ID(name='X1'),
-                                         right=Constant(type='int',
-                                                        value='10')),
-                           stmt=Compound(block_items=[
-                               Assignment(op='=', lvalue=ID(name='X0'),
-                                          rvalue=BinaryOp(op='*',
-                                                          left=ID(name='X1'),
-                                                          right=ID(
-                                                              name='X0'))),
-                               Assignment(op='=', lvalue=ID(name='X1'),
-                                          rvalue=BinaryOp(
-                                              op='+',
-                                              left=ID(name='X1'),
-                                              right=ID(
-                                                  name='X0')))]))]))])
+              init=None, bitsize=None), param_decls=None,
+    body=Compound(block_items=[While(cond=BinaryOp(
+        op='<', left=ID(name='X1'),
+        right=Constant(type='int', value='10')),
+        stmt=Compound(block_items=[
+            Assignment(op='=', lvalue=ID(name='X0'),
+                       rvalue=BinaryOp(op='*', left=ID(name='X1'),
+                                       right=ID(name='X0'))),
+            Assignment(op='=', lvalue=ID(name='X1'),
+                       rvalue=BinaryOp(op='+', left=ID(name='X1'),
+                                       right=ID(name='X0')))]))]))])
 
 # c_files/infinite/infinite_8.c
 INFINITE_8C = FileAST(ext=[FuncDef(
@@ -72,14 +67,14 @@ INFINITE_8C = FileAST(ext=[FuncDef(
                   type=TypeDecl(declname='foo', quals=[], align=None,
                                 type=IdentifierType(names=['int']))),
               init=None, bitsize=None), param_decls=None, body=Compound(
-        block_items=[If(cond=BinaryOp(op='==', left=ID(name='X3'),
-                                      right=Constant(type='int', value='0')),
-                        iftrue=Compound(block_items=[
-                            Assignment(op='=', lvalue=ID(name='X1'),
-                                       rvalue=BinaryOp(op='+',
-                                                       left=ID(name='X2'),
-                                                       right=ID(name='X1')))]),
-                        iffalse=None), While(
+        block_items=[If(cond=BinaryOp(
+            op='==', left=ID(name='X3'),
+            right=Constant(type='int', value='0')),
+            iftrue=Compound(block_items=[
+                Assignment(op='=', lvalue=ID(name='X1'),
+                           rvalue=BinaryOp(op='+', left=ID(name='X2'),
+                                           right=ID(name='X1')))]),
+            iffalse=None), While(
             cond=BinaryOp(op='<', left=ID(name='X4'),
                           right=Constant(type='int', value='100')),
             stmt=Compound(block_items=[
@@ -93,40 +88,30 @@ INFINITE_8C = FileAST(ext=[FuncDef(
                 Assignment(op='=', lvalue=ID(name='X4'),
                            rvalue=BinaryOp(op='+', left=ID(
                                name='X2'), right=ID(name='X5'))),
-                If(cond=BinaryOp(op='==',
-                                 left=ID(name='X3'),
-                                 right=Constant(
-                                     type='int',
-                                     value='0')),
+                If(cond=BinaryOp(op='==', left=ID(name='X3'),
+                                 right=Constant(type='int', value='0')),
                    iftrue=Compound(block_items=[
-                       Assignment(op='=',
-                                  lvalue=ID(name='X0'),
-                                  rvalue=BinaryOp(
-                                      op='+', left=ID(
-                                          name='X2'),
-                                      right=ID(
-                                          name='X2')))]),
+                       Assignment(op='=', lvalue=ID(name='X0'),
+                                  rvalue=BinaryOp(op='+', left=ID(
+                                      name='X2'), right=ID(name='X2')))]),
                    iffalse=Compound(block_items=[
-                       Assignment(op='=',
-                                  lvalue=ID(name='X2'),
+                       Assignment(op='=', lvalue=ID(name='X2'),
                                   rvalue=BinaryOp(
-                                      op='+', left=ID(
-                                          name='X3'),
-                                      right=ID(
-                                          name='X4')))]))])),
-                     If(cond=BinaryOp(op='==', left=ID(name='X3'),
-                                      right=Constant(type='int', value='0')),
-                        iftrue=Compound(block_items=[
-                            Assignment(op='=', lvalue=ID(name='X1'),
-                                       rvalue=BinaryOp(op='+',
-                                                       left=ID(name='X2'),
-                                                       right=ID(name='X1')))]),
-                        iffalse=Compound(block_items=[
-                            Assignment(op='=', lvalue=ID(name='X2'),
-                                       rvalue=BinaryOp(op='+',
-                                                       left=ID(name='X3'),
-                                                       right=ID(
-                                                           name='X1')))]))]))])
+                                      op='+', left=ID(name='X3'),
+                                      right=ID(name='X4')))]))])),
+            If(cond=BinaryOp(op='==', left=ID(name='X3'),
+                             right=Constant(type='int', value='0')),
+               iftrue=Compound(block_items=[
+                   Assignment(op='=', lvalue=ID(name='X1'),
+                              rvalue=BinaryOp(op='+',
+                                              left=ID(name='X2'),
+                                              right=ID(name='X1')))]),
+               iffalse=Compound(block_items=[
+                   Assignment(op='=', lvalue=ID(name='X2'),
+                              rvalue=BinaryOp(op='+',
+                                              left=ID(name='X3'),
+                                              right=ID(
+                                                  name='X1')))]))]))])
 
 # tests/test_examples/if_wo_braces.c
 IF_WO_BRACES = FileAST(ext=[FuncDef(
@@ -329,11 +314,9 @@ FUNCTION_CALL = FileAST(ext=[FuncDef(
                   type=TypeDecl(declname='foo', quals=[], align=None,
                                 type=IdentifierType(names=['int']))),
               init=None, bitsize=None), param_decls=None, body=Compound(
-        block_items=[Assignment(op='=', lvalue=ID(name='X2'),
-                                rvalue=BinaryOp(op='+', left=ID(name='X1'),
-                                                right=ID(name='X1'))),
-                     Assignment(op='=', lvalue=ID(name='X1'),
-                                rvalue=FuncCall(name=ID(name='f'),
-                                                args=ExprList(
-                                                    exprs=[ID(name='X2'), ID(
-                                                        name='X2')])))]))])
+        block_items=[Assignment(
+            op='=', lvalue=ID(name='X2'),
+            rvalue=BinaryOp(op='+', left=ID(name='X1'), right=ID(name='X1'))),
+            Assignment(op='=', lvalue=ID(name='X1'),
+                       rvalue=FuncCall(name=ID(name='f'), args=ExprList(
+                           exprs=[ID(name='X2'), ID(name='X2')])))]))])

@@ -109,11 +109,11 @@ def test_analysis_identifies_function_params():
 
 def test_analysis_returns_all_functions():
     """If input file contains multiple functions result contains
-    evaluation of each function (example 5)
+    evaluation of each function (example 5a)
     """
     result = Analysis.run(FUNCTION_CALL, no_save=True)
     _, _, f_infty = result['f']
     foo, _, _ = result['foo']
 
-    assert f_infty
-    assert set(foo.variables) == {'X1', 'X2', 'X3'}
+    assert not f_infty
+    assert set(foo.variables) == {'X1', 'X2'}
