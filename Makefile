@@ -5,7 +5,7 @@ help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "pre-commit - run unit tests and linter"
-	@echo "profle - run cProfile on all examples"
+	@echo "profile - run cProfile on all examples"
 	@echo "test - run unit tests only"
 	@echo "lint - check code style only"
 

@@ -34,7 +34,7 @@ class Profiler:
         self.file_list = Profiler.find_c_files(src, args.skip, args.only)
         self.pad = Profiler.longest_file_name(self.file_list)
         self.ignore = ".gitignore"
-        self.divider_len = 50
+        self.divider_len = 72
         self.no_external = args.no_external
         self.callers = args.callers
 
@@ -128,6 +128,11 @@ class Profiler:
             file_in
         ])
 
+    @staticmethod
+    def get_loc(file_in):
+        """Count number of lines in a file"""
+        return sum(1 for _ in open(file_in))
+
     def run(self):
         """Run cProfile on all discovered files"""
         self.pre_log()
@@ -144,6 +149,7 @@ class Profiler:
         file_name = Profiler.filename_only(c_file)
         out_file = join(self.output, file_name)
         cmd = Profiler.build_cmd(c_file, out_file)
+        loc = Profiler.get_loc(c_file)
 
         timeout = False
         start_time = time.monotonic()
@@ -165,22 +171,25 @@ class Profiler:
         if timeout:
             message = 'timeout'
         elif proc.returncode == 0:
-            message = 'done'
+            message = 'done-ok'
         else:
             message = 'error'
         self.write_stats(out_file)
 
-        logger.info(f'{file_name.ljust(self.pad)}... {message}: ' +
-                    f'{(end_time - start_time):.2f}s')
+        logger.info(f'{file_name.ljust(self.pad)}... '
+                    f'{message.ljust(7)} | ' +
+                    f'{(end_time - start_time):.2f}s | {loc}')
 
     def pre_log(self):
         """Print info before running profiler."""
         self.__log(f'Profiling {self.file_count} C files... ' +
                    f'(limit: {self.timeout} sec)')
+        logger.info(f'{"EXAMPLE".ljust(self.pad + 4)}{"RESULT".ljust(7)}'
+                    f' | TIME  | LINES')
 
     def post_log(self):
         """Print info after running profiler."""
-        self.__log(f'Finished after {self.total_time:.2f} seconds.')
+        self.__log(f'Finished all after {self.total_time:.2f} seconds.')
 
     def __log(self, msg):
         """Log something using print and visual dividers."""
