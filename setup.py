@@ -45,7 +45,7 @@ setuptools.setup(
     ],
     python_requires=">=3.7",
     install_requires=[
-        'pycparser ==2.20',
+        'pycparser',
         'progressbar2'
     ]
 )
