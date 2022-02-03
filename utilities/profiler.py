@@ -173,7 +173,7 @@ class Profiler:
         elif proc.returncode == 0:
             message = 'done-ok'
         else:
-            message = 'error'
+            message = 'error!!'
         self.write_stats(out_file)
 
         logger.info(f'{file_name.ljust(self.pad)}... '
@@ -184,7 +184,7 @@ class Profiler:
         """Print info before running profiler."""
         self.__log(f'Profiling {self.file_count} C files... ' +
                    f'(limit: {self.timeout} sec)')
-        logger.info(f'{"EXAMPLE".ljust(self.pad + 4)}{"RESULT".ljust(7)}'
+        logger.info(f'{"EXAMPLE NAME".ljust(self.pad + 4)}{"RESULT".ljust(7)}'
                     f' | TIME  | LINES')
 
     def post_log(self):
@@ -269,7 +269,7 @@ def _args(parser, args=None):
     parser.add_argument(
         "--callers",
         action='store_true',
-        help="include caller stats"
+        help="include cProfile method caller stats in result"
     )
     return parser.parse_args(args)
 
