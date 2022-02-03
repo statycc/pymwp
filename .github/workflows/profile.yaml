@@ -18,12 +18,32 @@ jobs:
       - uses: kenchan0130/actions-system-info@master
         id: system-info
 
-      # output package details to console
-      - name: Python dependencies
-        run: python -m pip install -r requirements-dev.txt
+      - name: Check outputs
+        run: |
+          OUTPUTS=(
+            "CPU Core: ${{ steps.system-info.outputs.cpu-core }}"
+            "CPU Model: ${{ steps.system-info.outputs.cpu-model }}"
+            "Hostname: ${{ steps.system-info.outputs.hostname }}"
+            "Kernel release: ${{ steps.system-info.outputs.kernel-release }}"
+            "Name: ${{ steps.system-info.outputs.name }}"
+            "Platform: ${{ steps.system-info.outputs.platform }}"
+            "Release: ${{ steps.system-info.outputs.release }}"
+            "Total memory bytes: ${{ steps.system-info.outputs.totalmem }}"
+          )
+          IS_EMPTY_OUTOUT=false
+          for OUTPUT in "${OUTPUTS[@]}";do
+            echo "${OUTPUT}"
+            OUT=$(echo ${OUTPUT} | cut -d ':' -f2- | xargs)
+            if [[ -z "${OUT}" ]];then
+              IS_EMPTY_OUTOUT=true
+            fi
+          done
+          if "$IS_EMPTY_OUTOUT";then
+            exit 1
+          fi
 
       - name: Run profiler
-        run: make cprofile
+        run: make profile
 
       - name: Save profiler results
         uses: actions/upload-artifact@v2
