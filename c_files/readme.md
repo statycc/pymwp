@@ -87,6 +87,7 @@ The `other` folder contains examples of C source code of interest.
 `dense_loop.c` | Produces a dense matrix with infinite coefficients in it.
 `explosion.c` | Explosion of the number of cases
 `for_loop.c` | Loop example using `for`
+`gcd.c` | Greatest common divisor by subtraction
 `simplified_dense.c` | Simplified dense matrix <!-- how is this different? -->
 
 <!--end-->
