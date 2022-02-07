@@ -177,15 +177,16 @@ class Profiler:
         self.write_stats(out_file)
 
         logger.info(f'{file_name.ljust(self.pad)}... '
-                    f'{message.ljust(7)} | ' +
-                    f'{(end_time - start_time):.2f}s | {loc}')
+                    f'{message.ljust(7)} | {str(loc).ljust(5)} | ' +
+                    f'{(end_time - start_time):.2f}s')
 
     def pre_log(self):
         """Print info before running profiler."""
         self.__log(f'Profiling {self.file_count} C files... ' +
                    f'(limit: {self.timeout} sec)')
-        logger.info(f'{"EXAMPLE".ljust(self.pad + 4)}{"RESULT".ljust(7)}'
-                    f' | TIME  | LINES')
+        logger.info(f'{"EXAMPLE".ljust(self.pad + 4)}'
+                    f'{"RESULT".ljust(7)} '
+                    f'| LINES | TIME  ')
 
     def post_log(self):
         """Print info after running profiler."""
