@@ -8,7 +8,7 @@
  */
 
 int f(int X1, int X2){
-    while(X1) { X2 = X1 + X1; }
+    while(b) { X2 = X1 + X1; }
     return X2;
 }
 
