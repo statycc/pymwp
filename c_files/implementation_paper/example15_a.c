@@ -1,8 +1,8 @@
 /*
  * This example is a part of a collection:
  *
- * (1) example5_a.c - calls function f from foo
- * (2) example5_b.c - f is inlined within foo
+ * (1) example15_a.c - calls function f from foo
+ * (2) example15_b.c - f is inlined within foo
  *
  * In this example two functions are analyzed separately.
  */
@@ -18,7 +18,7 @@ int foo(int X1, int X2) {
     /*
      * Note: this function call is currently not yet analyzed in the
      * implementation of pymwp, and as such the two examples
-     * example5_a.c/example5_b.c do not produce comparable matrices.
+     * example15_a.c/example15_b.c do not produce comparable matrices.
      * Once analysis of function calls is fully implemented, the matrices
      * will be comparable.
      */

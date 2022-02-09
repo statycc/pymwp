@@ -21,13 +21,13 @@ The `basics` folder contains examples of simple C source code performing operati
 
 ## Implementation Examples
 
-The `implementation_paper` folder contains examples from "_Implementing the mwp-flow analysis_" paper. <!-- TODO: add link -->
+The `implementation_paper` folder contains examples from "" paper. <!-- TODO: add name and link -->
 
 | file | description |
 | --- | --- |
-`example3.c` | An illustration of the sum of two choices.
-`example5_a.c` | Examples with function call
-`example5_b.c` | Example of an inlined function call
+`example7.c` | An illustration of the sum of two choices.
+`example15_a.c` | Examples with function call
+`example15_b.c` | Example of an inlined function call
 
 
 ## Infinite Examples
