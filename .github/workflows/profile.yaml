@@ -52,11 +52,11 @@ jobs:
           path: profile/*.txt
           retention-days: 7
 
-    - name: release results
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        automatic_release_tag: "profile-latest"
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        prerelease: true
-        draft: false
-        files: profile/*.txt
+      - name: release results
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          automatic_release_tag: "profile-latest"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          draft: false
+          files: profile/*.txt
