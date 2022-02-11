@@ -83,6 +83,12 @@ latest release), use the version from source following these steps.
     ```bash
     python -m pip install -q -r requirements.txt
     ``` 
+    
+    Note: for development purposes or to run tests, install dev dependencies instead: 
+    
+    ```bash
+    python -m pip install -q -r requirements-dev.txt
+    ```
 
 3. Run the analysis
 
