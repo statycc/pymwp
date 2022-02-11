@@ -63,7 +63,7 @@ matrix[2][1] = Polynomial('p')
 show(matrix)
 ```
 
-See [documentation](https://statycc.github.io/pymwp/) for available modules and methods.
+See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
 
 ## Running from source
 
