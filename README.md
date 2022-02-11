@@ -15,7 +15,8 @@
 
 pymwp is a tool for automatically performing static analysis on programs written in C, inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
 It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
-You can run our [many examples](https://statycc.github.io/pymwp/examples/) on-line [in our demo](https://statycc.github.io/pymwp/demo/) before [installing it](https://statycc.github.io/pymwp/), or consult our list of [supported C language features](https://statycc.github.io/pymwp/features/).
+You can run our [many examples](https://statycc.github.io/pymwp/examples/) on-line [in our demo](https://statycc.github.io/pymwp/demo/) before [installing it](https://statycc.github.io/pymwp/), or consult our list of [supported C language features](https://statycc.github.io/pymwp/features/),
+or review latest [profiling results](https://github.com/statycc/pymwp/releases/tag/profile-latest) for interesting metrics. 
 
 <!--desc-end--> 
 
