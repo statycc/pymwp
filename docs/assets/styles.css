@@ -76,7 +76,13 @@ table tr th :last-child, table tr td :last-child {
 .md-typeset table:not([class]) {
     font-size: .70rem;
     box-shadow: none;
+}
+.md-typeset table:not([class]) thead{
     background: var(--md-code-bg-color);
+}
+.md-typeset table:not([class]) tbody code{
+    background: transparent;
+    font-weight: bold;
 }
 
 .md-typeset table:not([class]) tr:hover {

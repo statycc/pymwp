@@ -15,7 +15,7 @@ nav:
 - Demo: demo.md
 - Modules:
   - Analysis: analysis.md
-  - Delta Graph: delta_graphs.md
+  - Delta Graphs: delta_graphs.md
   - File I/O: file_io.md
   - Matrix: matrix.md
   - Monomial: monomial.md
@@ -25,6 +25,7 @@ nav:
   - Semiring: semiring.md
 - Utilities: utilities.md
 - Source Code: https://github.com/statycc/pymwp
+- Release History: https://github.com/statycc/pymwp/releases
 - License: https://github.com/statycc/pymwp/blob/master/LICENCE.md
 
 theme:
