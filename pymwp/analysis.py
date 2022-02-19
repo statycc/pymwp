@@ -66,8 +66,9 @@ class Analysis:
             # skip evaluation when delta graph has detected infinity
             # or caller has manually disabled evaluation
             if not delta_infty and not no_eval:
-                relations.first.eval2(choices, index)
-                combinations = relations.first.non_infinity(choices, index, dg)
+                combinations = relations.first.eval2(choices, index).valid
+                # combinations = relations.first
+                # .non_infinity(choices, index, dg)
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
