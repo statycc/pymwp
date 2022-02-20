@@ -77,6 +77,12 @@ class Polynomial:
     def __mul__(self, other):
         return self.times(other)
 
+    @property
+    def eval(self):
+        """List of monomial deltas whose scalar is infinity."""
+        return [tuple(mono.deltas) for mono in
+                [m for m in self.list if m.scalar == 'i']]
+
     @staticmethod
     def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
             -> Tuple[bool, int]:
@@ -287,25 +293,25 @@ class Polynomial:
 
         return Polynomial(result).remove_zeros()
 
-    def eval(self, argument_list: list[int]) -> str:
-        """Evaluate polynomial.
-
-        This method performs map() on each monomial against the argument list
-        then reduces the result to a single result determined by
-        [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp) function.
-
-        Arguments:
-            argument_list: list of indices of deltas to evaluate
-
-        Returns:
-            scalar value
-        """
-        result = ZERO_MWP
-        for monomial in self.list:
-            result = sum_mwp(result, monomial.eval(argument_list))
-            if result == 'i':
-                break
-        return result
+    # def eval(self, argument_list: list[int]) -> str:
+    #     """Evaluate polynomial.
+    #
+    #     This method performs map() on each monomial against the argument list
+    #     then reduces the result to a single result determined by
+    #     [`semiring#sum_mwp`](semiring.md#pymwp.semiring.sum_mwp) function.
+    #
+    #     Arguments:
+    #         argument_list: list of indices of deltas to evaluate
+    #
+    #     Returns:
+    #         scalar value
+    #     """
+    #     result = ZERO_MWP
+    #     for monomial in self.list:
+    #         result = sum_mwp(result, monomial.eval(argument_list))
+    #         if result == 'i':
+    #             break
+    #     return result
 
     def equal(self, polynomial: Polynomial) -> bool:
         """Determine if two polynomials are equal.
@@ -526,9 +532,3 @@ class Polynomial:
         monomials = [Monomial(scalar, [(number, index)])
                      for number, scalar in enumerate(scalars)]
         return Polynomial(monomials)
-
-    @property
-    def eval2(self):
-        """List of monomial deltas whose scalar is infinity."""
-        return [tuple(mono.deltas) for mono in
-                [m for m in self.list if m.scalar == 'i']]

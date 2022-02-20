@@ -2,7 +2,7 @@ import os
 import json
 
 from pymwp.file_io import default_file_out, save_relation, load_relation
-from pymwp import Relation
+from pymwp import Relation, Choices
 
 
 def test_file_out_name_wo_path():
@@ -31,7 +31,7 @@ def test_save_relation(mocker):
     mocker.patch('json.dump')
 
     filename = 'fake_path/deep/path/output.txt'
-    save_relation(filename, {'foo': (Relation(), [[]], False)})
+    save_relation(filename, {'foo': (Relation(), Choices(), False)})
 
     # it creates directory path when dir/s do not exist
     os.makedirs.assert_called_once_with('fake_path/deep/path')
@@ -50,7 +50,7 @@ def test_load_relation(mocker):
                               [{"scalar": "o", "deltas": []}]],
                              [[{"scalar": "o", "deltas": []}],
                               [{"scalar": "o", "deltas": []}]]]},
-            "choices": [[0, 0, 0], [1, 0, 0]],
+            "choices": [[0, 1], [0]],
             "infinity": False
         }
     })
@@ -66,7 +66,7 @@ def test_load_relation(mocker):
     first_poly = relation.matrix[0][0].list[0]
 
     # # now check that composed relation matches expectation
-    assert combinations == [[0, 0, 0], [1, 0, 0]]
+    assert combinations.valid == [[0, 1], [0]]
     assert relation.variables == ["x", "y"]
     assert first_poly.scalar == "m"
     assert first_poly.deltas == [(0, 0)]
