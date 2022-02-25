@@ -15,11 +15,11 @@ class Choices:
     !!! Inputs
         - list of valid choices at one index (e.g. $[0,1,2]$)
         - index (int) - represents number of assignments in original program
-        - set of $\delta$-sequences that lead to $\infty$, obtained from matrix
+        - set of delta-sequences that lead to $\infty$, obtained from matrix
 
     Steps:
 
-    Using $\delta$-sequences set, reduce the set in two ways:
+    Using delta-sequences set, reduce the set in two ways:
 
     1. remove all sequences that are contained by shorter sequences:
 
