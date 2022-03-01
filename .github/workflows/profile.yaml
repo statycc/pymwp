@@ -1,8 +1,9 @@
 name: Profile
 
 on:
-  schedule:
-    - cron:  '0 0 * * *'  # run daily at midnight
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
     branches: [ main ]
 
