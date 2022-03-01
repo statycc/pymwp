@@ -140,9 +140,10 @@ class Choices:
             good = True
             if len(choices) > len(vector):
                 good = False
-            for idx, value in enumerate(choices):
-                if value not in vector[idx]:
-                    good = False
+            else:
+                for idx, value in enumerate(choices):
+                    if value not in vector[idx]:
+                        good = False
             if good:
                 return True
         return False
