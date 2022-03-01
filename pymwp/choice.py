@@ -86,7 +86,7 @@ class Choices:
         instead.
 
         Arguments:
-            vectors: choice vectors
+            vectors: list of choice vectors
         """
         self.valid = vectors or []
         self.infinite = len(self.valid) == 0
@@ -187,8 +187,6 @@ class Choices:
         """
         while Choices.reduce(choices, sequences):
             pass
-        if sequences == {()}:
-            sequences.clear()
 
     @staticmethod
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
@@ -248,17 +246,16 @@ class Choices:
         return first[0][1] == second[0][1] and first[1:] == second[1:]
 
     @staticmethod
-    def prod(values: list, initial: int = 1) -> int:
+    def prod(values: list) -> int:
         """Compute the product of numeric list.
 
         Arguments:
             values: 1d list of numbers
-            initial: initial value, default 1 since product
 
         Returns:
             Product of values.
         """
-        return reduce((lambda x, y: x * y), values, initial)
+        return reduce((lambda x, y: x * y), values, 1)
 
     @staticmethod
     def build_choices(
@@ -298,9 +295,11 @@ class Choices:
 
         # get length of each infinity path
         lens = [len(i) for i in sorted_infty]
+        # helper for generating distinct combinations of indices
+        iters = [Choices.prod(lens[idx + 1:]) for idx, _ in enumerate(lens)]
 
         # the product of path lengths gives the max number of distinct vectors
-        max_ = Choices.prod(lens, 1)
+        max_ = Choices.prod(lens)
         logger.debug(f'maximum distinct vectors: {max_}')
 
         vectors = set()
@@ -309,34 +308,28 @@ class Choices:
         # distinct vectors
         for iter_i in range(max_):
 
-            zeros = [int(n) for n in list(str(0).zfill(len(lens)))]
-
-            # use the iteration count as selector for deltas
-            indices = [(iter_i // Choices.prod(lens[idx + 1:], 1)) %
-                       lens[idx] for idx, v in enumerate(zeros)]
+            # from iteration count generate selectors for deltas
+            indices = [(iter_i // i) % x for x, i in zip(lens, iters)]
 
             # now choose the specific delta values, 1 value for each infinite
             # path, so that it is not possible to choose any bad path fully
-            deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
+            deltas = set([sorted_infty[i][v] for i, v in enumerate(indices)])
+            idx_freq = [i for v, i in deltas]
+
+            # if all choices are eliminated at some index, this iteration
+            # will not produce a valid vector
+            if any([idx_freq.count(n) == len(choices) for n in set(idx_freq)]):
+                continue
 
             # initialize a vector with all allowed choices
             vector = [set(choices[:]) for _ in range(index)]
-            valid = True
 
             # iterate the infinity deltas to remove them from the vector
             for choice, idx in deltas:
-                if choice in vector[idx]:
-                    vector[idx].remove(choice)
-                # if all choices are eliminated at some index, stop
-                if len(vector[idx]) == 0:
-                    valid = False
-                    break
-            # discard the vector if it is invalid
-            if not valid:
-                continue
+                vector[idx].remove(choice)
 
-            # must be hashable type to add to set
-            # shouldn't generate same vector ever, but not sure, so using a set
+            # must be hashable type to add to set, shouldn't generate same
+            # vector ever but not sure, so using a set
             vector = tuple([tuple(entry) for entry in vector])
             vectors.add(vector)
 
