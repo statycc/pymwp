@@ -1,11 +1,16 @@
 from __future__ import annotations
+
 import logging
 from typing import Tuple, List, Set, Union
+from itertools import islice, chain
+from functools import reduce
 
 logger = logging.getLogger(__name__)
 
 SEQ = List[Tuple[int, int]]
 """Type hint to represent a sequence of deltas: `List[Tuple[int, int]]`"""
+CHOICES = List[List[List[int]]]
+"""Type hint for representing choices"""
 
 
 class Choices:
@@ -15,7 +20,7 @@ class Choices:
     !!! Inputs
         - list of valid choices at one index (e.g. $[0,1,2]$)
         - index (int) - represents number of assignments in original program
-        - set of delta-sequences that lead to $\infty$, obtained from matrix
+        - set of delta-sequences that lead to $\\infty$, obtained from matrix
 
     Steps:
 
@@ -49,7 +54,7 @@ class Choices:
     3. Repeat steps 1-2 until no more reduction can be applied.
 
     4. Build the choice vector: initialize all choices as valid, then eliminate
-       those that lead to infinity.
+       those that lead to infinity, for all possible combinations
 
            ```Python
            index = 3
@@ -66,14 +71,13 @@ class Choices:
            # eliminate infinity choice: [(1,0)]
            vector = [{2}, {0,1,2}, {0,1,2}]
 
-           # infinity choice: [(1,1)(0,3)]
-           # allowed to choose (1,1) but not (0,3)
-           vector = [{2}, {0,1,2}, {1,2}]
+           # infinity choice: [(1,1) (0,3)]
+           # consider all possible combinations:
+           vectors = [[{2}, {0,1,2}, {1,2}], [{2}, {0,2}, {0,1,2}]]
            ```
-
     """
 
-    def __init__(self, vector: List[List[int]] = None):
+    def __init__(self, vectors: CHOICES = None):
         """Initialize representation with precomputed vector.
 
 
@@ -83,9 +87,9 @@ class Choices:
         instead.
 
         Arguments:
-            vector: choice vector
+            vectors: choice vectors
         """
-        self.valid = vector or []
+        self.valid = vectors or []
 
     @staticmethod
     def generate(
@@ -108,8 +112,9 @@ class Choices:
         Choices.reduce_subsequences(choices, sequences)
 
         # now only min unique paths that lead to infinity remain
-        joined = '#'.join([str(list(i)) for i in sorted(list(sequences))])
-        logger.debug(f'infinity paths: {joined or "None"}')
+        paths = [str(list(i)) for i in sorted(
+            list(sequences), key=lambda x: (len(x), x))]
+        logger.debug(f'infinity paths: {" # ".join(paths) or "None"}')
 
         # build vectors representing valid choices
         valid = Choices.build_choices(choices, index, sequences)
@@ -133,13 +138,16 @@ class Choices:
         Returns:
             True if the given choices can be made without infinity.
         """
-        vector = self.valid
-        if len(choices) > len(vector):
-            return False
-        for idx, value in enumerate(choices):
-            if value not in vector[idx]:
-                return False
-        return True
+        for vector in self.valid:
+            good = True
+            if len(choices) > len(vector):
+                good = False
+            for idx, value in enumerate(choices):
+                if value not in vector[idx]:
+                    good = False
+            if good:
+                return True
+        return False
 
     @staticmethod
     def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
@@ -245,22 +253,9 @@ class Choices:
         return first[0][1] == second[0][1] and first[1:] == second[1:]
 
     @staticmethod
-    def path_exists(path: SEQ, vector: List[Set[int]]) -> bool:
-        """Ensure a sequence of choices can be made wrt. given vector.
-
-        Arguments:
-            path: sequence of deltas
-            vector: current choice vector
-
-        Returns:
-            True if the path of choices exists in the vector.
-        """
-        return False not in [v in vector[i] for (v, i) in path]
-
-    @staticmethod
     def build_choices(
             choices: List[int], index: int, infinities: Set[SEQ]
-    ) -> List[List[int]]:
+    ) -> CHOICES:
         """Build a list of choice vectors excluding infinite choices.
 
         Arguments:
@@ -271,32 +266,66 @@ class Choices:
         Returns:
             Choice vector that excludes all paths leading to infinity.
         """
+        if not infinities:
+            return [[list(choices[:]) for _ in range(index)]]
 
-        # make a vector (len=index) that includes all choices
-        # e.g. [{0,1,2}, {0,1,2}, {0,1,2}]
-        vector = [set(choices[:]) for _ in range(index)]
-        logger.debug(vector)
+        # noinspection PyTypeChecker
+        # sort the infinity paths by length, shortest first
+        sorted_infty = sorted(list(infinities), key=len)
 
-        # iterate the infinity choices to remove them from the vector
-        for item in sorted(list(infinities), key=len):
+        # get length of each infinity path
+        lens = [len(i) for i in sorted_infty]
+        # get the number of bits needed to represent each path
+        bin_lens = [len(bin(i - 1)[2:]) for i in lens]
 
-            # split the infinity delta path into two parts:
-            # (1) all except last delta (2) value and index of last delta
-            path, [(i, idx)] = item[:-1], item[-1:]
+        # when generating the vectors, choose 1 delta from each invalid path
+        # their product gives the maximum number of distinct choice vectors:
+        max_ = reduce((lambda x, y: x * y), lens)
 
-            # Ensure the sequences of choices (path) can be made
-            # TODO: how to handle if this assert fails?
-            # is it possible to make such choices ???
-            # -> if yes: add another vector where choices can be made
-            assert Choices.path_exists(path, vector)
+        logger.debug(f'maximum distinct vectors: {max_}')
+        logger.debug(f'path lengths/bits: {lens} / {bin_lens}')
 
-            # remove invalid choice value at specified index
-            # e.g. if 1 at 0 causes infinity we remove it to get:
-            # [{0,2}, {0,1,2}, {0,1,2}]
-            if i in vector[idx]:
-                vector[idx].remove(i)
+        # the collection of distinct choice vectors
+        vectors = set()
+
+        # generate possible vectors by iterating the distinct count
+        # of vectors: use the iteration count as selector for deltas
+        for iter_i in range(max_):
+
+            # convert the iteration number to 0-filled binary
+            bin_iter = iter(bin(iter_i)[2:].zfill(len(sorted_infty)))
+
+            # convert the binary number to a list of indices
+            # these indices decide which delta to pick from each path
+            indices = [int(n) for n in chain.from_iterable(
+                [list(islice(bin_iter, bl)) for bl in bin_lens])]
+
+            # using the indices, now choose the specific delta values
+            # 1 value for each infinite path, so that it is not possible
+            # to choose any path fully
+            deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
+
+            # initialize vector with all allowed choices
+            vector = [set(choices[:]) for _ in range(index)]
+            valid = True
+
+            # iterate the infinity deltas to remove them from the vector
+            for choice, idx in deltas:
+                if choice in vector[idx]:
+                    vector[idx].remove(choice)
+                # if all choices are eliminated at some index, stop
+                if len(vector[idx]) == 0:
+                    valid = False
+                    break
+            # discard if vector if it is invalid
+            if not valid:
+                continue
+
+            # must be hashable type to add to set
+            # shouldn't generate same vectors ever, but not sure so using a set
+            vector = tuple([tuple(entry) for entry in vector])
+            vectors.add(vector)
 
         # change the remaining choices at each index to lists (not sets)
-        vector = list([list(entry) for entry in vector])
-
-        return vector
+        # so the vectors can be saved to file
+        return [list([list(c) for c in v]) for v in vectors]
