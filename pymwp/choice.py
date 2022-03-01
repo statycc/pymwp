@@ -53,8 +53,8 @@ class Choices:
 
     3. Repeat steps 1-2 until no more reduction can be applied.
 
-    4. Build the choice vector: initialize all choices as valid, then eliminate
-       those that lead to infinity, for all possible combinations
+    4. Build the choice vectors: initialize all choices as valid, then
+       eliminate those that lead to infinity, for all possible combinations
 
            ```Python
            index = 3
@@ -72,7 +72,7 @@ class Choices:
            vector = [{2}, {0,1,2}, {0,1,2}]
 
            # infinity choice: [(1,1) (0,3)]
-           # consider all possible combinations:
+           # considering all possible combinations yields 2 distinct vectors:
            vectors = [[{2}, {0,1,2}, {1,2}], [{2}, {0,2}, {0,1,2}]]
            ```
     """
@@ -92,21 +92,19 @@ class Choices:
         self.valid = vectors or []
 
     @staticmethod
-    def generate(
-            choices: List[int], index: int, infinities: Set[SEQ]
-    ) -> Choices:
+    def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
         """Generate the choice representation.
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
             index: the length of the vector, e.g. 10
-            infinities: set of deltas that lead to infinity
+            inf: set of deltas that lead to infinity
 
         Returns:
             Generated choice object.
         """
         # first ensure no sequence is contained by another
-        sequences = Choices.unique_sequences(infinities)
+        sequences = Choices.unique_sequences(inf)
 
         # reduce when all paths exist and lead to same infinity choice
         Choices.reduce_subsequences(choices, sequences)
@@ -256,7 +254,22 @@ class Choices:
     def build_choices(
             choices: List[int], index: int, infinities: Set[SEQ]
     ) -> CHOICES:
-        """Build a list of choice vectors excluding infinite choices.
+        """Build a list of distinct choice vectors excluding infinite choices.
+
+        This method works by taking a list of delta paths that lead to infinity
+        and then negates those choices; the result is a list of choice
+        vectors such that any remaining choice will give a valid derivation.
+
+        Example:
+
+            assume the paths leading to infinity are:
+            { [(0,0)], [(1,0)], [(1,1)(0,3)] }
+
+            Then, the valid choices that do not lead to infinity are:
+            [[[2], [0,2], [0,1,2]]  or  [[2], [0,1,2], [1,2]]]
+
+            Read as: choose either vector (left or right) then at each
+            index choose one of the remaining choices.
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
@@ -275,21 +288,23 @@ class Choices:
 
         # get length of each infinity path
         lens = [len(i) for i in sorted_infty]
-        # get the number of bits needed to represent each path
+        # get the number of bits needed to represent each path; this binary
+        # magic is necessary because itertools does not seem to have a nice
+        # way of producing combinations for choosing 1 from each set
         bin_lens = [len(bin(i - 1)[2:]) for i in lens]
 
-        # when generating the vectors, choose 1 delta from each invalid path
-        # their product gives the maximum number of distinct choice vectors:
+        # in each vector, choose 1 delta from each infinity path; so that no
+        # path can be selected fully => the product of all path lengths gives
+        # the max number of distinct vectors:
         max_ = reduce((lambda x, y: x * y), lens)
 
         logger.debug(f'maximum distinct vectors: {max_}')
         logger.debug(f'path lengths/bits: {lens} / {bin_lens}')
 
-        # the collection of distinct choice vectors
         vectors = set()
 
-        # generate possible vectors by iterating the distinct count
-        # of vectors: use the iteration count as selector for deltas
+        # generate all possible vectors by iterating the max count of
+        # distinct vectors: use the iteration count as selector for deltas
         for iter_i in range(max_):
 
             # convert the iteration number to 0-filled binary
@@ -305,7 +320,7 @@ class Choices:
             # to choose any path fully
             deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
 
-            # initialize vector with all allowed choices
+            # initialize a vector with all allowed choices
             vector = [set(choices[:]) for _ in range(index)]
             valid = True
 
@@ -317,12 +332,12 @@ class Choices:
                 if len(vector[idx]) == 0:
                     valid = False
                     break
-            # discard if vector if it is invalid
+            # discard the vector if it is invalid
             if not valid:
                 continue
 
             # must be hashable type to add to set
-            # shouldn't generate same vectors ever, but not sure so using a set
+            # shouldn't generate same vector ever, but not sure, so using a set
             vector = tuple([tuple(entry) for entry in vector])
             vectors.add(vector)
 
