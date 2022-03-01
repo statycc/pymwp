@@ -3,11 +3,7 @@
 from __future__ import annotations
 
 import logging
-# import math
-# from itertools import product
 from typing import Optional, Tuple, List
-
-# import progressbar
 
 from . import matrix as matrix_utils
 from .delta_graphs import DeltaGraph
@@ -270,96 +266,6 @@ class Relation:
             if fix.equal(prev_fix):
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
-
-    # def eval(self, choices: List[int], dg: DeltaGraph) -> bool:
-    #     """Evaluate relation matrix against a list of choices to
-    #         determine if any of them results in infinity.
-    #
-    #     This method iterates all monomials of all polynomials
-    #     and performs `eval()` on each object.
-    #
-    #     For implementations see:
-    #
-    #     - [`polynomial.eval()`](polynomial.md#pymwp.polynomial
-    #     .Polynomial.eval)
-    #     - [`monomial.eval()`](monomial.md#pymwp.monomial.Monomial.eval)
-    #
-    #     Example:
-    #
-    #     ```python
-    #     choices = [0, 1, 2, 0, 1, 0]
-    #     relation.eval(choices)
-    #     ```
-    #
-    #     Arguments:
-    #         choices: a list of indices to select for each monomial.
-    #         dg: DeltaGraph instance
-    #
-    #     Returns:
-    #        `False` if infinity occurs during evaluation of choices and `True`
-    #        otherwise.
-    #     """
-    #
-    #     if dg.contains_combination(choices):
-    #         return False
-    #
-    #     for row in self.matrix:
-    #         for poly in row:
-    #             if poly.eval(choices) == 'i':
-    #                 return False
-    #     return True
-    #
-    # def non_infinity(self, choices: List[int], index: int, dg: DeltaGraph)
-    # -> \
-    #         List[list[int]]:
-    #     """Find all combinations of choices that do not evaluate to infinity.
-    #
-    #     This method computes the Cartesian product of input iterables and
-    #     evaluates each combination against the current relation.
-    #
-    #     If the evaluation determines that no infinity will occur, that
-    #     combination will be included in the return value.
-    #
-    #     Reference: [itertools.product](
-    #     https://docs.python.org/3/library/itertools.html#itertools.product)
-    #
-    #     Example:
-    #
-    #     ```
-    #     rel.non_infinity(choices=[0, 1], index=2)
-    #
-    #     # internally generates combinations: [[0, 0], [0, 1], [1, 0], [1, 1]]
-    #     # and of those returns the ones that do not evaluate to infinity
-    #     # against current relation.
-    #     ```
-    #
-    #     Arguments:
-    #         choices: integer list of choices
-    #         index: length of generated product
-    #         dg: DeltaGraph instance
-    #
-    #     Returns:
-    #         All combinations that do not result in $\\infty$ when evaluated
-    #         against the this relation.
-    #     """
-    #     logger.debug(f"evaluating choices: {choices}, index: {index}")
-    #     logger.debug(f"relation variables: {self.variables}")
-    #
-    #     # uses itertools.product to generate all possible assignments
-    #     combinations = product(choices, repeat=index)
-    #
-    #     size = math.pow(len(choices), index)
-    #
-    #     logger.debug(f"number of assignments to evaluate {size}")
-    #
-    #     res = []
-    #     for combination in progressbar.progressbar(
-    #             combinations, max_value=size):
-    #         # append when result is non-empty list
-    #         if self.eval(list(combination), dg) and combination:
-    #             res.append(list(combination))
-    #
-    #     return res
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""

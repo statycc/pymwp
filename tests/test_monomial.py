@@ -47,32 +47,6 @@ def test_monomial_product_empty_self():
     assert p.deltas == []
 
 
-def test_monomial_eval_match():
-    scalar = 'm'
-    mono = Monomial(scalar, [(0, 0), (0, 1), (1, 2), (1, 3), (2, 4)])
-    result = mono.eval([0, 0, 1, 1, 2])
-    assert scalar == result
-
-
-def test_monomial_eval_no_match():
-    mono = Monomial('m', [(0, 0), (1, 1), (2, 2)])
-    result = mono.eval([0, 1, 1])
-    assert 'o' == result
-
-
-def test_monomial_eval_longer_args_will_match():
-    scalar = 'm'
-    mono = Monomial(scalar, [(0, 0), (1, 1), (2, 2)])
-    result = mono.eval([0, 1, 2, 3])
-    assert scalar == result
-
-
-def test_monomial_eval_shorter_args_will_throw():
-    with raises(Exception):
-        mono = Monomial('p', [(0, 0), (1, 1), (2, 2)])
-        assert mono.eval([0, 1])
-
-
 def test_monomial_copy():
     m = Monomial('m', [(0, 0), (1, 1)])
     n = m.copy()
