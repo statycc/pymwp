@@ -30,18 +30,17 @@ def test_is_valid_returns_correct_result():
     infinite = {((0, 1),), ((1, 0), (2, 1))}
     obj = Choices.generate(choices, index, infinite)
 
-    assert obj.is_valid(0, 1)
-    assert obj.is_valid(1, 1)
-    assert obj.is_valid(2, 1)
-    assert obj.is_valid(0, 1)
-    assert obj.is_valid(0, 2)
-    assert obj.is_valid(2, 1)
-    assert obj.is_valid(2, 2)
-
-    # (0,1) is infinite => not allowed to have 0 at index 1
+    # by (0, 1) not allowed to have 0 at index 1
     assert not obj.is_valid(0, 0)
     assert not obj.is_valid(1, 0)
     assert not obj.is_valid(2, 0)
 
     # by (1, 0), (2, 1) not allowed to choose 1, 2
     assert not obj.is_valid(1, 2)
+
+    # all other choices are ok
+    assert obj.is_valid(0, 1)
+    assert obj.is_valid(1, 1)
+    assert obj.is_valid(2, 1)
+    assert obj.is_valid(0, 2)
+    assert obj.is_valid(2, 2)
