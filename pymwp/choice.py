@@ -6,10 +6,10 @@ from typing import Tuple, List, Set, Union
 
 logger = logging.getLogger(__name__)
 
-SEQ = List[Tuple[int, int]]
-"""Type hint to represent a sequence of deltas: `List[Tuple[int, int]]`"""
+SEQ = Set[Tuple[Tuple[int, int], ...]]
+"""Type hint to represent a sequence of deltas"""
 CHOICES = List[List[List[int]]]
-"""Type hint for representing choices"""
+"""Type hint for representing a list of choice vectors"""
 
 
 class Choices:
@@ -56,12 +56,13 @@ class Choices:
        eliminate those that lead to infinity, for all possible combinations
 
            ```Python
-           index = 3
-           choices = [0,1,2]
+           index = 3 # number of assignments in the program
+           choices = [0,1,2] # the possible choices at each assignment
 
-           # each index is a set of choices and len(vector) == index
+           # each element is a set of choices and len(vector) == index
            vector = [{0,1,2}, {0,1,2}, {0,1,2}]
 
+           # delta choices that cause infinity
            infinity_choices = { [(0,0)], [(1,0)], [(1,1)(0,3)] }
 
            # eliminate infinity choice: [(0,0)]
@@ -73,12 +74,14 @@ class Choices:
            # infinity choice: [(1,1) (0,3)]
            # considering all possible combinations yields 2 distinct vectors:
            vectors = [[{2}, {0,1,2}, {1,2}], [{2}, {0,2}, {0,1,2}]]
+
+           # Read as: choose one of vectors (1st, 2nd) then at each index
+           # choose one of the remaining choices, to get a valid derivation.
            ```
     """
 
     def __init__(self, vectors: CHOICES = None):
         """Initialize representation with precomputed vector.
-
 
         This initialization is primarily useful for restoring a result from
         file. When first creating the choice representation, call
@@ -89,7 +92,10 @@ class Choices:
             vectors: list of choice vectors
         """
         self.valid = vectors or []
-        self.infinite = len(self.valid) == 0
+
+    @property
+    def infinite(self):
+        return len(self.valid) == 0
 
     @staticmethod
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
@@ -118,7 +124,7 @@ class Choices:
         valid = Choices.build_choices(choices, index, sequences)
         return Choices(valid)
 
-    def is_valid(self, *choices: List[int]) -> bool:
+    def is_valid(self, *choices: int) -> bool:
         """Check if some sequence of choices can be made without infinity.
 
         Example:
@@ -274,9 +280,6 @@ class Choices:
 
             Then, the valid choices that do not lead to infinity are:
             [[[2], [0,2], [0,1,2]]  or  [[2], [0,1,2], [1,2]]]
-
-            Read as: choose either vector (left or right) then at each
-            index choose one of the remaining choices.
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
