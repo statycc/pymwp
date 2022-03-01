@@ -119,8 +119,7 @@ class Choices:
         return Choices(valid)
 
     def is_valid(self, *choices: List[int]) -> bool:
-        """Check if some sequence of choices can be made without causing
-        infinity to occur in the program matrix.
+        """Check if some sequence of choices can be made without infinity.
 
         Example:
 
@@ -249,7 +248,16 @@ class Choices:
         return first[0][1] == second[0][1] and first[1:] == second[1:]
 
     @staticmethod
-    def prod(values: list, initial: int) -> int:
+    def prod(values: list, initial: int = 1) -> int:
+        """Compute the product of numeric list.
+
+        Arguments:
+            values: 1d list of numbers
+            initial: initial value, default 1 since product
+
+        Returns:
+            Product of values.
+        """
         return reduce((lambda x, y: x * y), values, initial)
 
     @staticmethod
