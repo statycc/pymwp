@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Tuple, List, Set, Union
-from itertools import islice, chain
 from functools import reduce
+from typing import Tuple, List, Set, Union
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +89,7 @@ class Choices:
             vectors: choice vectors
         """
         self.valid = vectors or []
+        self.infinite = len(self.valid) == 0
 
     @staticmethod
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
@@ -137,14 +137,9 @@ class Choices:
             True if the given choices can be made without infinity.
         """
         for vector in self.valid:
-            good = True
-            if len(choices) > len(vector):
-                good = False
-            else:
-                for idx, value in enumerate(choices):
-                    if value not in vector[idx]:
-                        good = False
-            if good:
+            if len(choices) <= len(vector) and False not in \
+                    [value in vector[idx] for idx, value in
+                     enumerate(choices)]:
                 return True
         return False
 
@@ -193,6 +188,8 @@ class Choices:
         """
         while Choices.reduce(choices, sequences):
             pass
+        if sequences == {()}:
+            sequences.clear()
 
     @staticmethod
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
@@ -224,7 +221,7 @@ class Choices:
             False is to say the operation is done and should not be repeated
             any further.
         """
-        for s1 in sequences:
+        for s1 in [s for s in sequences if len(s) > 1]:
             subs = [s2[0][0] for s2 in sequences if Choices.sub_equal(s1, s2)]
             # all paths must exist
             if set(subs) == set(choices):
@@ -250,6 +247,10 @@ class Choices:
             and False otherwise.
         """
         return first[0][1] == second[0][1] and first[1:] == second[1:]
+
+    @staticmethod
+    def prod(values: list, initial: int) -> int:
+        return reduce((lambda x, y: x * y), values, initial)
 
     @staticmethod
     def build_choices(
@@ -289,36 +290,25 @@ class Choices:
 
         # get length of each infinity path
         lens = [len(i) for i in sorted_infty]
-        # get the number of bits needed to represent each path; this binary
-        # magic is necessary because itertools does not seem to have a nice
-        # way of producing combinations for choosing 1 from each set
-        bin_lens = [len(bin(i - 1)[2:]) for i in lens]
 
-        # in each vector, choose 1 delta from each infinity path; so that no
-        # path can be selected fully => the product of all path lengths gives
-        # the max number of distinct vectors:
-        max_ = reduce((lambda x, y: x * y), lens)
-
+        # the product of path lengths gives the max number of distinct vectors
+        max_ = Choices.prod(lens, 1)
         logger.debug(f'maximum distinct vectors: {max_}')
-        logger.debug(f'path lengths/bits: {lens} / {bin_lens}')
 
         vectors = set()
 
         # generate all possible vectors by iterating the max count of
-        # distinct vectors: use the iteration count as selector for deltas
+        # distinct vectors
         for iter_i in range(max_):
 
-            # convert the iteration number to 0-filled binary
-            bin_iter = iter(bin(iter_i)[2:].zfill(len(sorted_infty)))
+            zeros = [int(n) for n in list(str(0).zfill(len(lens)))]
 
-            # convert the binary number to a list of indices
-            # these indices decide which delta to pick from each path
-            indices = [int(n) for n in chain.from_iterable(
-                [list(islice(bin_iter, bl)) for bl in bin_lens])]
+            # use the iteration count as selector for deltas
+            indices = [(iter_i // Choices.prod(lens[idx + 1:], 1)) %
+                       lens[idx] for idx, v in enumerate(zeros)]
 
-            # using the indices, now choose the specific delta values
-            # 1 value for each infinite path, so that it is not possible
-            # to choose any path fully
+            # now choose the specific delta values, 1 value for each infinite
+            # path, so that it is not possible to choose any bad path fully
             deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
 
             # initialize a vector with all allowed choices
