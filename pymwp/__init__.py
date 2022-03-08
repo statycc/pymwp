@@ -11,6 +11,7 @@ __license__ = "CC BY-NC 4.0"
 
 from pymwp.delta_graphs import DeltaGraph
 from pymwp.version import __version__
+from pymwp.choice import Choices
 from pymwp.relation_list import RelationList
 from pymwp.relation import Relation
 from pymwp.polynomial import Polynomial

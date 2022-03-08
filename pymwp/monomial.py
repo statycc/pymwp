@@ -26,7 +26,8 @@ class Monomial:
     and no two deltas can have the same index.
     """
 
-    def __init__(self, scalar: str = UNIT_MWP, deltas: Optional[List[Tuple[int, int]]] = None):
+    def __init__(self, scalar: str = UNIT_MWP,
+                 deltas: Optional[List[Tuple[int, int]]] = None):
         """Create a monomial.
 
         Example:
@@ -98,16 +99,16 @@ class Monomial:
             EMPTY none of them
         """
         # self contains monomial ?
-        contains:bool = self.contains(monomial)
+        contains: bool = self.contains(monomial)
 
-        summ = sum_mwp(self.scalar,monomial.scalar)
+        summ = sum_mwp(self.scalar, monomial.scalar)
         # if self contains monomial and self.scalar >= monomial.scalar
         if contains and (monomial.scalar == summ):
             return SetInclusion.CONTAINS
         else:
             # self included in monomial and self.scalar <= monomial.scalar
-            included:bool = monomial.contains(self)
-            if included and (self.scalar==summ):
+            included: bool = monomial.contains(self)
+            if included and (self.scalar == summ):
                 return SetInclusion.INCLUDED
             else:
                 return SetInclusion.EMPTY
@@ -150,39 +151,6 @@ class Monomial:
             Monomial.insert_deltas(mono_product, monomial.deltas)
 
         return mono_product
-
-    def eval(self, argument_list: List[int]) -> str:
-        """Evaluate delta values against argument list.
-
-        The result of eval is determined as follows:
-
-        If the list of values given as an argument "match" all
-        the deltas, then the value is returned. Otherwise 0 is
-        returned.
-
-        When matching we compare delta value $i$ at index $j$ to the
-        $j^{th}$ value in the argument list.
-
-        It can accommodate list of values that are of length
-        greater than the max of the indices in the deltas, but
-        not a list whose length is shorter than the max of the
-        indices in the delta.
-
-        Arguments:
-            argument_list: list of deltas to evaluate
-
-        Raises:
-            IndexError: if argument list length is less than
-                max index in the list of deltas.
-
-        Returns:
-            Scalar of the monomial if the evaluation matches and
-            otherwise 0.
-        """
-        for (i, j) in self.deltas:
-            if argument_list[j] != i:
-                return ZERO_MWP
-        return self.scalar
 
     def copy(self) -> Monomial:
         """Make a deep copy of a monomial."""

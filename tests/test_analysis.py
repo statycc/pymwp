@@ -21,9 +21,15 @@ def test_analyze_non_infinite_2():
 
     # match expected choices and variables
     assert set(relation.variables) == {'X0', 'X1'}
-    assert combinations == [[0, 0], [0, 1], [0, 2],
-                            [1, 0], [1, 1], [1, 2],
-                            [2, 0], [2, 1], [2, 2]]
+    assert combinations.is_valid(0, 0)
+    assert combinations.is_valid(0, 1)
+    assert combinations.is_valid(0, 2)
+    assert combinations.is_valid(1, 0)
+    assert combinations.is_valid(1, 1)
+    assert combinations.is_valid(1, 2)
+    assert combinations.is_valid(2, 0)
+    assert combinations.is_valid(2, 1)
+    assert combinations.is_valid(2, 2)
 
     # match *some* deltas from the matrix
     assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
@@ -42,27 +48,32 @@ def test_analyze_if_braces_do_not_matter():
      should give the same analysis result."""
     rel_with, choices_with = Analysis.run(IF_WITH_BRACES, no_save=True)[:2]
     rel_wo, choices_wo = Analysis.run(IF_WO_BRACES, no_save=True)[:2]
+    all_valid_choices = [
+        [0, 0, 0], [0, 0, 1], [0, 0, 2], [0, 1, 0], [0, 1, 1],
+        [0, 1, 2], [0, 2, 0], [0, 2, 1], [0, 2, 2], [1, 0, 0],
+        [1, 0, 1], [1, 0, 2], [1, 1, 0], [1, 1, 1], [1, 1, 2],
+        [1, 2, 0], [1, 2, 1], [1, 2, 2], [2, 0, 0], [2, 0, 1],
+        [2, 0, 2], [2, 1, 0], [2, 1, 1], [2, 1, 2], [2, 2, 0],
+        [2, 2, 1], [2, 2, 2]]
 
     # match choices and variables
     assert set(rel_with.variables) == set(rel_wo.variables) == \
            {'x', 'x1', 'x2', 'x3', 'y'}
-    # should give same choices
-    assert choices_with == choices_wo == \
-           [[0, 0, 0], [0, 0, 1], [0, 0, 2], [0, 1, 0], [0, 1, 1],
-            [0, 1, 2], [0, 2, 0], [0, 2, 1], [0, 2, 2], [1, 0, 0],
-            [1, 0, 1], [1, 0, 2], [1, 1, 0], [1, 1, 1], [1, 1, 2],
-            [1, 2, 0], [1, 2, 1], [1, 2, 2], [2, 0, 0], [2, 0, 1],
-            [2, 0, 2], [2, 1, 0], [2, 1, 1], [2, 1, 2], [2, 2, 0],
-            [2, 2, 1], [2, 2, 2]]
+    # both results accept same & all choices
+    for choice in all_valid_choices:
+        assert choices_with.is_valid(*choice) and choices_wo.is_valid(*choice)
 
 
 def test_analyze_variable_ignore():
     """Analysis picks up variable on left of assignment,
     see issue #11: https://github.com/statycc/pymwp/issues/11 """
     relation, combinations = Analysis.run(VARIABLE_IGNORED, no_save=True)[:2]
-
-    assert combinations == [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+    non_infinity_choices = [[0, 0], [0, 1], [0, 2],
+                            [1, 0], [1, 1], [1, 2],
                             [2, 0], [2, 1], [2, 2]]
+
+    for choice in non_infinity_choices:
+        assert combinations.is_valid(*choice)
     assert set(relation.variables) == {'X2', 'X3', 'X1', 'X4'}
 
     mpw = '+m.delta(0,0)+p.delta(1,0)+w.delta(2,0)'

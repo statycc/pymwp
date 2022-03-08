@@ -3,15 +3,16 @@ import sys
 import json
 import logging
 
-from typing import List, Tuple, Dict, Optional
+from typing import Tuple, Dict, Optional
 from pycparser import parse_file, c_ast
 from subprocess import CalledProcessError
 
+from .choice import Choices
 from .relation import Relation
 from .matrix import decode
 
 logger = logging.getLogger(__name__)
-RESULT_TYPE = Tuple[Optional[Relation], Optional[List[List[int]]], bool]
+RESULT_TYPE = Tuple[Optional[Relation], Optional[Choices], bool]
 
 
 def default_file_out(input_file: str) -> str:
@@ -58,7 +59,7 @@ def save_relation(
 
         file_content[function_name] = {
             "relation": relation.to_dict() if relation else None,
-            "choices": choices,
+            "choices": choices.valid if choices else None,
             "infinity": infinity
         }
 
@@ -110,7 +111,8 @@ def load_relation(file_name: str) -> Dict[str, RESULT_TYPE]:
             matrix = value["relation"]["matrix"]
             variables = value["relation"]["variables"]
             relation = Relation(variables, decode(matrix))
-        combinations = value["choices"]
+        combinations = Choices(value["choices"]) \
+            if "choices" in value else None
         infinity = value["infinity"]
 
         # generate objects
