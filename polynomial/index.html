@@ -1,0 +1,2621 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Implementation of MWP analysis on C code in Python.">
+      
+      
+      
+      <link rel="icon" href="..">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.5">
+    
+    
+      
+        <title>Polynomial - pymwp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2d9f7617.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#546d78">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CSource+Code+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../assets/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#polynomialpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pymwp" class="md-header__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pymwp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Polynomial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/statycc/pymwp/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pymwp" class="md-nav__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pymwp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/statycc/pymwp/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Installation & Use
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        Supported Features
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        Demo
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Modules
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Modules" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analysis/" class="md-nav__link">
+        Analysis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../choice/" class="md-nav__link">
+        Choice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../delta_graphs/" class="md-nav__link">
+        Delta Graphs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file_io/" class="md-nav__link">
+        File I/O
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix/" class="md-nav__link">
+        Matrix
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monomial/" class="md-nav__link">
+        Monomial
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Polynomial
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Polynomial
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.polynomial" class="md-nav__link">
+    pymwp.polynomial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial" class="md-nav__link">
+    Polynomial
+  </a>
+  
+    <nav class="md-nav" aria-label="Polynomial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.eval" class="md-nav__link">
+    eval
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.add" class="md-nav__link">
+    add()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.compare" class="md-nav__link">
+    compare()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.copy" class="md-nav__link">
+    copy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.equal" class="md-nav__link">
+    equal()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.from_scalars" class="md-nav__link">
+    from_scalars()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.inclusion" class="md-nav__link">
+    inclusion()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.remove_zeros" class="md-nav__link">
+    remove_zeros()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.show" class="md-nav__link">
+    show()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.sort_monomials" class="md-nav__link">
+    sort_monomials()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.times" class="md-nav__link">
+    times()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation/" class="md-nav__link">
+        Relation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation_list/" class="md-nav__link">
+        Relation List
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semiring/" class="md-nav__link">
+        Semiring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        Utilities
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp" class="md-nav__link">
+        Source Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/releases" class="md-nav__link">
+        Release History
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/blob/master/LICENCE.md" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.polynomial" class="md-nav__link">
+    pymwp.polynomial
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial" class="md-nav__link">
+    Polynomial
+  </a>
+  
+    <nav class="md-nav" aria-label="Polynomial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.eval" class="md-nav__link">
+    eval
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.add" class="md-nav__link">
+    add()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.compare" class="md-nav__link">
+    compare()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.copy" class="md-nav__link">
+    copy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.equal" class="md-nav__link">
+    equal()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.from_scalars" class="md-nav__link">
+    from_scalars()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.inclusion" class="md-nav__link">
+    inclusion()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.remove_zeros" class="md-nav__link">
+    remove_zeros()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.show" class="md-nav__link">
+    show()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.sort_monomials" class="md-nav__link">
+    sort_monomials()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.polynomial.Polynomial.times" class="md-nav__link">
+    times()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/statycc/pymwp/blob/master/docs/polynomial.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+
+<h1 id="polynomialpy">polynomial.py</h1>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pymwp</span> <span class="kn">import</span> <span class="n">Polynomial</span>
+</code></pre></div>
+
+
+  <div class="doc doc-object doc-module">
+
+<a id="pymwp.polynomial"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="pymwp.polynomial.Polynomial" class="doc doc-heading">
+        <code>
+Polynomial        </code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A polynomial is an ordered list of ordered <a href="../monomial/"><code>Monomials</code></a>.</p>
+<p>For polynomials, I introduce a total order on the monomials. This
+eases the computation of the sum: if we want to add a monomial to an
+ordered list of monomials, we compare the monomial to each of the
+elements of the list until we find either an element which is equal
+(and then we sum the scalars) or an element which is larger (and
+then we insert the new monomial there).</p>
+<p>Polynomials use the following ordering: <span class="arithmatex">\(\delta(i,j)\)</span>
+is smaller than <span class="arithmatex">\(\delta(m,n)\)</span> iff either <span class="arithmatex">\(j&lt;n\)</span> or <span class="arithmatex">\((j==n)\)</span> and <span class="arithmatex">\((i&lt;m)\)</span>.</p>
+<p>This is extended to products (which we consider ordered!) by
+letting <span class="arithmatex">\(\prod_k\delta(i_k,j_k) &lt; \prod_l\delta(m_l,n_l)\)</span>
+iff <span class="arithmatex">\(\delta(i_1,j_1) &lt; \delta(m_1,n_1)\)</span>.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A polynomial is an ordered list of ordered [`Monomials`](monomial.md).</span>
+
+<span class="sd">    For polynomials, I introduce a total order on the monomials. This</span>
+<span class="sd">    eases the computation of the sum: if we want to add a monomial to an</span>
+<span class="sd">    ordered list of monomials, we compare the monomial to each of the</span>
+<span class="sd">    elements of the list until we find either an element which is equal</span>
+<span class="sd">    (and then we sum the scalars) or an element which is larger (and</span>
+<span class="sd">    then we insert the new monomial there).</span>
+
+<span class="sd">    Polynomials use the following ordering: $\\delta(i,j)$</span>
+<span class="sd">    is smaller than $\\delta(m,n)$ iff either $j&lt;n$ or $(j==n)$ and $(i&lt;m)$.</span>
+
+<span class="sd">    This is extended to products (which we consider ordered!) by</span>
+<span class="sd">    letting $\\prod_k\\delta(i_k,j_k) &lt; \\prod_l\\delta(m_l,n_l)$</span>
+<span class="sd">    iff $\\delta(i_1,j_1) &lt; \\delta(m_1,n_1)$.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Monomial</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a polynomial.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        Create polynomial with 0-monomial</span>
+
+<span class="sd">        ```python</span>
+<span class="sd">        zero = Polynomial()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Create polynomial with one monomial with specific scalar, no deltas</span>
+
+<span class="sd">        ```python</span>
+<span class="sd">        poly = Polynomial(&#39;w&#39;)               # shorthand</span>
+
+<span class="sd">        poly = Polynomial([Monomial(&#39;w&#39;)])   # longer, equivalent</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Create polynomial with two monomials and deltas</span>
+
+<span class="sd">        ```python</span>
+<span class="sd">        poly = Polynomial([Monomial(&#39;m&#39;, [(0, 1)]), Monomial(&#39;w&#39;, [(1, 1)])])</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            monomials: list of monomials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">monomials</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monomials</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">monomials</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">monomials</span> <span class="ow">or</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">ZERO_MWP</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="n">ZERO_MWP</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of monomial deltas whose scalar is infinity.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">mono</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span> <span class="k">for</span> <span class="n">mono</span> <span class="ow">in</span>
+                <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span><span class="p">]]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">inclusion</span><span class="p">(</span><span class="n">list_monom</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">mono</span><span class="p">:</span> <span class="n">Monomial</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;filter list_monom regarding to mono inclusion and return info</span>
+
+<span class="sd">        remove all monomials of list_monom that are included in mono.</span>
+
+<span class="sd">        return CONTAINS if one of monomials of list_monom contains mono</span>
+<span class="sd">        (regarding to Monomial.inclusion def).</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            list_monom: a list of monomials</span>
+<span class="sd">            mono: a monomial we want to add</span>
+<span class="sd">            i: the position index where to add mono</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            False if mono already in list_monom and shifted index where to</span>
+<span class="sd">            insert mono, return True if mono not in list_monom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_monom</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">list_monom</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">incl</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">mono</span><span class="p">)</span>
+            <span class="c1"># if m ⊆ mono</span>
+            <span class="k">if</span> <span class="n">incl</span> <span class="o">==</span> <span class="n">SetInclusion</span><span class="o">.</span><span class="n">CONTAINS</span><span class="p">:</span>
+                <span class="c1"># We will then add mono so we can remove m</span>
+                <span class="n">list_monom</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                <span class="c1"># If removed monom is before i (where we want to insert mono)</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># shift left position</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">incl</span> <span class="o">==</span> <span class="n">SetInclusion</span><span class="o">.</span><span class="n">INCLUDED</span><span class="p">:</span>
+                <span class="c1">#  We don&#39;t want to add mono, inform with CONTAINS</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">i</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c1"># No inclusion</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">i</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add two polynomials</span>
+
+<span class="sd">        - If both lists are empty the result is empty.</span>
+<span class="sd">        - If one list is empty, the result will be the other list</span>
+<span class="sd">        of polynomials.</span>
+
+<span class="sd">        Otherwise the operation will zip the two lists together</span>
+<span class="sd">        and return a new polynomial of sorted monomials.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            polynomial: Polynomial to add to self</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New, sorted polynomial that is a sum of the</span>
+<span class="sd">            two input polynomials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check for empty lists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Polynomial</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">new_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">list</span>
+        <span class="c1"># self_len = len(new_list)</span>
+        <span class="n">poly_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+
+        <span class="c1"># iterate lists of monomials until the end of shorter list</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">poly_len</span><span class="p">:</span>
+            <span class="n">mono2</span> <span class="o">=</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">new_list</span><span class="p">,</span> <span class="n">mono2</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># handle case where first list is shorter</span>
+            <span class="c1"># by just appending what remains of the</span>
+            <span class="c1"># other list of monomials</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">j</span><span class="p">:]:</span>
+                    <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">new_list</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+                        <span class="n">new_list</span> <span class="o">=</span> <span class="n">new_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">m</span><span class="p">]</span>
+                <span class="k">break</span>
+
+            <span class="n">mono1</span> <span class="o">=</span> <span class="n">new_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="n">check</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">mono1</span><span class="o">.</span><span class="n">deltas</span><span class="p">,</span> <span class="n">mono2</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span>
+
+            <span class="c1"># move to next when self is smaller</span>
+            <span class="k">if</span> <span class="n">check</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># insert when the second is smaller</span>
+            <span class="k">elif</span> <span class="n">check</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span><span class="p">:</span>
+                <span class="n">new_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mono2</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># when both list heads are the same</span>
+            <span class="c1"># recompute scalar and move to next element</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="n">sum_mwp</span><span class="p">(</span><span class="n">mono1</span><span class="o">.</span><span class="n">scalar</span><span class="p">,</span> <span class="n">mono2</span><span class="o">.</span><span class="n">scalar</span><span class="p">)</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">sorted_monomials</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">sorted_monomials</span><span class="p">)</span><span class="o">.</span><span class="n">remove_zeros</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Multiply two polynomials.</span>
+
+<span class="sd">        Here we assume at least self is a sorted polynomial,</span>
+<span class="sd">        and the result of this operation will be sorted.</span>
+
+<span class="sd">        This operation works as follows:</span>
+
+<span class="sd">        1. We compute a table of all the separated products</span>
+<span class="sd">            $P.m_1,...,P.m_n$. Each of the elements is itself</span>
+<span class="sd">            a sorted list of monomials: $P.m_j=m^j_1,...,m^j_k$</span>
+
+<span class="sd">        2. We then sort the list of the first (smallest) elements</span>
+<span class="sd">            of each list. I.e. we sort the list $m^1_1,m^2_1,...,m^n_1$</span>
+<span class="sd">            and produce the list corresponding list of indexes of</span>
+<span class="sd">            length n, I.e. a permutation over ${0,...,n}$.</span>
+
+<span class="sd">        3. Once all this preparatory operations are done, the main part</span>
+<span class="sd">           of the algorithm goes as follows:</span>
+
+<span class="sd">        4. We consider the first element — say j — of the list of indexes</span>
+<span class="sd">           and append to the result the first element of the corresponding</span>
+<span class="sd">           list $P.m_j$ of monomials.</span>
+
+<span class="sd">        5. We remove both the first element of the list of index and</span>
+<span class="sd">           the first element of $P.m_j$.</span>
+
+<span class="sd">        6. If $P.m_j$ is not empty, we insert j in the list of index</span>
+<span class="sd">           at the right position: for this we compare the (new) first</span>
+<span class="sd">           element of $P.m_j$ to  $m^{i_2}_1$ (as we removed the</span>
+<span class="sd">           first element, $i_2$ is now the head of the list of indexes),</span>
+<span class="sd">           then $m^{i_3}_1$, until we reach the index h such that</span>
+<span class="sd">           $m^{i_h}_1$ is larger than $m^{j}_1$.</span>
+
+<span class="sd">        7. We start back at point 4. Unless only one element is left</span>
+<span class="sd">           in the list of indexes. In this case, we simply append the</span>
+<span class="sd">           tail of the corresponding list to the result.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            polynomial: polynomial to multiply with self</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a new polynomial that is the sorted product</span>
+<span class="sd">            of the two input polynomials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># 1: compute table of products</span>
+        <span class="c1"># here we compute P1 x P2 for each polynomial, excluding from the</span>
+        <span class="c1"># result all monomials that have scalar value 0</span>
+        <span class="n">products</span> <span class="o">=</span> <span class="p">[[</span><span class="n">mono</span> <span class="k">for</span> <span class="n">mono</span> <span class="ow">in</span> <span class="p">(</span><span class="n">m1</span> <span class="o">*</span> <span class="n">m2</span> <span class="k">for</span> <span class="n">m1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+                     <span class="k">if</span> <span class="n">mono</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">]</span> <span class="k">for</span> <span class="n">m2</span> <span class="ow">in</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">]</span>
+        <span class="c1"># filter out empty monomials</span>
+        <span class="n">table</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Monomial</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span> <span class="k">if</span> <span class="n">p</span><span class="p">]</span>
+
+        <span class="c1"># if table is empty, return zero polynomial</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Polynomial</span><span class="p">()</span>
+
+        <span class="c1"># 2: create an index lists that represents the ordered</span>
+        <span class="c1"># monomials in table, ordered by deltas of first monomials</span>
+        <span class="n">index_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)):</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)):</span>
+                <span class="n">t2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">index_list</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+                <span class="k">if</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                    <span class="n">index_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index_list</span><span class="p">:</span>
+                <span class="n">index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># 3: start main part</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">index_list</span><span class="p">:</span>
+            <span class="c1"># 4. get first element and append to result</span>
+            <span class="c1"># 5. remove from index and table</span>
+            <span class="n">smallest</span> <span class="o">=</span> <span class="n">index_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">mono2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">mono2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mono2</span><span class="p">)</span>
+
+            <span class="c1"># 6. when table is non-empty insert j at</span>
+            <span class="c1"># the right index</span>
+            <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">]:</span>
+                <span class="n">inserted</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">t1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)):</span>
+                    <span class="n">t2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">index_list</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+                    <span class="k">if</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                        <span class="n">index_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">smallest</span><span class="p">)</span>
+                        <span class="n">inserted</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">inserted</span><span class="p">:</span>
+                    <span class="n">index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smallest</span><span class="p">)</span>
+            <span class="c1"># 7. repeat until done</span>
+
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">remove_zeros</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Determine if two polynomials are equal.</span>
+
+<span class="sd">        This method will compare current polynomial (self) to</span>
+<span class="sd">        another polynomial provided as argument. Result of</span>
+<span class="sd">        true means both polynomials have an equal number of</span>
+<span class="sd">        monomials, and element-wise each monomial has the same</span>
+<span class="sd">        list of deltas. Otherwise the result is false.</span>
+
+<span class="sd">        This method is alias of `==` operator.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            polynomial: polynomial to compare.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if polynomials are equal and false otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">,</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span>
+
+        <span class="c1"># the only times deltas are equal is if they contain</span>
+        <span class="c1"># same values and are equal in length; avoid calling</span>
+        <span class="c1"># compare because it is more expensive method call; we</span>
+        <span class="c1"># can do faster equality comparison on deltas this way</span>
+        <span class="n">same</span> <span class="o">=</span> <span class="p">[</span><span class="n">m1</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">scalar</span> <span class="ow">and</span> <span class="n">m1</span><span class="o">.</span><span class="n">deltas</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">deltas</span>
+                <span class="k">for</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)]</span>
+
+        <span class="c1"># if False is in list it means some comparison of</span>
+        <span class="c1"># deltas was determined not to be equal; do length</span>
+        <span class="c1"># comparison last because it is almost never False</span>
+        <span class="k">return</span> <span class="kc">False</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">same</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Make a deep copy of polynomial.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Display polynomial.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">delta_list2</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Comparison</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare 2 lists of deltas.</span>
+
+<span class="sd">        We compare the initial segment up to the size of the shortest one.</span>
+<span class="sd">        If the initial segments match, then the result is determined based</span>
+<span class="sd">        on length. Three outputs are possible:</span>
+
+<span class="sd">        - `SMALLER` if the first list is smaller than the second</span>
+<span class="sd">        - `EQUAL` if both lists are equal in contents and length</span>
+<span class="sd">        - `LARGER` if the first list is larger than the second</span>
+
+<span class="sd">        The return value represents the relation of first</span>
+<span class="sd">        list to the second one. `Smaller` means either</span>
+
+<span class="sd">        - delta values of first list are smaller -or-</span>
+<span class="sd">        - deltas are equal but first list is shorter in length.</span>
+
+<span class="sd">        Larger is the opposite case.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            delta_list1: first monomial list to compare</span>
+<span class="sd">            delta_list2: second monomial list to compare</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            result of comparison</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># element wise comparison up to length of shorter list</span>
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">,</span> <span class="n">delta_list2</span><span class="p">)]</span>
+
+        <span class="c1"># if some difference exists</span>
+        <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+
+            <span class="c1"># index of first difference</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">list_diff</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="n">delta_list1</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">delta_list2</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="n">n</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span>
+
+        <span class="c1"># If the list coincide on their initial segment up to &quot;max&quot;,</span>
+        <span class="c1"># determine the lengths of the two lists</span>
+        <span class="n">first_len</span><span class="p">,</span> <span class="n">second_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_list2</span><span class="p">)</span>
+
+        <span class="c1"># determine how first list relates to second list</span>
+        <span class="k">if</span> <span class="n">first_len</span> <span class="o">&gt;</span> <span class="n">second_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span>
+        <span class="k">if</span> <span class="n">first_len</span> <span class="o">&lt;</span> <span class="n">second_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">EQUAL</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Given a list of monomials this method will return them in order.</span>
+
+<span class="sd">        The sort is performed by first dividing the list of monomials into</span>
+<span class="sd">        halves recursively until each half contains at most one monomial.</span>
+<span class="sd">        Then the sort will begin to combine (or zip) the halves into a sorted</span>
+<span class="sd">        list.</span>
+
+<span class="sd">        The sort performs comparison of deltas, and orders the monomials based</span>
+<span class="sd">        on the delta values. If two monomials have the same deltas, we compute</span>
+<span class="sd">        new scalar value, and if it is not 0, we keep the result monomial.</span>
+<span class="sd">        Note that if we get 2 monomials with same deltas, and only at most 1</span>
+<span class="sd">        is kept, with possibly updated scalar. This means sort can return a</span>
+<span class="sd">        result that is shorter than the input argument.</span>
+
+<span class="sd">        The original list argument is not mutated by this sort operation, i.e.</span>
+<span class="sd">        this is not sort in place.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            monomials: list of monomials to sort</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of sorted monomials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">list_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">monomials</span><span class="p">)</span>
+
+        <span class="c1"># base case</span>
+        <span class="k">if</span> <span class="n">list_len</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">monomials</span> <span class="ow">and</span> <span class="n">monomials</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ZERO_MWP</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="n">monomials</span>
+
+        <span class="c1"># split list into two halves equally</span>
+        <span class="n">mid_point</span> <span class="o">=</span> <span class="n">list_len</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">[</span><span class="n">mid_point</span><span class="p">:])</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">[:</span><span class="n">mid_point</span><span class="p">])</span>
+
+        <span class="c1"># construct sorted list by iteratively combining</span>
+        <span class="c1"># monomials from left and right halves</span>
+        <span class="n">new_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">left</span> <span class="ow">and</span> <span class="n">right</span><span class="p">:</span>
+            <span class="n">lhead</span><span class="p">,</span> <span class="o">*</span><span class="n">ltail</span> <span class="o">=</span> <span class="n">left</span>
+            <span class="n">rhead</span><span class="p">,</span> <span class="o">*</span><span class="n">rtail</span> <span class="o">=</span> <span class="n">right</span>
+            <span class="n">comparison</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">lhead</span><span class="o">.</span><span class="n">deltas</span><span class="p">,</span> <span class="n">rhead</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span>
+
+            <span class="c1"># head of left list is smaller -&gt; add it to list</span>
+            <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lhead</span><span class="p">)</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">ltail</span>
+
+            <span class="c1"># head of right list is smaller -&gt; add it to list</span>
+            <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span><span class="p">:</span>
+                <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rhead</span><span class="p">)</span>
+                <span class="n">right</span> <span class="o">=</span> <span class="n">rtail</span>
+
+            <span class="c1"># list heads are equal i.e. same deltas.</span>
+            <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">EQUAL</span><span class="p">:</span>
+                <span class="n">monomial</span> <span class="o">=</span> <span class="n">lhead</span>
+                <span class="c1"># append to list as long as scalar</span>
+                <span class="c1"># product is not 0</span>
+                <span class="n">monomial</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="n">sum_mwp</span><span class="p">(</span>
+                    <span class="n">lhead</span><span class="o">.</span><span class="n">scalar</span><span class="p">,</span> <span class="n">rhead</span><span class="o">.</span><span class="n">scalar</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">monomial</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">:</span>
+                    <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">monomial</span><span class="p">)</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">ltail</span>
+                <span class="n">right</span> <span class="o">=</span> <span class="n">rtail</span>
+
+        <span class="c1"># either left or right is empty so order</span>
+        <span class="c1"># doesn&#39;t matter; just append whatever</span>
+        <span class="c1"># remains of left or right tail</span>
+        <span class="k">return</span> <span class="n">new_list</span> <span class="o">+</span> <span class="n">right</span> <span class="o">+</span> <span class="n">left</span>
+
+    <span class="k">def</span> <span class="nf">remove_zeros</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Removes all encountered 0s from a polynomial.</span>
+
+<span class="sd">        Before returning, if the list is empty, the result produces a</span>
+<span class="sd">            0-monomial.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            polynomial with list of monomials for which zeros are</span>
+<span class="sd">            removed, unless 0 is the only monomial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filtered_monomials</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">mono</span><span class="p">:</span> <span class="n">mono</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_monomials</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">ZERO_MWP</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">filtered_monomials</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">scalars</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Build a polynomial of multiple monomials with deltas.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            arguments:</span>
+
+<span class="sd">                - index: 5</span>
+<span class="sd">                - scalars: m, w, p</span>
+
+<span class="sd">            result:</span>
+
+<span class="sd">            ```Python</span>
+<span class="sd">            Polynomial(</span>
+<span class="sd">                Monomial(&#39;m&#39;, [(0, 5), (1, 5), (2, 5)]),</span>
+<span class="sd">                Monomial(&#39;w&#39;, [(0, 5), (1, 5), (2, 5)]),</span>
+<span class="sd">                Monomial(&#39;p&#39;, [(0, 5), (1, 5), (2, 5)]))</span>
+<span class="sd">            ```</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            scalars: scalar values</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             Generated polynomial</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+
+        <span class="n">monomials</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="p">[(</span><span class="n">number</span><span class="p">,</span> <span class="n">index</span><span class="p">)])</span>
+                     <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">scalar</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scalars</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">monomials</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.eval" class="doc doc-heading">
+<code class="highlight language-python"><span class="nb">eval</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-property"><code>property</code></small>
+      <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>List of monomial deltas whose scalar is infinity.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomials</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a polynomial.</p>
+
+<p><strong>Examples:</strong></p>
+    
+      <p>Create polynomial with 0-monomial</p>
+<div class="highlight"><pre><span></span><code><span class="n">zero</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="p">()</span>
+</code></pre></div>
+<p>Create polynomial with one monomial with specific scalar, no deltas</p>
+<div class="highlight"><pre><span></span><code><span class="n">poly</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>               <span class="c1"># shorthand</span>
+
+<span class="n">poly</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)])</span>   <span class="c1"># longer, equivalent</span>
+</code></pre></div>
+<p>Create polynomial with two monomials and deltas</p>
+<div class="highlight"><pre><span></span><code><span class="n">poly</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]),</span> <span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])])</span>
+</code></pre></div>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>monomials</code></td>
+        <td><code>Optional[Union[str, List[Monomial]]]</code></td>
+        <td><p>list of monomials</p></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomials</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Monomial</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a polynomial.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    Create polynomial with 0-monomial</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    zero = Polynomial()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Create polynomial with one monomial with specific scalar, no deltas</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    poly = Polynomial(&#39;w&#39;)               # shorthand</span>
+
+<span class="sd">    poly = Polynomial([Monomial(&#39;w&#39;)])   # longer, equivalent</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Create polynomial with two monomials and deltas</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    poly = Polynomial([Monomial(&#39;m&#39;, [(0, 1)]), Monomial(&#39;w&#39;, [(1, 1)])])</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        monomials: list of monomials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">monomials</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monomials</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">monomials</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">monomials</span> <span class="ow">or</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">ZERO_MWP</span><span class="p">)]</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.add" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Add two polynomials</p>
+<ul>
+<li>If both lists are empty the result is empty.</li>
+<li>If one list is empty, the result will be the other list
+of polynomials.</li>
+</ul>
+<p>Otherwise the operation will zip the two lists together
+and return a new polynomial of sorted monomials.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>polynomial</code></td>
+        <td><code>Polynomial</code></td>
+        <td><p>Polynomial to add to self</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Polynomial</code></td>
+      <td><p>New, sorted polynomial that is a sum of the
+two input polynomials</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add two polynomials</span>
+
+<span class="sd">    - If both lists are empty the result is empty.</span>
+<span class="sd">    - If one list is empty, the result will be the other list</span>
+<span class="sd">    of polynomials.</span>
+
+<span class="sd">    Otherwise the operation will zip the two lists together</span>
+<span class="sd">    and return a new polynomial of sorted monomials.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        polynomial: Polynomial to add to self</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        New, sorted polynomial that is a sum of the</span>
+<span class="sd">        two input polynomials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check for empty lists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">new_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">list</span>
+    <span class="c1"># self_len = len(new_list)</span>
+    <span class="n">poly_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+
+    <span class="c1"># iterate lists of monomials until the end of shorter list</span>
+    <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">poly_len</span><span class="p">:</span>
+        <span class="n">mono2</span> <span class="o">=</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+        <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">new_list</span><span class="p">,</span> <span class="n">mono2</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># handle case where first list is shorter</span>
+        <span class="c1"># by just appending what remains of the</span>
+        <span class="c1"># other list of monomials</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">j</span><span class="p">:]:</span>
+                <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">new_list</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+                    <span class="n">new_list</span> <span class="o">=</span> <span class="n">new_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">m</span><span class="p">]</span>
+            <span class="k">break</span>
+
+        <span class="n">mono1</span> <span class="o">=</span> <span class="n">new_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">mono1</span><span class="o">.</span><span class="n">deltas</span><span class="p">,</span> <span class="n">mono2</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span>
+
+        <span class="c1"># move to next when self is smaller</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># insert when the second is smaller</span>
+        <span class="k">elif</span> <span class="n">check</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span><span class="p">:</span>
+            <span class="n">new_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mono2</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># when both list heads are the same</span>
+        <span class="c1"># recompute scalar and move to next element</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="n">sum_mwp</span><span class="p">(</span><span class="n">mono1</span><span class="o">.</span><span class="n">scalar</span><span class="p">,</span> <span class="n">mono2</span><span class="o">.</span><span class="n">scalar</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">sorted_monomials</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">sorted_monomials</span><span class="p">)</span><span class="o">.</span><span class="n">remove_zeros</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.compare" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">compare</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">,</span> <span class="n">delta_list2</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compare 2 lists of deltas.</p>
+<p>We compare the initial segment up to the size of the shortest one.
+If the initial segments match, then the result is determined based
+on length. Three outputs are possible:</p>
+<ul>
+<li><code>SMALLER</code> if the first list is smaller than the second</li>
+<li><code>EQUAL</code> if both lists are equal in contents and length</li>
+<li><code>LARGER</code> if the first list is larger than the second</li>
+</ul>
+<p>The return value represents the relation of first
+list to the second one. <code>Smaller</code> means either</p>
+<ul>
+<li>delta values of first list are smaller -or-</li>
+<li>deltas are equal but first list is shorter in length.</li>
+</ul>
+<p>Larger is the opposite case.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>delta_list1</code></td>
+        <td><code>list</code></td>
+        <td><p>first monomial list to compare</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>delta_list2</code></td>
+        <td><code>list</code></td>
+        <td><p>second monomial list to compare</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Comparison</code></td>
+      <td><p>result of comparison</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">delta_list2</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Comparison</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare 2 lists of deltas.</span>
+
+<span class="sd">    We compare the initial segment up to the size of the shortest one.</span>
+<span class="sd">    If the initial segments match, then the result is determined based</span>
+<span class="sd">    on length. Three outputs are possible:</span>
+
+<span class="sd">    - `SMALLER` if the first list is smaller than the second</span>
+<span class="sd">    - `EQUAL` if both lists are equal in contents and length</span>
+<span class="sd">    - `LARGER` if the first list is larger than the second</span>
+
+<span class="sd">    The return value represents the relation of first</span>
+<span class="sd">    list to the second one. `Smaller` means either</span>
+
+<span class="sd">    - delta values of first list are smaller -or-</span>
+<span class="sd">    - deltas are equal but first list is shorter in length.</span>
+
+<span class="sd">    Larger is the opposite case.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        delta_list1: first monomial list to compare</span>
+<span class="sd">        delta_list2: second monomial list to compare</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        result of comparison</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># element wise comparison up to length of shorter list</span>
+    <span class="n">list_diff</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">,</span> <span class="n">delta_list2</span><span class="p">)]</span>
+
+    <span class="c1"># if some difference exists</span>
+    <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+
+        <span class="c1"># index of first difference</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">list_diff</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="n">delta_list1</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">delta_list2</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="n">n</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span>
+
+    <span class="c1"># If the list coincide on their initial segment up to &quot;max&quot;,</span>
+    <span class="c1"># determine the lengths of the two lists</span>
+    <span class="n">first_len</span><span class="p">,</span> <span class="n">second_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_list1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_list2</span><span class="p">)</span>
+
+    <span class="c1"># determine how first list relates to second list</span>
+    <span class="k">if</span> <span class="n">first_len</span> <span class="o">&gt;</span> <span class="n">second_len</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span>
+    <span class="k">if</span> <span class="n">first_len</span> <span class="o">&lt;</span> <span class="n">second_len</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">EQUAL</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.copy" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Make a deep copy of polynomial.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a deep copy of polynomial.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Polynomial</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">])</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.equal" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Determine if two polynomials are equal.</p>
+<p>This method will compare current polynomial (self) to
+another polynomial provided as argument. Result of
+true means both polynomials have an equal number of
+monomials, and element-wise each monomial has the same
+list of deltas. Otherwise the result is false.</p>
+<p>This method is alias of <code>==</code> operator.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>polynomial</code></td>
+        <td><code>Polynomial</code></td>
+        <td><p>polynomial to compare.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>bool</code></td>
+      <td><p>True if polynomials are equal and false otherwise.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Determine if two polynomials are equal.</span>
+
+<span class="sd">    This method will compare current polynomial (self) to</span>
+<span class="sd">    another polynomial provided as argument. Result of</span>
+<span class="sd">    true means both polynomials have an equal number of</span>
+<span class="sd">    monomials, and element-wise each monomial has the same</span>
+<span class="sd">    list of deltas. Otherwise the result is false.</span>
+
+<span class="sd">    This method is alias of `==` operator.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        polynomial: polynomial to compare.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if polynomials are equal and false otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">,</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span>
+
+    <span class="c1"># the only times deltas are equal is if they contain</span>
+    <span class="c1"># same values and are equal in length; avoid calling</span>
+    <span class="c1"># compare because it is more expensive method call; we</span>
+    <span class="c1"># can do faster equality comparison on deltas this way</span>
+    <span class="n">same</span> <span class="o">=</span> <span class="p">[</span><span class="n">m1</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">scalar</span> <span class="ow">and</span> <span class="n">m1</span><span class="o">.</span><span class="n">deltas</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">deltas</span>
+            <span class="k">for</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)]</span>
+
+    <span class="c1"># if False is in list it means some comparison of</span>
+    <span class="c1"># deltas was determined not to be equal; do length</span>
+    <span class="c1"># comparison last because it is almost never False</span>
+    <span class="k">return</span> <span class="kc">False</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">same</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.from_scalars" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="o">*</span><span class="n">scalars</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Build a polynomial of multiple monomials with deltas.</p>
+
+<p><strong>Examples:</strong></p>
+    <p>arguments:</p>
+<div class="highlight"><pre><span></span><code>- index: 5
+- scalars: m, w, p
+</code></pre></div>
+<p>result:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Polynomial</span><span class="p">(</span>
+    <span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
+    <span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
+    <span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]))</span>
+</code></pre></div>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>scalars</code></td>
+        <td><code>str</code></td>
+        <td><p>scalar values</p></td>
+        <td><code>()</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Polynomial</code></td>
+      <td><p>Generated polynomial</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">scalars</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Build a polynomial of multiple monomials with deltas.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        arguments:</span>
+
+<span class="sd">            - index: 5</span>
+<span class="sd">            - scalars: m, w, p</span>
+
+<span class="sd">        result:</span>
+
+<span class="sd">        ```Python</span>
+<span class="sd">        Polynomial(</span>
+<span class="sd">            Monomial(&#39;m&#39;, [(0, 5), (1, 5), (2, 5)]),</span>
+<span class="sd">            Monomial(&#39;w&#39;, [(0, 5), (1, 5), (2, 5)]),</span>
+<span class="sd">            Monomial(&#39;p&#39;, [(0, 5), (1, 5), (2, 5)]))</span>
+<span class="sd">        ```</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        scalars: scalar values</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Generated polynomial</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+
+    <span class="n">monomials</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="p">[(</span><span class="n">number</span><span class="p">,</span> <span class="n">index</span><span class="p">)])</span>
+                 <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">scalar</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scalars</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">monomials</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.inclusion" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">inclusion</span><span class="p">(</span><span class="n">list_monom</span><span class="p">,</span> <span class="n">mono</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>filter list_monom regarding to mono inclusion and return info</p>
+<p>remove all monomials of list_monom that are included in mono.</p>
+<p>return CONTAINS if one of monomials of list_monom contains mono
+(regarding to Monomial.inclusion def).</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>list_monom</code></td>
+        <td><code>list</code></td>
+        <td><p>a list of monomials</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>mono</code></td>
+        <td><code>Monomial</code></td>
+        <td><p>a monomial we want to add</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>i</code></td>
+        <td><code>int</code></td>
+        <td><p>the position index where to add mono</p></td>
+        <td><code>0</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[bool, int]</code></td>
+      <td><p>False if mono already in list_monom and shifted index where to
+insert mono, return True if mono not in list_monom</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">inclusion</span><span class="p">(</span><span class="n">list_monom</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">mono</span><span class="p">:</span> <span class="n">Monomial</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;filter list_monom regarding to mono inclusion and return info</span>
+
+<span class="sd">    remove all monomials of list_monom that are included in mono.</span>
+
+<span class="sd">    return CONTAINS if one of monomials of list_monom contains mono</span>
+<span class="sd">    (regarding to Monomial.inclusion def).</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        list_monom: a list of monomials</span>
+<span class="sd">        mono: a monomial we want to add</span>
+<span class="sd">        i: the position index where to add mono</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        False if mono already in list_monom and shifted index where to</span>
+<span class="sd">        insert mono, return True if mono not in list_monom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_monom</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">list_monom</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">incl</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">mono</span><span class="p">)</span>
+        <span class="c1"># if m ⊆ mono</span>
+        <span class="k">if</span> <span class="n">incl</span> <span class="o">==</span> <span class="n">SetInclusion</span><span class="o">.</span><span class="n">CONTAINS</span><span class="p">:</span>
+            <span class="c1"># We will then add mono so we can remove m</span>
+            <span class="n">list_monom</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="c1"># If removed monom is before i (where we want to insert mono)</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># shift left position</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">incl</span> <span class="o">==</span> <span class="n">SetInclusion</span><span class="o">.</span><span class="n">INCLUDED</span><span class="p">:</span>
+            <span class="c1">#  We don&#39;t want to add mono, inform with CONTAINS</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">i</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># No inclusion</span>
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">i</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.remove_zeros" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">remove_zeros</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Removes all encountered 0s from a polynomial.</p>
+<p>Before returning, if the list is empty, the result produces a
+    0-monomial.</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Polynomial</code></td>
+      <td><p>polynomial with list of monomials for which zeros are
+removed, unless 0 is the only monomial.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">remove_zeros</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Removes all encountered 0s from a polynomial.</span>
+
+<span class="sd">    Before returning, if the list is empty, the result produces a</span>
+<span class="sd">        0-monomial.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        polynomial with list of monomials for which zeros are</span>
+<span class="sd">        removed, unless 0 is the only monomial.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filtered_monomials</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">mono</span><span class="p">:</span> <span class="n">mono</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_monomials</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Monomial</span><span class="p">(</span><span class="n">ZERO_MWP</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">filtered_monomials</span>
+
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.show" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Display polynomial.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Display polynomial.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.sort_monomials" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Given a list of monomials this method will return them in order.</p>
+<p>The sort is performed by first dividing the list of monomials into
+halves recursively until each half contains at most one monomial.
+Then the sort will begin to combine (or zip) the halves into a sorted
+list.</p>
+<p>The sort performs comparison of deltas, and orders the monomials based
+on the delta values. If two monomials have the same deltas, we compute
+new scalar value, and if it is not 0, we keep the result monomial.
+Note that if we get 2 monomials with same deltas, and only at most 1
+is kept, with possibly updated scalar. This means sort can return a
+result that is shorter than the input argument.</p>
+<p>The original list argument is not mutated by this sort operation, i.e.
+this is not sort in place.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>monomials</code></td>
+        <td><code>list</code></td>
+        <td><p>list of monomials to sort</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>list</code></td>
+      <td><p>list of sorted monomials</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Given a list of monomials this method will return them in order.</span>
+
+<span class="sd">    The sort is performed by first dividing the list of monomials into</span>
+<span class="sd">    halves recursively until each half contains at most one monomial.</span>
+<span class="sd">    Then the sort will begin to combine (or zip) the halves into a sorted</span>
+<span class="sd">    list.</span>
+
+<span class="sd">    The sort performs comparison of deltas, and orders the monomials based</span>
+<span class="sd">    on the delta values. If two monomials have the same deltas, we compute</span>
+<span class="sd">    new scalar value, and if it is not 0, we keep the result monomial.</span>
+<span class="sd">    Note that if we get 2 monomials with same deltas, and only at most 1</span>
+<span class="sd">    is kept, with possibly updated scalar. This means sort can return a</span>
+<span class="sd">    result that is shorter than the input argument.</span>
+
+<span class="sd">    The original list argument is not mutated by this sort operation, i.e.</span>
+<span class="sd">    this is not sort in place.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        monomials: list of monomials to sort</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of sorted monomials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">list_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">monomials</span><span class="p">)</span>
+
+    <span class="c1"># base case</span>
+    <span class="k">if</span> <span class="n">list_len</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">monomials</span> <span class="ow">and</span> <span class="n">monomials</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ZERO_MWP</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">monomials</span>
+
+    <span class="c1"># split list into two halves equally</span>
+    <span class="n">mid_point</span> <span class="o">=</span> <span class="n">list_len</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">[</span><span class="n">mid_point</span><span class="p">:])</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">sort_monomials</span><span class="p">(</span><span class="n">monomials</span><span class="p">[:</span><span class="n">mid_point</span><span class="p">])</span>
+
+    <span class="c1"># construct sorted list by iteratively combining</span>
+    <span class="c1"># monomials from left and right halves</span>
+    <span class="n">new_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">left</span> <span class="ow">and</span> <span class="n">right</span><span class="p">:</span>
+        <span class="n">lhead</span><span class="p">,</span> <span class="o">*</span><span class="n">ltail</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="n">rhead</span><span class="p">,</span> <span class="o">*</span><span class="n">rtail</span> <span class="o">=</span> <span class="n">right</span>
+        <span class="n">comparison</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">lhead</span><span class="o">.</span><span class="n">deltas</span><span class="p">,</span> <span class="n">rhead</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span>
+
+        <span class="c1"># head of left list is smaller -&gt; add it to list</span>
+        <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+            <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lhead</span><span class="p">)</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">ltail</span>
+
+        <span class="c1"># head of right list is smaller -&gt; add it to list</span>
+        <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">LARGER</span><span class="p">:</span>
+            <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rhead</span><span class="p">)</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">rtail</span>
+
+        <span class="c1"># list heads are equal i.e. same deltas.</span>
+        <span class="k">if</span> <span class="n">comparison</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">EQUAL</span><span class="p">:</span>
+            <span class="n">monomial</span> <span class="o">=</span> <span class="n">lhead</span>
+            <span class="c1"># append to list as long as scalar</span>
+            <span class="c1"># product is not 0</span>
+            <span class="n">monomial</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="n">sum_mwp</span><span class="p">(</span>
+                <span class="n">lhead</span><span class="o">.</span><span class="n">scalar</span><span class="p">,</span> <span class="n">rhead</span><span class="o">.</span><span class="n">scalar</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">monomial</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">:</span>
+                <span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">monomial</span><span class="p">)</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">ltail</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">rtail</span>
+
+    <span class="c1"># either left or right is empty so order</span>
+    <span class="c1"># doesn&#39;t matter; just append whatever</span>
+    <span class="c1"># remains of left or right tail</span>
+    <span class="k">return</span> <span class="n">new_list</span> <span class="o">+</span> <span class="n">right</span> <span class="o">+</span> <span class="n">left</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.polynomial.Polynomial.times" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Multiply two polynomials.</p>
+<p>Here we assume at least self is a sorted polynomial,
+and the result of this operation will be sorted.</p>
+<p>This operation works as follows:</p>
+<ol>
+<li>
+<p>We compute a table of all the separated products
+    <span class="arithmatex">\(P.m_1,...,P.m_n\)</span>. Each of the elements is itself
+    a sorted list of monomials: <span class="arithmatex">\(P.m_j=m^j_1,...,m^j_k\)</span></p>
+</li>
+<li>
+<p>We then sort the list of the first (smallest) elements
+    of each list. I.e. we sort the list <span class="arithmatex">\(m^1_1,m^2_1,...,m^n_1\)</span>
+    and produce the list corresponding list of indexes of
+    length n, I.e. a permutation over <span class="arithmatex">\({0,...,n}\)</span>.</p>
+</li>
+<li>
+<p>Once all this preparatory operations are done, the main part
+   of the algorithm goes as follows:</p>
+</li>
+<li>
+<p>We consider the first element — say j — of the list of indexes
+   and append to the result the first element of the corresponding
+   list <span class="arithmatex">\(P.m_j\)</span> of monomials.</p>
+</li>
+<li>
+<p>We remove both the first element of the list of index and
+   the first element of <span class="arithmatex">\(P.m_j\)</span>.</p>
+</li>
+<li>
+<p>If <span class="arithmatex">\(P.m_j\)</span> is not empty, we insert j in the list of index
+   at the right position: for this we compare the (new) first
+   element of <span class="arithmatex">\(P.m_j\)</span> to  <span class="arithmatex">\(m^{i_2}_1\)</span> (as we removed the
+   first element, <span class="arithmatex">\(i_2\)</span> is now the head of the list of indexes),
+   then <span class="arithmatex">\(m^{i_3}_1\)</span>, until we reach the index h such that
+   <span class="arithmatex">\(m^{i_h}_1\)</span> is larger than <span class="arithmatex">\(m^{j}_1\)</span>.</p>
+</li>
+<li>
+<p>We start back at point 4. Unless only one element is left
+   in the list of indexes. In this case, we simply append the
+   tail of the corresponding list to the result.</p>
+</li>
+</ol>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>polynomial</code></td>
+        <td><code>Polynomial</code></td>
+        <td><p>polynomial to multiply with self</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Polynomial</code></td>
+      <td><p>a new polynomial that is the sorted product
+of the two input polynomials</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/polynomial.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Multiply two polynomials.</span>
+
+<span class="sd">    Here we assume at least self is a sorted polynomial,</span>
+<span class="sd">    and the result of this operation will be sorted.</span>
+
+<span class="sd">    This operation works as follows:</span>
+
+<span class="sd">    1. We compute a table of all the separated products</span>
+<span class="sd">        $P.m_1,...,P.m_n$. Each of the elements is itself</span>
+<span class="sd">        a sorted list of monomials: $P.m_j=m^j_1,...,m^j_k$</span>
+
+<span class="sd">    2. We then sort the list of the first (smallest) elements</span>
+<span class="sd">        of each list. I.e. we sort the list $m^1_1,m^2_1,...,m^n_1$</span>
+<span class="sd">        and produce the list corresponding list of indexes of</span>
+<span class="sd">        length n, I.e. a permutation over ${0,...,n}$.</span>
+
+<span class="sd">    3. Once all this preparatory operations are done, the main part</span>
+<span class="sd">       of the algorithm goes as follows:</span>
+
+<span class="sd">    4. We consider the first element — say j — of the list of indexes</span>
+<span class="sd">       and append to the result the first element of the corresponding</span>
+<span class="sd">       list $P.m_j$ of monomials.</span>
+
+<span class="sd">    5. We remove both the first element of the list of index and</span>
+<span class="sd">       the first element of $P.m_j$.</span>
+
+<span class="sd">    6. If $P.m_j$ is not empty, we insert j in the list of index</span>
+<span class="sd">       at the right position: for this we compare the (new) first</span>
+<span class="sd">       element of $P.m_j$ to  $m^{i_2}_1$ (as we removed the</span>
+<span class="sd">       first element, $i_2$ is now the head of the list of indexes),</span>
+<span class="sd">       then $m^{i_3}_1$, until we reach the index h such that</span>
+<span class="sd">       $m^{i_h}_1$ is larger than $m^{j}_1$.</span>
+
+<span class="sd">    7. We start back at point 4. Unless only one element is left</span>
+<span class="sd">       in the list of indexes. In this case, we simply append the</span>
+<span class="sd">       tail of the corresponding list to the result.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        polynomial: polynomial to multiply with self</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a new polynomial that is the sorted product</span>
+<span class="sd">        of the two input polynomials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1: compute table of products</span>
+    <span class="c1"># here we compute P1 x P2 for each polynomial, excluding from the</span>
+    <span class="c1"># result all monomials that have scalar value 0</span>
+    <span class="n">products</span> <span class="o">=</span> <span class="p">[[</span><span class="n">mono</span> <span class="k">for</span> <span class="n">mono</span> <span class="ow">in</span> <span class="p">(</span><span class="n">m1</span> <span class="o">*</span> <span class="n">m2</span> <span class="k">for</span> <span class="n">m1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+                 <span class="k">if</span> <span class="n">mono</span><span class="o">.</span><span class="n">scalar</span> <span class="o">!=</span> <span class="n">ZERO_MWP</span><span class="p">]</span> <span class="k">for</span> <span class="n">m2</span> <span class="ow">in</span> <span class="n">polynomial</span><span class="o">.</span><span class="n">list</span><span class="p">]</span>
+    <span class="c1"># filter out empty monomials</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Monomial</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span> <span class="k">if</span> <span class="n">p</span><span class="p">]</span>
+
+    <span class="c1"># if table is empty, return zero polynomial</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Polynomial</span><span class="p">()</span>
+
+    <span class="c1"># 2: create an index lists that represents the ordered</span>
+    <span class="c1"># monomials in table, ordered by deltas of first monomials</span>
+    <span class="n">index_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)):</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)):</span>
+            <span class="n">t2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">index_list</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+            <span class="k">if</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                <span class="n">index_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index_list</span><span class="p">:</span>
+            <span class="n">index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="c1"># 3: start main part</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">index_list</span><span class="p">:</span>
+        <span class="c1"># 4. get first element and append to result</span>
+        <span class="c1"># 5. remove from index and table</span>
+        <span class="n">smallest</span> <span class="o">=</span> <span class="n">index_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">mono2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tobe_inserted</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">inclusion</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">mono2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tobe_inserted</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mono2</span><span class="p">)</span>
+
+        <span class="c1"># 6. when table is non-empty insert j at</span>
+        <span class="c1"># the right index</span>
+        <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">]:</span>
+            <span class="n">inserted</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">smallest</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)):</span>
+                <span class="n">t2</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">index_list</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span>
+                <span class="k">if</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">==</span> <span class="n">Comparison</span><span class="o">.</span><span class="n">SMALLER</span><span class="p">:</span>
+                    <span class="n">index_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">smallest</span><span class="p">)</span>
+                    <span class="n">inserted</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">inserted</span><span class="p">:</span>
+                <span class="n">index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smallest</span><span class="p">)</span>
+        <span class="c1"># 7. repeat until done</span>
+
+    <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">remove_zeros</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../monomial/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Monomial" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Monomial
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../relation/" class="md-footer__link md-footer__link--next" aria-label="Next: Relation" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Relation
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.467223ff.min.js"></script>
+      
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../assets/config.js"></script>
+      
+    
+  </body>
+</html>

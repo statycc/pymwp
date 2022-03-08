@@ -1,0 +1,2942 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Implementation of MWP analysis on C code in Python.">
+      
+      
+      
+      <link rel="icon" href="..">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.5">
+    
+    
+      
+        <title>Analysis - pymwp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2d9f7617.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#546d78">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CSource+Code+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../assets/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#analysispy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pymwp" class="md-header__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pymwp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/statycc/pymwp/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pymwp" class="md-nav__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pymwp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/statycc/pymwp/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Installation & Use
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        Supported Features
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        Demo
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Modules
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Modules" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Analysis
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Analysis
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.analysis" class="md-nav__link">
+    pymwp.analysis
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis" class="md-nav__link">
+    Analysis
+  </a>
+  
+    <nav class="md-nav" aria-label="Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.binary_op" class="md-nav__link">
+    binary_op()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.compound_" class="md-nav__link">
+    compound_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.compute_relation" class="md-nav__link">
+    compute_relation()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.constant" class="md-nav__link">
+    constant()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.create_vector" class="md-nav__link">
+    create_vector()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.find_variables" class="md-nav__link">
+    find_variables()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.for_" class="md-nav__link">
+    for_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.func_call" class="md-nav__link">
+    func_call()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.id" class="md-nav__link">
+    id()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.if_" class="md-nav__link">
+    if_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.if_branch" class="md-nav__link">
+    if_branch()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.unary_op" class="md-nav__link">
+    unary_op()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.while_" class="md-nav__link">
+    while_()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../choice/" class="md-nav__link">
+        Choice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../delta_graphs/" class="md-nav__link">
+        Delta Graphs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file_io/" class="md-nav__link">
+        File I/O
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix/" class="md-nav__link">
+        Matrix
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monomial/" class="md-nav__link">
+        Monomial
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../polynomial/" class="md-nav__link">
+        Polynomial
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation/" class="md-nav__link">
+        Relation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation_list/" class="md-nav__link">
+        Relation List
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semiring/" class="md-nav__link">
+        Semiring
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        Utilities
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp" class="md-nav__link">
+        Source Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/releases" class="md-nav__link">
+        Release History
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/blob/master/LICENCE.md" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.analysis" class="md-nav__link">
+    pymwp.analysis
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis" class="md-nav__link">
+    Analysis
+  </a>
+  
+    <nav class="md-nav" aria-label="Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.binary_op" class="md-nav__link">
+    binary_op()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.compound_" class="md-nav__link">
+    compound_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.compute_relation" class="md-nav__link">
+    compute_relation()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.constant" class="md-nav__link">
+    constant()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.create_vector" class="md-nav__link">
+    create_vector()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.find_variables" class="md-nav__link">
+    find_variables()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.for_" class="md-nav__link">
+    for_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.func_call" class="md-nav__link">
+    func_call()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.id" class="md-nav__link">
+    id()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.if_" class="md-nav__link">
+    if_()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.if_branch" class="md-nav__link">
+    if_branch()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.unary_op" class="md-nav__link">
+    unary_op()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.analysis.Analysis.while_" class="md-nav__link">
+    while_()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/statycc/pymwp/blob/master/docs/analysis.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+
+<h1 id="analysispy">analysis.py</h1>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pymwp</span> <span class="kn">import</span> <span class="n">Analysis</span>
+</code></pre></div>
+
+
+  <div class="doc doc-object doc-module">
+
+<a id="pymwp.analysis"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="pymwp.analysis.Analysis" class="doc doc-heading">
+        <code>
+Analysis        </code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>MWP analysis implementation.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Analysis</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;MWP analysis implementation.&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+            <span class="n">ast</span><span class="p">:</span> <span class="n">c_ast</span><span class="p">,</span> <span class="n">file_out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">no_save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">no_eval</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Relation</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Run MWP analysis on specified input file.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            ast: parsed C source code AST</span>
+<span class="sd">            file_out: where to store result</span>
+<span class="sd">            no_save: Set true when analysis result should not be saved to file</span>
+<span class="sd">            no_eval: Skip evaluation phase</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">              - Computed relation,</span>
+<span class="sd">              - list of non-infinity choices</span>
+<span class="sd">              - infinite/not infinite (boolean flag)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;starting analysis&quot;</span><span class="p">)</span>
+        <span class="n">single_function</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">ext</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">function_name</span> <span class="o">=</span> <span class="p">{},</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">ast_ext</span> <span class="ow">in</span> <span class="n">ast</span><span class="p">:</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">combinations</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+            <span class="n">function_name</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">function_body</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">body</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">decl</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">args</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">find_variables</span><span class="p">(</span><span class="n">function_body</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;variables of </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">variables</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">evaluated</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">)</span>
+            <span class="n">delta_infty</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">dg</span> <span class="o">=</span> <span class="n">DeltaGraph</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;computing relation...</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">delta_infty</span> <span class="o">=</span> <span class="n">Analysis</span> \
+                    <span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">delta_infty</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;computing composition...</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+            <span class="c1"># skip evaluation when delta graph has detected infinity</span>
+            <span class="c1"># or caller has manually disabled evaluation</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">delta_infty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_eval</span><span class="p">:</span>
+                <span class="n">combinations</span> <span class="o">=</span> <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                <span class="n">evaluated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># the evaluation is infinite when either of these conditions holds:</span>
+            <span class="n">infinite</span> <span class="o">=</span> <span class="n">delta_infty</span> <span class="ow">or</span> <span class="p">(</span>
+                        <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">variables</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+                        <span class="n">evaluated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">combinations</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+
+            <span class="c1"># record and display results</span>
+            <span class="k">if</span> <span class="n">infinite</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;RESULT: </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s1"> is infinite&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="p">,</span> <span class="n">combinations</span><span class="p">,</span> <span class="kc">False</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MATRIX</span><span class="si">{</span><span class="n">relations</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">evaluated</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Skipped evaluation&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CHOICES: </span><span class="si">{</span><span class="n">combinations</span><span class="o">.</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># save result to file unless explicitly disabled</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_save</span><span class="p">:</span>
+            <span class="n">save_relation</span><span class="p">(</span><span class="n">file_out</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="c1"># return results to caller</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">single_function</span> <span class="k">else</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_variables</span><span class="p">(</span>
+            <span class="n">function_body</span><span class="p">:</span> <span class="n">Compound</span><span class="p">,</span> <span class="n">param_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParamList</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Finds all local variable declarations in function body and</span>
+<span class="sd">        parameter list.</span>
+
+<span class="sd">        This method scans recursively AST nodes looking for</span>
+<span class="sd">        variable declarations. For each declaration, the</span>
+<span class="sd">        name of the variable will be recorded. Method returns</span>
+<span class="sd">        a list of all discovered variable names.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            function_body: AST node with sub-nodes</span>
+<span class="sd">            param_list: AST function parameter list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of all discovered variable names, or</span>
+<span class="sd">            empty list if no variables were found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">recurse_nodes</span><span class="p">(</span><span class="n">node_</span><span class="p">):</span>
+            <span class="c1"># only look for declarations</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Decl</span><span class="p">):</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node_</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">sub_node</span> <span class="ow">in</span> <span class="n">node_</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                    <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">sub_node</span><span class="p">)</span>
+
+        <span class="c1"># search function body for local declarations</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">function_body</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="c1"># process param list which is a list of declarations</span>
+        <span class="k">if</span> <span class="n">param_list</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">param_list</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">param_list</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+                <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">variables</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_relation</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Create a relation list corresponding for all possible matrices</span>
+<span class="sd">        of an AST node.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: AST node to analyze</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;in compute_relation&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Decl</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">FuncCall</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Assignment</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">BinaryOp</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">binary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">unary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">ID</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">FuncCall</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">If</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">While</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">while_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">For</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">for_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Compound</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compound_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;uncovered case! type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze x = y (with x != y) and y not a const</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: AST node representing a simple assignment</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation x = y&#39;</span><span class="p">)</span>
+        <span class="n">vars_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">]]</span>
+
+        <span class="c1"># create a vector of polynomials based on operator type</span>
+        <span class="c1">#     x   y</span>
+        <span class="c1"># x | o   o</span>
+        <span class="c1"># y | m   m</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="c1"># because x != y</span>
+            <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">)]),</span>
+            <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)])</span>
+        <span class="p">]</span>
+
+        <span class="c1"># build a list of unique variables</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+        <span class="c1"># create relation list</span>
+        <span class="n">rel_list</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">rel_list</span><span class="o">.</span><span class="n">replace_column</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">binary_op</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze binary operation, e.g. `x = y + z`.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: AST node representing a binary operation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation (first case / binary op)&#39;</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">right</span>
+        <span class="n">non_constants</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+                               <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]])</span>
+
+        <span class="c1"># create a vector of polynomials based on operator type</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">create_vector</span><span class="p">(</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">non_constants</span><span class="p">)</span>
+
+        <span class="c1"># build a list of unique variables but maintain order</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">non_constants</span><span class="p">))</span>
+
+        <span class="c1"># create relation list</span>
+        <span class="n">rel_list</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">rel_list</span><span class="o">.</span><span class="n">replace_column</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze a constant assignment of form: x = c where x is some</span>
+<span class="sd">        variable and c is constant.</span>
+
+<span class="sd">        From MWP paper:</span>
+
+<span class="sd">        &gt; To deal with constants, just replace the program’s constants by</span>
+<span class="sd">          variables and regard the replaced constants as input to these</span>
+<span class="sd">          variables.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            variable_name: name of variable to which constant is being assigned</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Constant value node&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">([</span><span class="n">variable_name</span><span class="p">]),</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">unary_op</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze unary operator.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: unary operator node</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation (third case / unary)&#39;</span><span class="p">)</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># list_var = None  # list_var(exp)</span>
+        <span class="c1"># variables = [var_name] + list_var</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">),</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">if_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">If</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze an if statement.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: if-statement AST node</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;computing relation (conditional case)&#39;</span><span class="p">)</span>
+        <span class="n">true_relation</span><span class="p">,</span> <span class="n">false_relation</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="n">RelationList</span><span class="p">()</span>
+
+        <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_branch</span><span class="p">(</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">iftrue</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">true_relation</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">true_relation</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_branch</span><span class="p">(</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">iffalse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">false_relation</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">false_relation</span><span class="p">,</span> <span class="kc">True</span>
+
+        <span class="n">relations</span> <span class="o">=</span> <span class="n">false_relation</span> <span class="o">+</span> <span class="n">true_relation</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">if_branch</span><span class="p">(</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">If</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">relation_list</span><span class="p">:</span> <span class="n">RelationList</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze `if` or `else` branch of a conditional statement.</span>
+
+<span class="sd">        This method will analyze the body of the statement and update</span>
+<span class="sd">        the provided relation. It can handle blocks with or without surrounding</span>
+<span class="sd">        braces. It will return the updated index value.</span>
+
+<span class="sd">        If branch does not exist (when else case is omitted) this</span>
+<span class="sd">        method does nothing and returns the original index value without</span>
+<span class="sd">        modification.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            node: AST if statement branch node</span>
+<span class="sd">            index: current delta index value</span>
+<span class="sd">            relation_list: current relation list state</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># when branch has braces</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                    <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                        <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span>
+                    <span class="n">relation_list</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                    <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span>
+                <span class="n">relation_list</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">while_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">While</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze while loop.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: while loop node</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;analysing While&quot;</span><span class="p">)</span>
+
+        <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">stmt</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span>
+            <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;while loop fixpoint&#39;</span><span class="p">)</span>
+        <span class="n">relations</span><span class="o">.</span><span class="n">fixpoint</span><span class="p">()</span>
+        <span class="n">relations</span><span class="o">.</span><span class="n">while_correction</span><span class="p">(</span><span class="n">dg</span><span class="p">)</span>
+
+        <span class="n">dg</span><span class="o">.</span><span class="n">fusion</span><span class="p">()</span>
+
+        <span class="n">exit_</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">dg</span><span class="o">.</span><span class="n">graph_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dg</span><span class="o">.</span><span class="n">graph_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">{():</span> <span class="p">{}}:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;delta graph:</span><span class="se">\n</span><span class="si">{</span><span class="n">dg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;delta_graphs: infinite&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exit now !&#39;</span><span class="p">)</span>
+                <span class="n">exit_</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="n">exit_</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">for_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Analyze for loop node.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: for loop node</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;analysing for:&quot;</span><span class="p">)</span>
+
+        <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">stmt</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+        <span class="n">relations</span><span class="o">.</span><span class="n">fixpoint</span><span class="p">()</span>
+        <span class="c1"># TODO: unknown method conditionRel</span>
+        <span class="c1">#  ref: https://github.com/statycc/pymwp/issues/5</span>
+        <span class="c1"># relations = relations.conditionRel(VarVisitor.list_var(node.cond))</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compound_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Compound</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Compound AST node contains zero or more children and is</span>
+<span class="sd">        created by braces in source code.</span>
+
+<span class="sd">        We analyze such compound node by recursively analysing its children.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            node: compound AST node</span>
+<span class="sd">            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Updated index value, relation list, and an exit flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                    <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+                <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_vector</span><span class="p">(</span>
+            <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Polynomial</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Build a polynomial vector based on operator and the operands</span>
+<span class="sd">        of a binary operation statement that has form `x = y (operator) z`.</span>
+
+<span class="sd">        For an AST node that represents a binary operation, this method</span>
+<span class="sd">        generates a vector of polynomials based on the properties of that</span>
+<span class="sd">        operation. The returned vector depends on the type of operator,</span>
+<span class="sd">        how many operands are constants, and if the operands are equal.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            index: delta index</span>
+<span class="sd">            operator: operator</span>
+<span class="sd">            variables: variables in this operation `x = y (op) z` in order,</span>
+<span class="sd">                where `y` or `z` is `None` if constant</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             Updated index, list of Polynomial vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">variables</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># when left variable does not occur on right side of assignment</span>
+        <span class="c1"># x = … (if x not in …), i.e. when left side variable does not</span>
+        <span class="c1"># occur on the right side of assignment, we prepend 0 to vector</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">}</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vector</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Function call handler stub.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Function call detected!</span><span class="se">\n</span><span class="s1">This feature is not yet &#39;</span>
+                     <span class="s1">&#39;supported, but will be added soon&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.binary_op" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">binary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze binary operation, e.g. <code>x = y + z</code>.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>Assignment</code></td>
+        <td><p>AST node representing a binary operation</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">binary_op</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze binary operation, e.g. `x = y + z`.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: AST node representing a binary operation</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation (first case / binary op)&#39;</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">right</span>
+    <span class="n">non_constants</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+                           <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]])</span>
+
+    <span class="c1"># create a vector of polynomials based on operator type</span>
+    <span class="n">index</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">create_vector</span><span class="p">(</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">non_constants</span><span class="p">)</span>
+
+    <span class="c1"># build a list of unique variables but maintain order</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">non_constants</span><span class="p">))</span>
+
+    <span class="c1"># create relation list</span>
+    <span class="n">rel_list</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="n">rel_list</span><span class="o">.</span><span class="n">replace_column</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.compound_" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">compound_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Compound AST node contains zero or more children and is
+created by braces in source code.</p>
+<p>We analyze such compound node by recursively analysing its children.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>Compound</code></td>
+        <td><p>compound AST node</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">compound_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Compound</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Compound AST node contains zero or more children and is</span>
+<span class="sd">    created by braces in source code.</span>
+
+<span class="sd">    We analyze such compound node by recursively analysing its children.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: compound AST node</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+            <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.compute_relation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">compute_relation</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a relation list corresponding for all possible matrices
+of an AST node.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>Node</code></td>
+        <td><p>AST node to analyze</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">compute_relation</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Create a relation list corresponding for all possible matrices</span>
+<span class="sd">    of an AST node.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: AST node to analyze</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;in compute_relation&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Decl</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">FuncCall</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Assignment</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">BinaryOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">binary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">unary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">ID</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">FuncCall</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">If</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">While</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">while_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">For</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">for_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Compound</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compound_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;uncovered case! type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.constant" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">constant</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze a constant assignment of form: x = c where x is some
+variable and c is constant.</p>
+<p>From MWP paper:</p>
+<blockquote>
+<p>To deal with constants, just replace the program’s constants by
+  variables and regard the replaced constants as input to these
+  variables.</p>
+</blockquote>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>variable_name</code></td>
+        <td><code>str</code></td>
+        <td><p>name of variable to which constant is being assigned</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze a constant assignment of form: x = c where x is some</span>
+<span class="sd">    variable and c is constant.</span>
+
+<span class="sd">    From MWP paper:</span>
+
+<span class="sd">    &gt; To deal with constants, just replace the program’s constants by</span>
+<span class="sd">      variables and regard the replaced constants as input to these</span>
+<span class="sd">      variables.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        variable_name: name of variable to which constant is being assigned</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Constant value node&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">([</span><span class="n">variable_name</span><span class="p">]),</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.create_vector" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_vector</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">variables</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Build a polynomial vector based on operator and the operands
+of a binary operation statement that has form <code>x = y (operator) z</code>.</p>
+<p>For an AST node that represents a binary operation, this method
+generates a vector of polynomials based on the properties of that
+operation. The returned vector depends on the type of operator,
+how many operands are constants, and if the operands are equal.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>operator</code></td>
+        <td><code>str</code></td>
+        <td><p>operator</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>variables</code></td>
+        <td><code>Tuple[Optional[str], ...]</code></td>
+        <td><p>variables in this operation <code>x = y (op) z</code> in order,
+where <code>y</code> or <code>z</code> is <code>None</code> if constant</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, List[pymwp.polynomial.Polynomial]]</code></td>
+      <td><p>Updated index, list of Polynomial vectors</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">create_vector</span><span class="p">(</span>
+        <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Polynomial</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Build a polynomial vector based on operator and the operands</span>
+<span class="sd">    of a binary operation statement that has form `x = y (operator) z`.</span>
+
+<span class="sd">    For an AST node that represents a binary operation, this method</span>
+<span class="sd">    generates a vector of polynomials based on the properties of that</span>
+<span class="sd">    operation. The returned vector depends on the type of operator,</span>
+<span class="sd">    how many operands are constants, and if the operands are equal.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        operator: operator</span>
+<span class="sd">        variables: variables in this operation `x = y (op) z` in order,</span>
+<span class="sd">            where `y` or `z` is `None` if constant</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Updated index, list of Polynomial vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">variables</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># when left variable does not occur on right side of assignment</span>
+    <span class="c1"># x = … (if x not in …), i.e. when left side variable does not</span>
+    <span class="c1"># occur on the right side of assignment, we prepend 0 to vector</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">}</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="n">z</span><span class="p">:</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="n">z</span><span class="p">:</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">z</span><span class="p">:</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+        <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">from_scalars</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vector</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.find_variables" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">find_variables</span><span class="p">(</span><span class="n">function_body</span><span class="p">,</span> <span class="n">param_list</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Finds all local variable declarations in function body and
+parameter list.</p>
+<p>This method scans recursively AST nodes looking for
+variable declarations. For each declaration, the
+name of the variable will be recorded. Method returns
+a list of all discovered variable names.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>function_body</code></td>
+        <td><code>Compound</code></td>
+        <td><p>AST node with sub-nodes</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>param_list</code></td>
+        <td><code>Optional[pycparser.c_ast.ParamList]</code></td>
+        <td><p>AST function parameter list</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>List[str]</code></td>
+      <td><p>List of all discovered variable names, or
+empty list if no variables were found.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">find_variables</span><span class="p">(</span>
+        <span class="n">function_body</span><span class="p">:</span> <span class="n">Compound</span><span class="p">,</span> <span class="n">param_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParamList</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Finds all local variable declarations in function body and</span>
+<span class="sd">    parameter list.</span>
+
+<span class="sd">    This method scans recursively AST nodes looking for</span>
+<span class="sd">    variable declarations. For each declaration, the</span>
+<span class="sd">    name of the variable will be recorded. Method returns</span>
+<span class="sd">    a list of all discovered variable names.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        function_body: AST node with sub-nodes</span>
+<span class="sd">        param_list: AST function parameter list</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of all discovered variable names, or</span>
+<span class="sd">        empty list if no variables were found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">recurse_nodes</span><span class="p">(</span><span class="n">node_</span><span class="p">):</span>
+        <span class="c1"># only look for declarations</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Decl</span><span class="p">):</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node_</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_node</span> <span class="ow">in</span> <span class="n">node_</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">sub_node</span><span class="p">)</span>
+
+    <span class="c1"># search function body for local declarations</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">function_body</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+            <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="c1"># process param list which is a list of declarations</span>
+    <span class="k">if</span> <span class="n">param_list</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">param_list</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">param_list</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="n">recurse_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">variables</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.for_" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">for_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze for loop node.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>For</code></td>
+        <td><p>for loop node</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">for_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze for loop node.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: for loop node</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;analysing for:&quot;</span><span class="p">)</span>
+
+    <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">stmt</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+    <span class="n">relations</span><span class="o">.</span><span class="n">fixpoint</span><span class="p">()</span>
+    <span class="c1"># TODO: unknown method conditionRel</span>
+    <span class="c1">#  ref: https://github.com/statycc/pymwp/issues/5</span>
+    <span class="c1"># relations = relations.conditionRel(VarVisitor.list_var(node.cond))</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.func_call" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function call handler stub.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">func_call</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Function call handler stub.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Function call detected!</span><span class="se">\n</span><span class="s1">This feature is not yet &#39;</span>
+                 <span class="s1">&#39;supported, but will be added soon&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.id" class="doc doc-heading">
+<code class="highlight language-python"><span class="nb">id</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze x = y (with x != y) and y not a const</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>Assignment</code></td>
+        <td><p>AST node representing a simple assignment</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze x = y (with x != y) and y not a const</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: AST node representing a simple assignment</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">rvalue</span><span class="p">,</span> <span class="n">c_ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="kc">False</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation x = y&#39;</span><span class="p">)</span>
+    <span class="n">vars_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">]]</span>
+
+    <span class="c1"># create a vector of polynomials based on operator type</span>
+    <span class="c1">#     x   y</span>
+    <span class="c1"># x | o   o</span>
+    <span class="c1"># y | m   m</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># because x != y</span>
+        <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">)]),</span>
+        <span class="n">Polynomial</span><span class="p">([</span><span class="n">Monomial</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)])</span>
+    <span class="p">]</span>
+
+    <span class="c1"># build a list of unique variables</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+    <span class="c1"># create relation list</span>
+    <span class="n">rel_list</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="n">rel_list</span><span class="o">.</span><span class="n">replace_column</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">vars_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.if_" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">if_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze an if statement.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>If</code></td>
+        <td><p>if-statement AST node</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">if_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">If</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze an if statement.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: if-statement AST node</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;computing relation (conditional case)&#39;</span><span class="p">)</span>
+    <span class="n">true_relation</span><span class="p">,</span> <span class="n">false_relation</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">(),</span> <span class="n">RelationList</span><span class="p">()</span>
+
+    <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_branch</span><span class="p">(</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">iftrue</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">true_relation</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">true_relation</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">if_branch</span><span class="p">(</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">iffalse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">false_relation</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">false_relation</span><span class="p">,</span> <span class="kc">True</span>
+
+    <span class="n">relations</span> <span class="o">=</span> <span class="n">false_relation</span> <span class="o">+</span> <span class="n">true_relation</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.if_branch" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">if_branch</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">relation_list</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze <code>if</code> or <code>else</code> branch of a conditional statement.</p>
+<p>This method will analyze the body of the statement and update
+the provided relation. It can handle blocks with or without surrounding
+braces. It will return the updated index value.</p>
+<p>If branch does not exist (when else case is omitted) this
+method does nothing and returns the original index value without
+modification.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>If</code></td>
+        <td><p>AST if statement branch node</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>current delta index value</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>relation_list</code></td>
+        <td><code>RelationList</code></td>
+        <td><p>current relation list state</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">if_branch</span><span class="p">(</span>
+        <span class="n">node</span><span class="p">:</span> <span class="n">If</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">relation_list</span><span class="p">:</span> <span class="n">RelationList</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze `if` or `else` branch of a conditional statement.</span>
+
+<span class="sd">    This method will analyze the body of the statement and update</span>
+<span class="sd">    the provided relation. It can handle blocks with or without surrounding</span>
+<span class="sd">    braces. It will return the updated index value.</span>
+
+<span class="sd">    If branch does not exist (when else case is omitted) this</span>
+<span class="sd">    method does nothing and returns the original index value without</span>
+<span class="sd">    modification.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        node: AST if statement branch node</span>
+<span class="sd">        index: current delta index value</span>
+<span class="sd">        relation_list: current relation list state</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># when branch has braces</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;block_items&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                    <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span>
+                <span class="n">relation_list</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">exit_</span>
+            <span class="n">relation_list</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.run" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="n">file_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Run MWP analysis on specified input file.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>ast</code></td>
+        <td><code>&lt;module &#39;pycparser.c_ast&#39; from &#39;/opt/hostedtoolcache/Python/3.9.10/x64/lib/python3.9/site-packages/pycparser/c_ast.py&#39;&gt;</code></td>
+        <td><p>parsed C source code AST</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>file_out</code></td>
+        <td><code>str</code></td>
+        <td><p>where to store result</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>no_save</code></td>
+        <td><code>bool</code></td>
+        <td><p>Set true when analysis result should not be saved to file</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>no_eval</code></td>
+        <td><code>bool</code></td>
+        <td><p>Skip evaluation phase</p></td>
+        <td><code>False</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Union[Dict, Tuple[pymwp.relation.Relation, List[List[int]], bool]]</code></td>
+      <td><ul>
+<li>Computed relation,</li>
+<li>list of non-infinity choices</li>
+<li>infinite/not infinite (boolean flag)</li>
+</ul></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="n">ast</span><span class="p">:</span> <span class="n">c_ast</span><span class="p">,</span> <span class="n">file_out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">no_save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">no_eval</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Relation</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Run MWP analysis on specified input file.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        ast: parsed C source code AST</span>
+<span class="sd">        file_out: where to store result</span>
+<span class="sd">        no_save: Set true when analysis result should not be saved to file</span>
+<span class="sd">        no_eval: Skip evaluation phase</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">          - Computed relation,</span>
+<span class="sd">          - list of non-infinity choices</span>
+<span class="sd">          - infinite/not infinite (boolean flag)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;starting analysis&quot;</span><span class="p">)</span>
+    <span class="n">single_function</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">ext</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">result</span><span class="p">,</span> <span class="n">function_name</span> <span class="o">=</span> <span class="p">{},</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">for</span> <span class="n">ast_ext</span> <span class="ow">in</span> <span class="n">ast</span><span class="p">:</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">combinations</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="n">function_name</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">decl</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">function_body</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">body</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">ast_ext</span><span class="o">.</span><span class="n">decl</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">args</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">find_variables</span><span class="p">(</span><span class="n">function_body</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;variables of </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">variables</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">evaluated</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">)</span>
+        <span class="n">delta_infty</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">dg</span> <span class="o">=</span> <span class="n">DeltaGraph</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_body</span><span class="o">.</span><span class="n">block_items</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;computing relation...</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">delta_infty</span> <span class="o">=</span> <span class="n">Analysis</span> \
+                <span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">delta_infty</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;computing composition...</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+        <span class="c1"># skip evaluation when delta graph has detected infinity</span>
+        <span class="c1"># or caller has manually disabled evaluation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">delta_infty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">no_eval</span><span class="p">:</span>
+            <span class="n">combinations</span> <span class="o">=</span> <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">evaluated</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># the evaluation is infinite when either of these conditions holds:</span>
+        <span class="n">infinite</span> <span class="o">=</span> <span class="n">delta_infty</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">variables</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span>
+                    <span class="n">evaluated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">combinations</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+
+        <span class="c1"># record and display results</span>
+        <span class="k">if</span> <span class="n">infinite</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;RESULT: </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s1"> is infinite&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">relations</span><span class="o">.</span><span class="n">first</span><span class="p">,</span> <span class="n">combinations</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MATRIX</span><span class="si">{</span><span class="n">relations</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">evaluated</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Skipped evaluation&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CHOICES: </span><span class="si">{</span><span class="n">combinations</span><span class="o">.</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># save result to file unless explicitly disabled</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_save</span><span class="p">:</span>
+        <span class="n">save_relation</span><span class="p">(</span><span class="n">file_out</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="c1"># return results to caller</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">single_function</span> <span class="k">else</span> <span class="n">result</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.unary_op" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">unary_op</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze unary operator.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>Assignment</code></td>
+        <td><p>unary operator node</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">unary_op</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assignment</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze unary operator.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: unary operator node</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Computing Relation (third case / unary)&#39;</span><span class="p">)</span>
+    <span class="n">var_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">lvalue</span><span class="o">.</span><span class="n">name</span>
+    <span class="c1"># list_var = None  # list_var(exp)</span>
+    <span class="c1"># variables = [var_name] + list_var</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">RelationList</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">),</span> <span class="kc">False</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="pymwp.analysis.Analysis.while_" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">while_</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Analyze while loop.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>index</code></td>
+        <td><code>int</code></td>
+        <td><p>delta index</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>node</code></td>
+        <td><code>While</code></td>
+        <td><p>while loop node</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dg</code></td>
+        <td><code>DeltaGraph</code></td>
+        <td><p><a href="../delta_graphs/#pymwp.delta_graphs">DeltaGraph instance</a></p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[int, pymwp.relation_list.RelationList, bool]</code></td>
+      <td><p>Updated index value, relation list, and an exit flag.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>pymwp/analysis.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">while_</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">While</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RelationList</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Analyze while loop.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        index: delta index</span>
+<span class="sd">        node: while loop node</span>
+<span class="sd">        dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated index value, relation list, and an exit flag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;analysing While&quot;</span><span class="p">)</span>
+
+    <span class="n">relations</span> <span class="o">=</span> <span class="n">RelationList</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">stmt</span><span class="o">.</span><span class="n">block_items</span><span class="p">:</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span> <span class="o">=</span> <span class="n">Analysis</span><span class="o">.</span><span class="n">compute_relation</span><span class="p">(</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">dg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">rel_list</span><span class="p">,</span> <span class="n">exit_</span>
+        <span class="n">relations</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">rel_list</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;while loop fixpoint&#39;</span><span class="p">)</span>
+    <span class="n">relations</span><span class="o">.</span><span class="n">fixpoint</span><span class="p">()</span>
+    <span class="n">relations</span><span class="o">.</span><span class="n">while_correction</span><span class="p">(</span><span class="n">dg</span><span class="p">)</span>
+
+    <span class="n">dg</span><span class="o">.</span><span class="n">fusion</span><span class="p">()</span>
+
+    <span class="n">exit_</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">dg</span><span class="o">.</span><span class="n">graph_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dg</span><span class="o">.</span><span class="n">graph_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">{():</span> <span class="p">{}}:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;delta graph:</span><span class="se">\n</span><span class="si">{</span><span class="n">dg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;delta_graphs: infinite&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exit now !&#39;</span><span class="p">)</span>
+            <span class="n">exit_</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="n">exit_</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../demo/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Demo" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Demo
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../choice/" class="md-footer__link md-footer__link--next" aria-label="Next: Choice" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Choice
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.bd0b6b67.min.js"}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.467223ff.min.js"></script>
+      
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../assets/config.js"></script>
+      
+    
+  </body>
+</html>
