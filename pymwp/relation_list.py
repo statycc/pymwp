@@ -3,8 +3,8 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from .relation import Relation
 from .delta_graphs import DeltaGraph
+from .relation import Relation
 
 
 class RelationList:

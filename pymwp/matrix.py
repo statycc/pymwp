@@ -1,17 +1,16 @@
 # flake8: noqa: W605
 
 import logging
-
-from typing import Any, Optional, List
 from functools import reduce
+from typing import Any, Optional, List
 
 from .polynomial import Polynomial
 from .monomial import Monomial
 from .semiring import ZERO_MWP, UNIT_MWP
 
-ZERO = Polynomial([Monomial(ZERO_MWP)])
+ZERO = Polynomial(ZERO_MWP)
 
-UNIT = Polynomial([Monomial(UNIT_MWP)])
+UNIT = Polynomial(UNIT_MWP)
 
 logger = logging.getLogger(__name__)
 

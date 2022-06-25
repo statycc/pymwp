@@ -1,9 +1,9 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
-from typing import Optional, List, Tuple
-from .constants import SetInclusion
+from typing import List, Optional, Tuple
 
+from .constants import SetInclusion
 from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp, sum_mwp
 
 
