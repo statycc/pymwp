@@ -23,9 +23,8 @@ import logging
 import sys
 from typing import List, Optional
 
-from pymwp import Parser, Analysis
+from pymwp import Parser, Analysis, __version__
 from .file_io import default_file_out
-from .version import __version__
 
 
 def main():

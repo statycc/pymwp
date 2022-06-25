@@ -1,5 +1,5 @@
 # do you want to add dependencies?
-# -> add package dependencies here and to setup.py
+# -> add package dependencies here (can have version) and to setup.py (w/o version)
 # -> add development dependencies to requirements-dev.txt only
-pycparser
+pycparser~=2.21
 pycparser-fake-libc

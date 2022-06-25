@@ -8,8 +8,8 @@ pymwp: implementation of MWP analysis on C code in Python.
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "CC BY-NC 4.0"
+__version__ = "0.1.6"
 
-from pymwp.version import __version__
 from pymwp.parser import Parser
 from pymwp.delta_graphs import DeltaGraph
 from pymwp.choice import Choices
