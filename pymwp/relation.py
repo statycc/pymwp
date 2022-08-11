@@ -6,8 +6,8 @@ import logging
 from typing import Optional, Tuple, List
 
 from . import matrix as matrix_utils
-from .delta_graphs import DeltaGraph
 from .choice import Choices
+from .delta_graphs import DeltaGraph
 
 logger = logging.getLogger(__name__)
 

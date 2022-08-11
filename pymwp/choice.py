@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 SEQ = Set[Tuple[Tuple[int, int], ...]]
 """Type hint to represent a sequence of deltas"""
+
 CHOICES = List[List[List[int]]]
 """Type hint for representing a list of choice vectors"""
 

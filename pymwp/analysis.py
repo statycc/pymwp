@@ -1,14 +1,11 @@
+# noinspection DuplicatedCode
 import logging
 from typing import List, Tuple, Optional, Union, Dict
-from pycparser import c_ast
-from pycparser.c_ast import Node, Assignment, If, While, For, Compound, \
-    ParamList, FuncCall
 
-from .relation_list import RelationList, Relation
-from .polynomial import Polynomial
-from .monomial import Monomial
-from .delta_graphs import DeltaGraph
 from .file_io import save_relation
+# noinspection PyPep8Naming
+from .parser import Parser as pr
+from pymwp import DeltaGraph, Monomial, Polynomial, Relation, RelationList
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +15,7 @@ class Analysis:
 
     @staticmethod
     def run(
-            ast: c_ast, file_out: str = None,
+            ast: pr.AST, file_out: str = None,
             no_save: bool = False, no_eval: bool = False
     ) -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
         """Run MWP analysis on specified input file.
@@ -38,8 +35,12 @@ class Analysis:
         logger.debug("starting analysis")
         single_function = len(ast.ext) == 1
         result, function_name = {}, ''
+        functions = [f for f in ast if pr.is_func(f)]
 
-        for ast_ext in ast:
+        if len(functions) == 0:
+            logger.warning("C file contains no analyzable functions")
+
+        for ast_ext in functions:
             choices = [0, 1, 2]
             index, combinations = 0, []
             function_name = ast_ext.decl.name
@@ -71,8 +72,8 @@ class Analysis:
 
             # the evaluation is infinite when either of these conditions holds:
             infinite = delta_infty or (
-                        relations.first.variables and index > 0 and
-                        evaluated and not combinations.valid)
+                    relations.first.variables and index > 0 and
+                    evaluated and not combinations.valid)
 
             # record and display results
             if infinite:
@@ -95,7 +96,7 @@ class Analysis:
 
     @staticmethod
     def find_variables(
-            function_body: Compound, param_list: Optional[ParamList]
+            function_body: pr.Compound, param_list: Optional[pr.ParamList]
     ) -> List[str]:
         """Finds all local variable declarations in function body and
         parameter list.
@@ -117,7 +118,7 @@ class Analysis:
 
         def recurse_nodes(node_):
             # only look for declarations
-            if isinstance(node_, c_ast.Decl):
+            if isinstance(node_, pr.Decl):
                 variables.append(node_.name)
             if hasattr(node_, 'block_items'):
                 for sub_node in node_.block_items:
@@ -136,7 +137,7 @@ class Analysis:
         return variables
 
     @staticmethod
-    def compute_relation(index: int, node: Node, dg: DeltaGraph) \
+    def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Create a relation list corresponding for all possible matrices
         of an AST node.
@@ -152,28 +153,28 @@ class Analysis:
 
         logger.debug("in compute_relation")
 
-        if isinstance(node, c_ast.Decl):
+        if isinstance(node, pr.Decl):
             return index, RelationList(), False
-        if isinstance(node, FuncCall):
+        if isinstance(node, pr.FuncCall):
             return Analysis.func_call(index)
-        if isinstance(node, c_ast.Assignment):
-            if isinstance(node.rvalue, c_ast.BinaryOp):
+        if isinstance(node, pr.Assignment):
+            if isinstance(node.rvalue, pr.BinaryOp):
                 return Analysis.binary_op(index, node)
-            if isinstance(node.rvalue, c_ast.Constant):
+            if isinstance(node.rvalue, pr.Constant):
                 return Analysis.constant(index, node.lvalue.name)
-            if isinstance(node.rvalue, c_ast.UnaryOp):
+            if isinstance(node.rvalue, pr.UnaryOp):
                 return Analysis.unary_op(index, node)
-            if isinstance(node.rvalue, c_ast.ID):
+            if isinstance(node.rvalue, pr.ID):
                 return Analysis.id(index, node)
-            if isinstance(node.rvalue, FuncCall):
+            if isinstance(node.rvalue, pr.FuncCall):
                 return Analysis.func_call(index)
-        if isinstance(node, c_ast.If):
+        if isinstance(node, pr.If):
             return Analysis.if_(index, node, dg)
-        if isinstance(node, c_ast.While):
+        if isinstance(node, pr.While):
             return Analysis.while_(index, node, dg)
-        if isinstance(node, c_ast.For):
+        if isinstance(node, pr.For):
             return Analysis.for_(index, node, dg)
-        if isinstance(node, c_ast.Compound):
+        if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
 
         logger.debug(f"uncovered case! type: {type(node)}")
@@ -181,7 +182,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def id(index: int, node: Assignment) \
+    def id(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
         """Analyze x = y (with x != y) and y not a const
 
@@ -194,7 +195,7 @@ class Analysis:
         """
         x = node.lvalue.name
         y = node.rvalue.name
-        if x == y or isinstance(node.rvalue, c_ast.Constant):
+        if x == y or isinstance(node.rvalue, pr.Constant):
             return index, RelationList(), False
 
         logger.debug('Computing Relation x = y')
@@ -223,7 +224,7 @@ class Analysis:
         return index + 1, rel_list, False
 
     @staticmethod
-    def binary_op(index: int, node: Assignment) \
+    def binary_op(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
         """Analyze binary operation, e.g. `x = y + z`.
 
@@ -275,7 +276,7 @@ class Analysis:
         return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_op(index: int, node: Assignment) \
+    def unary_op(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
         """Analyze unary operator.
 
@@ -294,7 +295,7 @@ class Analysis:
         return index, RelationList.identity(variables), False
 
     @staticmethod
-    def if_(index: int, node: If, dg: DeltaGraph) \
+    def if_(index: int, node: pr.If, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze an if statement.
 
@@ -323,7 +324,8 @@ class Analysis:
 
     @staticmethod
     def if_branch(
-            node: If, index: int, relation_list: RelationList, dg: DeltaGraph
+            node: pr.If, index: int, relation_list: RelationList,
+            dg: DeltaGraph
     ) -> Tuple[int, bool]:
         """Analyze `if` or `else` branch of a conditional statement.
 
@@ -362,7 +364,7 @@ class Analysis:
         return index, False
 
     @staticmethod
-    def while_(index: int, node: While, dg: DeltaGraph) \
+    def while_(index: int, node: pr.While, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze while loop.
 
@@ -401,7 +403,7 @@ class Analysis:
         return index, relations, exit_
 
     @staticmethod
-    def for_(index: int, node: For, dg: DeltaGraph) \
+    def for_(index: int, node: pr.For, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze for loop node.
 
@@ -430,7 +432,7 @@ class Analysis:
         return index, relations, False
 
     @staticmethod
-    def compound_(index: int, node: Compound, dg: DeltaGraph) \
+    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Compound AST node contains zero or more children and is
         created by braces in source code.

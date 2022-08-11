@@ -1,15 +1,11 @@
-import os
-import sys
 import json
 import logging
-
+import os
 from typing import Tuple, Dict, Optional
-from pycparser import parse_file, c_ast
-from subprocess import CalledProcessError
 
 from .choice import Choices
-from .relation import Relation
 from .matrix import decode
+from .relation import Relation
 
 logger = logging.getLogger(__name__)
 RESULT_TYPE = Tuple[Optional[Relation], Optional[Choices], bool]
@@ -119,48 +115,3 @@ def load_relation(file_name: str) -> Dict[str, RESULT_TYPE]:
         result[function_name] = relation, combinations, infinity
 
     return result
-
-
-def parse(
-        file: str, use_cpp: bool = True, cpp_path: str = 'cpp',
-        cpp_args: str = '-E'
-) -> c_ast:
-    """Parse C file using pycparser.
-
-    Pycparser can parse files that cannot be analyzed in any meaningful way,
-    e.g. empty main, no main, etc. This method will also check that AST
-    has some meaningful content before returning the AST.
-
-    Arguments:
-        file: path to C file
-        use_cpp: (optional) Set to True if you want to execute the C
-            pre-processor on the file prior to parsing it; default: `True`
-        cpp_path: (optional) If use_cpp is True, this is the path to 'cpp' on
-            your system. If no path is provided, it attempts to just execute
-            'cpp', so it must be in your PATH, default: `cpp`
-        cpp_args: (optional) If use_cpp is True, set this to the command line
-            arguments strings to cpp. Be careful with quotes - it's best
-            to pass a raw string (r'') here. If several arguments are
-            required, pass a list of strings. default: `-E`
-
-    Raises:
-        System.exit: if file cannot be parsed or is invalid/un-analyzable.
-
-    Returns:
-        Generated AST
-    """
-    try:
-        ast = parse_file(file, use_cpp, cpp_path, cpp_args)
-
-        invalid = ast is None or ast.ext is None or \
-                  len(ast.ext) == 0 or \
-                  ast.ext[0].body is None or \
-                  ast.ext[0].body.block_items is None  # noqa: E127
-
-        if not invalid:
-            return ast
-
-        sys.exit('FATAL: Input C file is invalid or empty. Terminating.')
-
-    except CalledProcessError:
-        sys.exit('FATAL: Failed to parse C file. Terminating.')

@@ -1,21 +1,22 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple, Union
+
 from .monomial import Monomial
 
 
 class DeltaGraph:
     """
-    DeltaGraph is a dictionary representing a weighted graph
-    of tuple of deltas (also referenced here as monomial_list
-    aka: a monomial without its scalar).
+    DeltaGraph is a dictionary representing a weighted graph of tuple of
+    deltas (also referenced here as monomial_list aka: a monomial without
+    its scalar).
 
-    We use tuple here instead of list because we want them to be
-    hashable (as key in dictionary).
+    We use tuple here instead of list because we want them to be hashable (
+    as key in dictionary).
 
-    We will often refere to tuple of deltas as simple node.
-    But a node with lenght !
+    We will often refer to tuple of deltas as simple node. But a node with
+    length!
 
-    Nodes are "sorted" by this lenght in order to be compared by chunks of
+    Nodes are "sorted" by this length in order to be compared by chunks of
     same size.
 
     Weight of edge represents the index where the nodes differ.
@@ -70,13 +71,13 @@ class DeltaGraph:
         self.insert_tuple(tuple(m.deltas))
 
     def add_edge(self, node1, node2, label) -> None:
-        """Add an edge of label `label` btwn `node1` and `node2`
-        If one node does not exists, it's created
+        """Add an edge of label `label` between `node1` and `node2`
+        If one node does not exist, it's created
 
         Symmetry is also added in the graph
 
         Note:
-            node2 should always exists if add_edge is always called
+            node2 should always exist if add_edge is always called
             from insert_tuple
 
         Arguments:
@@ -190,10 +191,11 @@ class DeltaGraph:
             index: Optional[int] = None
     ) -> Tuple[bool, Union[int, Monomial]]:
         """Compares two nodes
-        Compares two lists of monomials (of the same lenth)
-        and returns (diff, i) where diff is True if and only if
-        both lists differ only on one element regarding to the same index
-        and i is the index of the corresponding delta.
+
+        Compares two lists of monomials (of the same length) and returns (
+        diff, i) where diff is True if and only if both lists differ only on
+        one element regarding the same index and i is the index of the
+        corresponding delta.
 
         Arguments:
             ml1: first monomial_list
@@ -264,7 +266,7 @@ class DeltaGraph:
 
         Arguments:
             n: size of nodes or "level"
-            mono: arround that node
+            mono: around that node
             index: index with to find clique
             max_choices: optional
 
@@ -336,7 +338,7 @@ class DeltaGraph:
         Returns:
             eliminates corresponding clique in the delta_graph
         """
-        # Start from longest monomial list to the shortest
+        # Start from the longest monomial list to the shortest
         for n in sorted(self.graph_dict, reverse=True):
             # For all monomial list of size n
             for lm in list(self.graph_dict[n]):

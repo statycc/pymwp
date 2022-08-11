@@ -23,9 +23,8 @@ import logging
 import sys
 from typing import List, Optional
 
-from .analysis import Analysis
-from .file_io import default_file_out, parse
-from .version import __version__
+from pymwp import Parser, Analysis, __version__
+from .file_io import default_file_out
 
 
 def main():
@@ -33,16 +32,28 @@ def main():
     parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
     args = __parse_args(parser)
 
-    if not args.file:
+    if not args.input_file:
         parser.print_help()
         sys.exit(1)
 
+    # setup logger
     log_level = logging.FATAL - (0 if args.silent else 40)
     __setup_logger(log_level, args.logfile)
-    file_out = args.out or default_file_out(args.file)
 
-    ast = parse(args.file, not args.no_cpp, args.cpp, args.cpp_args)
-    Analysis.run(ast, file_out, args.no_save, args.no_eval)
+    # get parser args then get AST
+    parser_kwargs = {'use_cpp': not args.no_cpp}
+    # these options only apply when use_cpp is set to True
+    if not args.no_cpp:
+        parser_kwargs['cpp_path'] = args.cpp_path
+        parser_kwargs['cpp_args'] = args.cpp_args
+    c_headers = args.headers.split(',') if args.headers else None
+    ast = Parser.parse(args.input_file, c_headers, **(parser_kwargs or {}))
+
+    # run analysis
+    Analysis.run(ast,
+                 file_out=args.out or default_file_out(args.input_file),
+                 no_save=args.no_save,
+                 no_eval=args.no_eval)
 
 
 def __parse_args(
@@ -50,52 +61,57 @@ def __parse_args(
         args: Optional[List] = None) -> argparse.Namespace:
     """Setup available program arguments."""
     parser.add_argument(
-        "file",
-        help="Path to C source code file",
+        'input_file',
+        help="C source code file you want to analyze",
         nargs="?"
     )
     parser.add_argument(
-        "--outfile",
+        '-o', '--out',
         action="store",
         dest="out",
-        help="file for storing analysis result",
+        help="file where to store analysis result",
     )
     parser.add_argument(
         "--logfile",
         action="store",
-        help="save log messages into a file",
+        help="write analysis terminal messages to specified file",
     )
     parser.add_argument(
-        '--cpp',
+        '--cpp_path',
         action='store',
         default='gcc',
         help='path to C pre-processor on your system (default: gcc)',
     )
     parser.add_argument(
-        '--cpp-args',
+        '--cpp_args',
         action='store',
         default='-E',
         help='arguments to pass to C pre-processor (default: -E)',
     )
     parser.add_argument(
-        "--no-cpp",
-        action='store_true',
-        help="disable execution of C pre-processor on the input file"
+        "--headers",
+        action="store",
+        help="list of C header directory paths, separate by comma",
     )
     parser.add_argument(
-        "--no-eval",
+        "--no_cpp",
+        action='store_true',
+        help="disable execution of C pre-processor on input file"
+    )
+    parser.add_argument(
+        "--no_eval",
         action="store_true",
-        help="Skip evaluation (no impact if bound does not exist)",
+        help="skip evaluation (no impact if bound does not exist)",
     )
     parser.add_argument(
-        "--no-save",
+        "--no_save",
         action='store_true',
-        help="skip writing result to file"
+        help="do not write analysis result to a file"
     )
     parser.add_argument(
-        "--silent",
+        '-s', "--silent",
         action='store_true',
-        help="silence logging: only fatal errors will display"
+        help="disable debug logging, only fatal errors will be displayed"
     )
     parser.add_argument(
         "--version",

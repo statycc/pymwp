@@ -17,33 +17,36 @@ implemented and for which implementation is planned.
 - 🟧 &nbsp; **in progress** - implementation is in progress but not ready
 - ⬜ &nbsp; **planned** - implementation is in a planning stage
 
-Description | State | Example
---- | --- | ---
-**Basic data types** ||
- Integer types (incl. `signed`, `unsigned`) | ✅ | `char`, `short`, `int`, `long`, `long long`
- Floating point types  | ✅ | `float`, `double`, `long double` 
-**Declarations** ||
- Variable declarations |  ✅  | `int x;` 
- Constant declarations |  ✅  | `const int x;`
-**Unary operations** | 🟧 | `-x`, `--x`, `x++`, ... 
-**Binary operations** (+, *, -) | ✅ |  `x = y + z`
-**Ternary operations** | 🟧 |  `x = y + z * w`
-**Combined assignment operators** | 🟧 | `x += 1` |
-**Conditional statements** || 
- if statement | ✅ | `if(x > 0) { ... }`
- if-else statement | ✅ | `if(x > 0) { ... } else { ... }`
- nested conditional  | ✅ | `if(x > 0) {  if (y > 0) { ... } }` |
-**Repetition statements** || 
- while loop | ✅ | `while(x < 20) { ... }`
- for loop | 🟧 | `for (i = 0; i < 10; ++i) { ... }`
-**Functions** | 🟧 ||
-**Pointers** | 🟧 ||
-**Arrays** | 🟧 || 
- **Header Files Inclusion** | 🟧 || 
-**Comments** ||
- Single-line | ✅ | `// comment`
- Multi-line | ✅ | `/* comment */`
+| Description                                | State | Example                                     |
+|--------------------------------------------|:-----:|---------------------------------------------|
+| **Basic data types**                       |       |                                             |
+| Integer types (incl. `signed`, `unsigned`) |   ✅   | `char`, `short`, `int`, `long`, `long long` |
+| Floating point types                       |   ✅   | `float`, `double`, `long double`            |
+| **Declarations**                           |       |                                             |     
+| Variable declarations                      |   ✅   | `int x;`                                    |
+| Constant declarations                      |   ✅   | `const int x;`                              |
+| **Arithmetic operations**                  |       | 
+| Unary operations                           |  🟧   | `-x`, `--x`, `x++`, ...                     |
+| Binary operations ($+, \times, -$)         |   ✅   | `x = y + z`                                 |
+| $n$-ary operation                          |  🟧   | `x = y + z * w`                             |
+| Compound assignment operators              |   ⬜   | `x += 1`                                    |
+| **Conditional statements**                 |       |                                             |
+| if statement                               |   ✅   | `if(x > 0) { ... }`                         |
+| if-else statement                          |   ✅   | `if(x > 0) { ... } else { ... }`            |
+| nested conditional                         |   ✅   | `if(x > 0) {  if (y > 0) { ... } }`         |
+| **Repetition statements**                  |       |                                             |
+| while loop                                 |   ✅   | `while(x < 20) { ... }`                     |
+| for loop                                   |  🟧   | `for (i = 0; i < 10; ++i) { ... }`          |
+| **Functions**                              |  🟧   |                                             |     
+| **Pointers**                               |   ⬜   |                                             |     
+| **Arrays**                                 |   ⬜   |                                             |      
+| **Header Files Inclusion** \*              |   ✅   |                                             |      
+| **Comments**                               |       |                                             |
+| Single-line                                |   ✅   | `// comment`                                |
+| Multi-line                                 |   ✅   | `/* comment */`                             |
+
+\*) version > 0.1.6
 
 ### Handling of unsupported operations
 
-Analysis will bypass any statement that is unsupported.
+Analysis will bypass any statement that is unsupported and raises a warning.

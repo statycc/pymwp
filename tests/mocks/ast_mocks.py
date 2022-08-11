@@ -1,3 +1,5 @@
+# noinspection DuplicatedCode
+
 """
 Sample ASTs for unit testing Analysis
 
@@ -6,9 +8,10 @@ here we mock the outputs of pycparser.parse_file
 These ASTs match the examples in c_files by name, or tests/test_examples
 """
 
-from pycparser.c_ast import FileAST, FuncDef, Decl, FuncDecl, TypeDecl, \
-    IdentifierType, Compound, Constant, While, BinaryOp, ID, Assignment, If, \
-    ParamList, FuncCall, Return, ExprList
+from pycparser.c_ast import \
+    FileAST, FuncDef, Decl, FuncDecl, TypeDecl, IdentifierType, Compound, \
+    Constant, While, BinaryOp, ID, Assignment, If, ParamList, FuncCall, \
+    Return, ExprList
 
 # c_files/infinite/infinite_2.c
 INFINITE_2C = FileAST(ext=[FuncDef(
@@ -281,7 +284,7 @@ PARAMS = FileAST(ext=[FuncDef(
         block_items=[
             Assignment(op='=', lvalue=ID(name='x1'), rvalue=ID(name='x2'))]))])
 
-# c_files/implementation_paper/example5_a.c
+# c_files/implementation_paper/example15_a.c
 FUNCTION_CALL = FileAST(ext=[FuncDef(
     decl=Decl(name='f', quals=[], align=[], storage=[], funcspec=[],
               type=FuncDecl(args=ParamList(params=[
@@ -296,7 +299,7 @@ FUNCTION_CALL = FileAST(ext=[FuncDef(
                   type=TypeDecl(declname='f', quals=[], align=None,
                                 type=IdentifierType(names=['int']))),
               init=None, bitsize=None), param_decls=None, body=Compound(
-        block_items=[While(cond=ID(name='X1'), stmt=Compound(block_items=[
+        block_items=[While(cond=ID(name='b'), stmt=Compound(block_items=[
             Assignment(op='=', lvalue=ID(name='X2'),
                        rvalue=BinaryOp(op='+', left=ID(name='X1'),
                                        right=ID(name='X1')))])),
@@ -314,9 +317,12 @@ FUNCTION_CALL = FileAST(ext=[FuncDef(
                   type=TypeDecl(declname='foo', quals=[], align=None,
                                 type=IdentifierType(names=['int']))),
               init=None, bitsize=None), param_decls=None, body=Compound(
-        block_items=[Assignment(
-            op='=', lvalue=ID(name='X2'),
-            rvalue=BinaryOp(op='+', left=ID(name='X1'), right=ID(name='X1'))),
+        block_items=[
+            Assignment(op='=', lvalue=ID(name='X2'),
+                       rvalue=BinaryOp(op='+', left=ID(name='X1'),
+                                       right=ID(name='X1'))),
             Assignment(op='=', lvalue=ID(name='X1'),
-                       rvalue=FuncCall(name=ID(name='f'), args=ExprList(
-                           exprs=[ID(name='X2'), ID(name='X2')])))]))])
+                       rvalue=FuncCall(name=ID(name='f'),
+                                       args=ExprList(
+                                           exprs=[ID(name='X2'),
+                                                  ID(name='X2')])))]))])
