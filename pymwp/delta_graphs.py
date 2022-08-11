@@ -333,7 +333,7 @@ class DeltaGraph:
 
         Arguments:
             max_i: size of clique we want to eliminate regarding to index
-            of deltas
+                of deltas
 
         Returns:
             eliminates corresponding clique in the delta_graph

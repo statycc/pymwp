@@ -72,7 +72,7 @@ latest release), use the version from source following these steps.
 
 1. Clone the repository
 
-    ```bash
+    ```
     git clone https://github.com/statycc/pymwp.git
     ``` 
 
@@ -80,13 +80,13 @@ latest release), use the version from source following these steps.
 
     install required packages
 
-    ```bash
+    ```
     python -m pip install -q -r requirements.txt
     ``` 
     
     Note: for development purposes or to run tests, install dev dependencies instead: 
     
-    ```bash
+    ```
     python -m pip install -q -r requirements-dev.txt
     ```
 
@@ -94,19 +94,19 @@ latest release), use the version from source following these steps.
 
     From project root run:
     
-    ```bash
+    ```
     python -m pymwp path/to_some_file.c
     ```
 
     for example:
     
-    ```bash
+    ```
     python -m pymwp c_files/basics/if.c
     ```
     
     for all available options and help, run:
     
-    ```bash
+    ```
     python -m pymwp
     ```
 
