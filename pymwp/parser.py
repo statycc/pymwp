@@ -3,7 +3,7 @@ import tempfile
 from logging import getLogger
 
 # noinspection PyPackageRequirements,PyProtectedMember
-from typing import Any
+from typing import Any, List
 
 from pycparser import c_ast, parse_file
 from pycparser_fake_libc import directory as fake_libc_dir
@@ -116,7 +116,7 @@ class PyCParser(ParserInterface):
     """Implementation of the parser interface, using pycparser."""
 
     @staticmethod
-    def parse(file_name: str, **kwargs):
+    def parse(file_name: str, headers: List[str] = None, **kwargs):
 
         # build parser cpp arguments
         # always append -E and fake_libc args when C preprocessor
@@ -127,6 +127,9 @@ class PyCParser(ParserInterface):
             if '-E' not in args:
                 args.append(r'-E')
             args.append(r'-I' + fake_libc_dir)
+            if headers:
+                for h in headers:
+                    args.append(r'-I' + h)
             kwargs['cpp_args'] = args
         logger.debug(f'parser arguments: {kwargs}')
 

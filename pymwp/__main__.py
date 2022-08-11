@@ -46,7 +46,8 @@ def main():
     if not args.no_cpp:
         parser_kwargs['cpp_path'] = args.cpp_path
         parser_kwargs['cpp_args'] = args.cpp_args
-    ast = Parser.parse(args.input_file, **(parser_kwargs or {}))
+    c_headers = args.headers.split(',') if args.headers else None
+    ast = Parser.parse(args.input_file, c_headers, **(parser_kwargs or {}))
 
     # run analysis
     Analysis.run(ast,
@@ -61,19 +62,19 @@ def __parse_args(
     """Setup available program arguments."""
     parser.add_argument(
         'input_file',
-        help="Path to C source code file you want to analyze",
+        help="C source code file you want to analyze",
         nargs="?"
     )
     parser.add_argument(
         '-o', '--out',
         action="store",
         dest="out",
-        help="output filename (with path) for storing analysis result",
+        help="file where to store analysis result",
     )
     parser.add_argument(
         "--logfile",
         action="store",
-        help="write analysis log messages to a file",
+        help="write analysis terminal messages to specified file",
     )
     parser.add_argument(
         '--cpp_path',
@@ -88,6 +89,11 @@ def __parse_args(
         help='arguments to pass to C pre-processor (default: -E)',
     )
     parser.add_argument(
+        "--headers",
+        action="store",
+        help="list of C header directory paths, separate by comma",
+    )
+    parser.add_argument(
         "--no_cpp",
         action='store_true',
         help="disable execution of C pre-processor on input file"
@@ -100,7 +106,7 @@ def __parse_args(
     parser.add_argument(
         "--no_save",
         action='store_true',
-        help="skip writing result to file"
+        help="do not write analysis result to a file"
     )
     parser.add_argument(
         '-s', "--silent",
