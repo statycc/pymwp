@@ -1,11 +1,12 @@
 name: Deploy demo
 
-# deploy on direct pushes to this branch
-# and on new releases of this repository
+# Demo server us deployed automatically:
+# - on direct pushes to this branch
+# - on new releases in this repository
 
 on:
   push:
-    branches: [ demo-server ]
+    branches: [ demo ]
   release:
     types: [ created ]
 

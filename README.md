@@ -10,12 +10,11 @@ This is a simple Python Flask server that runs pymwp analysis.
 https://{server-url}/v2/
 ```
 
-| Path | Description |
-:--- | :--- 
-`/` | Displays server/pymwp version info
-`/examples` | Lists all examples known to this demo server (in c_files directory)
-`/{path}/{file}.c` | Analyze specified example, e.g. `basics/if.c` Returns a JSON response.
-
+| Path               | Description                                                            |
+|:-------------------|:-----------------------------------------------------------------------|
+| `/`                | Displays server/pymwp version info                                     |
+| `/examples`        | Lists all examples known to this demo server (in c_files directory)    |
+| `/{path}/{file}.c` | Analyze specified example, e.g. `basics/if.c` Returns a JSON response. |
 
 ### Running locally
 
@@ -29,5 +28,5 @@ python main.py
 
 ### Deployment
 
-Server deployment runs automatically on commits to `demo-server` branch.
+Server deployment runs automatically on commits to `demo` branch.
 
