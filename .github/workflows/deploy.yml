@@ -1,0 +1,32 @@
+name: Deploy demo
+
+# deploy on direct pushes to this branch
+# and on new releases of this repository
+
+on:
+  push:
+    branches: [ demo-server ]
+  release:
+    types: [ created ]
+
+jobs:
+  deploy-server:
+    runs-on: ubuntu-latest
+    environment:
+        name: demo
+        url: https://statycc.github.io/pymwp/demo
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get Hash
+      id: hash
+      run: echo "hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
+
+    - name: Deploy to App Engine
+      uses: google-github-actions/deploy-appengine@v0.2.0
+      with:
+        deliverables: app.yaml
+        project_id: ${{ secrets.GCP_PROJECT }}
+        credentials: ${{ secrets.GCP_SA_KEY }}
+        promote: true
+        version: ${{ env.hash }}
