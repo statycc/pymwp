@@ -6,11 +6,10 @@ from typing import Tuple, List, Set, Union
 
 logger = logging.getLogger(__name__)
 
-SEQ = Set[Tuple[Tuple[int, int], ...]]
-"""Type hint to represent a sequence of deltas"""
-
+SEQ = Tuple[Tuple[int, int], ...]
+"""Type hint to represent a sequence of deltas."""
 CHOICES = List[List[List[int]]]
-"""Type hint for representing a list of choice vectors"""
+"""Type hint for representing a list of choice vectors."""
 
 
 class Choices:
@@ -24,18 +23,9 @@ class Choices:
 
     Steps:
 
-    Using delta-sequences set, reduce the set in two ways:
+    Using delta-sequences set, simplify the set in two ways:
 
-    1. remove all sequences that are contained by shorter sequences:
-
-           ```Python
-           a = [(0,0)]  b = [(0,0), (0,1), (2,2)]
-
-           # a is subset of b: b cannot be selected without selecting a
-           # thus b is redundant => remove b
-           ```
-
-    2. replace combinations of delta sequences that can be represented by a
+    1. replace combinations of delta sequences that can be represented by a
        single, shorter sequence
 
            ```Python
@@ -50,6 +40,15 @@ class Choices:
 
            # => remove a, b, c and insert [(2,2)(1,4)] in their place.
            ```
+
+    2. remove all sequences that are contained by shorter sequences:
+
+       ```Python
+       a = [(0,0)]  b = [(0,0), (0,1), (2,2)]
+
+       # a is subset of b: b cannot be selected without selecting a
+       # thus b is redundant => remove b
+       ```
 
     3. Repeat steps 1-2 until no more reduction can be applied.
 
@@ -110,11 +109,8 @@ class Choices:
         Returns:
             Generated choice object.
         """
-        # first ensure no sequence is contained by another
-        sequences = Choices.unique_sequences(inf)
-
-        # reduce when all paths exist and lead to same infinity choice
-        Choices.reduce_subsequences(choices, sequences)
+        # simplify the set of infinities
+        sequences = Choices.simplify(choices, inf)
 
         # now only min unique paths that lead to infinity remain
         paths = [str(list(i)) for i in sorted(
@@ -150,50 +146,31 @@ class Choices:
         return False
 
     @staticmethod
-    def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
-        """Remove longer delta sequences if already covered by some shorter
-        sequence.
+    def simplify(choices: List[int], sequences: Set[SEQ]) -> Set[SEQ]:
+        """Generate the most simplified, equivalent representation of
+        the set of choices that cause infinity.
 
-        Arguments:
-            infinities: set with delta sequences causing infinity
-
-        Returns:
-            Reduced list where all longer patterns, whose pattern is covered
-            by some shorter sequence, are removed.
-        """
-        sequences = set()
-        infinity_deltas: List[SEQ] = sorted(list(infinities), key=len)
-        while infinity_deltas:
-            first: SEQ = infinity_deltas.pop(0)
-            Choices.remove_subset(first, infinity_deltas)
-            sequences.add(first)
-        return sequences
-
-    @staticmethod
-    def remove_subset(match: SEQ, items: Union[Set, List]):
-        """If `match` is a subset of any item in `items`, removes the superset
-        from items, in place.
-
-        Arguments:
-            match: single delta sequence
-            items: list of delta sequences to check against match
-        """
-        for item in sorted(list(items)):
-            if set(match).issubset(set(item)):
-                items.remove(item)
-
-    @staticmethod
-    def reduce_subsequences(choices: List[int], sequences: Set[SEQ]):
-        """Reduce sequences of deltas to simplify sequences leading to
-        infinity, as explained in [`reduce`](#reduce). This operation
-        will repeat until set of sequences cannot be reduced any further.
+        Reduce sequences of deltas, as explained in [`reduce`](#reduce).
+        This operation will repeat until set of sequences cannot be reduced
+        any further. Then remove all superset contained by some shorter
+        sequence. This process repeats until no more simplification can be
+        applied.
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
             sequences: set of delta sequences
+
+        Returns:
+            Simplified list of infinity paths.
         """
-        while Choices.reduce(choices, sequences):
-            pass
+        while True:
+            while Choices.reduce(choices, sequences):
+                continue
+            len_before = len(sequences)
+            sequences = Choices.unique_sequences(sequences)
+            len_after = len(sequences)
+            if len_before == len_after:
+                return sequences
 
     @staticmethod
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
@@ -237,6 +214,39 @@ class Choices:
                 sequences.add(keep)
                 return True
         return False
+
+    @staticmethod
+    def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
+        """Remove longer delta sequences if already covered by some shorter
+        sequence.
+
+        Arguments:
+            infinities: set with delta sequences causing infinity
+
+        Returns:
+            Reduced list where all longer patterns, whose pattern is covered
+            by some shorter sequence, are removed.
+        """
+        sequences = set()
+        infinity_deltas: List[SEQ] = sorted(list(infinities), key=len)
+        while infinity_deltas:
+            first: SEQ = infinity_deltas.pop(0)
+            Choices.remove_subset(first, infinity_deltas)
+            sequences.add(first)
+        return sequences
+
+    @staticmethod
+    def remove_subset(match: SEQ, items: Union[Set, List]):
+        """If `match` is a subset of any item in `items`, removes the superset
+        from items, in place.
+
+        Arguments:
+            match: single delta sequence
+            items: list of delta sequences to check against match
+        """
+        for item in sorted(list(items)):
+            if set(match).issubset(set(item)):
+                items.remove(item)
 
     @staticmethod
     def sub_equal(first: SEQ, second: SEQ) -> bool:
@@ -330,7 +340,8 @@ class Choices:
 
             # iterate the infinity deltas to remove them from the vector
             for choice, idx in deltas:
-                vector[idx].remove(choice)
+                if choice in vector[idx]:
+                    vector[idx].remove(choice)
 
             # must be hashable type to add to set, shouldn't generate same
             # vector ever but not sure, so using a set
