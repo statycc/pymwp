@@ -56,7 +56,7 @@ class Relation:
             variables: program variables
             matrix: relation matrix
         """
-        self.variables = (variables or [])[:]
+        self.variables = [v for v in (variables or []) if v]
         self.matrix = matrix or matrix_utils \
             .init_matrix(len(self.variables))
 
