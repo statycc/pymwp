@@ -285,7 +285,7 @@ class Choices:
                             for n in set(idx_freq)])
 
             # This iteration will not produce a valid vector if all choices
-            # are eliminated at some index. If will also not produce the
+            # are eliminated at some index. It will also not produce the
             # optimal vector, if some delta is duplicated in the
             # infinities-set but not in this vector. Discard these choices
             # in both cases.
