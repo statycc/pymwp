@@ -230,11 +230,11 @@ class Choices:
 
             assume the paths leading to infinity are:
 
-            $\{ [(0,0)], [(1,0)], [(1,1)(0,3)] \}$
+            `[(0,0)], [(1,0)], [(1,1)(0,3)]`
 
             Then, the valid choices that do not lead to infinity are:
 
-            $[[ [2], [0,2], [0,1,2]]$  or  $[[2], [0,1,2], [1,2]]]$
+            `[[ [2], [0,2], [0,1,2]]`  or  `[[2], [0,1,2], [1,2]]]`
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
