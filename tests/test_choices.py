@@ -44,3 +44,18 @@ def test_is_valid_returns_correct_result():
     assert obj.is_valid(2, 1)
     assert obj.is_valid(0, 2)
     assert obj.is_valid(2, 2)
+
+
+def test_result_is_minimal():
+    # ref: https://github.com/statycc/pymwp/issues/80
+    index, choices = 3, [0, 1, 2]
+    infinite = {((0, 0),),
+                ((1, 0),),
+                ((2, 1), (1, 2)),
+                ((2, 0), (1, 1), (1, 2))}
+    result = Choices.generate(choices, index, infinite)
+
+    assert [[2], [0, 1, 2], [0, 2]] in result.valid
+    assert [[2], [0, 1], [0, 2]] not in result.valid
+    assert [[2], [0, 2], [0, 2]] not in result.valid
+    assert [[2], [0], [0, 1, 2]] in result.valid
