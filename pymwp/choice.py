@@ -14,8 +14,9 @@ CHOICES = List[List[List[int]]]
 
 
 class Choices:
-    """Generates a compact representation of derivation rule choices that do
-       not lead to infinity. The result is empty if no such choice exists.
+    """
+    Generates a compact representation of derivation rule choices that do
+    not lead to infinity.
     """
 
     def __init__(self, vectors: CHOICES = None):
@@ -39,9 +40,13 @@ class Choices:
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
         """Generate the choice representation.
 
+        This works in two steps: 1. simplify delta sequences 2. build
+        choice vectors.
+
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
-            index: the length of the vector, e.g. 10
+            index: the length of the vector, e.g. 10. This is the same as
+               number of assignments in the analyzed function.
             inf: set of deltas that lead to infinity
 
         Returns:
@@ -61,15 +66,13 @@ class Choices:
         return Choices(valid)
 
     def is_valid(self, *choices: int) -> bool:
-        """Checks if some sequence of choices can be made without infinity.
+        """Checks if sequence of choices can be made without infinity.
 
         Example:
 
-        ```Python
-        # returns True if this sequence gives non-infinite derivation:
-
-        choice_obj.is_valid(0,1,2,1,1,0)
-        ```
+            ```Python
+            choice_obj.is_valid(0,1,2,1,1,0)
+            ```
 
         Arguments:
             choices: sequences of delta values to check
@@ -108,29 +111,29 @@ class Choices:
             len_before = len(sequences)
             sequences = Choices.unique_sequences(sequences)
             len_after = len(sequences)
-            if len_before == len_after:
+            if len_before == len_after or len_after == 0:
                 return sequences
 
     @staticmethod
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
-        """Look for first reducible sequence, if exist, then replace it.
+        """Look for first reducible sequence, if exists, then replace it.
 
-        Example:
+        ??? example "Example"
 
             Consider the following sequences, where deltas differ only on
             first value and never on index, and all possible choice values are
             represented in the first delta:
 
              ```
-             - (0,0) (2,1) (1,4)
-             - (1,0) (2,1) (1,4)
-             - (2,0) (2,1) (1,4)
+             (0,0) (2,1) (1,4)
+             (1,0) (2,1) (1,4)
+             (2,0) (2,1) (1,4)
              ```
 
-        Since all possible choices occur at 0th index, and are followed
-        by same subsequent deltas, it does not matter which choice is
-        made at index 0. The 3 paths can be collapsed into a single, shorter
-        path: `(2,1)(1,4)`.
+            Since all possible choices occur at 0th index, and are followed
+            by same subsequent deltas, it does not matter which choice is
+            made at index 0. The 3 paths can be collapsed into a single,
+            shorter path: `(2,1)(1,4)`.
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
@@ -156,14 +159,13 @@ class Choices:
 
     @staticmethod
     def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
-        """Remove longer delta sequences if already covered by some shorter
-        sequence.
+        """Remove superset delta sequences.
 
         Arguments:
-            infinities: set with delta sequences causing infinity
+            infinities: set of delta sequences causing infinity
 
         Returns:
-            Reduced list where all longer patterns, whose pattern is covered
+            A list where all longer sequences, whose pattern is covered
             by some shorter sequence, are removed.
         """
         sequences = set()
@@ -193,7 +195,7 @@ class Choices:
 
         Arguments:
             first: first delta sequence
-            second: the other delta sequence
+            second: second delta sequence
 
         Returns:
             True if two delta sequences are equal excluding the 0th value,
@@ -223,13 +225,15 @@ class Choices:
         and then negates those choices; the result is a list of choice
         vectors such that any remaining choice will give a valid derivation.
 
-        Example:
+        ??? example "Example"
 
             assume the paths leading to infinity are:
-            { [(0,0)], [(1,0)], [(1,1)(0,3)] }
+
+            $\{ [(0,0)], [(1,0)], [(1,1)(0,3)] \}$
 
             Then, the valid choices that do not lead to infinity are:
-            [[[2], [0,2], [0,1,2]]  or  [[2], [0,1,2], [1,2]]]
+
+            $[[ [2], [0,2], [0,1,2]]$  or  $[[2], [0,1,2], [1,2]]]$
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
@@ -243,7 +247,7 @@ class Choices:
             return [[list(choices[:]) for _ in range(index)]]
 
         # noinspection PyTypeChecker
-        # sort the infinity paths by length, shortest first
+        # sort the infinity paths by length, the shortest first
         sorted_infty = sorted(list(infinities), key=len)
 
         # get length of each infinity path
@@ -255,13 +259,18 @@ class Choices:
         max_ = Choices.prod(lens)
         logger.debug(f'maximum distinct vectors: {max_}')
 
+        # TODO: add duplicate delta handling. Count distinct and in the loop,
+        #    ensure the count is maximal, otherwise continue.
+        #    https://github.com/statycc/pymwp/pull/78#issuecomment-1063454132
+
         vectors = set()
 
         # generate all possible vectors by iterating the max count of
         # distinct vectors
         for iter_i in range(max_):
 
-            # from iteration count generate selectors for deltas
+            # from iteration count, generate selectors for deltas
+            # this one line does a lot - only edit if you have a good reason
             indices = [(iter_i // i) % x for x, i in zip(lens, iters)]
 
             # now choose the specific delta values, 1 value for each infinite
@@ -273,6 +282,9 @@ class Choices:
             # will not produce a valid vector
             if any([idx_freq.count(n) == len(choices) for n in set(idx_freq)]):
                 continue
+
+            # TODO: if delta counts are not maximal, a more optimal
+            #  choice exists -> discard subpar choice vectors
 
             # initialize a vector with all allowed choices
             vector = [set(choices[:]) for _ in range(index)]
