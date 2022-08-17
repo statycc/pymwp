@@ -28,7 +28,7 @@ Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a d
 
 ## Installation
 
-Install latest release from PyPI
+Install the latest release from PyPI
 
 ```bash
 pip install pymwp
