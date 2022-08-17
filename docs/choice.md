@@ -6,7 +6,8 @@ from pymwp import Choices
 
 ## Determining valid choices
 
-This section gives a high-level description.
+Choice module calculates and generates a compact representation of analysis derivation result. 
+This section gives a high-level description of this process.
 
 | Input             | Data type   |                                                           |
 |-------------------|-------------|-----------------------------------------------------------|
@@ -24,7 +25,7 @@ This section gives a high-level description.
 
     Iteratively apply these simplifications until convergence.
 
-    !!! info "Simplification examples"
+    ??? example "Simplification example"
 
         (a) All possible choices at index 1 occur in the set: any choice at
         index 1 followed by sequence `(2,2)(1,4)` results in infinity.
@@ -67,7 +68,7 @@ This section gives a high-level description.
 
     Discard invalid and redundant vectors. Add remaining vectors to result.
 
-    !!! info "Choice vector example"
+    ??? example "Choice vector example"
 
         ```Python
         # remining after simplification
@@ -90,7 +91,7 @@ This section gives a high-level description.
     Choose one vector, then select one value at each vector index. 
     This yields a bounded result.
 
-    !!! info "Result example"
+    ???+ example "Result example"
 
         ```Python
         [  [[1], [1,2], [0,1,2]]  v  [[2], [0,1], [1,2]]  v ... ]
@@ -98,10 +99,9 @@ This section gives a high-level description.
         # => [1, 2, 2] is valid choice, so is [2,1,2] and [1,1,0] ... etc.
         ```
 
-
-        If all choices are valid, the result is a single vector
-          of length `i` and all choices exist at each vector index.
-        If non-$\infty$ derivation does not exist, the result is empty `[ ]`.
+    If all choices are valid, the result is a single vector
+    of length `i` and all choices exist at each vector index.
+    If non-$\infty$ derivation does not exist, the result is empty `[ ]`.
 
 
 ::: pymwp.choice

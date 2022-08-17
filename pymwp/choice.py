@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 SEQ = Tuple[Tuple[int, int], ...]
 """Type hint to represent a sequence of deltas."""
+
 CHOICES = List[List[List[int]]]
 """Type hint for representing a list of choice vectors."""
 
@@ -50,6 +51,7 @@ class Choices:
         sequences = Choices.simplify(choices, inf)
 
         # now only min unique paths that lead to infinity remain
+        # only sorted here for presentation purposes
         paths = [str(list(i)) for i in sorted(
             list(sequences), key=lambda x: (len(x), x))]
         logger.debug(f'infinity paths: {" # ".join(paths) or "None"}')
@@ -59,7 +61,7 @@ class Choices:
         return Choices(valid)
 
     def is_valid(self, *choices: int) -> bool:
-        """Check if some sequence of choices can be made without infinity.
+        """Checks if some sequence of choices can be made without infinity.
 
         Example:
 
