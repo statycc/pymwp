@@ -62,7 +62,7 @@ def __parse_args(
     """Setup available program arguments."""
     parser.add_argument(
         'input_file',
-        help="C source code file you want to analyze",
+        help="C source code file to analyze",
         nargs="?"
     )
     parser.add_argument(

@@ -13,71 +13,8 @@ CHOICES = List[List[List[int]]]
 
 
 class Choices:
-    """Generates a compact representation of sequences of choices that do not
-    lead to infinity.
-
-    !!! Inputs
-        - list of valid choices at one index (e.g. $[0,1,2]$)
-        - index (int) - represents number of assignments in original program
-        - set of delta-sequences that lead to $\\infty$, obtained from matrix
-
-    Steps:
-
-    Using delta-sequences set, simplify the set in two ways:
-
-    1. replace combinations of delta sequences that can be represented by a
-       single, shorter sequence
-
-           ```Python
-           choices = [0,1,2]
-           a = [(0,1)(2,2)(1,4)]
-           b = [(1,1)(2,2)(1,4)]
-           c = [(2,1)(2,2)(1,4)]
-
-           # all possible choices are represented at index 1 therefore it
-           # does not matter which one is selected: if any choice at index 1
-           # is followed by sequence (2,2)(1,4) then the result is infinity.
-
-           # => remove a, b, c and insert [(2,2)(1,4)] in their place.
-           ```
-
-    2. remove all sequences that are contained by shorter sequences:
-
-       ```Python
-       a = [(0,0)]  b = [(0,0), (0,1), (2,2)]
-
-       # a is subset of b: b cannot be selected without selecting a
-       # thus b is redundant => remove b
-       ```
-
-    3. Repeat steps 1-2 until no more reduction can be applied.
-
-    4. Build the choice vectors: initialize all choices as valid, then
-       eliminate those that lead to infinity, for all possible combinations
-
-           ```Python
-           index = 3 # number of assignments in the program
-           choices = [0,1,2] # the possible choices at each assignment
-
-           # each element is a set of choices and len(vector) == index
-           vector = [{0,1,2}, {0,1,2}, {0,1,2}]
-
-           # delta choices that cause infinity
-           infinity_choices = { [(0,0)], [(1,0)], [(1,1)(0,3)] }
-
-           # eliminate infinity choice: [(0,0)]
-           vector = [{1,2}, {0,1,2}, {0,1,2}]
-
-           # eliminate infinity choice: [(1,0)]
-           vector = [{2}, {0,1,2}, {0,1,2}]
-
-           # infinity choice: [(1,1) (0,3)]
-           # considering all possible combinations yields 2 distinct vectors:
-           vectors = [[{2}, {0,1,2}, {1,2}], [{2}, {0,2}, {0,1,2}]]
-
-           # Read as: choose one of vectors (1st, 2nd) then at each index
-           # choose one of the remaining choices, to get a valid derivation.
-           ```
+    """Generates a compact representation of derivation rule choices that do
+       not lead to infinity. The result is empty if no such choice exists.
     """
 
     def __init__(self, vectors: CHOICES = None):
