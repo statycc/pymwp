@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections import Counter
 from functools import reduce
 from typing import Tuple, List, Set, Union
 
@@ -259,9 +260,8 @@ class Choices:
         max_ = Choices.prod(lens)
         logger.debug(f'maximum distinct vectors: {max_}')
 
-        # TODO: add duplicate delta handling. Count distinct and in the loop,
-        #    ensure the count is maximal, otherwise continue.
-        #    https://github.com/statycc/pymwp/pull/78#issuecomment-1063454132
+        # number of times each delta occurs in remaining paths
+        delta_freq = Counter([j for sub in sorted_infty for j in sub])
 
         vectors = set()
 
@@ -275,22 +275,28 @@ class Choices:
 
             # now choose the specific delta values, 1 value for each infinite
             # path, so that it is not possible to choose any bad path fully
-            deltas = set([sorted_infty[i][v] for i, v in enumerate(indices)])
-            idx_freq = [i for v, i in deltas]
+            # this is same as taking cross product of deltas
+            deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
+            idx_freq = [i for v, i in set(deltas)]
+            vector_freq = Counter(list(deltas))
+            minimal = all([delta_freq[k] == vector_freq[k]
+                           for k in vector_freq.keys()])
+            is_valid = all([idx_freq.count(n) < len(choices)
+                            for n in set(idx_freq)])
 
-            # if all choices are eliminated at some index, this iteration
-            # will not produce a valid vector
-            if any([idx_freq.count(n) == len(choices) for n in set(idx_freq)]):
+            # This iteration will not produce a valid vector if all choices
+            # are eliminated at some index. If will also not produce the
+            # optimal vector, if some delta is duplicated in the
+            # infinities-set but not in this vector. Discard these choices
+            # in both cases.
+            if not is_valid or not minimal:
                 continue
-
-            # TODO: if delta counts are not maximal, a more optimal
-            #  choice exists -> discard subpar choice vectors
 
             # initialize a vector with all allowed choices
             vector = [set(choices[:]) for _ in range(index)]
 
             # iterate the infinity deltas to remove them from the vector
-            for choice, idx in deltas:
+            for choice, idx in set(deltas):
                 if choice in vector[idx]:
                     vector[idx].remove(choice)
 
