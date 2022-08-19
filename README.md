@@ -30,7 +30,7 @@ Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a d
 
 Install the latest release from PyPI
 
-```bash
+```
 pip install pymwp
 ```
 
@@ -38,14 +38,14 @@ pip install pymwp
 
 To analyze a C file, run:
 
-```bash
+```
 pymwp path/to_some_file.c
 ```
 
 For all available options and help, run:
 
-```bash
-pymwp
+```
+pymwp --help
 ```
 
 
