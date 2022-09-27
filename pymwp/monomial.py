@@ -1,10 +1,13 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from .constants import SetInclusion
 from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp, sum_mwp
+
+DELTA = Tuple[int, int]
+"""delta type is tuple of two int values."""
 
 
 class Monomial:
@@ -27,7 +30,8 @@ class Monomial:
     """
 
     def __init__(self, scalar: str = UNIT_MWP,
-                 deltas: Optional[List[Tuple[int, int]]] = None):
+                 deltas: Optional[Union[List[DELTA], DELTA]] = None,
+                 *args: Optional[DELTA]):
         """Create a monomial.
 
         Example:
@@ -48,19 +52,23 @@ class Monomial:
         Create monomial with scalar $w$ and two deltas
 
         ```python
-        mono = Monomial('w', [(0, 0), (1, 1)]
+        mono = Monomial('w', (0, 0), (1, 1))
         ```
 
         Arguments:
             scalar: monomial scalar
-            deltas: list of deltas
+            deltas: list of deltas - either a syntactic list,
+              or sequence of tuples that represent deltas.
         """
-
         self.deltas = []
         self.scalar = scalar
 
-        if deltas:
-            Monomial.insert_deltas(self, deltas)
+        if deltas is not None:
+            if isinstance(deltas, list):
+                Monomial.insert_deltas(self, deltas)
+            if isinstance(deltas, tuple):
+                delta_list = [deltas] + list(args if args else None)
+                Monomial.insert_deltas(self, delta_list)
 
     def __str__(self) -> str:
         deltas = [".delta({0},{1})".format(*delta)
@@ -74,7 +82,6 @@ class Monomial:
         """check if all deltas of m are in deltas of self
 
         Arguments:
-            self: this monomial
             m: a monomial to search for intersection
 
         Returns:
@@ -90,13 +97,12 @@ class Monomial:
         """gives info about inclusion of self monomial with monomial
 
         Arguments:
-            self: this monomial
             monomial: a monomial to see inclusion
 
         Returns:
             CONTAINS if self contains monomial
-            INCLUDED if self is included in monomial
-            EMPTY none of them
+            INCLUDED if self is included in monomial
+            EMPTY none of them
         """
         # self contains monomial ?
         contains: bool = self.contains(monomial)
@@ -168,7 +174,7 @@ class Monomial:
         }
 
     @staticmethod
-    def insert_deltas(monomial: Monomial, deltas: List[tuple]) -> None:
+    def insert_deltas(monomial: Monomial, deltas: List[DELTA]) -> None:
         """Insert new deltas into monomial list of deltas.
 
         Arguments:
@@ -192,7 +198,7 @@ class Monomial:
                 break
 
     @staticmethod
-    def insert_delta(sorted_deltas: List[tuple], delta: tuple) -> List[tuple]:
+    def insert_delta(sorted_deltas: List[DELTA], delta: DELTA) -> List[DELTA]:
         """
         Takes as input a _sorted_ list of deltas and a delta.
 
