@@ -67,7 +67,7 @@ class Monomial:
             if isinstance(deltas, list):
                 Monomial.insert_deltas(self, deltas)
             if isinstance(deltas, tuple):
-                delta_list = [deltas] + list(args if args else None)
+                delta_list = [deltas] + list(args if args else [])
                 Monomial.insert_deltas(self, delta_list)
 
     def __str__(self) -> str:

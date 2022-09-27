@@ -31,7 +31,10 @@ class Polynomial:
     iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
     """
 
-    def __init__(self, monomials: Optional[Union[str, List[Monomial]]] = None):
+    def __init__(
+            self,
+            monomials: Optional[Union[str, List[Monomial], Monomial]] = None,
+            *args: Optional[Monomial]):
         """Create a polynomial.
 
         Example:
@@ -47,13 +50,13 @@ class Polynomial:
         ```python
         poly = Polynomial('w')               # shorthand
 
-        poly = Polynomial([Monomial('w')])   # longer, equivalent
+        poly = Polynomial(Monomial('w'))     # longer, equivalent
         ```
 
         Create polynomial with two monomials and deltas
 
         ```python
-        poly = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
+        poly = Polynomial(Monomial('m', (0, 1)), Monomial('w', (1, 1)))
         ```
 
         Arguments:
@@ -61,6 +64,8 @@ class Polynomial:
         """
         if monomials is not None and isinstance(monomials, str):
             self.list = [Monomial(monomials)]
+        elif monomials is not None and isinstance(monomials, Monomial):
+            self.list = [monomials] + list(args if args else [])
         else:
             self.list = monomials or [Monomial(ZERO_MWP)]
 
