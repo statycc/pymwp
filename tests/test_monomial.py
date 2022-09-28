@@ -23,6 +23,13 @@ def test_create_monomial_with_invalid_deltas():
     assert mono.deltas == []
 
 
+def test_monomial_decl_equivalence():
+    mono1 = Monomial('m', [(0, 0), (2, 1), (1, 2)])
+    mono2 = Monomial('m', (0, 0), (2, 1), (1, 2))
+    assert mono1.scalar == mono2.scalar
+    assert mono1.deltas == mono2.deltas
+
+
 def test_monomial_product_non_empty():
     a = Monomial('m', [(0, 0)])
     b = Monomial('m', [(0, 0), (1, 1)])

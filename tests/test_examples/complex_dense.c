@@ -1,11 +1,5 @@
 /* This example produces a dense matrix
- * with 43,046,721 different assignments.
- * It is recommended to analyze it with the 
- * --no-eval flag.
- * It takes ~40 s. to analyze this program
- * without computing the evaluations, 
- * but ~2 days if the evaluations are computed.
- */
+ * with 43,046,721 different assignments. */
 
 int foo(int X0, int X1, int X2, int X3, int X4){
     if (X0) {

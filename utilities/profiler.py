@@ -124,7 +124,7 @@ class Profiler:
         return ' '.join([
             'python3 -m cProfile',
             f'-o {file_out}',
-            '-m pymwp --no-save --silent',
+            '-m pymwp --no_save --silent',
             file_in
         ])
 
@@ -222,14 +222,14 @@ def _args(parser, args=None):
         '--in',
         action='store',
         dest="in_",
-        default='c_files',
+        default=join(cwd, 'c_files'),
         help='directory path to C-files (default: c_files)',
     )
     parser.add_argument(
         "--out",
         action="store",
-        default=join(cwd, 'profile'),
-        help="directory path for storing results (default: profile)",
+        default=join(cwd, 'output', 'profile'),
+        help="directory path for storing results (default: output/profile)",
     )
     parser.add_argument(
         "--sort",

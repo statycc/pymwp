@@ -12,6 +12,34 @@ def test_polynomial_copy():
     assert poly_copy is not p  # different reference
 
 
+def test_poly_decl_equivalence():
+    """
+    Both syntax define the same polynomial; the list
+    brackets are superfluous.
+    """
+    p1 = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    p2 = Polynomial(Monomial('m', (0, 0), (1, 1)))
+
+    assert len(p1.list) == len(p2.list) == 1
+    assert len(p1.list[0].scalar) == len(p2.list[0].scalar)
+    assert len(p1.list[0].deltas) == len(p2.list[0].deltas)
+
+
+def test_poly_decl_equivalence_multi():
+    """Both syntax define the same polynomial; many monomials."""
+    p1 = Polynomial([
+        Monomial('i', [(0, 0), (1, 1)]), Monomial('i'),
+        Monomial('w', [(1, 0), (2, 1), (0, 2)])
+    ])
+    p2 = Polynomial(Monomial('i', (0, 0), (1, 1)), Monomial('i'),
+                    Monomial('w', (1, 0), (2, 1), (0, 2)))
+
+    assert len(p1.list) == len(p2.list) == 3
+    for i in range(len(p1.list)):
+        assert len(p1.list[i].scalar) == len(p2.list[i].scalar)
+        assert len(p1.list[i].deltas) == len(p2.list[i].deltas)
+
+
 def test_polynomial_times_empty():
     """Multiplying two polynomials where one is 0-monomial, results in 0."""
     z = Polynomial(ZERO_MWP)
@@ -74,13 +102,14 @@ def test_polynomial_times_by_non_empty():
 
     assert (p1 * p2) == expected
 
+
 def test_polynomial_times_by_non_empty2():
     mono1 = Monomial('m', [(2, 2)])
     mono12 = Monomial('m', [(1, 1)])
     mono2 = Monomial('m', [(0, 0)])
     mono22 = Monomial('m', [(3, 3)])
-    m = Polynomial([mono1,mono12])
-    p = Polynomial([mono2,mono22])
+    m = Polynomial([mono1, mono12])
+    p = Polynomial([mono2, mono22])
     c = p * m
     expected = Polynomial([
         Monomial('m', [(0, 0), (1, 1)]),
@@ -95,6 +124,7 @@ def test_polynomial_times_by_non_empty2():
         print("prod:")
         print(c)
         raise
+
 
 def test_polynomial_equals_empty_are_equal():
     """Two default polynomials are equal."""

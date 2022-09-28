@@ -1,5 +1,6 @@
 # noinspection DuplicatedCode
 import logging
+import time
 from typing import List, Tuple, Optional, Union, Dict
 
 from .file_io import save_relation
@@ -31,8 +32,8 @@ class Analysis:
               - list of non-infinity choices
               - infinite/not infinite (boolean flag)
         """
-
         logger.debug("starting analysis")
+        start_time = time.time_ns()
         single_function = len(ast.ext) == 1
         result, function_name = {}, ''
         functions = [f for f in ast if pr.is_func(f)]
@@ -90,6 +91,11 @@ class Analysis:
         # save result to file unless explicitly disabled
         if not no_save:
             save_relation(file_out, result)
+
+        end_time = time.time_ns()
+        dur_s = round((end_time - start_time) / 1e9, 1)
+        dur_ms = int((end_time - start_time) / 1e6)
+        logger.info(f'Total time: {dur_s} s ({dur_ms} ms)')
 
         # return results to caller
         return result[function_name] if single_function else result
