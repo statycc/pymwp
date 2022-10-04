@@ -7,6 +7,7 @@ from .file_io import save_relation
 # noinspection PyPep8Naming
 from .parser import Parser as pr
 from pymwp import DeltaGraph, Monomial, Polynomial, Relation, RelationList
+from pymwp.choice import CHOICES
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ class Analysis:
 
     @staticmethod
     def run(ast: pr.AST, **kwargs) \
-            -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
+            -> Union[Dict, Tuple[Relation, CHOICES, bool]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
