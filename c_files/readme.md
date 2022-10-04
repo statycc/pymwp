@@ -66,6 +66,7 @@
 | `explosion.c` | Explosion of the number of cases |
 | `for_loop.c` | Loop example using `for` |
 | `gcd.c` | Greatest common divisor by subtraction |
+| `long.c`             | Longer program with multiple loops and nested statements |
 | `simplified_dense.c` | Simplified dense matrix |
 
 <!--end-->
