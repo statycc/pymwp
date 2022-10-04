@@ -5,8 +5,7 @@ import platform
 import jsons as jsons
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
-from pymwp import __version__
-from pymwp.file_io import parse
+from pymwp import __version__, Parser
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
@@ -28,7 +27,8 @@ def analyze_v2(category, filename):
     """Run analysis on specified example."""
     if not os.path.isdir(os.path.join(examples_directory, category)):
         return 'invalid example category!', 500
-    if not os.path.isfile(os.path.join(examples_directory, category, filename)):
+    if not os.path.isfile(
+            os.path.join(examples_directory, category, filename)):
         return 'example does not exits!', 500
 
     sample = os.path.join(category, filename)
@@ -40,7 +40,8 @@ def analyze_v2(category, filename):
 
     try:
         result['program'] = file_text(file) or ""
-        ast = parse(file, cpp_path=pre_parser)
+        parser_kwargs = {'use_cpp': True, 'cpp_path': pre_parser}
+        ast = Parser.parse(file, None, **(parser_kwargs or {}))
         result['result'] = Analysis.run(ast, no_save=True)
     except:
         type_, value, tb = sys.exc_info()

@@ -2,13 +2,10 @@ name: Deploy demo
 
 # Demo server us deployed automatically:
 # - on direct pushes to this branch
-# - on new releases in this repository
 
 on:
   push:
     branches: [ demo ]
-  release:
-    types: [ created ]
 
 jobs:
   deploy-server:

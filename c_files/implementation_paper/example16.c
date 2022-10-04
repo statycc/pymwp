@@ -1,8 +1,8 @@
 /*
  * This example is a part of a collection:
  *
- * (1) example15_a.c - calls function f from foo
- * (2) example15_b.c - f is inlined within foo
+ * (1) example14.c - calls function f from foo
+ * (2) example16.c - f is inlined within foo
  *
  * In this example function call is skipped by in-lining the function.
  */
