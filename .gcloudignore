@@ -1,5 +1,6 @@
 __pycache__/
 .git
+.github
 .gitignore
 .gcloudignore
 .idea/*

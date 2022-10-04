@@ -5,7 +5,8 @@ import platform
 import jsons as jsons
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
-from pymwp import __version__, Parser
+from pymwp import __version__
+from pymwp.parser import parse_file
 from pymwp.analysis import Analysis
 
 app = Flask(__name__)
@@ -40,8 +41,8 @@ def analyze_v2(category, filename):
 
     try:
         result['program'] = file_text(file) or ""
-        parser_kwargs = {'use_cpp': True, 'cpp_path': pre_parser}
-        ast = Parser.parse(file, None, **(parser_kwargs or {}))
+        ast = parse_file(file, use_cpp=True, cpp_path=pre_parser,
+                         cpp_args='-E')
         result['result'] = Analysis.run(ast, no_save=True)
     except:
         type_, value, tb = sys.exc_info()
