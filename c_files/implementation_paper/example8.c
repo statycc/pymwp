@@ -1,5 +1,5 @@
 /* 
- * This example is inspired from Example 7.
+ * Example 8.
  */
 
 int foo(int X1, int X2, int X3){

@@ -67,7 +67,7 @@ def test_ast_structure_infty8c():
 
 
 def test_ast_structure_func_call():
-    ast = Parser.parse('c_files/implementation_paper/example15_a.c',
+    ast = Parser.parse('c_files/implementation_paper/example14.c',
                        **PARSER_KWARGS)
 
     assert str(ast) == str(FUNCTION_CALL)
