@@ -30,6 +30,7 @@ class Analysis:
         file_out: str = kwargs['file_out'] if 'file_out' in kwargs else None
         save: bool = 'no_save' not in kwargs or kwargs['no_save'] is False
         stop_early: bool = 'fin' not in kwargs or kwargs['fin'] is False
+        skip_eval: bool = 'no_eval' in kwargs and kwargs['no_eval'] is True
 
         logger.debug("starting analysis")
         start_time = time.time_ns()
@@ -65,7 +66,7 @@ class Analysis:
                 relations.composition(rel_list)
 
             # evaluate unless not enforcing finish and delta-infty
-            if not (stop_early and delta_infty):
+            if not skip_eval and not delta_infty:
                 combinations = relations.first.eval(choices, index)
                 evaluated = True
 
@@ -78,14 +79,17 @@ class Analysis:
             if infinite and stop_early:
                 result[function_name] = None, None, True
                 logger.info(f'RESULT: {function_name} is infinite')
-            elif infinite and not stop_early:
-                result[function_name] = relations.first, combinations, True
+            elif infinite:
+                result[function_name] = relations.first, [], True
                 logger.info(f'\nMATRIX{relations}')
                 logger.info(f'RESULT: {function_name} is infinite')
             else:
                 result[function_name] = relations.first, combinations, False
                 logger.info(f'\nMATRIX{relations}')
-                logger.info(f'CHOICES: {combinations.valid}')
+                if not evaluated:
+                    logger.info('Skipped evaluation')
+                else:
+                    logger.info(f'CHOICES: {combinations.valid}')
 
         # save result to file unless explicitly disabled
         if save:

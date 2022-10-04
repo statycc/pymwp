@@ -54,6 +54,7 @@ def main():
         ast=ast,
         file_out=args.out or default_file_out(args.input_file),
         no_save=args.no_save,
+        no_eval=args.no_eval,
         fin=args.fin
     )
 
@@ -101,6 +102,16 @@ def __parse_args(
         help="do not write analysis result to a file"
     )
     parser.add_argument(
+        "--no_eval",
+        action='store_true',
+        help="skip evaluation"
+    )
+    parser.add_argument(
+        "--fin",
+        action='store_true',
+        help="ensure completion even on failure"
+    )
+    parser.add_argument(
         "--logfile",
         action="store",
         help="write console output to a file",
@@ -109,11 +120,6 @@ def __parse_args(
         '-s', "--silent",
         action='store_true',
         help="disable console output"
-    )
-    parser.add_argument(
-        "--fin",
-        action='store_true',
-        help="ensure completion even on failure"
     )
     parser.add_argument(
         "--version",
