@@ -1,10 +1,9 @@
 import setuptools
-from setuptools import find_packages
 
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __desc__ = "Implementation of MWP analysis on C code in Python."
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
@@ -14,8 +13,7 @@ setuptools.setup(
     version=__version__,
     author=__author__,
     author_email='nrusch@augusta.edu',
-    package_dir={'': "pymwp"},
-    packages=find_packages('pymwp'),
+    packages=['pymwp'],
     entry_points={'console_scripts': ['pymwp = pymwp.__main__:main'], },
     description=__desc__,
     long_description=long_description,
