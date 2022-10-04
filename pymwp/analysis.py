@@ -15,23 +15,23 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(
-            ast: pr.AST, file_out: str = None,
-            no_save: bool = False, no_eval: bool = False
-    ) -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
+    def run(ast: pr.AST, **kwargs) \
+            -> Union[Dict, Tuple[Relation, List[List[int]], bool]]:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
-            file_out: where to store result
-            no_save: Set true when analysis result should not be saved to file
-            no_eval: Skip evaluation phase
 
         Returns:
               - Computed relation,
               - list of non-infinity choices
               - infinite/not infinite (boolean flag)
         """
+        file_out: str = kwargs['file_out'] if 'file_out' in kwargs else None
+        save: bool = 'no_save' not in kwargs or kwargs['no_save'] is False
+        stop_early: bool = 'fin' not in kwargs or kwargs['fin'] is False
+        skip_eval: bool = 'no_eval' in kwargs and kwargs['no_eval'] is True
+
         logger.debug("starting analysis")
         start_time = time.time_ns()
         single_function = len(ast.ext) == 1
@@ -60,14 +60,13 @@ class Analysis:
                 logger.debug(f'computing relation...{i} of {total}')
                 index, rel_list, delta_infty = Analysis \
                     .compute_relation(index, node, dg)
-                if delta_infty:
+                if stop_early and delta_infty:
                     break
                 logger.debug(f'computing composition...{i} of {total}')
                 relations.composition(rel_list)
 
-            # skip evaluation when delta graph has detected infinity
-            # or caller has manually disabled evaluation
-            if not delta_infty and not no_eval:
+            # evaluate unless not enforcing finish and delta-infty
+            if not skip_eval and not delta_infty:
                 combinations = relations.first.eval(choices, index)
                 evaluated = True
 
@@ -77,8 +76,12 @@ class Analysis:
                     evaluated and not combinations.valid)
 
             # record and display results
-            if infinite:
+            if infinite and stop_early:
                 result[function_name] = None, None, True
+                logger.info(f'RESULT: {function_name} is infinite')
+            elif infinite:
+                result[function_name] = relations.first, [], True
+                logger.info(f'\nMATRIX{relations}')
                 logger.info(f'RESULT: {function_name} is infinite')
             else:
                 result[function_name] = relations.first, combinations, False
@@ -89,7 +92,7 @@ class Analysis:
                     logger.info(f'CHOICES: {combinations.valid}')
 
         # save result to file unless explicitly disabled
-        if not no_save:
+        if save:
             save_relation(file_out, result)
 
         end_time = time.time_ns()
@@ -401,9 +404,7 @@ class Analysis:
         exit_ = False
         if 0 in dg.graph_dict:
             if dg.graph_dict[0] == {(): {}}:
-                logger.info(f'delta graph:\n{dg}')
-                logger.info('delta_graphs: infinite')
-                logger.info('Exit now !')
+                logger.info('delta_graphs: infinite -> Exit now')
                 exit_ = True
 
         return index, relations, exit_

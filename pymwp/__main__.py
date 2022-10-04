@@ -23,13 +23,13 @@ import logging
 import sys
 from typing import List, Optional
 
-from pymwp import Parser, Analysis, __version__
+from pymwp import Parser, Analysis, __version__, __title__ as pympw
 from .file_io import default_file_out
 
 
 def main():
     """Implementation of MWP analysis on C code in Python."""
-    parser = argparse.ArgumentParser(prog='pymwp', description=main.__doc__)
+    parser = argparse.ArgumentParser(prog=pympw, description=main.__doc__)
     args = __parse_args(parser)
 
     if not args.input_file:
@@ -50,10 +50,13 @@ def main():
     ast = Parser.parse(args.input_file, c_headers, **(parser_kwargs or {}))
 
     # run analysis
-    Analysis.run(ast,
-                 file_out=args.out or default_file_out(args.input_file),
-                 no_save=args.no_save,
-                 no_eval=args.no_eval)
+    Analysis.run(
+        ast=ast,
+        file_out=args.out or default_file_out(args.input_file),
+        no_save=args.no_save,
+        no_eval=args.no_eval,
+        fin=args.fin
+    )
 
 
 def __parse_args(
@@ -72,26 +75,21 @@ def __parse_args(
         help="file where to store analysis result",
     )
     parser.add_argument(
-        "--logfile",
-        action="store",
-        help="write debugging info to file",
-    )
-    parser.add_argument(
         '--cpp_path',
         action='store',
         default='gcc',
-        help='path to C pre-processor (default: gcc)',
+        help='C pre-processor [default: gcc]',
     )
     parser.add_argument(
         '--cpp_args',
         action='store',
         default='-E',
-        help='arguments to C pre-processor (default: -E)',
+        help='C pre-processor arguments [default: -E]',
     )
     parser.add_argument(
         "--headers",
         action="store",
-        help="C header directory paths, separate by comma",
+        help="C headers dir paths, separate by comma",
     )
     parser.add_argument(
         "--no_cpp",
@@ -99,19 +97,29 @@ def __parse_args(
         help="disable C pre-processor"
     )
     parser.add_argument(
-        "--no_eval",
-        action="store_true",
-        help="skip evaluation (iff bound exist)",
-    )
-    parser.add_argument(
         "--no_save",
         action='store_true',
-        help="do not write result to a file"
+        help="do not write analysis result to a file"
+    )
+    parser.add_argument(
+        "--no_eval",
+        action='store_true',
+        help="skip evaluation"
+    )
+    parser.add_argument(
+        "--fin",
+        action='store_true',
+        help="ensure completion even on failure"
+    )
+    parser.add_argument(
+        "--logfile",
+        action="store",
+        help="write console output to a file",
     )
     parser.add_argument(
         '-s', "--silent",
         action='store_true',
-        help="disable debug logging"
+        help="disable console output"
     )
     parser.add_argument(
         "--version",
@@ -135,7 +143,7 @@ def __setup_logger(
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
 
-    logger = logging.getLogger("pymwp")
+    logger = logging.getLogger(pympw)
     logger.setLevel(level)
 
     stream_handler = logging.StreamHandler()
