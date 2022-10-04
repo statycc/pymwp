@@ -1,21 +1,21 @@
 import setuptools
-import os
+from setuptools import find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
+__title__ = "pymwp"
+__author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
+__desc__ = "Implementation of MWP analysis on C code in Python."
+__version__ = "0.2.0"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
-with open(os.path.join(here, "pymwp", "__init__.py")) as fh:
-    exec(fh.read())
-
-# noinspection PyUnresolvedReferences
 setuptools.setup(
     name=__title__,
     version=__version__,
     author=__author__,
     author_email='nrusch@augusta.edu',
-    packages=['pymwp'],
+    package_dir={'': "pymwp"},
+    packages=find_packages('pymwp'),
     entry_points={'console_scripts': ['pymwp = pymwp.__main__:main'], },
     description=__desc__,
     long_description=long_description,

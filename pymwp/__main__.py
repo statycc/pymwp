@@ -23,13 +23,13 @@ import logging
 import sys
 from typing import List, Optional
 
-from pymwp import Parser, Analysis, __version__, __title__ as pympw
+from pymwp import Parser, Analysis, __version__, __title__ as pymwp
 from .file_io import default_file_out
 
 
 def main():
     """Implementation of MWP analysis on C code in Python."""
-    parser = argparse.ArgumentParser(prog=pympw, description=main.__doc__)
+    parser = argparse.ArgumentParser(prog=pymwp, description=main.__doc__)
     args = __parse_args(parser)
 
     if not args.input_file:
@@ -143,7 +143,7 @@ def __setup_logger(
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
 
-    logger = logging.getLogger(pympw)
+    logger = logging.getLogger(pymwp)
     logger.setLevel(level)
 
     stream_handler = logging.StreamHandler()
