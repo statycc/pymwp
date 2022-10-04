@@ -284,7 +284,7 @@ PARAMS = FileAST(ext=[FuncDef(
         block_items=[
             Assignment(op='=', lvalue=ID(name='x1'), rvalue=ID(name='x2'))]))])
 
-# c_files/implementation_paper/example15_a.c
+# c_files/implementation_paper/example14.c
 FUNCTION_CALL = FileAST(ext=[FuncDef(
     decl=Decl(name='f', quals=[], align=[], storage=[], funcspec=[],
               type=FuncDecl(args=ParamList(params=[
