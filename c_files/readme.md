@@ -16,7 +16,7 @@
 
 |||
 | --- | --- |
-| **Implementation Paper** | Examples from "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity" paper. | 
+| **Implementation Paper** | Examples from ["mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity"](https://drops.dagstuhl.de/opus/volltexte/2022/16307/pdf/LIPIcs-FSCD-2022-26.pdf) paper. | 
 | `example8.c`             | An illustration of the sum of two choices. |
 | `example14.c`          | Examples with function call |
 | `example16.c`          | Example of an inlined function call |
