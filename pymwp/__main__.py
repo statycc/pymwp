@@ -74,44 +74,44 @@ def __parse_args(
     parser.add_argument(
         "--logfile",
         action="store",
-        help="write analysis terminal messages to specified file",
+        help="write debugging info to file",
     )
     parser.add_argument(
         '--cpp_path',
         action='store',
         default='gcc',
-        help='path to C pre-processor on your system (default: gcc)',
+        help='path to C pre-processor (default: gcc)',
     )
     parser.add_argument(
         '--cpp_args',
         action='store',
         default='-E',
-        help='arguments to pass to C pre-processor (default: -E)',
+        help='arguments to C pre-processor (default: -E)',
     )
     parser.add_argument(
         "--headers",
         action="store",
-        help="list of C header directory paths, separate by comma",
+        help="C header directory paths, separate by comma",
     )
     parser.add_argument(
         "--no_cpp",
         action='store_true',
-        help="disable execution of C pre-processor on input file"
+        help="disable C pre-processor"
     )
     parser.add_argument(
         "--no_eval",
         action="store_true",
-        help="skip evaluation (no impact if bound does not exist)",
+        help="skip evaluation (iff bound exist)",
     )
     parser.add_argument(
         "--no_save",
         action='store_true',
-        help="do not write analysis result to a file"
+        help="do not write result to a file"
     )
     parser.add_argument(
         '-s', "--silent",
         action='store_true',
-        help="disable debug logging, only fatal errors will be displayed"
+        help="disable debug logging"
     )
     parser.add_argument(
         "--version",
