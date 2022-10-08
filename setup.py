@@ -23,7 +23,7 @@ setuptools.setup(
         'Bug Tracker': 'https://github.com/statycc/pymwp/issues',
         'Documentation': 'https://statycc.github.io/pymwp/',
     },
-    package_data={"": ["LICENSE"], },
+    package_data={"": ["LICENCE"], },
     include_package_data=True,
     classifiers=[
         'Natural Language :: English',
