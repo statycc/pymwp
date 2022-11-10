@@ -15,6 +15,7 @@ setuptools.setup(
     author_email='nrusch@augusta.edu',
     packages=['pymwp'],
     entry_points={'console_scripts': ['pymwp = pymwp.__main__:main'], },
+    license='CC BY-NC 4.0',
     description=__desc__,
     long_description=long_description,
     long_description_content_type='text/markdown',
