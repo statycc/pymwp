@@ -168,7 +168,7 @@ class Relation:
                 for mon in poly.list:
                     if mon.scalar == "p" or (mon.scalar == "w" and i == j):
                         mon.scalar = "i"
-                        dg.import_monomial(mon)
+                        dg.from_monomial(mon)
 
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
