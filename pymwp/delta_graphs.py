@@ -1,19 +1,18 @@
 from __future__ import annotations
-from typing import Optional, Tuple, Union, TypeVar
+from typing import Optional, Tuple, Union
 
 from .monomial import Monomial, DELTA
 
-D = TypeVar('D', bound=DELTA)
-NODE: Tuple[D]
-"""A graph node is a variable-length-tuple of deltas."""
+NODE = Tuple[DELTA, ...]
+"""Graph node type is a variable-length tuple of deltas."""
 
 
 class DeltaGraph:
     """
     Delta Graph is a dictionary representing a weighted graph of tuples of
-    deltas (also referenced here as a _monomial_list_, a monomial without
-    its scalar). We will often refer to tuple of deltas as simple node,
-    but a node with length!
+    deltas (also referenced here as a _monomial_list_, a
+    [`Monomials`](monomial.md) without its scalar). We will often refer to
+    tuple of deltas as simple node, but a node with length!
 
     Nodes are "sorted" by this length in order to be compared by chunks of
     same size.
@@ -27,14 +26,14 @@ class DeltaGraph:
 
     ```
                                  ↓
-        n1 = ( (0,1) , (0,2) , (0,3), (0,4) )
-        n2 = ( (0,1) , (0,2) , (1,3), (0,4) )
+    n1 = ( (0,1) , (0,2) , (0,3), (0,4) )
+    n2 = ( (0,1) , (0,2) , (1,3), (0,4) )
     ```
 
     in our graph will have:
 
     ```
-        n1 <---- 3 ----> n2
+    n1 <---- 3 ----> n2
     ```
 
     or
@@ -73,10 +72,10 @@ class DeltaGraph:
     def __init__(self, *init_nodes: Optional[Union[Monomial, NODE]]):
         """Creates a Delta Graph.
 
-        Fills a dictionary with nodes of all given monomials.
+        Fills a dictionary with nodes of all given initial nodes.
 
         Arguments:
-            init_nodes: initial list of monomials (optional)
+            init_nodes: initial list of monomials or nodes (optional)
         """
         self.graph_dict = {}
         if init_nodes:
@@ -103,11 +102,7 @@ class DeltaGraph:
         """Add an edge of label `label` between `node1` and `node2`
         If one node does not exist, it's created
 
-        Symmetry is also added in the graph
-
-        Note:
-            node2 should always exist if add_edge is always called
-            from insert_tuple
+        Symmetry is also added in the graph.
 
         Arguments:
             node1: first node
@@ -121,6 +116,8 @@ class DeltaGraph:
 
         self.graph_dict[size][node1][node2] = label
 
+        # node2 should always exist if add_edge is always called
+        # from insert_tuple
         if node2 not in self.graph_dict[size]:
             self.graph_dict[size][node2] = {}
         self.graph_dict[size][node2][node1] = label
@@ -278,11 +275,11 @@ class DeltaGraph:
         max_choices = 3
 
         # n3 -- 3 -- n4
-        #   \\       |
-        #    \\      |
+        #   \\        |
+        #    \\       |
         #     3      3
-        #      \\    |
-        #       \\   |
+        #      \\     |
+        #       \\    |
         #         n5
 
         return True
@@ -306,7 +303,7 @@ class DeltaGraph:
 
         Example:
 
-        ```
+        ```python
         m1 = ((0, 1), (0, 2))
         m2 = ((0, 1), (1, 2))
         m3 = ((0, 1), (2, 2), (0, 3))
@@ -317,13 +314,13 @@ class DeltaGraph:
         #
         #  m1 -- 2 -- m2
         #  m3 -- 3 -- m4
-        #   \\       |
-        #    \\      |
-        #     3      3
-        #      \\    |
-        #       \\   |
-        #         m5
-         ```
+        #   \\         |
+        #    \\        |
+        #     3       3
+        #      \\      |
+        #       \\     |
+        #          m5
+        ```
 
         With `max_degree=3`, looks for cliques of size 3 for each index.
         Graph will simplify to: `((0,1))`.
