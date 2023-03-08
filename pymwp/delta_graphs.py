@@ -25,7 +25,7 @@ class DeltaGraph:
     Example:
 
     ```
-                                 ↓
+                             ↓
     n1 = ( (0,1) , (0,2) , (0,3), (0,4) )
     n2 = ( (0,1) , (0,2) , (1,3), (0,4) )
     ```
@@ -52,31 +52,34 @@ class DeltaGraph:
 
     This representation will help us simplify the evaluation by
     removing redundant/irrelevant choices/paths.
-
-    **Instantiation**
-
-    Create empty delta graph
-
-    ```python
-    dg = DeltaGraph()
-    ```
-
-    Create delta graph with some initial nodes, from monomials
-
-    ```python
-    dg = DeltaGraph(mono1, mono2)
-    ```
-
     """
 
-    def __init__(self, *init_nodes: Optional[Union[Monomial, NODE]]):
+    def __init__(
+            self, *init_nodes: Optional[Union[Monomial, NODE]], degree: int = 3
+    ):
         """Creates a Delta Graph.
 
         Fills a dictionary with nodes of all given initial nodes.
 
+        Example:
+
+        Create an empty delta graph
+
+        ```python
+        dg = DeltaGraph()
+        ```
+
+        Create delta graph with some initial nodes from monomials.
+
+        ```python
+        dg = DeltaGraph(mono1, mono2)
+        ```
+
         Arguments:
-            init_nodes: initial list of monomials or nodes (optional)
+            init_nodes: initial list of monomials or nodes (optional).
+            degree: degree of a full node [default: 3].
         """
+        self.degree = degree
         self.graph_dict = {}
         if init_nodes:
             for node in init_nodes:
@@ -91,7 +94,7 @@ class DeltaGraph:
              self.graph_dict])
 
     def from_monomial(self, monomial: Monomial) -> None:
-        """Add monomial's deltas to the graph dictionary.
+        """Add monomial's deltas to the delta graph.
 
         Arguments:
             monomial: monomial
@@ -256,10 +259,7 @@ class DeltaGraph:
             i += 1
         return diff_found, index
 
-    def is_full(
-            self, node: NODE, size: int, index: int,
-            max_degree: Optional[int] = 3
-    ) -> bool:
+    def is_full(self, node: NODE, size: int, index: int) -> bool:
         """Check for cliques of same label.
 
         Example:
@@ -272,16 +272,16 @@ class DeltaGraph:
         node = n4
         size = 3
         index = 3
-        max_choices = 3
+        degree = 3
 
-        # n3 -- 3 -- n4
-        #   \\        |
-        #    \\       |
-        #     3      3
-        #      \\     |
-        #       \\    |
-        #         n5
-
+        '''
+        n3 -- 3 -- n4
+         ⟍         |
+            3      3
+              ⟍    |
+                ⟍  |
+                  n5
+        '''
         return True
         ```
 
@@ -289,16 +289,15 @@ class DeltaGraph:
             node: check for clique around that graph node
             size: size of nodes or graph "level"
             index: index where to find clique
-            max_degree: number of delta choices [default: 3]
 
         Returns:
             True if there is a clique
         """
         src = self.graph_dict[size][node]
         adjacent = sum([1 for n2 in src if src[n2] == index])
-        return adjacent == (max_degree - 1)
+        return adjacent == (self.degree - 1)
 
-    def fusion(self, max_degree: Optional[int] = 3) -> None:
+    def fusion(self) -> None:
         """Eliminates cliques of same label in a delta graph.
 
         Example:
@@ -310,23 +309,20 @@ class DeltaGraph:
         m4 = ((0, 1), (2, 2), (1, 3))
         m5 = ((0, 1), (2, 2), (2, 3))
 
-        #  delta graph:
-        #
-        #  m1 -- 2 -- m2
-        #  m3 -- 3 -- m4
-        #   \\         |
-        #    \\        |
-        #     3       3
-        #      \\      |
-        #       \\     |
-        #          m5
+        '''
+          delta graph:
+          m1 -- 2 -- m2
+          m3 -- 3 -- m4
+           ⟍         |
+              3      3
+                ⟍    |
+                  ⟍  |
+                    m5
+
+        Looks for cliques (size default 3) at each index.
+        => Graph will simplify to: ((0,1)).
+        '''
         ```
-
-        With `max_degree=3`, looks for cliques of size 3 for each index.
-        Graph will simplify to: `((0,1))`.
-
-        Arguments:
-            max_degree: size of clique to eliminate.
         """
         # Start from the longest node to the shortest
         for size in sorted(self.graph_dict, reverse=True):
@@ -335,6 +331,6 @@ class DeltaGraph:
                 for index in (list(zip(*node))[1]):
                     # Check if it's full of same index
                     if node in self.graph_dict[size] and \
-                            self.is_full(node, size, index, max_degree):
+                            self.is_full(node, size, index):
                         self.remove_node(node, index)
                         self.insert_node(DeltaGraph.remove_index(node, index))

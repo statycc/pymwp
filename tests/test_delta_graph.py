@@ -110,14 +110,25 @@ def test_diff():
     assert DeltaGraph.node_diff(m3, m5) == (False, 3)
 
 
-def test_is_full():
+def test_is_full2():
     m1 = ((0, 1), (0, 2))
     m2 = ((0, 1), (1, 2))
+    dg2 = DeltaGraph(m1, m2, degree=2)
+    dg3 = DeltaGraph(m1, m2, degree=3)
+
+    # m1 --2-- m2
+    assert dg3.is_full(m1, 2, 2) is False
+    assert dg3.is_full(m2, 2, 2) is False
+    assert dg2.is_full(m1, 2, 2) is True
+    assert dg2.is_full(m2, 2, 2) is True
+
+
+def test_is_full3():
     m3 = ((0, 1), (2, 2), (0, 3))
     m4 = ((0, 1), (2, 2), (1, 3))
     m5 = ((0, 1), (2, 2), (2, 3))
+    dg = DeltaGraph(m3, m4, m5, degree=3)
 
-    # m1 --2-- m2
     # m3 --3-- m4
     #   \       |
     #    \      |
@@ -126,15 +137,9 @@ def test_is_full():
     #       \   |
     #         m5
 
-    dg = DeltaGraph(m1, m2, m3, m4, m5)
-
-    assert dg.is_full(m3, 3, 3, 3) is True
-    assert dg.is_full(m4, 3, 3, 3) is True
-    assert dg.is_full(m5, 3, 3, 3) is True
-    assert dg.is_full(m1, 2, 2, 3) is False
-    assert dg.is_full(m2, 2, 2, 3) is False
-    assert dg.is_full(m1, 2, 2, 2) is True
-    assert dg.is_full(m2, 2, 2, 2) is True
+    assert dg.is_full(m3, 3, 3) is True
+    assert dg.is_full(m4, 3, 3) is True
+    assert dg.is_full(m5, 3, 3) is True
 
 
 def test_fusion():

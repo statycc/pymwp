@@ -16,7 +16,7 @@ nav:
 - Modules:
   - Analysis: analysis.md
   - Choice: choice.md
-  - Delta Graphs: delta_graphs.md
+  - Delta Graph: delta_graphs.md
   - File I/O: file_io.md
   - Matrix: matrix.md
   - Monomial: monomial.md

@@ -9,11 +9,11 @@ from pymwp import Choices
 Choice module calculates and generates a compact representation of analysis derivation result. 
 This section gives a high-level description of this process.
 
-| Input             | Data type   |                                                        |
-|-------------------|-------------|--------------------------------------------------------|
-| `i`               | `int`       | (index) number of assignments in analyzed function     |
-| `choices`         | `List[int]` | possible inference choices at program point            |
-| `delta_sequences` | `Set[SEQ]`  | sequences of choices leading to $\infty$ (from matrix) |
+| Input             | Data type   |                                                                             |
+|-------------------|-------------|-----------------------------------------------------------------------------|
+| `i`               | `int`       | (index) number of assignments in analyzed program function                  |
+| `choices`         | `List[int]` | possible inference choices at a program point, e.g. `[0,1,2]`               |
+| `delta_sequences` | `Set[SEQ]`  | sequences of choices leading to non-polynomial flows ($\infty$ from matrix) |
 
 **Computation Steps**
 
@@ -93,10 +93,7 @@ This section gives a high-level description of this process.
     ???+ example "Result example"
 
         ```Python
-        [
-             [[1], [1,2], [0,1,2]]   or
-             [[2], [0], [0,1,2]]     or ...
-        ]
+        [[[1], [1,2], [0,1,2]]  or  [[2], [0], [0,1,2]]  or  ... ]
         ```
 
         $[1, 2, 2]$ is valid choice, so is $[2,0,2]$ and $[1,1,0]$ ... etc.
