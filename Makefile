@@ -13,6 +13,7 @@ clean:
 	@rm -fr output/
 	@rm -fr dist/
 	@rm -fr build/
+	@rm -fr pages/
 	@rm -fr profile/
 	@rm -fr .pytest_cache/
 	@rm -fr .eggs/
