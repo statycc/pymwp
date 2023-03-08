@@ -3,7 +3,7 @@
 flake8
 pytest
 pytest-cov
-pytest-mocks
+pytest-mock
 mkdocs==1.4.2
 mkdocs-material==9.1.1
 mkdocstrings==0.20.0
