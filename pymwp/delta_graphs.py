@@ -22,6 +22,7 @@ class DeltaGraph:
 
     We use tuple because we want them to be hashable (as key in dictionary).
 
+
     Example:
 
     ```
@@ -52,12 +53,27 @@ class DeltaGraph:
 
     This representation will help us simplify the evaluation by
     removing redundant/irrelevant choices/paths.
+
+    **Instantiation**
+
+    Create empty delta graph
+
+    ```python
+    dg = DeltaGraph()
+    ```
+
+    Create delta graph with some initial nodes, from monomials
+
+    ```python
+    dg = DeltaGraph(mono1, mono2)
+    ```
+
     """
 
     def __init__(self, *init_nodes: Optional[Union[Monomial, NODE]]):
         """Creates a Delta Graph.
 
-        Fills a dictionary with monomial_list of all given monomials.
+        Fills a dictionary with nodes of all given monomials.
 
         Arguments:
             init_nodes: initial list of monomials (optional)
@@ -112,9 +128,8 @@ class DeltaGraph:
     def insert_node(self, node: NODE) -> None:
         """Insert a node into the graph.
 
-        if monomial_list is already in the graph do nothing
-        else compare it with all monomial_list of same size with
-        mono_diff
+        If a node is already in the graph do nothing else compare it with all
+        nodes of same size with mono_diff
 
         <!--
         Note:
@@ -159,7 +174,7 @@ class DeltaGraph:
         ```
 
         Arguments:
-            node: monomial_list
+            node: monomial list
             index: index to remove
 
         Returns:
@@ -205,8 +220,8 @@ class DeltaGraph:
         of the corresponding delta.
 
         Arguments:
-            node1: first monomial_list
-            node2: second monomial_list
+            node1: first monomial list
+            node2: second monomial list
             index: index with to check number of diff
 
         Returns:
