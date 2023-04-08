@@ -25,6 +25,4 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Run tests
-        run: |
-          python3 -m pip install -q -r requirements-dev.txt
-          make test-only
+        run: make test

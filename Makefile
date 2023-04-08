@@ -36,7 +36,7 @@ profile: dev-env cprofile
 dev-env:
 	@test -d venv || python3 -m venv venv;
 	@source venv/bin/activate;
-	@pip3 install -q -r requirements-dev.txt
+	@pip3 install -q -r requirements-test.txt
 
 test-only:
 	pytest --cov=./pymwp tests

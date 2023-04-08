@@ -1,9 +1,5 @@
--r requirements.txt
+-r requirements-test.txt
 
-flake8
-pytest
-pytest-cov
-pytest-mock
 mkdocs-material==9.1.6
 mkdocstrings==0.21.2
 mkdocstrings-python==0.9.0
