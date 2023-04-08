@@ -57,4 +57,5 @@ compute-ast:
 	&& python3 ast.py ../c_files/infinite/infinite_8.c  ../tests/mocks \
 	&& python3 ast.py ../c_files/implementation_paper/example14.c  ../tests/mocks \
 	&& python3 ast.py ../c_files/not_infinite/notinfinite_2.c  ../tests/mocks \
+	&& python3 ast.py ../c_files/not_infinite/notinfinite_3.c  ../tests/mocks \
 	&& cd ..

@@ -1,8 +1,8 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
-    INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, BRACES_ISSUES, PARAMS, FUNCTION_CALL, INFINITE_8C, \
-    EMPTY
+    INFINITE_2C, INFINITE_8C, NOT_INFINITE_2C, NOT_INFINITE_3C, \
+    IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED, BRACES_ISSUES, \
+    PARAMS, FUNCTION_CALL, EMPTY
 
 
 def test_analyze_infinite2():
@@ -12,6 +12,12 @@ def test_analyze_infinite2():
     assert infty  # result should be infinite
     assert combinations is None  # no combinations since it is infinite
     assert relation is None  # no relation since infinite
+
+
+def test_analyze_infinite_8():
+    """Check analysis result for infinite/infinite_8.c"""
+    _, _, infty = Analysis.run(INFINITE_8C, no_save=True)
+    assert infty
 
 
 def test_analyze_non_infinite_2():
@@ -38,10 +44,19 @@ def test_analyze_non_infinite_2():
     assert str(relation.matrix[0][0].list[2]) == 'w.delta(2,0)'
 
 
-def test_analyze_infinite_8():
-    """Check analysis result for infinite/infinite_8.c"""
-    _, _, infty = Analysis.run(INFINITE_8C, no_save=True)
-    assert infty
+def test_analyze_non_infinite_3():
+    """Check analysis result for not_infinite/notinfinite_3.c"""
+    _, combinations, infty = Analysis.run(NOT_INFINITE_3C, no_save=True)
+
+    assert not infty
+    assert len(combinations.valid) == 1
+    assert combinations.valid[0] == [[0, 1, 2], [0, 1, 2], [2]]
+
+
+def test_analyze_infinite_to_completion():
+    """Check analysis completion for infinite program"""
+    matrix, _, _ = Analysis.run(INFINITE_2C, no_save=True, fin=True)
+    assert matrix
 
 
 def test_analyze_if_braces_do_not_matter():

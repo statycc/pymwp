@@ -78,8 +78,6 @@ class Analysis:
             else:
                 outcome += (relations.first, combinations, False)
             result__.add_relation(*outcome)
-            if not infinite and not evaluated:
-                logger.info('Skipped evaluation')
 
         result__.on_end()
         result__.log_result()
@@ -381,7 +379,6 @@ class Analysis:
         logger.debug('while loop fixpoint')
         relations.fixpoint()
         relations.while_correction(dg)
-
         dg.fusion()
 
         exit_ = False
