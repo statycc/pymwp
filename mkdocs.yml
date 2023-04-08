@@ -28,7 +28,7 @@ nav:
 - Utilities: utilities.md
 - Source Code: https://github.com/statycc/pymwp
 - Release History: https://github.com/statycc/pymwp/releases
-- License: https://github.com/statycc/pymwp/blob/master/LICENCE.md
+- License: https://github.com/statycc/pymwp/blob/master/LICENSE
 
 theme:
   name: material

@@ -3,7 +3,7 @@ import setuptools
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __desc__ = "Implementation of MWP analysis on C code in Python."
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
@@ -15,7 +15,7 @@ setuptools.setup(
     author_email='nrusch@augusta.edu',
     packages=['pymwp'],
     entry_points={'console_scripts': ['pymwp = pymwp.__main__:main'], },
-    license='CC BY-NC 4.0',
+    license='GPLv3',
     description=__desc__,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -24,7 +24,7 @@ setuptools.setup(
         'Bug Tracker': 'https://github.com/statycc/pymwp/issues',
         'Documentation': 'https://statycc.github.io/pymwp/',
     },
-    package_data={"": ["LICENCE"], },
+    package_data={"": ["LICENSE"], },
     include_package_data=True,
     classifiers=[
         'Natural Language :: English',
