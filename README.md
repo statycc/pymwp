@@ -13,16 +13,18 @@
 
 <!--desc-start-->
 
-pymwp is a tool for automatically performing static analysis on programs written in C, inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
+pymwp is a tool for automatically performing static analysis on programs written in C.
+It is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
 It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
-You can run our [many examples](https://statycc.github.io/pymwp/examples/) on-line [in our demo](https://statycc.github.io/pymwp/demo/) before [installing it](https://statycc.github.io/pymwp/), consult our list of [supported C language features](https://statycc.github.io/pymwp/features/),
-or review latest [profiling results](https://github.com/statycc/pymwp/releases/tag/profile-latest) for interesting metrics. 
+Try our online [demo](https://statycc.github.io/pymwp/demo/) to see it action.
+For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
+See latest [profiling results](https://github.com/statycc/pymwp/releases/tag/profile-latest) for interesting performance metrics. 
 
 <!--desc-end--> 
 
 ## Documentation and Demo
 
-Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a documentation of our modules, an [on-line demo](https://statycc.github.io/pymwp/demo/) as well as a presentation of [our examples](https://statycc.github.io/pymwp/examples/).
+Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a documentation, an [online demo](https://statycc.github.io/pymwp/demo/), and a presentation of [examples](https://statycc.github.io/pymwp/examples/).
 
 <!--include-start-->
 
@@ -49,7 +51,7 @@ pymwp --help
 ```
 
 
-You can also use pymwp in a Python script:
+You can also use pymwp by importing it in a Python script:
 
 ```python
 from pymwp import Polynomial

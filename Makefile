@@ -2,8 +2,6 @@ SHELL := /bin/bash
 
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts"
-	@echo "clean-build - remove build artifacts"
-	@echo "clean-pyc - remove Python file artifacts"
 	@echo "pre-commit - run unit tests and linter"
 	@echo "profile - run cProfile on all examples"
 	@echo "test - run unit tests only"
@@ -17,9 +15,9 @@ clean:
 	@rm -fr profile/
 	@rm -fr .pytest_cache/
 	@rm -fr .eggs/
+	@rm -fr .coverage
 	@find . -name '*.egg-info' -exec rm -fr {} +
 	@find . -name '*.egg' -exec rm -f {} +
-	@rm -fr .coverage
 	@find . -name '*.pyc' -exec rm -f {} +
 	@find . -name '*.pyo' -exec rm -f {} +
 	@find . -name '*~' -exec rm -f {} +
