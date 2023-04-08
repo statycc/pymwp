@@ -340,7 +340,7 @@ class Relation:
         return Relation(extended_vars, matrix1), Relation(extended_vars,
                                                           matrix2)
 
-    def eval(self, choices: List[int], index: int):
+    def eval(self, choices: List[int], index: int) -> Choices:
         """Eval experiment: returns a choice object."""
 
         infinity_deltas = set()

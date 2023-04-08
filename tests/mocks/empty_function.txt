@@ -1,0 +1,1 @@
+FileAST(ext=[FuncDef(decl=Decl(name='foo', quals=[ ], align=[ ], storage=[ ], funcspec=[ ], type=FuncDecl(args=None, type=TypeDecl(declname='foo', quals=[ ], align=None, type=IdentifierType(names=['int' ] ) ) ), init=None, bitsize=None ), param_decls=None, body=Compound(block_items=None ) ) ] )

@@ -1,7 +1,7 @@
 import os
 import json
 
-from pymwp.file_io import default_file_out, save_relation, load_relation
+from pymwp.file_io import default_file_out, save_relation, load_relation, loc
 from pymwp import Relation, Choices
 
 
@@ -71,3 +71,13 @@ def test_load_relation(mocker):
     assert first_poly.scalar == "m"
     assert first_poly.deltas == [(0, 0)]
     assert not infinity
+
+
+def test_read_loc(mocker):
+    """Returns expected number of lines"""
+    mocker.patch('builtins.open',
+                 new_callable=mocker.mock_open,
+                 read_data="1\n2\n3\n4")
+    result = loc("some_file.c")
+
+    assert result == 4

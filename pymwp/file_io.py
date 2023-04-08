@@ -11,6 +11,12 @@ logger = logging.getLogger(__name__)
 RESULT_TYPE = Tuple[Optional[Relation], Optional[Choices], bool]
 
 
+def loc(input_file: str) -> int:
+    """Get number of lines is a file"""
+    with open(input_file, 'r') as fp:
+        return len(fp.readlines())
+
+
 def default_file_out(input_file: str) -> str:
     """Generates default output file.
 
@@ -52,7 +58,6 @@ def save_relation(
 
     for function_name, result in analysis_result.items():
         relation, choices, infinity = result
-
         file_content[function_name] = {
             "relation": relation.to_dict() if relation else None,
             "choices": choices.valid if choices else None,

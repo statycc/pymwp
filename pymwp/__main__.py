@@ -23,8 +23,8 @@ import logging
 import sys
 from typing import List, Optional
 
-from pymwp import Parser, Analysis, __version__, __title__ as pymwp
-from .file_io import default_file_out
+from pymwp import Parser, Result, Analysis, __version__, __title__ as pymwp
+from .file_io import default_file_out, loc
 
 
 def main():
@@ -40,18 +40,24 @@ def main():
     log_level = logging.FATAL - (0 if args.silent else 40)
     __setup_logger(log_level, args.logfile)
 
+    # capture results
+    result = Result()
+
     # get parser args then get AST
     parser_kwargs = {'use_cpp': not args.no_cpp}
-    # these options only apply when use_cpp is set to True
+    # these options apply only when use_cpp is True
     if not args.no_cpp:
         parser_kwargs['cpp_path'] = args.cpp_path
         parser_kwargs['cpp_args'] = args.cpp_args
     c_headers = args.headers.split(',') if args.headers else None
     ast = Parser.parse(args.input_file, c_headers, **(parser_kwargs or {}))
+    result.program.program_path = args.input_file
+    result.program.n_lines = loc(args.input_file)
 
     # run analysis
     Analysis.run(
         ast=ast,
+        result=result,
         file_out=args.out or default_file_out(args.input_file),
         no_save=args.no_save,
         no_eval=args.no_eval,

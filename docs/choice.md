@@ -90,7 +90,7 @@ This section gives a high-level description of this process.
     Choose one vector, then select one value at each vector index. 
     This yields a bounded result.
 
-    ???+ example "Result example"
+    ??? example "Result example"
 
         ```Python
         [[[1], [1,2], [0,1,2]]  or  [[2], [0], [0,1,2]]  or  ... ]
