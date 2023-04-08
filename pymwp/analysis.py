@@ -1,13 +1,12 @@
 # noinspection DuplicatedCode
 import logging
-import time
 from typing import List, Tuple, Optional, Union, Dict
 
 from .file_io import save_relation
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from pymwp import DeltaGraph, Monomial, Polynomial, Relation, RelationList
-from pymwp.choice import CHOICES
+from pymwp import DeltaGraph, Monomial, Polynomial, RelationList, Result
+from pymwp.result import FUNC_RESULT
 
 logger = logging.getLogger(__name__)
 
@@ -16,33 +15,27 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, **kwargs) \
-            -> Union[Dict, Tuple[Relation, CHOICES, bool]]:
+    def run(ast: pr.AST, result: Result = None, **kwargs) \
+            -> Union[Dict[str, FUNC_RESULT], FUNC_RESULT]:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
+            result: (optional) result object
 
         Returns:
-              - Computed relation,
-              - list of non-infinity choices
-              - infinite/not infinite (boolean flag)
+            Computed relation, list of non-infinity choices, and
+                infinite/not infinite (boolean flag)
         """
         file_out: str = kwargs['file_out'] if 'file_out' in kwargs else None
         save: bool = 'no_save' not in kwargs or kwargs['no_save'] is False
         stop_early: bool = 'fin' not in kwargs or kwargs['fin'] is False
         skip_eval: bool = 'no_eval' in kwargs and kwargs['no_eval'] is True
+        result__: Result = result or Result()
 
-        logger.debug("starting analysis")
-        start_time = time.time_ns()
-        single_function = len(ast.ext) == 1
-        result, function_name = {}, ''
-        functions = [f for f in ast if pr.is_func(f)]
-
-        if len(functions) == 0:
-            logger.warning("C file contains no analyzable functions")
-
-        for ast_ext in functions:
+        logger.debug("started analysis")
+        result__.on_start()
+        for ast_ext in [f for f in ast if pr.is_func(f)]:
             choices = [0, 1, 2]
             index, combinations = 0, []
             function_name = ast_ext.decl.name
@@ -77,32 +70,21 @@ class Analysis:
                     evaluated and not combinations.valid)
 
             # record and display results
+            outcome = function_name,
             if infinite and stop_early:
-                result[function_name] = None, None, True
-                logger.info(f'RESULT: {function_name} is infinite')
+                outcome += (None, None, True)
             elif infinite:
-                result[function_name] = relations.first, [], True
-                logger.info(f'\nMATRIX{relations}')
-                logger.info(f'RESULT: {function_name} is infinite')
+                outcome += (relations.first, None, True)
             else:
-                result[function_name] = relations.first, combinations, False
-                logger.info(f'\nMATRIX{relations}')
-                if not evaluated:
-                    logger.info('Skipped evaluation')
-                else:
-                    logger.info(f'CHOICES: {combinations.valid}')
+                outcome += (relations.first, combinations, False)
+            result__.add_relation(*outcome)
 
-        # save result to file unless explicitly disabled
+        result__.on_end()
+        result__.log_result()
+
         if save:
-            save_relation(file_out, result)
-
-        end_time = time.time_ns()
-        dur_s = round((end_time - start_time) / 1e9, 1)
-        dur_ms = int((end_time - start_time) / 1e6)
-        logger.info(f'Total time: {dur_s} s ({dur_ms} ms)')
-
-        # return results to caller
-        return result[function_name] if single_function else result
+            save_relation(file_out, result__.relations)
+        return result__.get_result()
 
     @staticmethod
     def find_variables(
@@ -266,14 +248,14 @@ class Analysis:
     @staticmethod
     def constant(index: int, variable_name: str) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze a constant assignment of form: x = c where x is some
+        """Analyze a constant assignment of form `x = c` where x is some
         variable and c is constant.
 
-        From MWP paper:
+        !!! quote "From MWP paper:"
 
-        > To deal with constants, just replace the program’s constants by
-          variables and regard the replaced constants as input to these
-          variables.
+            To deal with constants, just replace the program’s constants by
+            variables and regard the replaced constants as input to these
+            variables.
 
         Arguments:
             index: delta index
@@ -299,8 +281,6 @@ class Analysis:
         """
         logger.debug('Computing Relation (third case / unary)')
         var_name = node.lvalue.name
-        # list_var = None  # list_var(exp)
-        # variables = [var_name] + list_var
         variables = [var_name]
         return index, RelationList.identity(variables), False
 
@@ -399,7 +379,6 @@ class Analysis:
         logger.debug('while loop fixpoint')
         relations.fixpoint()
         relations.while_correction(dg)
-
         dg.fusion()
 
         exit_ = False

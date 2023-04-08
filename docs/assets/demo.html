@@ -278,13 +278,13 @@
         max-width: 100%;
         overflow: auto;
         position: relative;
-        border: 1px solid #ddd;
+        border: 1px solid #dddb;
         border-top: none;
         box-sizing: border-box;
     }
 
     #demo-output .table-wrapper table, #demo-output .table-wrapper table tr > td {
-        border-color: #ddd;
+        border-color: #dddb;
     }
 
     #demo-output .table-wrapper table {
@@ -302,7 +302,7 @@
         text-align: left;
         vertical-align: top;
         min-width: 100px;
-        background: #fff;
+        background: transparent;
         max-width: 300px;
     }
 
@@ -322,16 +322,15 @@
     }
 
     #demo-output .table-wrapper table tr:first-child td,
-
     #demo-output .table-wrapper table tr > td:first-child {
-        background: #f5f5f5;
+        background: var(--md-code-bg-color);
     }
 
     #demo-output .table-wrapper table tr td:first-child::after {
         content: "";
         position: absolute;
-        width: 2px;
-        background: #ddd;
+        width: 1px;
+        background: #dddb;
         height: 100%;
         right: -1px;
         top: 0;
@@ -339,7 +338,6 @@
     }
 
     #demo-output .table-wrapper table tr:first-child code,
-
     #demo-output .table-wrapper table tr > td:first-child code {
         font-weight: bold;
         box-sizing: border-box;
@@ -395,8 +393,7 @@
     .progress {
         -webkit-animation: loader 8s ease infinite;
         animation: loader 6s ease infinite;
-        background: #FF8F00;
-        color: #fff;
+        background: var(--md-accent-fg-color);
         padding: 5px;
         width: 0;
     }

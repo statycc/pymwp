@@ -10,43 +10,41 @@ implemented and for which implementation is planned.
     [pycparser website](https://github.com/eliben/pycparser):
     "pycparser aims to support the full C99 language (according to the 
     standard ISO/IEC 9899). Some features from C11 are also supported."
-  
+
+Analysis will bypass any unsupported statement and raises a warning.  
+
+
 **Legend**
 
-- ✅ &nbsp; **ready** - fully implemented and ready to use
-- 🟧 &nbsp; **in progress** - implementation is in progress but not ready
-- ⬜ &nbsp; **planned** - implementation is in a planning stage
+:  🟩 &nbsp; ready — fully implemented and ready to use
+:  🟧 &nbsp; in progress — implementation is in progress but not ready
+:  ⬜ &nbsp; planned — implementation is in a planning stage
 
 | Description                                | State | Example                                     |
 |--------------------------------------------|:-----:|---------------------------------------------|
 | **Basic data types**                       |       |                                             |
-| Integer types (incl. `signed`, `unsigned`) |   ✅   | `char`, `short`, `int`, `long`, `long long` |
-| Floating point types                       |   ✅   | `float`, `double`, `long double`            |
+| Integer types (incl. `signed`, `unsigned`) |  🟩   | `char`, `short`, `int`, `long`, `long long` |
+| Floating point types                       |  🟩   | `float`, `double`, `long double`            |
 | **Declarations**                           |       |                                             |     
-| Variable declarations                      |   ✅   | `int x;`                                    |
-| Constant declarations                      |   ✅   | `const int x;`                              |
-| **Arithmetic operations**                  |       | 
+| Variable declarations                      |  🟩   | `int x;`                                    |
+| Constant declarations                      |  🟩   | `const int x;`                              |
+| **Arithmetic operations**                  |       |                                             |
 | Unary operations                           |  🟧   | `-x`, `--x`, `x++`, ...                     |
-| Binary operations ($+, \times, -$)         |   ✅   | `x = y + z`                                 |
+| Binary operations ($+, \times, -$)         |  🟩   | `x = y + z`                                 |
 | $n$-ary operation                          |  🟧   | `x = y + z * w`                             |
 | Compound assignment operators              |   ⬜   | `x += 1`                                    |
 | **Conditional statements**                 |       |                                             |
-| if statement                               |   ✅   | `if(x > 0) { ... }`                         |
-| if-else statement                          |   ✅   | `if(x > 0) { ... } else { ... }`            |
-| nested conditional                         |   ✅   | `if(x > 0) {  if (y > 0) { ... } }`         |
+| if statement                               |  🟩   | `if(x > 0) { ... }`                         |
+| if-else statement                          |  🟩   | `if(x > 0) { ... } else { ... }`            |
+| nested conditional                         |  🟩   | `if(x > 0) {  if (y > 0) { ... } }`         |
 | **Repetition statements**                  |       |                                             |
-| while loop                                 |   ✅   | `while(x < 20) { ... }`                     |
+| while loop                                 |  🟩   | `while(x < 20) { ... }`                     |
 | for loop                                   |  🟧   | `for (i = 0; i < 10; ++i) { ... }`          |
 | **Functions**                              |  🟧   |                                             |     
 | **Pointers**                               |   ⬜   |                                             |     
 | **Arrays**                                 |   ⬜   |                                             |      
-| **Header Files Inclusion** \*              |   ✅   |                                             |      
-| **Comments**                               |       |                                             |
-| Single-line                                |   ✅   | `// comment`                                |
-| Multi-line                                 |   ✅   | `/* comment */`                             |
+| **Header Files Inclusion**                 |  🟩   |                                             |      
+| **Comments** (single-line, delimited)      |  🟩   | `// comment`, `/* comment */`               |
 
-\*) version > 0.1.6
 
-### Handling of unsupported operations
 
-Analysis will bypass any statement that is unsupported and raises a warning.

@@ -47,7 +47,7 @@ class Choices:
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
             index: the length of the vector, e.g. 10. This is the same as
-               number of assignments in the analyzed function.
+                number of assignments in the analyzed function.
             inf: set of deltas that lead to infinity
 
         Returns:

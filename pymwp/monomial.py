@@ -19,8 +19,8 @@ class Monomial:
 
     Deltas are coded as pairs $(i,j)$ with:
 
-     - $i$ the value and
-     - $j$ the index in the domain (infinite product)
+    - $i$ the value and
+    - $j$ the index in the domain (infinite product)
 
     We will have that $(i,j)$ will be equal to the unit of the semi-ring
     iff the $j^{th}$ input is equal to $i$ (so, the $j^{th}$ choice is $i$).
@@ -58,7 +58,7 @@ class Monomial:
         Arguments:
             scalar: monomial scalar
             deltas: list of deltas - either a syntactic list,
-              or sequence of tuples that represent deltas.
+                or sequence of tuples that represent deltas.
         """
         self.deltas = []
         self.scalar = scalar
