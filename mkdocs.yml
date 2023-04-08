@@ -82,7 +82,6 @@ markdown_extensions:
 plugins:
   - search
   - include-markdown
-  - mike
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -98,10 +97,6 @@ plugins:
             show_source: true
             show_root_heading: false
             show_category_heading: false
-
-extra:
-  version:
-    provider: mike
 
 extra_css:
   - assets/styles.css
