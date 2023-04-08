@@ -1,7 +1,8 @@
 from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, NOT_INFINITE_2C, IF_WO_BRACES, IF_WITH_BRACES, \
-    VARIABLE_IGNORED, BRACES_ISSUES, PARAMS, FUNCTION_CALL, INFINITE_8C
+    VARIABLE_IGNORED, BRACES_ISSUES, PARAMS, FUNCTION_CALL, INFINITE_8C, \
+    EMPTY
 
 
 def test_analyze_infinite2():
@@ -128,3 +129,8 @@ def test_analysis_returns_all_functions():
 
     assert not f_infty
     assert set(foo.variables) == {'X1', 'X2'}
+
+
+def test_analysis_handles_empty_program():
+    relation = Analysis.run(EMPTY, no_save=True)
+    assert relation == {}

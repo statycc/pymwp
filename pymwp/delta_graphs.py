@@ -128,21 +128,16 @@ class DeltaGraph:
     def insert_node(self, node: NODE) -> None:
         """Insert a node into the graph.
 
-        If a node is already in the graph do nothing else compare it with all
-        nodes of same size with mono_diff
-
-        <!--
-        Note:
-            Is it possible that we've already computed that diff in
-            the other way ? (symmetry)
-            Answer:
-                AFA it's called now, NO
-        -->
+        If a node is already in the graph do nothing.
+        Else compare it with all nodes of same size with `node_diff`.
 
         Arguments:
             node: tuple to insert in the graph
         """
         size = len(node)
+        # Is it possible that we've already computed that diff in
+        # the other way ? (symmetry)
+        # Answer: AFA it's called now, NO
         if size not in self.graph_dict:
             self.graph_dict[size] = {}
             self.graph_dict[size][node] = {}
@@ -277,7 +272,7 @@ class DeltaGraph:
         '''
         n3 -- 3 -- n4
          ⟍         |
-            3      3
+            3       3
               ⟍    |
                 ⟍  |
                   n5

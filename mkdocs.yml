@@ -23,6 +23,7 @@ nav:
   - Polynomial: polynomial.md
   - Relation: relation.md
   - Relation List: relation_list.md
+  - Result: result.md
   - Semiring: semiring.md
 - Utilities: utilities.md
 - Source Code: https://github.com/statycc/pymwp
@@ -35,12 +36,26 @@ theme:
   features:
     - navigation.expand
   palette:
-    scheme: light
-    primary: blue grey
-    accent: indigo
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: light
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   font:
     text: Inter
-    code: Source Code Pro
+    code: Fira Mono
 
 markdown_extensions:
   - pymdownx.arithmatex:
@@ -49,34 +64,44 @@ markdown_extensions:
       use_pygments: true
       linenums: false
       linenums_style: pymdownx.inline
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.snippets
   - pymdownx.magiclink
   - pymdownx.details
   - admonition
+  - attr_list
+  - md_in_html
+  - def_list
 
 plugins:
   - search
   - include-markdown
+  - mike
   - mkdocstrings:
       default_handler: python
       handlers:
         python:
-          setup_commands:
-          - import sys
-          - sys.path.append("pymwp")
+          paths: [pymwp]
           selection:
             new_path_syntax: yes
             filters:
               - "!^_"
               - "^__init__$"
-          rendering:
-            show_root_heading: false
+            docstring_style: google
+            docstring_section_style: table
             show_source: true
+            show_root_heading: false
             show_category_heading: false
-      watch:
-        - pymwp
+
+extra:
+  version:
+    provider: mike
 
 extra_css:
   - assets/styles.css

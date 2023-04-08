@@ -228,10 +228,11 @@ def show(matrix: List[List[Any]], **kwargs) -> None:
 
     Arguments:
         matrix: the matrix to display.
-        **kwargs: keyword arguments
 
-            - `prefix` (`str`): display some text before displaying matrix
-            - `postfix` (`str`): display some text after displaying matrix
+    Kwargs:
+
+    - `prefix` (`str`): display some text before displaying matrix
+    - `postfix` (`str`): display some text after displaying matrix
 
     Raises:
         TypeError: If the matrix is not iterable (type list of lists)

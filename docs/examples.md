@@ -1,18 +1,40 @@
 # Examples
 
-The project repository [c_files](https://github.com/statycc/pymwp/tree/main/c_files) 
-directory contains example programs in C language that can be analyzed using pymwp.
+pymwp analyzes programs written in C language.
+The project repository `c_files` directory contains many examples.
 
 
-Also see the [demo](demo.md) which enables running the analysis on these examples online.  
+### Program Categories
 
-<style>
-.md-typeset table {border-top:none!important;}
-.md-typeset table thead {display:none}
-.md-typeset table tr > td:first-child{ min-width:180px }
-.md-typeset table tbody > tr:first-child td{ font-size: 110%; background: var(--md-code-bg-color); border-bottom: 0.05rem solid var(--md-typeset-table-color); }
-.md-typeset table:not([class]) tbody tr:hover {background-color: transparent}
-</style>
+:material-hand-wave-outline: &nbsp; **Basics**
+
+: Programs performing operations that correspond to simple derivation trees.
+
+:material-infinity: &nbsp; **Infinite** 
+
+: Programs that are assigned matrices that always contain infinite coefficients, no matter the choices.
+
+:octicons-move-to-end-24: &nbsp; **Not Infinite**
+
+: Programs that are assigned matrices that do not always contain infinite coefficients.
+
+:material-circle-outline: &nbsp; **Original Paper**
+
+: Examples taken from or inspired by paper ["A Flow Calculus of mwp-Bounds for Complexity Analysis"](https://doi.org/10.1145/1555746.1555752).
+
+:material-asterisk: &nbsp; **Implementation Paper**
+
+: Examples from paper ["mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity"](https://drops.dagstuhl.de/opus/volltexte/2022/16307/pdf/LIPIcs-FSCD-2022-26.pdf).
+
+:material-dots-horizontal: &nbsp; **Other**
+
+: Other programs of interest.
+
+<h3>Demo</h3>
+
+Try the demo to analyze these programs online.
+
+[Go to Demo](demo.md){ .md-button .md-button--primary }
 
 {%
    include-markdown "../c_files/readme.md"

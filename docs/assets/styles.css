@@ -7,15 +7,19 @@
 }
 
 .doc.doc-heading {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
+}
+
+.doc.doc-heading > code {
+    background: transparent;
+    padding-left: 0;
 }
 
 /* Site width etc.*/
 .md-grid {
     max-width: 64rem !important;
 }
-
 
 /* navigation bar active color*/
 .md-nav__item .md-nav__link--active {
@@ -29,69 +33,10 @@
     color: var(--md-accent-fg-color);
 }
 
-.md-content__inner {
-    padding-bottom: 3rem;
-}
+/*.md-content__inner {*/
+/*    padding-bottom: 3rem;*/
+/*}*/
 
 .md-content article a {
     color: var(--md-accent-fg-color);
-}
-
-/* tables */
-table {
-    padding: 0;
-}
-
-table tr {
-    margin: 0;
-    padding: 0;
-}
-
-table tr th {
-    font-weight: bold;
-    text-align: center;
-    margin: 0;
-    padding: 6px 13px !important;
-}
-
-table tr td {
-    text-align: center;
-    margin: 0;
-    padding-left: 13px !important;
-    padding-right: 13px !important;
-}
-
-table tr td code {
-    padding: 0 !important;
-}
-
-table tr th :first-child, table tr td :first-child {
-    margin-top: 0;
-}
-
-table tr th :last-child, table tr td :last-child {
-    margin-bottom: 0;
-}
-
-.md-typeset table:not([class]) {
-    font-size: .70rem;
-    box-shadow: none;
-}
-.md-typeset table:not([class]) thead{
-    background: var(--md-code-bg-color);
-}
-.md-typeset table:not([class]) tbody code{
-    background: transparent;
-    font-weight: bold;
-}
-
-.md-typeset table:not([class]) tr:hover {
-    transition: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-details.quote .highlight pre {
-    font-size: .75rem;
-    line-height: 1.8;
 }
