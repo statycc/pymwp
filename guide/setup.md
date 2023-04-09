@@ -15,13 +15,13 @@ Instructions for installing Python for different operating systems can be found 
 Get the latest version from Python Package Index:
 
 ```console
-pip install pymwp
+pip install pymwp==0.3.0
 ```
 
 <br/>On systems that do not default to Python 3 runtime, use:
 
 ```
-python3 -m pip install pymwp
+python3 -m pip install pymwp==0.3.0
 ```
 
 This completes the setup.

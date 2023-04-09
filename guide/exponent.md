@@ -18,7 +18,7 @@ int main(int x, int n, int p, int r){
 }
 ```
 
-This program variables `p` and `r` grown exponentially.
+This program variables `p` and `r` grow exponentially.
 It is impossible to find a polynomial growth bound, and the analysis is expected to fail.
 This example demonstrates how pymwp arrives to that conclusion.
 
