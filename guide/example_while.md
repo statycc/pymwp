@@ -1,6 +1,8 @@
 ---
 title: While Analysis
 subtitle: A program that shows infinite coefficients for some choices.
+next: Infinite Program
+next_href: example_infinite.html
 ---
 
 #### Analyzed Program
@@ -130,37 +132,23 @@ Valid choices:
 ```
 
 <details>
-<summary>How to read the choice vector</summary>
+<summary>How to read a choice vector</summary>
 
-```
-Allowed choices:      ↓  ↓  ↓    ↓  ↓  ↓    ↓
-                    [[0, 1, 2], [0, 1, 2], [2]]    
-                     └───────┘  └───────┘  └─┘ 
-          Index:         0          1       2
-```
+<pre>
+
+choices:    ↓  ↓  ↓    ↓  ↓  ↓    ↓
+          [[0, 1, 2], [0, 1, 2], [2]]
+           └───────┘  └───────┘  └─┘
+index:         0          1       2
+
+</pre>
 </details>
 
 
 #### Discussion
 
 Compared to previous examples, the matrix is now getting more complicated.
-The choice vector tells us that every derivation choice is allowed at indices 0 and 1 (these correspond to the operations inside the `if` statement).
+The choice vector tells us that every derivation choice is allowed at indices 0 and 1 . These correspond to the operations inside the `if` statement.
 But inside the `while` loop, only choice 2 is allowed to obtain a valid derivation result.
 Because there exists a choice for which the program is derivable, this program's variable values growth is bounded by polynomials in their inputs.
 
----
-
-## Learn More
-
-This guide has offered only a short introduction to mwp-analysis and pymwp. For additional details, have a look at:
-
-
-* <span style="opacity:.5">"pymwp: A Tool for Guaranteeing Complexity Bounds for C Programs"</span>
-
-* Aubert et al. "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity". In: FSCD 2022. Vol. 228. LIPIcs. Schloss Dagstuhl - Leibniz-Zentrum für Informatik, 2022, 26:1–26:23. doi: [`10.4230/LIPIcs.FSCD.2022.26`](https://doi.org/10.4230/LIPIcs.FSCD.2022.26).
-
-- [Online demo](https://statycc.github.io/pymwp/demo/) -- Run pymwp online on more than 40 examples.
-
-- [Documentation](https://statycc.github.io/pymwp) -- Includes e.g., list of supported C language features.
-
-- [Source code](https://github.com/statycc/pymwp) -- pymwp is open source.

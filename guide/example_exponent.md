@@ -1,6 +1,8 @@
 ---
 title: Exponential Program
 subtitle: A program computing the exponentiation produces a matrix with infinite coefficient, no matter the choices.
+next: While Analysis
+next_href: example_while.html
 ---
 
 #### Analyzed Program
@@ -135,7 +137,3 @@ The matrix shows that the problematic variables  are `p` and `r`.
 In the program, there are two critical binary multiplication operations that introduce choices (inside the `while` loop, at indices 1 and 2).
 No matter what choice is made, it is not possible to obtain an $\infty$-free result.
 This concludes the program does not pass the analysis.
-
-<br/><a class="btn btn-outline-primary" href="not_infinite3.html" role="button">
-Next: While Analysis
-</a>

@@ -1,5 +1,7 @@
 ---
 title: pymwp
+next: Setup
+next_href: setup.html
 ---
 
 pymwp ("paɪ m-w-p") is a tool for automatically performing [static analysis](https://en.wikipedia.org/wiki/Static_program_analysis) on programs written in C language. 
@@ -85,8 +87,10 @@ The truth value of the control expression does not matter. We substitute it with
 For more complicated programs, the inference procedure introduces _choices_. 
 These are represented by complex polynomials.
 Variables have different dependencies for different derivation choices.
-These are captured by the deltas appearing in the matrix.
-Deltas are coded as pairs of $(i, j)$ with $i$ the value, and $j$ the index in the domain.
+These are captured by the _deltas_ appearing in the matrix.
+
+Deltas are coded as pairs of $(i, j)$ with $i$ the value and $j$ the index in the domain.
+Possible values of $i$ are $\{0,1,2\}$. Index $j$, of type $\mathbb{N}$, corresponds to a program point where a choice is made.
 
 <div class="container text-left"><div class="row"><div class="col col-md-4">
 PROGRAM
@@ -111,8 +115,7 @@ MATRIX
 </div></div></div>
 
 
-Variable `x` has different dependencies -- consider pairs (`x`,`x`) and  (`x`,`y`) -- with some choices
-(at index 0) yielding $\infty$.
+Variable `x` has different dependencies -- consider pairs (`x`,`x`) and  (`x`,`y`) -- with some choices yielding $\infty$.
 In fact, the single matrix compactly captures three possible derivation outcomes:
  
 <div class="d-flex flex-wrap flex-row justify-content-left"><div class="p-2">
@@ -156,6 +159,3 @@ Program fails the analysis if it is assigned a matrix that always contains infin
 Then it is not possible to establish polynomial growth bound. For these programs, pymwp reports $\infty$ result.
 
 
-<br/><a class="btn btn-outline-primary" href="setup.html" role="button">
-Next: Setup
-</a>

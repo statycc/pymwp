@@ -1,6 +1,8 @@
 ---
 title: Binary Assignment
 subtitle: This program shows that assigning a compounded expression to a variable results in correct analysis.
+next: Exponential Program
+next_href: example_exponent.html
 ---
 
 #### Analyzed Program
@@ -11,10 +13,8 @@ int foo(int y1, int y2){
 } 
 ```
 
-This program is simple, and it is straightforward to observe that its input variables
-have polynomial growth rates, i.e., $y_1^\prime \leq y_1$ and  $y_2^\prime \leq 2y_1$.
-From analysis perspective this example is interesting, because binary operations
-introduce complex polynomials in the matrix.
+This program is simple, and it is straightforward to observe that its input variables have polynomial growth rates, i.e., $y_1^\prime \leq y_1$ and  $y_2^\prime \leq 2y_1$.
+From analysis perspective this example is interesting because binary operations introduce complex polynomials in the matrix.
 
 #### CLI Command
 
@@ -78,7 +78,3 @@ Valid choices
 
 The analysis correctly assigns a polynomial bound to the program.
 Every choice yields a valid matrix. 
-
-<br/><a class="btn btn-outline-primary" href="exponent.html" role="button">
-Next: Exponential Program
-</a>
