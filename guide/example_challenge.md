@@ -9,8 +9,8 @@ last_example: true
 #### Analyzed Program
 
 ```c
-int foo(int X0, int X1, int X2){
-    if (X0) {
+void foo(int X0, int X1, int X2){
+    if (X0 == 0) {
         X2 = X0 + X1;
     }
     else {
@@ -18,11 +18,10 @@ int foo(int X0, int X1, int X2){
     }
     X0 = X2 + X1;
     X1 = X0 + X2;
-    while(𝔹) {
+    while(X2 < 10) {
         X2 = X1 + X0;
     }
 }
-
 ```
 
 After seeing the examples of programs with and without polynomial bounds, we present the following challenge.
@@ -34,7 +33,7 @@ Note that it is unknown whether the `while` loop will terminate, however this is
 
 <p>
   <a class="btn btn-primary" data-bs-toggle="collapse"
-    href="#solution" role="button" aria-expanded="false"
+    href="#solution" role="button" aria-expanded="true"
     aria-controls="solution">
     Reveal Solution
   </a>
@@ -137,82 +136,287 @@ INFO (file_io): saved result in output/dense_loop.json
 ```
 </div></div>
 
+### Matrix
 
-#### Matrix
+Because this matrix is large, we display it here in compacted form, with
+added emphasis on the coefficients.
 
-|          |             `X0`              |                                             `X1`                                             | `X2`                                                                                              |
-|----------|:-----------------------------:|:--------------------------------------------------------------------------------------------:|---------------------------------------------------------------------------------------------------|
-| **`X0`** |  $m.\delta(0,0).\delta(0,2)$  |        $p.\delta(0,0).\delta(0,2).\delta(1,3)+p.\delta(0,0).\delta(1,2).\delta(1,3)$         | $m.\delta(0,0)+p.\delta(0,0).\delta(0,2).\delta(1,3).\delta(2,4)$                                 |
-|          | $+p.\delta(0,0).\delta(1,2)$  |        $+p.\delta(0,0).\delta(1,2).\delta(2,3)+p.\delta(0,0).\delta(2,2).\delta(1,3)$        | $+\infty.\delta(0,0).\delta(0,2).\delta(0,4)+w.\delta(0,0).\delta(0,2).\delta(2,4)$               |
-|          | $+w.\delta(0,0).\delta(2,2)$  |       $+p.\delta(0,0).\delta(0,3)+m.\delta(0,0).\delta(1,3)+w.\delta(0,0).\delta(2,3)$       | $+\infty.\delta(0,0).\delta(1,2).\delta(0,4)+p.\delta(0,0).\delta(1,2).\delta(1,4)$               |
-|          | $+p.\delta(1,0).\delta(0,2)$  |       $+p.\delta(1,0).\delta(0,3)+p.\delta(1,0).\delta(1,3)+p.\delta(1,0).\delta(2,3)$       | $+p.\delta(0,0).\delta(1,2).\delta(2,4)+p.\delta(0,0).\delta(2,2).\delta(1,3).\delta(2,4)$        |
-|          | $+p.\delta(1,0).\delta(1,2)$  |        $+p.\delta(2,0).\delta(0,2).\delta(1,3)+p.\delta(2,0).\delta(1,2).\delta(1,3)$        | $+\infty.\delta(0,0).\delta(2,2).\delta(0,4)+w.\delta(0,0).\delta(2,2).\delta(1,4)$               |
-|          | $+p.\delta(1,0).\delta(2,2)$  |        $+p.\delta(2,0).\delta(1,2).\delta(2,3)+p.\delta(2,0).\delta(2,2).\delta(1,3)$        | $+w.\delta(0,0).\delta(2,2).\delta(2,4)+p.\delta(0,0).\delta(0,3).\delta(0,4)$                    |
-|          | $+w.\delta(2,0).\delta(0,2)$  |       $+p.\delta(2,0).\delta(0,3)+w.\delta(2,0).\delta(1,3)+w.\delta(2,0).\delta(2,3)$       | $+\infty.\delta(0,0).\delta(0,3).\delta(1,4)+p.\delta(0,0).\delta(0,3).\delta(2,4)$               |
-|          | $+p.\delta(2,0).\delta(1,2)$  |                                                                                              | $+\infty.\delta(0,0).\delta(1,3).\delta(1,4)+w.\delta(0,0).\delta(1,3).\delta(2,4)$               |
-|          | $+w.\delta(2,0).\delta(2,2)$  |                                                                                              | $+w.\delta(0,0).\delta(2,3).\delta(0,4)+\infty.\delta(0,0).\delta(2,3).\delta(1,4)$               |
-|          |                               |                                                                                              | $+w.\delta(0,0).\delta(2,3).\delta(2,4)+p.\delta(1,0)+\infty.\delta(1,0).\delta(0,2).\delta(0,4)$ |
-|          |                               |                                                                                              | $+\infty.\delta(1,0).\delta(1,2).\delta(0,4)+\infty.\delta(1,0).\delta(2,2).\delta(0,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(1,0).\delta(0,3).\delta(1,4)+\infty.\delta(1,0).\delta(1,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(1,0).\delta(2,3).\delta(1,4)+w.\delta(2,0)$                                       |
-|          |                               |                                                                                              | $+p.\delta(2,0).\delta(0,2).\delta(1,3).\delta(2,4)+\infty.\delta(2,0).\delta(0,2).\delta(0,4)$   |
-|          |                               |                                                                                              | $+\infty.\delta(2,0).\delta(1,2).\delta(0,4)+p.\delta(2,0).\delta(1,2).\delta(1,4)$               |
-|          |                               |                                                                                              | $+p.\delta(2,0).\delta(1,2).\delta(2,4)+p.\delta(2,0).\delta(2,2).\delta(1,3).\delta(2,4)$        |
-|          |                               |                                                                                              | $+\infty.\delta(2,0).\delta(2,2).\delta(0,4)+p.\delta(2,0).\delta(0,3).\delta(0,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(2,0).\delta(0,3).\delta(1,4)+p.\delta(2,0).\delta(0,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(2,0).\delta(1,3).\delta(1,4)+\infty.\delta(2,0).\delta(2,3).\delta(1,4)$          |
-|          |                               |                                                                                              |                                                                                                   |
-| **`X1`** |  $p.\delta(0,0).\delta(1,2)$  |       $p.\delta(0,0).\delta(0,3)+p.\delta(0,0).\delta(1,3)+p.\delta(0,0).\delta(2,3)$        | $p.\delta(0,0)+\infty.\delta(0,0).\delta(0,3).\delta(1,4)$                                        |
-|          | $+p.\delta(0,0).\delta(2,2)$  |              $+p.\delta(1,0).\delta(1,2).\delta(2,3)+p.\delta(1,0).\delta(0,3)$              | $+\infty.\delta(0,0).\delta(1,3).\delta(1,4)+\infty.\delta(0,0).\delta(2,3).\delta(1,4)$          |
-|          | $+p.\delta(1,0).\delta(1,2)$  |                    $+m.\delta(1,0).\delta(1,3)+w.\delta(1,0).\delta(2,3)$                    | $+m.\delta(1,0)+p.\delta(1,0).\delta(1,2).\delta(1,4)+p.\delta(1,0).\delta(1,2).\delta(2,4)$      |
-|          | $+p.\delta(2,0).\delta(1,2)$  |              $+p.\delta(2,0).\delta(1,2).\delta(2,3)+p.\delta(2,0).\delta(0,3)$              | $+p.\delta(1,0).\delta(0,3).\delta(0,4)+\infty.\delta(1,0).\delta(0,3).\delta(1,4)$               |
-|          | $+p.\delta(0,1).\delta(1,2)$  |       $+w.\delta(2,0).\delta(1,3)+w.\delta(2,0).\delta(2,3)+p.\delta(0,1).\delta(0,3)$       | $+p.\delta(1,0).\delta(0,3).\delta(2,4)+\infty.\delta(1,0).\delta(1,3).\delta(1,4)$               |
-|          | $+p.\delta(0,1).\delta(2,2)$  |                    $p.\delta(0,1).\delta(1,3)+p.\delta(0,1).\delta(2,3)$                     | $+w.\delta(1,0).\delta(1,3).\delta(2,4)+w.\delta(1,0).\delta(2,3).\delta(0,4)$                    |
-|          | $+p.\delta(1,1).\delta(1,2)$  |              $+p.\delta(1,1).\delta(1,2).\delta(2,3)+p.\delta(1,1).\delta(0,3)$              | $+\infty.\delta(1,0).\delta(2,3).\delta(1,4)+w.\delta(1,0).\delta(2,3).\delta(2,4)$               |
-|          | $+p.\delta(2,1).\delta(1,2)$  | $+m.\delta(1,1).\delta(1,3)+w.\delta(1,1).\delta(2,3)+p.\delta(2,1).\delta(1,2).\delta(2,3)$ | $+w.\delta(2,0)+p.\delta(2,0).\delta(1,2).\delta(1,4)+p.\delta(2,0).\delta(1,2).\delta(2,4)$      |
-|          |       $+p.\delta(0,2)$        |       $+p.\delta(2,1).\delta(0,3)+w.\delta(2,1).\delta(1,3)+w.\delta(2,1).\delta(2,3)$       | $+p.\delta(2,0).\delta(0,3).\delta(0,4)+\infty.\delta(2,0).\delta(0,3).\delta(1,4)$               |
-|          |       $+m.\delta(1,2)$        |       $+p.\delta(0,2).\delta(0,3)+p.\delta(0,2).\delta(1,3)+p.\delta(0,2).\delta(2,3)$       | $+p.\delta(2,0).\delta(0,3).\delta(2,4)+\infty.\delta(2,0).\delta(1,3).\delta(1,4)$               |
-|          |       $+w.\delta(2,2)$        |       $+m.\delta(1,2).\delta(0,3)+p.\delta(1,2).\delta(1,3)+w.\delta(1,2).\delta(2,3)$       | $+\infty.\delta(2,0).\delta(2,3).\delta(1,4)+p.\delta(0,1)$                                       |
-|          |                               |       $+w.\delta(2,2).\delta(0,3)+p.\delta(2,2).\delta(1,3)+w.\delta(2,2).\delta(2,3)$       | $+\infty.\delta(0,1).\delta(0,3).\delta(1,4)+\infty.\delta(0,1).\delta(1,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(0,1).\delta(2,3).\delta(1,4)+m.\delta(1,1)+p.\delta(1,1).\delta(1,2).\delta(1,4)$ |
-|          |                               |                                                                                              | $+p.\delta(1,1).\delta(1,2).\delta(2,4)+p.\delta(1,1).\delta(0,3).\delta(0,4)+$                   |
-|          |                               |                                                                                              | $+\infty.\delta(1,1).\delta(0,3).\delta(1,4)+p.\delta(1,1).\delta(0,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(1,1).\delta(1,3).\delta(1,4)+w.\delta(1,1).\delta(1,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+w.\delta(1,1).\delta(2,3).\delta(0,4)+\infty.\delta(1,1).\delta(2,3).\delta(1,4)$               |
-|          |                               |                                                                                              | $+w.\delta(1,1).\delta(2,3).\delta(2,4)+w.\delta(2,1)+p.\delta(2,1).\delta(1,2).\delta(1,4)+$     |
-|          |                               |                                                                                              | $+p.\delta(2,1).\delta(1,2).\delta(2,4)+p.\delta(2,1).\delta(0,3).\delta(0,4)$                    |
-|          |                               |                                                                                              | $+\infty.\delta(2,1).\delta(0,3).\delta(1,4)+p.\delta(2,1).\delta(0,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(2,1).\delta(1,3).\delta(1,4)+\infty.\delta(2,1).\delta(2,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(0,2).\delta(0,3).\delta(1,4)+\infty.\delta(0,2).\delta(1,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(0,2).\delta(2,3).\delta(1,4)+\infty.\delta(0,2).\delta(0,4)$                      |
-|          |                               |                                                                                              | $+p.\delta(0,2).\delta(1,4)+p.\delta(0,2).\delta(2,4)+\infty.\delta(1,2).\delta(0,3).\delta(1,4)$ |
-|          |                               |                                                                                              | $+\infty.\delta(1,2).\delta(1,3).\delta(1,4)+p.\delta(1,2).\delta(1,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(1,2).\delta(2,3).\delta(1,4)+\infty.\delta(1,2).\delta(0,4)$                      |
-|          |                               |                                                                                              | $+m.\delta(1,2).\delta(1,4)+w.\delta(1,2).\delta(2,4)+\infty.\delta(2,2).\delta(0,3).\delta(1,4)$ |
-|          |                               |                                                                                              | $+\infty.\delta(2,2).\delta(1,3).\delta(1,4)+p.\delta(2,2).\delta(1,3).\delta(2,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(2,2).\delta(2,3).\delta(1,4)+\infty.\delta(2,2).\delta(0,4)$                      |
-|          |                               |                                                                                              | $+w.\delta(2,2).\delta(1,4)+w.\delta(2,2).\delta(2,4)$                                            |
-|          |                               |                                                                                              |                                                                                                   |
-| **`X2`** |  $m.\delta(0,1).\delta(0,2)$  |        $p.\delta(0,1).\delta(0,2).\delta(1,3)+p.\delta(0,1).\delta(1,2).\delta(1,3)$         | $m.\delta(0,1)+p.\delta(0,1).\delta(0,2).\delta(1,3).\delta(2,4)$                                 |
-|          | $+p.\delta(0,1).\delta(1,2)$  |        $+p.\delta(0,1).\delta(1,2).\delta(2,3)+p.\delta(0,1).\delta(2,2).\delta(1,3)$        | $+\infty.\delta(0,1).\delta(0,2).\delta(0,4)+w.\delta(0,1).\delta(0,2).\delta(2,4)$               |
-|          | $+w.\delta(0,1).\delta(2,2)$  |       $+p.\delta(0,1).\delta(0,3)+m.\delta(0,1).\delta(1,3)+w.\delta(0,1).\delta(2,3)$       | $+\infty.\delta(0,1).\delta(1,2).\delta(0,4)+p.\delta(0,1).\delta(1,2).\delta(1,4)$               |
-|          | $+p.\delta(1,1).\delta(0,2)$  |       $+p.\delta(1,1).\delta(0,3)+p.\delta(1,1).\delta(1,3)+p.\delta(1,1).\delta(2,3)$       | $+p.\delta(0,1).\delta(1,2).\delta(2,4)+p.\delta(0,1).\delta(2,2).\delta(1,3).\delta(2,4)$        |
-|          | $+p.\delta(1,1).\delta(1,2)$  |        $+p.\delta(2,1).\delta(0,2).\delta(1,3)+p.\delta(2,1).\delta(1,2).\delta(1,3)$        | $+\infty.\delta(0,1).\delta(2,2).\delta(0,4)+w.\delta(0,1).\delta(2,2).\delta(1,4)$               |
-|          | $+p.\delta(1,1).\delta(2,2)$  |        $+p.\delta(2,1).\delta(1,2).\delta(2,3)+p.\delta(2,1).\delta(2,2).\delta(1,3)$        | $+w.\delta(0,1).\delta(2,2).\delta(2,4)+p.\delta(0,1).\delta(0,3).\delta(0,4)$                    |
-|          | $+w.\delta(2,1).\delta(0,2)$  |       $+p.\delta(2,1).\delta(0,3)+w.\delta(2,1).\delta(1,3)+w.\delta(2,1).\delta(2,3)$       | $+\infty.\delta(0,1).\delta(0,3).\delta(1,4)+p.\delta(0,1).\delta(0,3).\delta(2,4)$               |
-|          | $+p.\delta(2,1).\delta(1,2)$  |                                                                                              | $+\infty.\delta(0,1).\delta(1,3).\delta(1,4)+w.\delta(0,1).\delta(1,3).\delta(2,4)$               |
-|          | $+w.\delta(2,1).\delta(2,2)$  |                                                                                              | $+w.\delta(0,1).\delta(2,3).\delta(0,4)+\infty.\delta(0,1).\delta(2,3).\delta(1,4)$               |
-|          |                               |                                                                                              | $+w.\delta(0,1).\delta(2,3).\delta(2,4)+p.\delta(1,1)$                                            |
-|          |                               |                                                                                              | $+\infty.\delta(1,1).\delta(0,2).\delta(0,4)+\infty.\delta(1,1).\delta(1,2).\delta(0,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(1,1).\delta(2,2).\delta(0,4)+\infty.\delta(1,1).\delta(0,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+\infty.\delta(1,1).\delta(1,3).\delta(1,4)+\infty.\delta(1,1).\delta(2,3).\delta(1,4)$          |
-|          |                               |                                                                                              | $+w.\delta(2,1)+p.\delta(2,1).\delta(0,2).\delta(1,3).\delta(2,4)$                                |
-|          |                               |                                                                                              | $+\infty.\delta(2,1).\delta(0,2).\delta(0,4)+\infty.\delta(2,1).\delta(1,2).\delta(0,4)$          |
-|          |                               |                                                                                              | $+p.\delta(2,1).\delta(1,2).\delta(1,4)+p.\delta(2,1).\delta(1,2).\delta(2,4)$                    |
-|          |                               |                                                                                              | $+p.\delta(2,1).\delta(2,2).\delta(1,3).\delta(2,4)+\infty.\delta(2,1).\delta(2,2).\delta(0,4)$   |
-|          |                               |                                                                                              | $+p.\delta(2,1).\delta(0,3).\delta(0,4)+\infty.\delta(2,1).\delta(0,3).\delta(1,4)$               |
-|          |                               |                                                                                              | $+p.\delta(2,1).\delta(0,3).\delta(2,4)+\infty.\delta(2,1).\delta(1,3).\delta(1,4)$               |
-|          |                               |                                                                                              | $+\infty.\delta(2,1).\delta(2,3).\delta(1,4)$                                                     |
+<style>
+.table-wrapper tr:not(:first-child) td:not(:first-child) > span.math
+    {font-size: 90%;} 
+.table-wrapper mjx-mi.mjx-n, .table-wrapper .mjx-i {color: #d63384}
+.table-wrapper tr:not(:first-child) td:not(:first-child) > span:not(.math)
+    {font-size: 70%;}
+.table-wrapper tr:not(:first-child) td 
+    {padding-bottom: 20px; vertical-align: top;}
+</style>
+
+<div class="table-wrapper">
+<table>
+<tr>
+<td style="width:5%"></td>
+<td style="width:25%"><code>X0</code></td>
+<td style="width:30%"><code>X1</code></td>
+<td style="width:40%"><code>X2</code></td>
+</tr>
+<tr>
+<td><code>X0</code></td>
+<td>
+  $m$.<span>((0,0)(0,2))</span>
+ $+p$.<span>((0,0)(1,2))</span>
+ $+w$.<span>((0,0)(2,2))</span>
+ $+p$.<span>((1,0)(0,2))</span>
+ $+p$.<span>((1,0)(1,2))</span>
+ $+p$.<span>((1,0)(2,2))</span>
+ $+w$.<span>((2,0)(0,2))</span>
+ $+p$.<span>((2,0)(1,2))</span>
+ $+w$.<span>((2,0)(2,2))</span></td>
+<td>
+ $p$.<span>((0,0)(0,2)(1,3))</span>
+$+p$.<span>((0,0)(1,2)(1,3))</span>
+$+p$.<span>((0,0)(1,2)(2,3))</span>
+$+p$.<span>((0,0)(2,2)(1,3))</span>
+$+p$.<span>((0,0)(0,3))</span>
+$+m$.<span>((0,0)(1,3))</span>
+$+w$.<span>((0,0)(2,3))</span>
+$+p$.<span>((1,0)(0,3))</span>
+$+p$.<span>((1,0)(1,3))</span>
+$+p$.<span>((1,0)(2,3))</span>
+$+p$.<span>((2,0)(0,2)(1,3))</span>
+$+p$.<span>((2,0)(1,2)(1,3))</span>
+$+p$.<span>((2,0)(1,2)(2,3))</span>
+$+p$.<span>((2,0)(2,2)(1,3))</span>
+$+p$.<span>((2,0)(0,3))</span>
+$+w$.<span>((2,0)(1,3))</span>
+$+w$.<span>((2,0)(2,3))</span>
+</td>
+<td>
+$+m$.<span>((0,0))</span>
+$+p$.<span>((0,0)(0,2)(1,3)(2,4))</span>
+$+\infty$.<span>((0,0)(0,2)(0,4))</span>
+$+w$.<span>((0,0)(0,2)(2,4))</span>
+$+\infty$.<span>((0,0)(1,2)(0,4))</span>
+$+p$.<span>((0,0)(1,2)(1,4))</span>
+$+p$.<span>((0,0)(1,2)(2,4))</span>
+$+p$.<span>((0,0)(2,2)(1,3)(2,4))</span>
+$+\infty$.<span>((0,0)(2,2)(0,4))</span>
+$+w$.<span>((0,0)(2,2)(1,4))</span>
+$+w$.<span>((0,0)(2,2)(2,4))</span>
+$+p$.<span>((0,0)(0,3)(0,4))</span>
+$+\infty$.<span>((0,0)(0,3)(1,4))</span>
+$+p$.<span>((0,0)(0,3)(2,4))</span>
+$+\infty$.<span>((0,0)(1,3)(1,4))</span>
+$+w$.<span>((0,0)(1,3)(2,4))</span>
+$+w$.<span>((0,0)(2,3)(0,4))</span>
+$+\infty$.<span>((0,0)(2,3)(1,4))</span>
+$+w$.<span>((0,0)(2,3)(2,4))</span>
+$+p$.<span>((1,0))</span>
+$+\infty$.<span>((1,0)(0,2)(0,4))</span>
+$+\infty$.<span>((1,0)(1,2)(0,4))</span>
+$+\infty$.<span>((1,0)(2,2)(0,4))</span>
+$+\infty$.<span>((1,0)(0,3)(1,4))</span>
+$+\infty$.<span>((1,0)(1,3)(1,4))</span>
+$+\infty$.<span>((1,0)(2,3)(1,4))</span>
+$+w$.<span>((2,0))</span>
+$+p$.<span>((2,0)(0,2)(1,3)(2,4))</span>
+$+\infty$.<span>((2,0)(0,2)(0,4))</span>
+$+\infty$.<span>((2,0)(1,2)(0,4))</span>
+$+p$.<span>((2,0)(1,2)(1,4))</span>
+$+p$.<span>((2,0)(1,2)(2,4))</span>
+$+p$.<span>((2,0)(2,2)(1,3)(2,4))</span>
+$+\infty$.<span>((2,0)(2,2)(0,4))</span>
+$+p$.<span>((2,0)(0,3)(0,4))</span>
+$+\infty$.<span>((2,0)(0,3)(1,4))</span>
+$+p$.<span>((2,0)(0,3)(2,4))</span>
+$+\infty$.<span>((2,0)(1,3)(1,4))</span>
+$+\infty$.<span>((2,0)(2,3)(1,4))</span>
+</td>
+</tr>
+<tr><td><code>X1</code></td>
+<td>
+ $p$.<span>((0,0)(1,2))</span>
+$+p$.<span>((0,0)(2,2))</span>
+$+p$.<span>((1,0)(1,2))</span>
+$+p$.<span>((2,0)(1,2))</span>
+$+p$.<span>((0,1)(1,2))</span>
+$+p$.<span>((0,1)(2,2))</span>
+$+p$.<span>((1,1)(1,2))</span>
+$+p$.<span>((2,1)(1,2))</span>
+$+p$.<span>((0,2))</span>
+$+m$.<span>((1,2))</span>
+$+w$.<span>((2,2))</span>
+</td>
+<td>
+$p$.<span>((0,0)(0,3))</span>
+$+p$.<span>((0,0)(1,3))</span>
+$+p$.<span>((0,0)(2,3))</span>
+$+p$.<span>((1,0)(1,2)(2,3))</span>
+$+p$.<span>((1,0)(0,3))</span>
+$+m$.<span>((1,0)(1,3))</span>
+$+w$.<span>((1,0)(2,3))</span>
+$+p$.<span>((2,0)(1,2)(2,3))</span>
+$+p$.<span>((2,0)(0,3))</span>
+$+w$.<span>((2,0)(1,3))</span>
+$+w$.<span>((2,0)(2,3))</span>
+$+p$.<span>((0,1)(0,3))</span>
+$+p$.<span>((0,1)(1,3))</span>
+$+p$.<span>((0,1)(2,3))</span>
+$+p$.<span>((1,1)(1,2)(2,3))</span>
+$+p$.<span>((1,1)(0,3))</span>
+$+m$.<span>((1,1)(1,3))</span>
+$+w$.<span>((1,1)(2,3))</span>
+$+p$.<span>((2,1)(1,2),(2,3))</span>
+$+p$.<span>((2,1)(0,3))</span>
+$+w$.<span>((2,1)(1,3))</span>
+$+w$.<span>((2,1)(2,3))</span>
+$+p$.<span>((0,2)(0,3))</span>
+$+p$.<span>((0,2)(1,3))</span>
+$+p$.<span>((0,2)(2,3))</span>
+$+m$.<span>((1,2)(0,3))</span>
+$+p$.<span>((1,2)(1,3))</span>
+$+w$.<span>((1,2)(2,3))</span>
+$+w$.<span>((2,2)(0,3))</span>
+$+p$.<span>((2,2)(1,3))</span>
+$+w$.<span>((2,2)(2,3))</span>
+</td>
+<td>
+ $p$.<span>((0,0))</span>
+$+\infty$.<span>((0,0),(0,3)(1,4))</span>
+$+\infty$.<span>((0,0),(1,3),(1,4))</span>
+$+\infty$.<span>((0,0),(2,3),(1,4))</span>
+$+m$.<span>((1,0))</span>
+$+p$.<span>((1,0),(1,2),(1,4))</span>
+$+p$.<span>((1,0),(1,2),(2,4))</span>
+$+p$.<span>((1,0),(0,3),(0,4))</span>
+$+\infty$.<span>((1,0),(0,3),(1,4))</span>
+$+p$.<span>((1,0),(0,3),(2,4))</span>
+$+\infty$.<span>((1,0),(1,3),(1,4))</span>
+$+w$.<span>((1,0),(1,3),(2,4))</span>
+$+w$.<span>((1,0),(2,3),(0,4))</span>
+$+\infty$.<span>((1,0),(2,3),(1,4))</span>
+$+w$.<span>((1,0),(2,3),(2,4))</span>
+$+w$.<span>((2,0))</span>
+$+p$.<span>((2,0),(1,2),(1,4))</span>
+$+p$.<span>((2,0),(1,2),(2,4))</span>
+$+p$.<span>((2,0),(0,3),(0,4))</span>
+$+\infty$.<span>((2,0),(0,3),(1,4))</span>
+$+p$.<span>((2,0),(0,3),(2,4))</span>
+$+\infty$.<span>((2,0),(1,3),(1,4))</span>
+$+\infty$.<span>((2,0),(2,3),(1,4))</span>
+$+p$.<span>((0,1))</span>
+$+\infty$.<span>((0,1),(0,3),(1,4))</span>
+$+\infty$.<span>((0,1),(1,3),(1,4))</span>
+$+\infty$.<span>((0,1),(2,3),(1,4))</span>
+$+m$.<span>((1,1))</span>
+$+p$.<span>((1,1),(1,2),(1,4))</span>
+$+p$.<span>((1,1),(1,2),(2,4))</span>
+$+p$.<span>((1,1),(0,3),(0,4))</span>
+$+\infty$.<span>((1,1),(0,3),(1,4))</span>
+$+p$.<span>((1,1),(0,3),(2,4))</span>
+$+\infty$.<span>((1,1),(1,3),(1,4))</span>
+$+w$.<span>((1,1),(1,3),(2,4))</span>
+$+w$.<span>((1,1),(2,3),(0,4))</span>
+$+\infty$.<span>((1,1),(2,3),(1,4))</span>
+$+w$.<span>((1,1),(2,3),(2,4))</span>
+$+w$.<span>((2,1))</span>
+$+p$.<span>((2,1),(1,2),(1,4))</span>
+$+p$.<span>((2,1),(1,2),(2,4))</span>
+$+p$.<span>((2,1),(0,3),(0,4))</span>
+$+\infty$.<span>((2,1),(0,3),(1,4))</span>
+$+p$.<span>((2,1),(0,3),(2,4))</span>
+$+\infty$.<span>((2,1),(1,3),(1,4))</span>
+$+\infty$.<span>((2,1),(2,3),(1,4))</span>
+$+\infty$.<span>((0,2),(0,3),(1,4))</span>
+$+\infty$.<span>((0,2),(1,3),(1,4))</span>
+$+\infty$.<span>((0,2),(2,3),(1,4))</span>
+$+\infty$.<span>((0,2),(0,4))</span>
+$+p$.<span>((0,2),(1,4))</span>
+$+p$.<span>((0,2),(2,4))</span>
+$+\infty$.<span>((1,2),(0,3),(1,4))</span>
+$+\infty$.<span>((1,2),(1,3),(1,4))</span>
+$+p$.<span>((1,2),(1,3),(2,4))</span>
+$+\infty$.<span>((1,2),(2,3),(1,4))</span>
+$+\infty$.<span>((1,2),(0,4))</span>
+$+m$.<span>((1,2),(1,4))</span>
+$+w$.<span>((1,2),(2,4))</span>
+$+\infty$.<span>((2,2),(0,3),(1,4))</span>
+$+\infty$.<span>((2,2),(1,3),(1,4))</span>
+$+p$.<span>((2,2),(1,3),(2,4))</span>
+$+\infty$.<span>((2,2),(2,3),(1,4))</span>
+$+\infty$.<span>((2,2),(0,4))</span>
+$+w$.<span>((2,2),(1,4))</span>
+$+w$.<span>((2,2),(2,4))</span>
+</td></tr>
+<tr><td><code>X2</code></td><td>
+ $m$.<span>((0,1)(0,2))</span>
+$+p$.<span>((0,1)(1,2))</span>
+$+w$.<span>((0,1)(2,2))</span>
+$+p$.<span>((1,1)(0,2))</span>
+$+p$.<span>((1,1)(1,2))</span>
+$+p$.<span>((1,1)(2,2))</span>
+$+w$.<span>((2,1)(0,2))</span>
+$+p$.<span>((2,1)(1,2))</span>
+$+w$.<span>((2,1)(2,2))</span>
+</td><td>
+$p$.<span>((0,1)(0,2)(1,3))</span>
+$+p$.<span>((0,1)(1,2)(1,3))</span>
+$+p$.<span>((0,1)(1,2)(2,3))</span>
+$+p$.<span>((0,1)(2,2)(1,3))</span>
+$+p$.<span>((0,1)(0,3))</span>
+$+m$.<span>((0,1)(1,3))</span>
+$+w$.<span>((0,1)(2,3))</span>
+$+p$.<span>((1,1)(0,3))</span>
+$+p$.<span>((1,1)(1,3))</span>
+$+p$.<span>((1,1)(2,3))</span>
+$+p$.<span>((2,1)(0,2)(1,3))</span>
+$+p$.<span>((2,1)(1,2)(1,3))</span>
+$+p$.<span>((2,1)(1,2)(2,3))</span>
+$+p$.<span>((2,1)(2,2)(1,3))</span>
+$+p$.<span>((2,1)(0,3))</span>
+$+w$.<span>((2,1)(1,3))</span>
+$+w$.<span>((2,1)(2,3))</span></td><td>
+$m.$<span>((0,1))</span>
+$+p.$<span>((0,1)(0,2)(1,3)(2,4))</span>
+$+\infty.$<span>((0,1)(0,2)(0,4))</span>
+$+w.$<span>((0,1)(0,2)(2,4))</span>
+$+\infty.$<span>((0,1)(1,2)(0,4))</span>
+$+p.$<span>((0,1)(1,2)(1,4))</span>
+$+p.$<span>((0,1)(1,2)(2,4))</span>
+$+p.$<span>((0,1)(2,2)(1,3)(2,4))</span>
+$+\infty.$<span>((0,1)(2,2)(0,4))</span>
+$+w.$<span>((0,1)(2,2)(1,4))</span>
+$+w.$<span>((0,1)(2,2)(2,4))</span>
+$+p.$<span>((0,1)(0,3)(0,4))</span>
+$+\infty.$<span>((0,1)(0,3)(1,4))</span>
+$+p.$<span>((0,1)(0,3)(2,4))</span>
+$+\infty.$<span>((0,1)(1,3)(1,4))</span>
+$+w.$<span>((0,1)(1,3)(2,4))</span>
+$+w.$<span>((0,1)(2,3)(0,4))</span>
+$+\infty.$<span>((0,1)(2,3)(1,4))</span>
+$+w.$<span>((0,1)(2,3)(2,4))</span>
+$+p.$<span>((1,1))</span>
+$+\infty.$<span>((1,1)(0,2)(0,4))</span>
+$+\infty.$<span>((1,1)(1,2)(0,4))</span>
+$+\infty.$<span>((1,1)(2,2)(0,4))</span>
+$+\infty.$<span>((1,1)(0,3)(1,4))</span>
+$+\infty.$<span>((1,1)(1,3)(1,4))</span>
+$+\infty.$<span>((1,1)(2,3)(1,4))</span>
+$+w.$<span>((2,1))</span>
+$+p.$<span>((2,1)(0,2)(1,3)(2,4))</span>
+$+\infty.$<span>((2,1)(0,2)(0,4))</span>
+$+\infty.$<span>((2,1)(1,2)(0,4))</span>
+$+p.$<span>((2,1)(1,2)(1,4))</span>
+$+p.$<span>((2,1)(1,2)(2,4))</span>
+$+p.$<span>((2,1)(2,2)(1,3)(2,4))</span>
+$+\infty.$<span>((2,1)(2,2)(0,4))</span>
+$+p.$<span>((2,1)(0,3)(0,4))</span>
+$+\infty.$<span>((2,1)(0,3)(1,4))</span>
+$+p.$<span>((2,1)(0,3)(2,4))</span>
+$+\infty.$<span>((2,1)(1,3)(1,4))</span>
+$+\infty.$<span>((2,1)(2,3)(1,4))</span>
+</td></tr>
+</table>
+</div>
 
 Valid choices:
 
@@ -222,13 +426,17 @@ Valid choices:
 
 #### Discussion
 
-For any source variable, where either `X0` or `X1` is the target, the dependencies are consistently polynomially bounded, for all choices.
-The situation is different between any source variable and `X2` as the target. Multiple deviation choices fail.
-From the matrix, we can also observe that failures occur at the `while` loop, independent of the which branch of the conditional statement was selected.
+For variables `X0` and `X1` the dependencies are consistently polynomially bounded for all choices.
+This is observable in the first two columns of the matrix, because they contain no $\infty$ coefficients.
 
-There are however multiple sequences of choices that still allow completing the derivation.
+The situation is different for variable `X2`, the rightmost column in the matrix. Multiple derivation choices fail.
+From the matrix, and from the choice vector, we can also observe that the critical choice occurs at index 4, which corresponds to the statement inside the while loop. Failure may occur independent of the which branch of the preceding conditional statement was selected.
+
+There are, however, multiple sequences of choices that still allow completing the derivation.
 The generated choice vector captures the valid choices we can apply to complete the derivation.
-Therefore, the solution is yes, the program is polynomially bounded in inputs.
+For example, choices $[0, 0, 0, 0, 2]$ and $[1, 2, 1, 1, 2]$ are valid.
+
+Because a valid derivation exists, the solution is yes, the program is polynomially bounded in inputs.
 
 </div> 
  

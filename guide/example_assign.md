@@ -8,7 +8,7 @@ next_href: example_exponent.html
 #### Analyzed Program
 
 ```c
-int foo(int y1, int y2){
+void foo(int y1, int y2){
     y2 = y1 + y1;
 } 
 ```

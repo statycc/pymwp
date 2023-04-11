@@ -142,6 +142,8 @@ choices:    ↓  ↓  ↓    ↓  ↓  ↓    ↓
 index:         0          1       2
 
 </pre>
+
+The intent is to read the vector like a regular expression, e.g., $[0,0,2]$ and $[1,0,2]$ are valid choices.
 </details>
 
 
