@@ -20,7 +20,7 @@ int foo(int X0, int X1, int X2, int X3){
 ```
 
 This program contains decision logic, a while loop, and multiple variables.
-Determining if a "polynomial growth bound" exists is not immediate by inspection.
+Determining if a polynomial growth bound exists is not immediate by inspection.
 It is therefore an interesting candidate for analysis with pymwp!
 
 
@@ -143,7 +143,8 @@ index:         0          1       2
 
 </pre>
 
-The intent is to read the vector like a regular expression, e.g., $[0,0,2]$ and $[1,0,2]$ are valid choices.
+Read the vector like a regular expression and make one choice at each index.  
+e.g., $[0,0,2]$ and $[1,0,2]$ are valid choices.
 </details>
 
 
@@ -152,5 +153,5 @@ The intent is to read the vector like a regular expression, e.g., $[0,0,2]$ and 
 Compared to previous examples, the matrix is now getting more complicated.
 The choice vector tells us that every derivation choice is allowed at indices 0 and 1 . These correspond to the operations inside the `if` statement.
 But inside the `while` loop, only choice 2 is allowed to obtain a valid derivation result.
-Because there exists a choice for which the program is derivable, this program's variable values growth is bounded by polynomials in their inputs.
+Because there exists a choice for which the program is derivable, this program's variable values growth is bounded by polynomials in inputs.
 

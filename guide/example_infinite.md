@@ -19,10 +19,9 @@ int foo(int X1, int X2, int X3){
 }
 ```
 
-Compared to the previous example, this program looks very similar. 
 
 <details>
-<summary>Previous Example -- for comparison</summary>
+<summary>(Have a look at the previous example, for comparison)</summary>
 
 ```c
 int foo(int X0, int X1, int X2, int X3){
@@ -37,9 +36,10 @@ int foo(int X0, int X1, int X2, int X3){
 ```
 </details>
 
-
-In this program we remove variable `X0` and change its usages, e.g., the loop condition and assignment inside the `while` loop.
-This example demonstrates how this seemingly small change impacts the analysis result. The example title obviously reveals the outcome, but let us see why.
+Compared to the previous example, this program looks very similar.
+But we remove variable `X0` and change its usages: the loop condition and assignment inside the `while` loop.
+This example demonstrates how this seemingly small change impacts the analysis result. 
+The page title obviously reveals the outcome, but let us see why.
 
 #### CLI Command
 
@@ -55,7 +55,7 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/infinite/infin
 pymwp infinite_3.c --fin
 ```
 
-Include the `--fin` flag to obtain a matrix.
+Include `--fin` flag to run to completion to obtain a matrix.
 
 <p>
   <a class="btn btn-outline-secondary" data-bs-toggle="collapse"
@@ -151,7 +151,10 @@ NONE
 
 #### Discussion
 
-Observing the two rightmost matrix columns, the absence of $\infty$ coefficients shows variables `X2` and `X3` have reasonable growth bounds.
-The problematic variable is `X1`. 
-Observe that it is impossible to make a choice, at index 2 corresponding to the assignment inside the `while` loop, that would produce a matrix without infinite coefficients. 
-The conclusion of the analysis is $\infty$ result. 
+The two rightmost matrix columns do not contain $\infty$ coefficients. 
+This means data flow to variables `X2` and `X3` have polynomially bounded growth.
+The problematic variable is `X1`.
+Observe that it is impossible to make a choice, at index 2, that would produce a matrix without infinite coefficients.
+This corresponds to the assignment statement inside the `while` loop. 
+Thus, we have identified the point and source of failure. 
+The conclusion of this analysis is $\infty$ result. 

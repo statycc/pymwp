@@ -24,20 +24,28 @@ void foo(int X0, int X1, int X2){
 }
 ```
 
-After seeing the examples of programs with and without polynomial bounds, we present the following challenge.
+After seeing the various preceding examples of programs, with and without polynomial bounds, we present the following challenge.
 By inspection, try to determine if this program is polynomially bounded in inputs.
 Note that it is unknown whether the `while` loop will terminate, however this is not a problem for determining the result.
 
+**Choose.** The program is...
+ 
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="flexRadio" id="P required" required>
+  <label class="form-check-label" for="flexRadioDefault1">Polynomially bounded in inputs</label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="flexRadio" id="Infinite">
+  <label class="form-check-label" for="flexRadioDefault2">Infinite</label>
+</div>
 
 <br/>
 
-<p>
-  <a class="btn btn-primary" data-bs-toggle="collapse"
-    href="#solution" role="button" aria-expanded="true"
-    aria-controls="solution">
-    Reveal Solution
-  </a>
-</p>
+<a class="btn btn-primary" data-bs-toggle="collapse"
+href="#solution" role="button" aria-expanded="true"
+aria-controls="solution">Reveal Solution</a>
+
+
 <div class="collapse" id="solution"> 
 
 #### CLI Command
@@ -138,8 +146,8 @@ INFO (file_io): saved result in output/dense_loop.json
 
 ### Matrix
 
-Because this matrix is large, we display it here in compacted form, with
-added emphasis on the coefficients.
+Because this matrix is large, we display it in compact form, with
+added emphasis on coefficients.
 
 <style>
 .table-wrapper tr:not(:first-child) td:not(:first-child) > span.math
@@ -426,14 +434,15 @@ Valid choices:
 
 #### Discussion
 
-For variables `X0` and `X1` the dependencies are consistently polynomially bounded for all choices.
-This is observable in the first two columns of the matrix, because they contain no $\infty$ coefficients.
+Variables `X0` and `X1` dependencies are consistently polynomially bounded for all choices.
+This is observable in the corresponding columns of the matrix, since they contain no $\infty$ coefficients.
 
 The situation is different for variable `X2`, the rightmost column in the matrix. Multiple derivation choices fail.
-From the matrix, and from the choice vector, we can also observe that the critical choice occurs at index 4, which corresponds to the statement inside the while loop. Failure may occur independent of the which branch of the preceding conditional statement was selected.
+From the matrix, and from the choice vector, we can also observe that the critical choice occurs at index 4.
+It corresponds to the statement inside the `while` loop. Failure may occur independent of the which branch of the preceding conditional statement was selected.
 
-There are, however, multiple sequences of choices that still allow completing the derivation.
-The generated choice vector captures the valid choices we can apply to complete the derivation.
+There are, however, multiple sequences of choices that allow completing the derivation.
+The choice vector indicated how to complete the derivation.
 For example, choices $[0, 0, 0, 0, 2]$ and $[1, 2, 1, 1, 2]$ are valid.
 
 Because a valid derivation exists, the solution is yes, the program is polynomially bounded in inputs.

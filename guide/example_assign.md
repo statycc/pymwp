@@ -13,8 +13,8 @@ void foo(int y1, int y2){
 } 
 ```
 
-This program is simple, and it is straightforward to observe that its input variables have polynomial growth rates, i.e., $y_1^\prime \leq y_1$ and  $y_2^\prime \leq 2y_1$.
-From analysis perspective this example is interesting because binary operations introduce complex polynomials in the matrix.
+This program is simple, and it is straightforward to observe that its input variables have polynomial growth bounds, i.e., $\texttt{y1}^\prime \leq \texttt{y1}$ and  $\texttt{y2}^\prime \leq 2\; \texttt{y1}$.
+From analysis perspective this example is interesting because binary operations introduce polynomials in program's matrix.
 
 #### CLI Command
 
@@ -77,4 +77,5 @@ Valid choices
 #### Discussion
 
 The analysis correctly assigns a polynomial bound to the program.
+There are no $\infty$ coefficients.
 Every choice yields a valid matrix. 

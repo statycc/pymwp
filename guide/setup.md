@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-subtitle: Install pymwp for an interactive examples experience.
+subtitle: We recommend installing pymwp for an interactive tutorial experience.
 next: Binary Assignment
 next_href: example_assign.html
 ---
@@ -14,7 +14,7 @@ Instructions for installing Python for different operating systems can be found 
 
 ##### Tool Installation 
 
-Get the latest version from Python Package Index:
+Install pymwp from Python Package Index:
 
 ```console
 pip install pymwp==0.3.0

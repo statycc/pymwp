@@ -21,7 +21,7 @@ int main(int x, int n, int p, int r){
 ```
 
 This program variables `p` and `r` grow exponentially.
-It is impossible to find a polynomial growth bound, and the analysis is expected to fail.
+It is impossible to find a polynomial growth bound, and the analysis is expected to report "infinity" result.
 This example demonstrates how pymwp arrives to that conclusion.
 
 
@@ -39,7 +39,7 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/infinite/expon
 pymwp exponent_1.c --fin
 ```
 
-When run the analyzer with `--fin` argument, to have it run to completion and output a matrix. 
+We should run pymwp with `--fin` argument, to make sure it runs to completion and outputs a matrix. 
 Without this flag, the analyzer terminates once it is known that no solution exists.
 
 
@@ -134,6 +134,6 @@ NONE
 #### Discussion
 
 The matrix shows that the problematic variables  are `p` and `r`. 
-In the program, there are two critical binary multiplication operations that introduce choices (inside the `while` loop, at indices 1 and 2).
+In the program, inside the `while` loop, there are two critical multiplication operations that introduce choices (indices 1 and 2).
 No matter what choice is made, it is not possible to obtain an $\infty$-free result.
 This concludes the program does not pass the analysis.

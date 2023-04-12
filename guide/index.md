@@ -9,19 +9,22 @@ pymwp ("paɪ m-w-p") is a tool for automatically performing
 on programs written in a subset of the C language.
 It analyzes resource usage and determines if a program variables' growth rates are no more than polynomially related to their inputs sizes.
 
-The mathematical foundation of the analyzer is described in paper ["mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity"](https://drops.dagstuhl.de/opus/volltexte/2022/16307/pdf/LIPIcs-FSCD-2022-26.pdf).
-The technique is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
+The theoretical foundations are described in paper 
+_<a href="https://doi.org/10.4230/LIPIcs.FSCD.2022.26" target="blank" rel="nofollow noreferrer">"mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity"</a>_.
+The technique is generic and applicable to imperative languages. pymwp is a prototype implementation demonstrating this technique concretely on C programs.
+The technique is originally inspired by
+_<a href="https://doi.org/10.1145/1555746.1555752" target="blank" rel="nofollow noreferrer">"A Flow Calculus of mwp-Bounds for Complexity Analysis"</a>_.
 
 This guide explains pymwp usage and behavior through several high-level examples.
 
-The Main Question
+The Program Property of Interest
 ---
 
 For program $P$, <!-- using P here to not confuse with C language -->
-the goal of the analyzer is to discover a polynomially bounded data-flow relation, 
+the goal is to discover a polynomially bounded data-flow relation, 
 between its initial values $x_1,...,x_n$ and final value $x_1^\prime,...,x_n^\prime$.
 
-For an imperative program, this property of interest can be framed as follows.  
+For an imperative program this property can be presented as follows.   
 
 ```c
 void main(int X1, int X2, int X3){ 
@@ -42,35 +45,34 @@ Question: $\forall i$, is $\texttt{X}_i \rightsquigarrow \texttt{X}_i^\prime$ po
 
 The analysis is performed by applying inference rules to commands of $P$.
 These inference rules assign matrices to commands. 
-Final matrix $M$ for program $P$ is obtained by compositional analysis of its commands.
+A matrix $M$ for program $P$ is obtained by compositional analysis of its commands.
 
-After analysis, the matrix $P: M$ contains coefficients representing _dependencies_ between program variables.
-These are denoted with coefficients $0, m, w, p$ and $\infty$. 
+Matrix $M$ contains coefficients representing _dependencies_ between program variables.
+These coefficients are $0, m, w, p$ and $\infty$. 
 
 <details>
 <summary>Brief explanation of coefficients</summary>
 <div class="card card-body">
-The coefficients characterize how data flows between variables.   
+The coefficients characterize how data flows between variables:
 
 * $0$ --- no dependency
 * $m$ --- maximal (of linear)
 * $w$ --- weak polynomial
 * $p$ --- polynomial
-* $\infty$ --- infinite (failure)
+* $\infty$ --- infinite
 
-Ordering of coefficients:  $0 < m < w < p < \infty$.  
-
-In pymwp, `o` is used for $0$ and `i` for $\infty$.
+Ordering:  $0 < m < w < p < \infty$.  
+In pymwp $0$ is `0` and $\infty$ is `i`.
 </div>
 </details>
 
-One way to think about $\infty$ is derivation failure. Alternatively, obtaining an $\infty$-free result
-implies existence of a polynomial growth bound, i.e., the program has the property of interest, or simply "success".
-
+One way to think about $\infty$ is derivation failure. Alternatively, obtaining an $\infty$-free derivation
+implies existence of a polynomial growth bound, i.e., the program has the property of interest, or that the program is derivable.
 
 #### Example 1
 
-For some programs the analysis is straightforward.   
+For some programs the analysis is straightforward, although we omit the steps here. 
+Since pymwp performs the computation automatically, it is best we focus here on how to _interpret_ those results.
 
 <div class="container text-left"><div class="row"><div class="col col-md-4">
 PROGRAM
@@ -94,24 +96,21 @@ MATRIX
 
 </div></div></div>
 
-This obtained matrix contains only 4 simple-value coefficients.
-This result indicates that value growth of variables `x` and `y` is polynomially bounded in their inputs.
-
-The result should be read along a vertical column, where the top-row variable is the data flow target, and
-the first column gives the data flow source. 
+The generated matrix is labelled with input variable names. The top-row shows the data flow _target_ and the left column is the _source_ of data flow.
+This matrix contains only "non-$\infty$" coefficients, which means `x` and `y` value growth is polynomially bounded in inputs.
+This is confirmable by inspection, since the final values are $x' \leq x$ and $y' \leq x$.
 
 #### Example 2
 
 For more complicated programs, the inference procedure introduces derivation _choice_. 
-This is represented in a matrix by complex polynomials.
+This is represented by complex polynomials.
+Then variables can have different dependencies for different derivation choices.
+We capture this in a matrix, in form of ordered list of _deltas_, and an associated coefficient.
+In other words, by making the derivation choices indicated by a list of deltas we obtain the associated coefficient.
 
-Variables have different dependencies for different derivation choices.
-We capture this in the matrix in form of ordered list of _deltas_, and an associated coefficient.
-In other words, by making the derivation choices indicated by a list of deltas, we obtain the associated coefficient.
 
-
-Deltas are coded as pairs of $(i, j)$ with $i$ the value and $j$ the index in the domain.
-Possible values of $i$ are $\{0,1,2\}$. Index $j$ is of type $\mathbb{N}$ and corresponds to a program point where a choice is made.
+Deltas are pairs of $(i, j)$ with $i$ the value and $j$ the index in the domain.
+Values $i$ is one of $\{0,1,2\}$. Index $j$ corresponds to a program point where a choice occurs (effectively it is a counter).
 
 <div class="container text-left"><div class="row"><div class="col col-md-4">
 PROGRAM
@@ -136,8 +135,9 @@ MATRIX
 </div></div></div>
 
 
-Variable `x` has different dependencies -- consider pairs (`x`,`x`) and  (`x`,`y`) -- with some choices yielding $\infty$.
-In fact, the single matrix compactly captures three possible derivation outcomes:
+In this program, target variable `x` has different dependencies, and some choices yield $\infty$.
+In fact, the matrix with polynomials compactly capture three derivation outcomes.
+But only one choice $(2,0)$ produces a valid derivation, because it does not contain any $\infty$ coefficients.
  
 <div class="d-flex flex-wrap flex-row justify-content-left"><div class="p-2">
 Choice $(0,0)$
@@ -166,16 +166,16 @@ Choice $(2,0)$
 </div></div>
 
 
-Only the choice $(2,0)$ produces a valid derivation because it does not contain $\infty$ coefficients.
+
 
 ### Analysis Result
 
 A program is derivable when it can be assigned a matrix (of choice) without infinite coefficients.
-The soundness theorem of the calculus guarantees that if some choice exists 
+The soundness theorem of the calculus guarantees that if some choice exists,
 that produces an $\infty$-free simple valued matrix, the program variables' value growth is polynomially bounded in inputs.
 
 
 Program fails the analysis if it is assigned a matrix that always contains infinite coefficients, no matter the choices.
-Then it is not possible to establish polynomial growth bound. For these programs, pymwp reports $\infty$ result.
+Then it is not possible to establish polynomial growth bound. For these programs pymwp reports "infinite" result.
 
 
