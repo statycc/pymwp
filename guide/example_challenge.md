@@ -58,17 +58,10 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/other/dense_lo
 ```
 </details>
 
-```console
-pymwp dense_loop.c --fin
-```
+<pre class="console">
+<a class="btn btn-outline-light" data-bs-toggle="collapse" href="#outputLog" role="button" aria-expanded="false" aria-controls="outputLog"><i class="bi bi-play-fill"></i></a><code>pymwp dense_loop.c --fin</code>
+</pre>
 
-<p>
-  <a class="btn btn-outline-secondary" data-bs-toggle="collapse"
-    href="#outputLog" role="button" aria-expanded="false"
-    aria-controls="outputLog">
-    Show Command Output
-  </a>
-</p>
 <div class="collapse" id="outputLog"><div class="card card-body">
 
 ```

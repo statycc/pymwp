@@ -20,7 +20,7 @@ int main(int x, int n, int p, int r){
 }
 ```
 
-This program variables `p` and `r` grow exponentially.
+This program's variables `p` and `r` grow exponentially.
 It is impossible to find a polynomial growth bound, and the analysis is expected to report "infinity" result.
 This example demonstrates how pymwp arrives to that conclusion.
 
@@ -35,21 +35,13 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/infinite/expon
 ```
 </details>
 
-```console
-pymwp exponent_1.c --fin
-```
+<pre class="console">
+<a class="btn btn-outline-light" data-bs-toggle="collapse" href="#outputLog" role="button" aria-expanded="false" aria-controls="outputLog"><i class="bi bi-play-fill"></i></a><code>pymwp exponent_1.c --fin</code>
+</pre>
 
 We should run pymwp with `--fin` argument, to make sure it runs to completion and outputs a matrix. 
 Without this flag, the analyzer terminates once it is known that no solution exists.
 
-
-<p>
-  <a class="btn btn-outline-secondary" data-bs-toggle="collapse" 
-    href="#outputLog" role="button" aria-expanded="false"
-    aria-controls="outputLog">
-    Show Command Output
-  </a>
-</p>
 <div class="collapse" id="outputLog"><div class="card card-body">
 
 ```

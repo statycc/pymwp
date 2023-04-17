@@ -1,13 +1,13 @@
 ---
-title: pymwp
-next: Setup
+title: pymwp User Guide
+next: Getting Started
 next_href: setup.html
 ---
 
 pymwp ("paɪ m-w-p") is a tool for automatically performing 
 <a href="https://en.wikipedia.org/wiki/Static_program_analysis" target="blank" rel="nofollow noreferrer">static analysis</a> 
-on programs written in a subset of the C language.
-It analyzes resource usage and determines if a program variables' growth rates are no more than polynomially related to their inputs sizes.
+on programs written in subset of C language.
+It analyzes resource usage and determines if program variables' growth rates are no more than polynomially related to their inputs sizes.
 
 The theoretical foundations are described in paper 
 _<a href="https://doi.org/10.4230/LIPIcs.FSCD.2022.26" target="blank" rel="nofollow noreferrer">"mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity"</a>_.
@@ -20,11 +20,10 @@ This guide explains pymwp usage and behavior through several high-level examples
 The Program Property of Interest
 ---
 
-For program $P$, <!-- using P here to not confuse with C language -->
-the goal is to discover a polynomially bounded data-flow relation, 
+For an imperative program, the goal is to discover a polynomially bounded data-flow relation, 
 between its initial values $x_1,...,x_n$ and final value $x_1^\prime,...,x_n^\prime$.
 
-For an imperative program this property can be presented as follows.   
+This property can be presented as follows.   
 
 ```c
 void main(int X1, int X2, int X3){ 
@@ -43,11 +42,11 @@ Question: $\forall i$, is $\texttt{X}_i \rightsquigarrow \texttt{X}_i^\prime$ po
 
 ### Interpreting Matrices
 
-The analysis is performed by applying inference rules to commands of $P$.
+The analysis is performed by applying inference rules to program's commands.
 These inference rules assign matrices to commands. 
-A matrix $M$ for program $P$ is obtained by compositional analysis of its commands.
+A matrix characterizing a program is obtained by compositional analysis of its commands.
 
-Matrix $M$ contains coefficients representing _dependencies_ between program variables.
+A matrix contains coefficients representing _dependencies_ between program variables.
 These coefficients are $0, m, w, p$ and $\infty$. 
 
 <details>
@@ -72,7 +71,7 @@ implies existence of a polynomial growth bound, i.e., the program has the proper
 #### Example 1
 
 For some programs the analysis is straightforward, although we omit the steps here. 
-Since pymwp performs the computation automatically, it is best we focus here on how to _interpret_ those results.
+Since pymwp performs the computation automatically, it is best we focus here on how to interpret those results.
 
 <div class="container text-left"><div class="row"><div class="col col-md-4">
 PROGRAM
@@ -97,8 +96,8 @@ MATRIX
 </div></div></div>
 
 The generated matrix is labelled with input variable names. The top-row shows the data flow _target_ and the left column is the _source_ of data flow.
-This matrix contains only "non-$\infty$" coefficients, which means `x` and `y` value growth is polynomially bounded in inputs.
-This is confirmable by inspection, since the final values are $x' \leq x$ and $y' \leq x$.
+This matrix contains only "non-$\infty$" coefficients, which means $\texttt{x}$ and $\texttt{y}$ value growth is polynomially bounded in inputs.
+This is confirmable by inspection, since the final values are $\texttt{x}' \leq \texttt{x}$ and $\texttt{y}' \leq \texttt{x}$.
 
 #### Example 2
 
@@ -135,7 +134,7 @@ MATRIX
 </div></div></div>
 
 
-In this program, target variable `x` has different dependencies, and some choices yield $\infty$.
+In this program, target variable $\texttt{x}$ has different dependencies, and some choices yield $\infty$.
 In fact, the matrix with polynomials compactly capture three derivation outcomes.
 But only one choice $(2,0)$ produces a valid derivation, because it does not contain any $\infty$ coefficients.
  
@@ -175,7 +174,7 @@ The soundness theorem of the calculus guarantees that if some choice exists,
 that produces an $\infty$-free simple valued matrix, the program variables' value growth is polynomially bounded in inputs.
 
 
-Program fails the analysis if it is assigned a matrix that always contains infinite coefficients, no matter the choices.
+Program fails the analysis, if it is assigned a matrix that always contains infinite coefficients, no matter the choices.
 Then it is not possible to establish polynomial growth bound. For these programs pymwp reports "infinite" result.
 
 

@@ -26,17 +26,10 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/basics/assign_
 ```
 </details>
 
-```console
-pymwp assign_expression.c
-```
+<pre class="console">
+<a class="btn btn-outline-light" data-bs-toggle="collapse" href="#outputLog" role="button" aria-expanded="false" aria-controls="outputLog"><i class="bi bi-play-fill"></i></a><code>pymwp assign_expression.c</code>
+</pre>
 
-<p>
-  <a class="btn btn-outline-secondary" data-bs-toggle="collapse"
-    href="#outputLog" role="button" aria-expanded="false"
-    aria-controls="outputLog">
-    Show Command Output
-  </a>
-</p>
 <div class="collapse" id="outputLog"><div class="card card-body fs-6">
 
 ```

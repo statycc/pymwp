@@ -34,17 +34,10 @@ wget https://raw.githubusercontent.com/statycc/pymwp/main/c_files/not_infinite/n
 ```
 </details>
 
-```console
-pymwp notinfinite_3.c
-```
+<pre class="console">
+<a class="btn btn-outline-light" data-bs-toggle="collapse" href="#outputLog" role="button" aria-expanded="false" aria-controls="outputLog"><i class="bi bi-play-fill"></i></a><code>pymwp notinfinite_3.c</code>
+</pre>
 
-<p>
-  <a class="btn btn-outline-secondary" data-bs-toggle="collapse"
-    href="#outputLog" role="button" aria-expanded="false"
-    aria-controls="outputLog">
-    Show Command Output
-  </a>
-</p>
 <div class="collapse" id="outputLog"><div class="card card-body">
 
 ```
@@ -107,23 +100,21 @@ INFO (file_io): saved result in output/notinfinite_3.json
 
 #### Matrix
 
-|          |                               `X0`                               |              `X1`               |             `X2`              | `X3` |
-|----------|:----------------------------------------------------------------:|:-------------------------------:|:-----------------------------:|:----:|
-| **`X0`** |            $m+\infty.\delta(0,2)+\infty.\delta(1,2)$             |               $0$               |              $0$              | $0$  |
-|          |                                                                  |                                 |                               |      |
-| **`X1`** |          $p.\delta(1,0).\delta(2,2)+\infty.\delta(0,2)$          | $m+p.\delta(1,0)+w.\delta(2,0)$ |              $0$              | $0$  |
-|          |               $+\infty.\delta(1,2)+w.\delta(2,2)$                |                                 |                               |
-|          |                                                                  |                                 |                               |      |
-| **`X2`** |    $\infty.\delta(0,0).\delta(1,2)+p.\delta(0,0).\delta(2,2)$    |  $p.\delta(0,0)+m.\delta(1,0)$  |       $m+p.\delta(1,1)$       | $0$  |
-|          | $+\infty.\delta(1,0).\delta(1,2)+\infty.\delta(2,0).\delta(1,2)$ |        $+w.\delta(2,0)$         |       $+w.\delta(2,1)$        |
-|          |      $+p.\delta(1,1).\delta(1,2)+p.\delta(1,1).\delta(2,2)$      |                                 |                               |
-|          |         $+w.\delta(2,1).\delta(1,2)+\infty.\delta(0,2)$          |                                 |                               |
-|          |                  $+m.\delta(1,2)+w.\delta(2,2)$                  |                                 |                               |
-|          |                                                                  |                                 |                               |      |
-| **`X3`** |    $\infty.\delta(0,1).\delta(0,2)+p.\delta(0,1).\delta(2,2)$    |               $0$               | $p.\delta(0,1)+m.\delta(1,1)$ | $m$  |
-|          |   $+\infty.\delta(1,1).\delta(0,2)+w.\delta(1,1).\delta(2,2)$    |                                 |       $+w.\delta(2,1)$        |
-|          |   $+\infty.\delta(2,1).\delta(0,2)+w.\delta(2,1).\delta(2,2)$    |                                 |                               |
-|          |                      $+\infty.\delta(1,2)$                       |                                 |                               |
+<style>table tr td > span.math {font-size: 80%;}</style>
+
+|          | `X0`                                                                                      | `X1`                            | `X2`                          | `X3` |
+|----------|:------------------------------------------------------------------------------------------|:--------------------------------|:------------------------------|:-----|
+| **`X0`** | $m+\infty.\delta(0,2)+\infty.\delta(1,2)$                                                 | $0$                             | $0$                           | $0$  |
+|          |                                                                                           |                                 |                               |      |
+| **`X1`** | $p.\delta(1,0).\delta(2,2)+\infty.\delta(0,2)+\infty.\delta(1,2)+w.\delta(2,2)$           | $m+p.\delta(1,0)+w.\delta(2,0)$ | $0$                           | $0$  |
+|          |                                                                                           |                                 |                               |      |
+| **`X2`** | $\infty.\delta(0,0).\delta(1,2)+p.\delta(0,0).\delta(2,2)+\infty.\delta(1,0).\delta(1,2)$ | $p.\delta(0,0)+m.\delta(1,0)$   | $m+p.\delta(1,1)$             | $0$  |
+|          | $+\infty.\delta(2,0).\delta(1,2)+p.\delta(1,1).\delta(1,2)+p.\delta(1,1).\delta(2,2)$     | $+w.\delta(2,0)$                | $+w.\delta(2,1)$              |      |
+|          | $+w.\delta(2,1).\delta(1,2)+\infty.\delta(0,2)+m.\delta(1,2)+w.\delta(2,2)$               |                                 |                               |      |
+|          |                                                                                           |                                 |                               |      |
+| **`X3`** | $\infty.\delta(0,1).\delta(0,2)+p.\delta(0,1).\delta(2,2)+\infty.\delta(1,1).\delta(0,2)$ | $0$                             | $p.\delta(0,1)+m.\delta(1,1)$ | $m$  |
+|          | $+w.\delta(1,1).\delta(2,2)+\infty.\delta(2,1).\delta(0,2)+\infty.\delta(1,2)$            |                                 | $+w.\delta(2,1)$              |      |
+|          | $+w.\delta(2,1).\delta(2,2)$                                                              |                                 |                               |      |
 
 Valid choices:
 
