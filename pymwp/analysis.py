@@ -149,7 +149,8 @@ class Analysis:
             return index, RelationList(), False
         if isinstance(node, pr.FuncCall):
             return Analysis.func_call(index)
-        if isinstance(node, pr.Assignment):
+        if isinstance(node, pr.Assignment) and \
+           isinstance(node.lvalue, pr.ID):
             if isinstance(node.rvalue, pr.BinaryOp):
                 return Analysis.binary_op(index, node)
             if isinstance(node.rvalue, pr.Constant):
@@ -176,7 +177,7 @@ class Analysis:
     @staticmethod
     def id(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze x = y (with x != y) and y not a const
+        """Analyze x = y, where data flows between two variables.
 
         Arguments:
             index: delta index
@@ -185,13 +186,16 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        x = node.lvalue.name
-        y = node.rvalue.name
-        if x == y or isinstance(node.rvalue, pr.Constant):
+
+        # ensure we have distinct variables on both sides of x = y
+        if not isinstance(node.lvalue, pr.ID) \
+                or isinstance(node.rvalue, pr.Constant) \
+                or node.lvalue.name == node.rvalue.name:
             return index, RelationList(), False
 
         logger.debug('Computing Relation x = y')
-        vars_list = [[x], [y]]
+        x = node.lvalue.name
+        vars_list = [[x], [node.rvalue.name]]
 
         # create a vector of polynomials based on operator type
         #     x   y
@@ -211,7 +215,7 @@ class Analysis:
 
         # create relation list
         rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, vars_list[0][0])
+        rel_list.replace_column(vector, x)
 
         return index + 1, rel_list, False
 
@@ -241,7 +245,8 @@ class Analysis:
 
         # create relation list
         rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, x.name)
+        if hasattr(x, 'name'):
+            rel_list.replace_column(vector, x.name)
 
         return index, rel_list, False
 
@@ -279,9 +284,11 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (third case / unary)')
-        var_name = node.lvalue.name
-        variables = [var_name]
+        logger.debug('Computing Relation (third case: unary)')
+        variables = []
+        if hasattr(node.lvalue, 'expr') and \
+                hasattr(node.lvalue.expr, 'name'):
+            variables = [node.lvalue.expr.name]
         return index, RelationList.identity(variables), False
 
     @staticmethod
@@ -405,7 +412,9 @@ class Analysis:
         logger.debug("analysing for:")
 
         relations = RelationList()
-        for child in node.stmt.block_items:
+
+        for child in node.stmt.block_items \
+                if hasattr(node, 'block_items') else [node.stmt]:
             index, rel_list, exit_ = Analysis.compute_relation(
                 index, child, dg)
             if exit_:

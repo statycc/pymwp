@@ -30,6 +30,7 @@ headers, and that gcc is a valid C compiler.
 
 PARSER_ARGS = {'use_cpp': True, 'cpp_path': 'gcc', 'cpp_args': '-E'}
 _RE_COMBINE_WHITESPACE = re.compile(r'\s+')
+headers = []
 
 in_path, out_dir = sys.argv[1:3]
 
@@ -40,7 +41,7 @@ files = [in_path] if os.path.isfile(in_path) else \
 
 for c_file in files:
     out_fn = f'{Path(c_file).stem}.txt'
-    ast_str = str(Parser.parse(c_file, **PARSER_ARGS))
+    ast_str = str(Parser.parse(c_file, headers=headers, **PARSER_ARGS))
     minified = re.sub(_RE_COMBINE_WHITESPACE, ' ', ast_str)
 
     with open(os.path.join(out_dir, out_fn), "w") as text_file:
