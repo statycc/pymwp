@@ -169,7 +169,7 @@ class Analysis:
         if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
 
-        logger.debug(f"uncovered case! type: {type(node)}")
+        Analysis.unsupported(f"{type(node)}")
 
         return index, RelationList(), False
 
@@ -227,7 +227,7 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (first case / binary op)')
+        logger.debug('Computing Relation (first case, binary op)')
         x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
         non_constants = tuple([v.name if hasattr(v, 'name') else None
                                for v in [x, y, z]])
@@ -467,7 +467,12 @@ class Analysis:
         """
 
         x, y, z = variables
+        supported_op = {"+", "-", "*"}
         vector = []
+
+        if operator not in supported_op:
+            Analysis.unsupported(f'{operator} operator')
+            return index, []
 
         # when left variable does not occur on right side of assignment
         # x = … (if x not in …), i.e. when left side variable does not
@@ -475,7 +480,7 @@ class Analysis:
         if x != y and x != z:
             vector.append(Polynomial('o'))
 
-        if operator in {"+", "-", "*"} and (y is None or z is None):
+        if operator in supported_op and (y is None or z is None):
             vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
 
         elif operator == '*' and y == z:
@@ -495,9 +500,12 @@ class Analysis:
         return index + 1, vector
 
     @staticmethod
-    def func_call(index: int) \
-            -> Tuple[int, RelationList, bool]:
+    def unsupported(command: any):
+        """Handle unsupported command."""
+        logger.warning(f'Unsupported syntax: {command} -> not evaluated')
+
+    @staticmethod
+    def func_call(index: int) -> Tuple[int, RelationList, bool]:
         """Function call handler stub."""
-        logger.debug('Function call detected!\nThis feature is not yet '
-                     'supported, but will be added soon')
+        Analysis.unsupported('function call')
         return index, RelationList(), False
