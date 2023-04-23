@@ -78,6 +78,15 @@ class Monomial:
     def __mul__(self, other) -> Monomial:
         return self.prod(other)
 
+    @staticmethod
+    def format(value: Union[str, Monomial, Tuple]) -> Monomial:
+        if isinstance(value, Monomial):
+            return value
+        if isinstance(value, str):
+            return Monomial(value)
+        if isinstance(value, Tuple):
+            return Monomial(*value)
+
     def contains(self, m: Monomial) -> bool:
         """check if all deltas of m are in deltas of self
 

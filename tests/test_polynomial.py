@@ -25,6 +25,19 @@ def test_poly_decl_equivalence():
     assert len(p1.list[0].deltas) == len(p2.list[0].deltas)
 
 
+def test_poly_decl_shorthand():
+    """Equivalent declarations."""
+    p1 = Polynomial(Monomial('m', (0, 1)),
+                    Monomial('w', (0, 0), (1, 1), (2, 2)))
+    p2 = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1), (2, 2)))
+
+    assert len(p1.list) == len(p2.list) == 2
+    assert len(p1.list[0].scalar) == len(p2.list[0].scalar)
+    assert len(p1.list[1].scalar) == len(p2.list[1].scalar)
+    assert len(p1.list[0].deltas) == len(p2.list[0].deltas)
+    assert len(p1.list[1].deltas) == len(p2.list[1].deltas)
+
+
 def test_poly_decl_equivalence_multi():
     """Both syntax define the same polynomial; many monomials."""
     p1 = Polynomial([

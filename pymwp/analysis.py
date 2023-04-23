@@ -5,7 +5,7 @@ from typing import List, Tuple, Optional, Union, Dict
 from .file_io import save_relation
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from pymwp import DeltaGraph, Monomial, Polynomial, RelationList, Result
+from pymwp import DeltaGraph, Polynomial, RelationList, Result
 from pymwp.result import FUNC_RESULT
 
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ class Analysis:
         if isinstance(node, pr.FuncCall):
             return Analysis.func_call(index)
         if isinstance(node, pr.Assignment) and \
-           isinstance(node.lvalue, pr.ID):
+                isinstance(node.lvalue, pr.ID):
             if isinstance(node.rvalue, pr.BinaryOp):
                 return Analysis.binary_op(index, node)
             if isinstance(node.rvalue, pr.Constant):
@@ -203,8 +203,7 @@ class Analysis:
         # y | m   m
         vector = [
             # because x != y
-            Polynomial([Monomial('o')]),
-            Polynomial([Monomial('m')])
+            Polynomial('o'), Polynomial('m')
         ]
 
         # build a list of unique variables
