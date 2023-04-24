@@ -390,7 +390,7 @@ class Analysis:
         exit_ = False
         if 0 in dg.graph_dict:
             if dg.graph_dict[0] == {(): {}}:
-                logger.info('delta_graphs: infinite -> Exit now')
+                logger.debug('delta_graphs: infinite -> Exit now')
                 exit_ = True
 
         return index, relations, exit_
