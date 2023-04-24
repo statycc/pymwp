@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Optional, Dict, Tuple
 
-from pymwp import Relation, Choices
+from pymwp import Relation, Choices, Bound
 from pymwp.choice import CHOICES
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,9 @@ class Result:
         self.relations[name] = (matrix, choices, infinite)
         if choices and not choices.infinite:
             simple = matrix.apply_choice(*choices.first_choice)
+            bound = Bound.calculate(simple.variables, simple.matrix)
             logger.info(f'MATRIX\n{simple}')
+            logger.info(f'BOUND: {Bound.show(bound)}')
         elif matrix:
             logger.info(f'\nMATRIX\n{matrix}')
         if infinite:
