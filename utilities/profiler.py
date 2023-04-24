@@ -198,21 +198,12 @@ class Profiler:
         logger.info(f'\n{divider}\n{msg}\n{divider}')
 
 
-def main():
-    """Run profiler using provided args."""
-    setup_logger()
-    args = _args(argparse.ArgumentParser())
-    Profiler(args.in_, args.out, args).run()
-
-
 def setup_logger():
     """Initialize logger."""
-    fmt = "[%(asctime)s]: %(message)s"
-    date_fmt = "%H:%M:%S"
-    formatter = logging.Formatter(fmt, datefmt=date_fmt)
-    logger.setLevel(logging.FATAL - 40)
+    logger.setLevel(logging.INFO)
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(logging.Formatter(
+        "[%(asctime)s]: %(message)s", datefmt="%H:%M:%S"))
     logger.addHandler(stream_handler)
 
 
@@ -276,4 +267,7 @@ def _args(parser, args=None):
 
 
 if __name__ == '__main__':
-    main()
+    """Run profiler using provided args."""
+    setup_logger()
+    args = _args(argparse.ArgumentParser())
+    Profiler(args.in_, args.out, args).run()
