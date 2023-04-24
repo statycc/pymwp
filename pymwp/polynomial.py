@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import logging
 from typing import Optional, List, Tuple, Union
+from typing import TypeVar
 
 from .constants import Comparison, SetInclusion
-from .monomial import Monomial
+from .monomial import Monomial, DELTA
 from .semiring import ZERO_MWP, sum_mwp
 
 logger = logging.getLogger(__name__)
+
+DELTAS = TypeVar('DELTAS', bound=DELTA)
 
 
 class Polynomial:
@@ -32,9 +35,9 @@ class Polynomial:
     """
 
     def __init__(
-            self,
-            monomials: Optional[Union[str, List[Monomial], Monomial]] = None,
-            *args: Optional[Monomial]):
+            self, *monomials:
+            Optional[Union[str, Monomial, List[Monomial], Tuple[str, DELTAS]]]
+    ):
         """Create a polynomial.
 
         Example:
@@ -53,21 +56,25 @@ class Polynomial:
         poly = Polynomial(Monomial('w'))     # longer, equivalent
         ```
 
-        Create polynomial with two monomials and deltas
+        Create polynomial with two monomials and lists of deltas
 
         ```python
-        poly = Polynomial(Monomial('m', (0, 1)), Monomial('w', (1, 1)))
+        # shorthand:
+        poly = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1))) 
+
+        # equivalent:
+        poly = Polynomial(Monomial('m', (0, 1)), Monomial('w', (0, 0), (1, 1)))
         ```
 
         Arguments:
             monomials: list of monomials
+            :rtype: object
         """
-        if monomials is not None and isinstance(monomials, str):
-            self.list = [Monomial(monomials)]
-        elif monomials is not None and isinstance(monomials, Monomial):
-            self.list = [monomials] + list(args if args else [])
-        else:
-            self.list = monomials or [Monomial(ZERO_MWP)]
+        m_list = [mono for list2d in [
+            [Monomial.format(v) for v in
+             (m if isinstance(m, List) else [m])] for
+            m in monomials] for mono in list2d]
+        self.list = m_list if len(m_list) > 0 else [Monomial(ZERO_MWP)]
 
     def __str__(self):
         values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)

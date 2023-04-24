@@ -5,7 +5,7 @@ from typing import List, Tuple, Optional, Union, Dict
 from .file_io import save_relation
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from pymwp import DeltaGraph, Monomial, Polynomial, RelationList, Result
+from pymwp import DeltaGraph, Polynomial, RelationList, Result
 from pymwp.result import FUNC_RESULT
 
 logger = logging.getLogger(__name__)
@@ -149,7 +149,8 @@ class Analysis:
             return index, RelationList(), False
         if isinstance(node, pr.FuncCall):
             return Analysis.func_call(index)
-        if isinstance(node, pr.Assignment):
+        if isinstance(node, pr.Assignment) and \
+                isinstance(node.lvalue, pr.ID):
             if isinstance(node.rvalue, pr.BinaryOp):
                 return Analysis.binary_op(index, node)
             if isinstance(node.rvalue, pr.Constant):
@@ -169,14 +170,14 @@ class Analysis:
         if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
 
-        logger.debug(f"uncovered case! type: {type(node)}")
+        Analysis.unsupported(f"{type(node)}")
 
         return index, RelationList(), False
 
     @staticmethod
     def id(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze x = y (with x != y) and y not a const
+        """Analyze x = y, where data flows between two variables.
 
         Arguments:
             index: delta index
@@ -185,13 +186,16 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        x = node.lvalue.name
-        y = node.rvalue.name
-        if x == y or isinstance(node.rvalue, pr.Constant):
+
+        # ensure we have distinct variables on both sides of x = y
+        if not isinstance(node.lvalue, pr.ID) \
+                or isinstance(node.rvalue, pr.Constant) \
+                or node.lvalue.name == node.rvalue.name:
             return index, RelationList(), False
 
         logger.debug('Computing Relation x = y')
-        vars_list = [[x], [y]]
+        x = node.lvalue.name
+        vars_list = [[x], [node.rvalue.name]]
 
         # create a vector of polynomials based on operator type
         #     x   y
@@ -199,8 +203,7 @@ class Analysis:
         # y | m   m
         vector = [
             # because x != y
-            Polynomial([Monomial('o')]),
-            Polynomial([Monomial('m')])
+            Polynomial('o'), Polynomial('m')
         ]
 
         # build a list of unique variables
@@ -211,7 +214,7 @@ class Analysis:
 
         # create relation list
         rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, vars_list[0][0])
+        rel_list.replace_column(vector, x)
 
         return index + 1, rel_list, False
 
@@ -227,7 +230,7 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (first case / binary op)')
+        logger.debug('Computing Relation (first case, binary op)')
         x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
         non_constants = tuple([v.name if hasattr(v, 'name') else None
                                for v in [x, y, z]])
@@ -241,7 +244,8 @@ class Analysis:
 
         # create relation list
         rel_list = RelationList.identity(variables)
-        rel_list.replace_column(vector, x.name)
+        if hasattr(x, 'name'):
+            rel_list.replace_column(vector, x.name)
 
         return index, rel_list, False
 
@@ -279,9 +283,11 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (third case / unary)')
-        var_name = node.lvalue.name
-        variables = [var_name]
+        logger.debug('Computing Relation (third case: unary)')
+        variables = []
+        if hasattr(node.lvalue, 'expr') and \
+                hasattr(node.lvalue.expr, 'name'):
+            variables = [node.lvalue.expr.name]
         return index, RelationList.identity(variables), False
 
     @staticmethod
@@ -405,7 +411,9 @@ class Analysis:
         logger.debug("analysing for:")
 
         relations = RelationList()
-        for child in node.stmt.block_items:
+
+        for child in node.stmt.block_items \
+                if hasattr(node, 'block_items') else [node.stmt]:
             index, rel_list, exit_ = Analysis.compute_relation(
                 index, child, dg)
             if exit_:
@@ -467,7 +475,12 @@ class Analysis:
         """
 
         x, y, z = variables
+        supported_op = {"+", "-", "*"}
         vector = []
+
+        if operator not in supported_op:
+            Analysis.unsupported(f'{operator} operator')
+            return index, []
 
         # when left variable does not occur on right side of assignment
         # x = … (if x not in …), i.e. when left side variable does not
@@ -475,7 +488,7 @@ class Analysis:
         if x != y and x != z:
             vector.append(Polynomial('o'))
 
-        if operator in {"+", "-", "*"} and (y is None or z is None):
+        if operator in supported_op and (y is None or z is None):
             vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
 
         elif operator == '*' and y == z:
@@ -495,9 +508,12 @@ class Analysis:
         return index + 1, vector
 
     @staticmethod
-    def func_call(index: int) \
-            -> Tuple[int, RelationList, bool]:
+    def unsupported(command: any):
+        """Handle unsupported command."""
+        logger.warning(f'Unsupported syntax: {command} -> not evaluated')
+
+    @staticmethod
+    def func_call(index: int) -> Tuple[int, RelationList, bool]:
         """Function call handler stub."""
-        logger.debug('Function call detected!\nThis feature is not yet '
-                     'supported, but will be added soon')
+        Analysis.unsupported('function call')
         return index, RelationList(), False

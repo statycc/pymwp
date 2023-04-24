@@ -49,11 +49,5 @@ cprofile:
 	python3 utilities/profiler.py --lines=100 --no-external
 
 compute-ast:
-	@cd utilities \
-	&& python3 ast_util.py ../tests/test_examples  ../tests/mocks \
-	&& python3 ast_util.py ../c_files/infinite/infinite_2.c  ../tests/mocks \
-	&& python3 ast_util.py ../c_files/infinite/infinite_8.c  ../tests/mocks \
-	&& python3 ast_util.py ../c_files/implementation_paper/example14.c  ../tests/mocks \
-	&& python3 ast_util.py ../c_files/not_infinite/notinfinite_2.c  ../tests/mocks \
-	&& python3 ast_util.py ../c_files/not_infinite/notinfinite_3.c  ../tests/mocks \
-	&& cd ..
+	rm -rf test/mocks/*.txt
+	cd utilities && python3 ast_util.py ../tests/test_examples ../tests/mocks && cd ..

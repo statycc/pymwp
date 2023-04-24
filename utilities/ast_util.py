@@ -14,7 +14,12 @@ It uses gcc and pycparser, then writes the AST to a file. This script is
 mainly useful for generating/updating test cases for unit testing, or
 inspecting AST structure and nodes. 
 
-# Arguments (positional):
+# Usage
+
+cd utilities
+python3 ast_util.py [ARG1] [ARG2]
+
+# Positional arguments (required):
 
 1. input path -- give a C file, or path to a directory of C files 
 2. output directory -- where to save AST 
@@ -25,6 +30,7 @@ headers, and that gcc is a valid C compiler.
 
 PARSER_ARGS = {'use_cpp': True, 'cpp_path': 'gcc', 'cpp_args': '-E'}
 _RE_COMBINE_WHITESPACE = re.compile(r'\s+')
+headers = []
 
 in_path, out_dir = sys.argv[1:3]
 
@@ -35,11 +41,10 @@ files = [in_path] if os.path.isfile(in_path) else \
 
 for c_file in files:
     out_fn = f'{Path(c_file).stem}.txt'
-    ast_str = str(Parser.parse(c_file, **PARSER_ARGS))
+    ast_str = str(Parser.parse(c_file, headers=headers, **PARSER_ARGS))
     minified = re.sub(_RE_COMBINE_WHITESPACE, ' ', ast_str)
 
     with open(os.path.join(out_dir, out_fn), "w") as text_file:
         text_file.write(minified)
 
     print('wrote', len(minified), f'chars to {out_fn}')
-

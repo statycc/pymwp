@@ -56,7 +56,7 @@ class Relation:
             variables: program variables
             matrix: relation matrix
         """
-        self.variables = [v for v in (variables or []) if v]
+        self.variables = [str(v) for v in (variables or []) if v]
         self.matrix = matrix or matrix_utils \
             .init_matrix(len(self.variables))
 
@@ -126,11 +126,10 @@ class Relation:
             new relation after applying the column replacement.
         """
         new_relation = Relation.identity(self.variables)
-        j = self.variables.index(variable)
-
-        for idx, value in enumerate(vector):
-            new_relation.matrix[idx][j] = value
-
+        if variable in self.variables:
+            j = self.variables.index(variable)
+            for idx, value in enumerate(vector):
+                new_relation.matrix[idx][j] = value
         return new_relation
 
     def while_correction(self, dg: DeltaGraph) -> None:
