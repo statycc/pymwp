@@ -2,7 +2,7 @@ from typing import List
 
 
 class Bound:
-    """Represent MWP bound."""
+    """Represents MWP bound."""
 
     def __init__(self):
         self.m = []
@@ -16,7 +16,7 @@ class Bound:
         return "(" + (';'.join([m_str, w_str, p_str])) + ")"
 
     def append(self, scalar: str, var_name: str):
-        """append variable dependency in the right place by scalar."""
+        """Append variable dependency in the right place by scalar."""
         if scalar == 'm':
             self.m.append(var_name)
         if scalar == 'w':
@@ -25,8 +25,8 @@ class Bound:
             self.p.append(var_name)
 
     @staticmethod
-    def calculate(variables: List[str], simple_mat: List[List[str]]):
-        """Calculates honest polynomials.
+    def calculate(variables: List[str], simple_mat: List[List[str]]) -> dict:
+        """Calculates mwp-bound from a matrix.
 
         Arguments:
             variables: variable names (list)
@@ -44,7 +44,7 @@ class Bound:
         return result
 
     @staticmethod
-    def show(bound_dict: dict):
-        """Helper to display the mwp bound nicely."""
+    def show(bound_dict: dict) -> str:
+        """Helper to format a nice display string of mwp-bound."""
         b_str = [f'{k} ≤ {v}' for k, v in bound_dict.items()]
         return ' ∧ '.join(b_str)
