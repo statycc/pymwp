@@ -41,10 +41,11 @@ class Result:
     ):
         """Appends function analysis outcome to result."""
         self.relations[name] = (matrix, choices, infinite)
-        if matrix:
+        if choices and not choices.infinite:
+            simple = matrix.apply_choice(*choices.first_choice)
+            logger.info(f'MATRIX\n{simple}')
+        elif matrix:
             logger.info(f'\nMATRIX\n{matrix}')
-        if choices and len(choices.valid) > 0:
-            logger.info(f'CHOICES: {choices.valid}')
         if infinite:
             logger.info(f'RESULT: {name} is infinite')
 

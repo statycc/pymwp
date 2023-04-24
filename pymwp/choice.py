@@ -36,7 +36,7 @@ class Choices:
     @property
     def infinite(self):
         return len(self.valid) == 0
-
+    
     @property
     def first_choice(self) -> Optional[tuple[int]]:
         """Gets the first valid derivation choice, if exists"""

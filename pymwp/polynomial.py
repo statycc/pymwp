@@ -78,7 +78,7 @@ class Polynomial:
 
     def __str__(self):
         values = ''.join(['+' + str(m) for m in self.list]) or ('+' + ZERO_MWP)
-        return "  " + values
+        return " " + values
 
     def __eq__(self, other):
         return self.equal(other)
@@ -343,6 +343,20 @@ class Polynomial:
     def show(self) -> None:
         """Display polynomial."""
         print(str(self))
+
+    def choice_scalar(self, *choices: int) -> Optional[str]:
+        """For given sequence of choices, determine corresponding scalar.
+
+        Arguments:
+            choices: tuple of choices
+
+        Returns:
+            Scalar value matching choices or None.
+        """
+        for mono in self.list:
+            scalar = mono.choice_scalar(*choices)
+            if scalar:
+                return scalar
 
     @staticmethod
     def compare(delta_list1: list, delta_list2: list) -> Comparison:
