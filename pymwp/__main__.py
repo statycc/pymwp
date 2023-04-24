@@ -37,8 +37,8 @@ def main():
         sys.exit(1)
 
     # setup logger
-    log_level = logging.FATAL - (0 if args.silent else 40)
-    __setup_logger(log_level, args.logfile)
+    log_level = logging.FATAL - (0 if args.silent else 30 if args.info else 40)
+    __setup_logger(log_level, args.logfile, args.no_time)
 
     # capture results
     result = Result()
@@ -113,9 +113,14 @@ def __parse_args(
         help="skip evaluation"
     )
     parser.add_argument(
+        "--no_time",
+        action='store_true',
+        help="display log without timestamps"
+    )
+    parser.add_argument(
         "--fin",
         action='store_true',
-        help="ensure completion even on failure"
+        help="ensure analysis completion in all cases"
     )
     parser.add_argument(
         "--logfile",
@@ -123,9 +128,14 @@ def __parse_args(
         help="write console output to a file",
     )
     parser.add_argument(
+        '-i', "--info",
+        action='store_true',
+        help="set logging level to info"
+    )
+    parser.add_argument(
         '-s', "--silent",
         action='store_true',
-        help="disable console output"
+        help="disable all terminal output"
     )
     parser.add_argument(
         "--version",
@@ -136,7 +146,8 @@ def __parse_args(
 
 
 def __setup_logger(
-        level: int = logging.ERROR, log_filename: Optional[str] = None
+        level: int = logging.ERROR, log_filename: Optional[str] = None,
+        hide_time: bool = False
 ) -> None:
     """Create a configured instance of logger.
 
@@ -145,7 +156,8 @@ def __setup_logger(
             see: https://docs.python.org/3/library/logging.html#levels
         log_filename: Write logging info to a file
     """
-    fmt = "[%(asctime)s] %(levelname)s (%(module)s): %(message)s"
+    fmt = "%(levelname)s (%(module)s): %(message)s" if hide_time else \
+        "[%(asctime)s] %(levelname)s (%(module)s): %(message)s"
     date_fmt = "%H:%M:%S"
     formatter = logging.Formatter(fmt, datefmt=date_fmt)
 
