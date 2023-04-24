@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from functools import reduce
-from typing import Tuple, List, Set, Union
+from typing import Tuple, List, Set, Union, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,13 @@ class Choices:
     @property
     def infinite(self):
         return len(self.valid) == 0
+
+    @property
+    def first_choice(self) -> Optional[tuple[int]]:
+        """Gets the first valid derivation choice, if exists"""
+        # take first vector, then first choice at each index
+        return tuple([choices[0] for choices in self.valid[0]]) \
+            if not self.infinite else None
 
     @staticmethod
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
