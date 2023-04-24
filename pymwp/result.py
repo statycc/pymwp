@@ -41,14 +41,17 @@ class Result:
     ):
         """Appends function analysis outcome to result."""
         self.relations[name] = (matrix, choices, infinite)
-        if choices and not choices.infinite:
-            simple = matrix.apply_choice(*choices.first_choice)
-            bound = Bound.calculate(simple.variables, simple.matrix)
-            logger.info(f'BOUND: {Bound.show(bound)}')
-        elif matrix:
-            logger.info(f'\nMATRIX\n{matrix}')
+        if not infinite:
+            if choices:
+                simple = matrix.apply_choice(*choices.first_choice)
+                bound = Bound.calculate(simple.variables, simple.matrix)
+                logger.info(f'BOUND: {Bound.show(bound)}')
+            else:
+                logger.info('Some bound exists')
         if infinite:
-            logger.info(f'RESULT: {name} is infinite')
+            logger.info(f'{name} is infinite')
+            if matrix:
+                logger.info(f'Problematic flows: {matrix.show_infty_pairs()}')
 
     def get_result(self):
         """Returns the analysis result.

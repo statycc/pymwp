@@ -231,3 +231,12 @@ def test_polynomial_init_shorthand_syntax():
     assert Polynomial('m') == Polynomial([Monomial('m')])
     assert Polynomial('w') == Polynomial([Monomial('w')])
     assert Polynomial('p') == Polynomial([Monomial('p')])
+
+
+def test_finds_infty_scalar():
+    p1 = Polynomial('m', 'w', 'p', 'p', 'm', 'i', 'p')
+    p2 = Polynomial(('m', (0, 0), (1, 1)), ('w', (1, 0), (0, 1)),
+                    ('p', (1, 0), (2, 1)), 'w')
+
+    assert p1.some_infty is True
+    assert p2.some_infty is False
