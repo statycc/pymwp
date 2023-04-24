@@ -44,7 +44,6 @@ class Result:
         if choices and not choices.infinite:
             simple = matrix.apply_choice(*choices.first_choice)
             bound = Bound.calculate(simple.variables, simple.matrix)
-            logger.info(f'MATRIX\n{simple}')
             logger.info(f'BOUND: {Bound.show(bound)}')
         elif matrix:
             logger.info(f'\nMATRIX\n{matrix}')
