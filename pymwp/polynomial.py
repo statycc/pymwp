@@ -344,6 +344,14 @@ class Polynomial:
         """Display polynomial."""
         print(str(self))
 
+    @property
+    def some_infty(self) -> bool:
+        """True if some monomial yields an infinity choice."""
+        for mono in self.list:
+            if mono.scalar == 'i':
+                return True
+        return False
+
     def choice_scalar(self, *choices: int) -> Optional[str]:
         """For given sequence of choices, determine corresponding scalar.
 

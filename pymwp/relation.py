@@ -110,10 +110,11 @@ class Relation:
         return self.composition(other)
 
     @staticmethod
-    def relation_str(variables, matrix, sep=' '):
+    def relation_str(variables: List[str], matrix: List[List[any]]):
+        """Formatted string of variables and matrix."""
         right_pad = len(max(variables, key=len)) if variables else 0
         return '\n'.join(
-            [var.ljust(right_pad) + ' | ' + (sep.join(poly)).strip()
+            [var.ljust(right_pad) + ' | ' + (' '.join(poly)).strip()
              for var, poly in
              [(var, [str(matrix[i][j]) for j in range(len(matrix))])
               for i, var in enumerate(variables)]])
@@ -286,6 +287,22 @@ class Relation:
                     for j in range(self.matrix_size)]
                    for i in range(self.matrix_size)]
         return Relation(self.variables.copy(), matrix=new_mat)
+
+    def infty_vars(self):
+        """Generate a list of variables that for some choices, can raise
+        infinity result."""
+        possible_infty_pairs = []
+        for rid, row in enumerate(self.matrix):
+            source = self.variables[rid]
+            for cid, poly in enumerate(row):
+                if poly.some_infty:
+                    target = self.variables[cid]
+                    possible_infty_pairs.append((source, target), )
+        return possible_infty_pairs
+
+    def show_infty_pairs(self):
+        pairs = self.infty_vars()
+        return ' ; '.join([f'{s} ➔ {t}' for s, t in pairs])
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""
