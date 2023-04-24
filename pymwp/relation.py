@@ -5,9 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Optional, Tuple, List
 
+from pymwp import Choices, DeltaGraph
 from . import matrix as matrix_utils
-from .choice import Choices
-from .delta_graphs import DeltaGraph
 
 logger = logging.getLogger(__name__)
 
@@ -97,19 +96,27 @@ class Relation:
     def is_empty(self):
         return not self.variables or not self.matrix
 
+    @property
+    def matrix_size(self):
+        return 0 if not self.variables else len(self.variables)
+
     def __str__(self):
-        right_pad = len(max(self.variables, key=len)) \
-            if self.variables else 0
-        return '\n'.join(
-            [var.ljust(right_pad) + '  |' + ''.join(poly) for var, poly in
-             [(var, [str(self.matrix[i][j]) for j in range(len(self.matrix))])
-              for i, var in enumerate(self.variables)]])
+        return Relation.relation_str(self.variables, self.matrix)
 
     def __add__(self, other):
         return self.sum(other)
 
     def __mul__(self, other):
         return self.composition(other)
+
+    @staticmethod
+    def relation_str(variables, matrix, sep=' '):
+        right_pad = len(max(variables, key=len)) if variables else 0
+        return '\n'.join(
+            [var.ljust(right_pad) + ' | ' + (sep.join(poly)).strip()
+             for var, poly in
+             [(var, [str(matrix[i][j]) for j in range(len(matrix))])
+              for i, var in enumerate(variables)]])
 
     def replace_column(self, vector: List, variable: str) -> Relation:
         """Replace identity matrix column by a vector.
@@ -265,6 +272,20 @@ class Relation:
             if fix.equal(prev_fix):
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
+
+    def apply_choice(self, *choices: int) -> Relation:
+        """Get the matrix corresponding to provided sequence of choices.
+
+        Arguments:
+            choices: tuple of choices
+
+        Returns:
+            New relation with simple-values matrix of scalars.
+        """
+        new_mat = [[self.matrix[i][j].choice_scalar(*choices)
+                    for j in range(self.matrix_size)]
+                   for i in range(self.matrix_size)]
+        return Relation(self.variables.copy(), matrix=new_mat)
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""

@@ -167,6 +167,20 @@ class Monomial:
 
         return mono_product
 
+    def choice_scalar(self, *choices: int) -> Optional[str]:
+        """Determine if given sequence of choices matches monomial.
+
+        Arguments:
+            choices: tuple of choices
+
+        Returns:
+            Monomial's scalar if structure matches choices and None otherwise.
+        """
+        for (i, j) in self.deltas:
+            if not i == choices[j]:
+                return None
+        return self.scalar
+
     def copy(self) -> Monomial:
         """Make a deep copy of a monomial."""
         return Monomial(self.scalar, self.deltas[:])

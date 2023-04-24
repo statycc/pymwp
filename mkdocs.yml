@@ -15,6 +15,7 @@ nav:
 - Demo: demo.md
 - Modules:
   - Analysis: analysis.md
+  - Bound: bound.md
   - Choice: choice.md
   - Delta Graph: delta_graphs.md
   - File I/O: file_io.md

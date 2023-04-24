@@ -59,3 +59,15 @@ def test_result_is_minimal():
     assert [[2], [0, 1], [0, 2]] not in result.valid
     assert [[2], [0, 2], [0, 2]] not in result.valid
     assert [[2], [0], [0, 1, 2]] in result.valid
+
+
+def test_first_choice():
+    choices = [0, 1, 2]
+
+    # all choice except [0, 1, 0] -> first choice is (1, 0, 1)
+    infty1 = {((0, 0),), ((1, 1),), ((0, 2),)}
+    # only allow (2, 2)
+    infty2 = {((0, 0),), ((1, 0),), ((0, 1),), ((1, 1),)}
+
+    assert Choices.generate(choices, 3, infty1).first_choice == (1, 0, 1)
+    assert Choices.generate(choices, 2, infty2).first_choice == (2, 2)
