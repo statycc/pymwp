@@ -1,5 +1,6 @@
 ---
-title: pymwp User Guide
+title: pymwp 
+subtitle: User Guide
 next: Getting Started
 next_href: setup.html
 ---
@@ -23,10 +24,10 @@ The Program Property of Interest
 For an imperative program, the goal is to discover a polynomially bounded data-flow relation, 
 between its initial values $x_1,...,x_n$ and final value $x_1^\prime,...,x_n^\prime$.
 
-This property can be presented as follows.   
+For a program written in C language, this property can be presented as follows.   
 
 ```c
-void main(int X1, int X2, int X3){ 
+void main(int X1, int X2, int X3){       
    // initial values  ↑
 
    /*  
@@ -96,20 +97,23 @@ MATRIX
 </div></div></div>
 
 The generated matrix is labelled with input variable names. The top-row shows the data flow _target_ and the left column is the _source_ of data flow.
-This matrix contains only "non-$\infty$" coefficients, which means $\texttt{x}$ and $\texttt{y}$ value growth is polynomially bounded in inputs.
-This is confirmable by inspection, since the final values are $\texttt{x}' \leq \texttt{x}$ and $\texttt{y}' \leq \texttt{x}$.
+This matrix contains only non-infinity coefficients, which means $\texttt{x}$ and $\texttt{y}$ value growth is polynomially bounded in inputs.
+We can confirm this by inspection: final values are $\texttt{x}' \leq \texttt{x}$ and $\texttt{y}' \leq \texttt{x}$.
 
 #### Example 2
 
 For more complicated programs, the inference procedure introduces derivation _choice_. 
 This is represented by complex polynomials.
 Then variables can have different dependencies for different derivation choices.
-We capture this in a matrix, in form of ordered list of _deltas_, and an associated coefficient.
-In other words, by making the derivation choices indicated by a list of deltas we obtain the associated coefficient.
 
+We capture this in a matrix with _polynomials_.
+A polynomial is an ordered list of ordered _monomials_.
+A monomial is a pair made of a coefficient and ordered list of _deltas_.
+In other words, by making the derivation choices indicated by a list of deltas, we obtain the associated coefficient.
 
-Deltas are pairs of $(i, j)$ with $i$ the value and $j$ the index in the domain.
-Values $i$ is one of $\{0,1,2\}$. Index $j$ corresponds to a program point where a choice occurs (effectively it is a counter).
+Deltas are pairs of $(i, j)$ where $i$ is the value and $j$ the index in the domain.
+Value $i$ is one of $\{0,1,2\}$ and represents a derivation choice. 
+Index $j$ corresponds to a program point where a choice occurs; effectively it is a counter.
 
 <div class="container text-left"><div class="row"><div class="col col-md-4">
 PROGRAM
@@ -134,8 +138,8 @@ MATRIX
 </div></div></div>
 
 
-In this program, target variable $\texttt{x}$ has different dependencies, and some choices yield $\infty$.
-In fact, the matrix with polynomials compactly capture three derivation outcomes.
+In this program, target variable $\texttt{x}$ has different dependencies and some choices yield $\infty$ coefficients.
+In fact, the matrix with polynomials compactly capture three derivation outcomes, as shown below.
 But only one choice $(2,0)$ produces a valid derivation, because it does not contain any $\infty$ coefficients.
  
 <div class="d-flex flex-wrap flex-row justify-content-left"><div class="p-2">
@@ -169,12 +173,11 @@ Choice $(2,0)$
 
 ### Analysis Result
 
-A program is derivable when it can be assigned a matrix (of choice) without infinite coefficients.
-The soundness theorem of the calculus guarantees that if some choice exists,
-that produces an $\infty$-free simple valued matrix, the program variables' value growth is polynomially bounded in inputs.
+A program is derivable when it can be assigned a matrix, that for some choice does not contain infinite coefficients.
+The soundness theorem of the calculus guarantees that if such choice exists, the program variables' value growth is polynomially bounded in inputs.
 
 
-Program fails the analysis, if it is assigned a matrix that always contains infinite coefficients, no matter the choices.
+Program fails the analysis if it is assigned a matrix that always contains infinite coefficients, no matter the choices.
 Then it is not possible to establish polynomial growth bound. For these programs pymwp reports "infinite" result.
 
 

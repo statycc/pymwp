@@ -145,7 +145,7 @@ added emphasis on coefficients.
 <style>
 .table-wrapper tr:not(:first-child) td:not(:first-child) > span.math
     {font-size: 90%;} 
-.table-wrapper mjx-mi.mjx-n, .table-wrapper .mjx-i {color: #d63384}
+.table-wrapper mjx-mi.mjx-n, .table-wrapper .mjx-i {color: var(--bs-pink)}
 .table-wrapper tr:not(:first-child) td:not(:first-child) > span:not(.math)
     {font-size: 70%;}
 .table-wrapper tr:not(:first-child) td 

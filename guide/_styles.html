@@ -97,6 +97,10 @@ $endif$
   font-size: 85%;
   margin: 0;
 }
+pre code, .sourceCode, pre.console, kbd, pre, samp{
+  font-family: "Source Code Pro", "Menlo", "DejaVu Sans Mono","Liberation Mono",
+  "Consolas", "Ubuntu Mono","Courier New","andale mono","lucida console",monospace;
+}
 
 pre {
   margin: 1em 0;
@@ -111,9 +115,17 @@ pre code {
   overflow: visible;
   overflow-wrap: normal;
 }
+code{
+  color: var(--bs-pink);
+}
 .sourceCode {
  background-color: transparent;
  overflow: visible;
+}
+div.sourceCode > pre.sourceCode{
+  background: #ECEFF199;
+  padding: 0.5em 1em;
+  border-radius:4px;
 }
 pre.console {
   background-color: #37474F;
