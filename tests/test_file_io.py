@@ -2,7 +2,8 @@ import os
 import json
 
 from pymwp.file_io import default_file_out, save_relation, load_relation, loc
-from pymwp import Relation, Choices
+from pymwp import Relation, Choices, Result
+from pymwp.result import FuncResult
 
 
 def test_file_out_name_wo_path():
@@ -22,6 +23,7 @@ def test_file_out_name_with_path():
     assert out_file == "output/example.json"
 
 
+# noinspection PyUnresolvedReferences
 def test_save_relation(mocker):
     """Method generates directory when it does not exist then saves."""
     # mock all built-ins
@@ -30,8 +32,11 @@ def test_save_relation(mocker):
     mocker.patch('builtins.open')
     mocker.patch('json.dump')
 
+    result = Result()
     filename = 'fake_path/deep/path/output.txt'
-    save_relation(filename, {'foo': (Relation(), Choices(), False)})
+    result.add_relation(FuncResult(
+        'foo', False, relation=Relation(), choices=Choices(), bound=None))
+    save_relation(filename, result)
 
     # it creates directory path when dir/s do not exist
     os.makedirs.assert_called_once_with('fake_path/deep/path')
@@ -44,12 +49,13 @@ def test_load_relation(mocker):
     # mock built-ins
     mocker.patch('json.load', return_value={
         "foo": {
-            "relation": {"variables": ["x", "y"],
-                         "matrix": [
-                             [[{"scalar": "m", "deltas": [(0, 0)]}],
-                              [{"scalar": "o", "deltas": []}]],
-                             [[{"scalar": "o", "deltas": []}],
-                              [{"scalar": "o", "deltas": []}]]]},
+            "relation":
+                {"variables": ["x", "y"],
+                 "matrix": [
+                     [[{"scalar": "m", "deltas": [(0, 0)]}],
+                      [{"scalar": "o", "deltas": []}]],
+                     [[{"scalar": "o", "deltas": []}],
+                      [{"scalar": "o", "deltas": []}]]]},
             "choices": [[0, 1], [0]],
             "infinity": False
         }

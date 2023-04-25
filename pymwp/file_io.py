@@ -1,14 +1,12 @@
 import json
 import logging
 import os
-from typing import Tuple, Dict, Optional
+from typing import Dict
 
-from .choice import Choices
+from pymwp import Result, Relation, Choices
 from .matrix import decode
-from .relation import Relation
 
 logger = logging.getLogger(__name__)
-RESULT_TYPE = Tuple[Optional[Relation], Optional[Choices], bool]
 
 
 def loc(input_file: str) -> int:
@@ -31,9 +29,7 @@ def default_file_out(input_file: str) -> str:
     return os.path.join("output", f"{file_name}.json")
 
 
-def save_relation(
-        file_name: str, analysis_result: Dict[str, RESULT_TYPE]
-) -> None:
+def save_relation(file_name: str, analysis_result: Result) -> None:
     """Save analysis result to file as JSON.
 
     Expected behavior:
@@ -56,12 +52,12 @@ def save_relation(
 
     file_content = {}
 
-    for function_name, result in analysis_result.items():
-        relation, choices, infinity = result
+    for function_name, result in analysis_result.relations.items():
         file_content[function_name] = {
-            "relation": relation.to_dict() if relation else None,
-            "choices": choices.valid if choices else None,
-            "infinity": infinity
+            "relation": result.relation.to_dict() if result.relation else None,
+            "choices": result.choices.valid if result.choices else None,
+            "bound": result.bound.to_dict() if result.bound else None,
+            "infinity": result.infinite
         }
 
     # ensure directory path exists
@@ -76,7 +72,7 @@ def save_relation(
     logger.info(f'saved result in {file_name}')
 
 
-def load_relation(file_name: str) -> Dict[str, RESULT_TYPE]:
+def load_relation(file_name: str) -> Dict[str, any]:
     """Load previous analysis result from file.
 
     This method is the reverse of

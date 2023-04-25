@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Dict
 
-from pymwp import Choices, DeltaGraph
+from pymwp import Choices, DeltaGraph, Polynomial
 from . import matrix as matrix_utils
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class Relation:
     """
 
     def __init__(self, variables: Optional[List[str]] = None,
-                 matrix: Optional[List[List]] = None):
+                 matrix: Optional[List[List[Polynomial]]] = None):
         """Create a relation.
 
         When constructing a relation, provide a list of variables
@@ -274,7 +274,7 @@ class Relation:
                 logger.debug(f"fixpoint done {fix_vars}")
                 return fix
 
-    def apply_choice(self, *choices: int) -> Relation:
+    def apply_choice(self, *choices: int) -> SimpleRelation:
         """Get the matrix corresponding to provided sequence of choices.
 
         Arguments:
@@ -286,23 +286,26 @@ class Relation:
         new_mat = [[self.matrix[i][j].choice_scalar(*choices)
                     for j in range(self.matrix_size)]
                    for i in range(self.matrix_size)]
-        return Relation(self.variables.copy(), matrix=new_mat)
+        return SimpleRelation(self.variables.copy(), matrix=new_mat)
 
-    def infty_vars(self):
-        """Generate a list of variables that for some choices, can raise
-        infinity result."""
-        possible_infty_pairs = []
-        for rid, row in enumerate(self.matrix):
-            source = self.variables[rid]
-            for cid, poly in enumerate(row):
-                if poly.some_infty:
-                    target = self.variables[cid]
-                    possible_infty_pairs.append((source, target), )
-        return possible_infty_pairs
+    def infty_vars(self) -> Dict[str, List[str]]:
+        """Identify all variable pairs that for some choices, can raise
+        infinity result.
 
-    def show_infty_pairs(self):
-        pairs = self.infty_vars()
-        return ' ; '.join([f'{s} ➔ {t}' for s, t in pairs])
+        Returns:
+            Dictionary of potentially infinite dependencies, where
+            the key is source variable and value is list of targets;
+            All entries are non-empty.
+        """
+        vars_ = self.variables
+        return dict([(x, y) for x, y in [
+            (src, [tgt for tgt, p in zip(vars_, polys) if p.some_infty])
+            for src, polys in zip(vars_, self.matrix)] if len(y) != 0])
+
+    def infty_pairs(self) -> str:
+        """List of potential infinity dependencies."""
+        fmt = [f'{s} ➔ {", ".join(t)}' for s, t in self.infty_vars().items()]
+        return ' ‖ '.join(fmt)
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""
@@ -389,3 +392,12 @@ class Relation:
 
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
+
+
+class SimpleRelation(Relation):
+    """Specialized instance of relation, where matrix contains only
+       scalar values, no Polynomials."""
+
+    def __init__(self, variables: Optional[List[str]] = None,
+                 matrix: Optional[List[List[str]]] = None):
+        super().__init__(variables, matrix)
