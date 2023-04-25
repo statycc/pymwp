@@ -81,7 +81,7 @@ class Result:
             -> Union[FuncResult, Dict[str, FuncResult]]:
         """Returns the analysis result.
 
-        - If `name` argument is provided and the key exists, returns value match.
+        - If `name` argument is provided and key exists, returns value match.
         - If program contained 1 function, returns result for that function.
 
         Otherwise, returns a dictionary of results for each
