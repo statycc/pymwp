@@ -1,12 +1,12 @@
 # noinspection DuplicatedCode
 import logging
-from typing import List, Tuple, Optional, Union, Dict
+from typing import List, Tuple, Optional
 
 from .file_io import save_relation
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from pymwp import DeltaGraph, Polynomial, RelationList, Result
-from pymwp.result import FUNC_RESULT
+from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
+from pymwp.result import FuncResult
 
 logger = logging.getLogger(__name__)
 
@@ -15,35 +15,32 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, result: Result = None, **kwargs) \
-            -> Union[Dict[str, FUNC_RESULT], FUNC_RESULT]:
+    def run(ast: pr.AST, res: Result = None, **kwargs) -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
-            result: (optional) result object
+            res: (optional) pre-initialized result object
 
         Returns:
-            Computed relation, list of non-infinity choices, and
-                infinite/not infinite (boolean flag)
+            A [`Result`](result.md) object.
         """
         file_out: str = kwargs['file_out'] if 'file_out' in kwargs else None
         save: bool = 'no_save' not in kwargs or kwargs['no_save'] is False
         stop_early: bool = 'fin' not in kwargs or kwargs['fin'] is False
         skip_eval: bool = 'no_eval' in kwargs and kwargs['no_eval'] is True
-        result__: Result = result or Result()
+        result: Result = res or Result()
 
         logger.debug("started analysis")
-        result__.on_start()
+        result.on_start()
         for ast_ext in [f for f in ast if pr.is_func(f)]:
-            choices = [0, 1, 2]
-            index, combinations = 0, []
+            index, options, choices = 0, [0, 1, 2], []
             function_name = ast_ext.decl.name
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
-            logger.debug(f"variables of {function_name}: {variables}")
-            evaluated = False
+            logger.debug(f"{function_name} variables: {', '.join(variables)}")
+            evaluated, bound = False, None
 
             relations = RelationList.identity(variables=variables)
             total = len(function_body.block_items)
@@ -61,30 +58,30 @@ class Analysis:
 
             # evaluate unless not enforcing finish and delta-infty
             if not skip_eval and not delta_infty:
-                combinations = relations.first.eval(choices, index)
+                choices = relations.first.eval(options, index)
+                bound = Bound(relations.first.apply_choice(*choices.first))
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
             infinite = delta_infty or (
                     relations.first.variables and index > 0 and
-                    evaluated and not combinations.valid)
+                    evaluated and not choices.valid)
 
             # record and display results
-            outcome = function_name,
-            if infinite and stop_early:
-                outcome += (None, None, True)
-            elif infinite:
-                outcome += (relations.first, None, True)
-            else:
-                outcome += (relations.first, combinations, False)
-            result__.add_relation(*outcome)
+            outcome = FuncResult(function_name, infinite)
+            if not (infinite and stop_early):
+                outcome.relation = relations.first
+            if not infinite:
+                outcome.bound = bound
+                outcome.choices = choices
+            result.add_relation(outcome)
 
-        result__.on_end()
-        result__.log_result()
+        result.on_end()
+        result.log_result()
 
         if save:
-            save_relation(file_out, result__.relations)
-        return result__.get_result()
+            save_relation(file_out, res)
+        return result
 
     @staticmethod
     def find_variables(

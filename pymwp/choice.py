@@ -38,7 +38,7 @@ class Choices:
         return len(self.valid) == 0
 
     @property
-    def first_choice(self) -> Optional[tuple[int]]:
+    def first(self) -> Optional[tuple[int]]:
         """Gets the first valid derivation choice, if exists"""
         # take first vector, then first choice at each index
         return tuple([choices[0] for choices in self.valid[0]]) \

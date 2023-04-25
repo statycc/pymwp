@@ -1,50 +1,79 @@
+from __future__ import annotations
 from typing import List
 
+from pymwp.relation import SimpleRelation
 
-class Bound:
+
+class HonestPoly:
+    def __init__(self, operator: str):
+        self.variables = set()
+        self.op = operator
+
+    @property
+    def empty(self) -> bool:
+        return len(self.variables) == 0
+
+    @property
+    def vars(self) -> List[str]:
+        return sorted(list(self.variables))
+
+    def add(self, identifier: str):
+        self.variables.add(identifier)
+
+    def __str__(self):
+        return '0' if self.empty else \
+            self.op.join(self.vars)
+
+
+class MaxVar(HonestPoly):
+    def __init__(self):
+        super().__init__(operator=',')
+
+
+class MwpBound:
     """Represents MWP bound."""
 
     def __init__(self):
-        self.m = []
-        self.w = []
-        self.p = []
+        self.x = MaxVar()
+        self.y = HonestPoly('+')
+        self.z = HonestPoly('*')
 
     def __str__(self):
-        m_str = ",".join(self.m)
-        w_str = ",".join(self.w)
-        p_str = ",".join(self.p)
-        return "(" + (';'.join([m_str, w_str, p_str])) + ")"
+        # Any of the three variable lists x, y, z might be empty
+        term = (f'max({self.x},{self.y})'
+                if not self.x.empty and not self.y.empty else
+                self.x if not self.x.empty else
+                self.y if not self.y.empty else None)
+        return (str(term) if self.z.empty else f'{term} + {self.z}') \
+            if term else str(self.z)
 
     def append(self, scalar: str, var_name: str):
-        """Append variable dependency in the right place by scalar."""
+        """Append variable dependency in the right list by scalar."""
         if scalar == 'm':
-            self.m.append(var_name)
+            self.x.add(var_name)
         if scalar == 'w':
-            self.w.append(var_name)
+            self.y.add(var_name)
         if scalar == 'p':
-            self.p.append(var_name)
+            self.z.add(var_name)
 
-    @staticmethod
-    def calculate(variables: List[str], simple_mat: List[List[str]]) -> dict:
-        """Calculates mwp-bound from a matrix.
 
-        Arguments:
-            variables: variable names (list)
-            simple_mat: matrix of scalars
+class Bound:
+    """Calculates MWP bound for a relation."""
 
-        Returns:
-            mwp-bound dictionary.
-        """
-        result = {}
-        for col_id, name in enumerate(variables):
-            var_bound = Bound()
-            for row_id in range(len(simple_mat)):
-                var_bound.append(simple_mat[row_id][col_id], variables[row_id])
-            result[name] = var_bound
-        return result
+    def __init__(self, relation: SimpleRelation = None):
+        self.bound_dict = {}
+        if relation:
+            vars_, matrix = relation.variables, relation.matrix
+            for col_id, name in enumerate(vars_):
+                var_bound = MwpBound()
+                for row_id in range(len(matrix)):
+                    var_bound.append(matrix[row_id][col_id], vars_[row_id])
+                self.bound_dict[name] = var_bound
 
-    @staticmethod
-    def show(bound_dict: dict) -> str:
-        """Helper to format a nice display string of mwp-bound."""
-        b_str = [f'{k} ≤ {v}' for k, v in bound_dict.items()]
-        return ' ∧ '.join(b_str)
+    def show(self) -> str:
+        """Format a nice display string of mwp-bounds."""
+        return ' ∧ '.join([f'{k}′ ≤ {v}' for k, v in self.bound_dict.items()])
+
+    def to_dict(self) -> dict:
+        """Get (serializable) dictionary representation of a bound."""
+        return dict([(k, str(v)) for k, v in self.bound_dict.items()])

@@ -13,10 +13,10 @@ __version__ = "0.3.0"
 from pymwp.parser import Parser
 from pymwp.delta_graphs import DeltaGraph
 from pymwp.choice import Choices
-from pymwp.bound import Bound
+from pymwp.monomial import Monomial
+from pymwp.polynomial import Polynomial
 from pymwp.relation_list import RelationList
 from pymwp.relation import Relation
-from pymwp.polynomial import Polynomial
-from pymwp.monomial import Monomial
+from pymwp.bound import Bound
 from pymwp.result import Result
 from pymwp.analysis import Analysis

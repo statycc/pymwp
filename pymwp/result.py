@@ -2,15 +2,27 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Union
 
-from pymwp import Relation, Choices, Bound
-from pymwp.choice import CHOICES
+from pymwp import Relation, Bound, Choices
 
 logger = logging.getLogger(__name__)
 
-FUNC_RESULT = Tuple[Optional[Relation], Optional[CHOICES], bool]
-"""Type hint for function analysis result."""
+
+class FuncResult:
+    """Analysis result for one function."""
+
+    def __init__(
+            self, name: str, infinite: bool,
+            relation: Optional[Relation] = None,
+            choices: Optional[Choices] = None,
+            bound: Optional[Bound] = None,
+    ):
+        self.name = name
+        self.infinite = infinite
+        self.relation = relation
+        self.choices = choices
+        self.bound = bound
 
 
 class Program(object):
@@ -23,45 +35,66 @@ class Program(object):
 
 
 class Result:
-    """Captures analysis result."""
+    """Captures analysis result and details about the process8."""
 
     def __init__(self):
         self.program: Program = Program()
-        self.relations: Dict[str, FUNC_RESULT] = {}
+        self.relations: Dict[str, FuncResult] = {}
         self.start_time: int = -1
         self.end_time: int = -1
 
     @property
-    def n_functions(self):
+    def n_functions(self) -> int:
+        """number of functions in analyzed program"""
         return len(self.relations.keys())
 
-    def add_relation(
-            self, name: str, matrix: Optional[Relation],
-            choices: Optional[Choices], infinite: bool
-    ):
+    @property
+    def time_diff(self) -> int:
+        """Time delta between analysis start and end time."""
+        return self.end_time - self.start_time
+
+    @property
+    def dur_s(self) -> float:
+        """Duration in seconds."""
+        return round(self.time_diff / 1e9, 1)
+
+    @property
+    def dur_ms(self) -> int:
+        """Duration in milliseconds."""
+        return int(self.time_diff / 1e6)
+
+    def add_relation(self, func_result: FuncResult) -> None:
         """Appends function analysis outcome to result."""
-        self.relations[name] = (matrix, choices, infinite)
-        if not infinite:
-            if choices:
-                simple = matrix.apply_choice(*choices.first_choice)
-                bound = Bound.calculate(simple.variables, simple.matrix)
-                logger.info(f'BOUND: {Bound.show(bound)}')
+        self.relations[func_result.name] = func_result
+        if not func_result.infinite:
+            if func_result.bound:
+                logger.info(f'Bound: {Bound.show(func_result.bound)}')
             else:
                 logger.info('Some bound exists')
-        if infinite:
-            logger.info(f'{name} is infinite')
-            if matrix:
-                logger.info(f'Problematic flows: {matrix.show_infty_pairs()}')
+        if func_result.infinite:
+            logger.info(f'{func_result.name} is infinite')
+            if func_result.relation:
+                logger.info('Possibly problematic flows:')
+                logger.info(func_result.relation.infty_pairs())
 
-    def get_result(self):
+    def get_func(self, name: Optional[str] = None) \
+            -> Union[FuncResult, Dict[str, FuncResult]]:
         """Returns the analysis result.
 
-        If program contained exactly 1 function, returns
-        matrix, choices, infinity-flag for that function.
+        - If name argument is provided and the key exists, returns value match.
+        - If program contained 1 function, returns result for that function.
 
         Otherwise, returns a dictionary of results for each
         analyzed function, as in: <function_name, analysis_result>
+
+        Arguments:
+            name - name of function
+
+        Returns:
+            Function analysis result, or dictionary of results.
         """
+        if name and name in self.relations:
+            return self.relations[name]
         if self.n_functions == 1:
             key = next(iter(self.relations))
             return self.relations[key]
@@ -80,7 +113,6 @@ class Result:
         if self.n_functions == 0:
             logger.warning("Input C file contained no analyzable functions!")
 
-        time_diff = self.end_time - self.start_time
-        dur_sc = round(time_diff / 1e9, 1)
-        dur_ms = int(time_diff / 1e6)
+        dur_sc = round(self.time_diff / 1e9, 1)
+        dur_ms = int(self.time_diff / 1e6)
         logger.info(f'Total time: {dur_sc} s ({dur_ms} ms)')

@@ -57,7 +57,7 @@ def main():
     # run analysis
     Analysis.run(
         ast=ast,
-        result=result,
+        res=result,
         file_out=args.out or default_file_out(args.input_file),
         no_save=args.no_save,
         no_eval=args.no_eval,
