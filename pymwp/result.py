@@ -35,7 +35,7 @@ class Program(object):
 
 
 class Result:
-    """Captures analysis result and details about the process8."""
+    """Captures analysis result and details about the process."""
 
     def __init__(self):
         self.program: Program = Program()
@@ -81,11 +81,11 @@ class Result:
             -> Union[FuncResult, Dict[str, FuncResult]]:
         """Returns the analysis result.
 
-        - If name argument is provided and the key exists, returns value match.
+        - If `name` argument is provided and the key exists, returns value match.
         - If program contained 1 function, returns result for that function.
 
         Otherwise, returns a dictionary of results for each
-        analyzed function, as in: <function_name, analysis_result>
+        analyzed function, as in: `<function_name, analysis_result>`
 
         Arguments:
             name - name of function

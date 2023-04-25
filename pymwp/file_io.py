@@ -40,14 +40,7 @@ def save_relation(file_name: str, analysis_result: Result) -> None:
 
     Arguments:
         file_name: filename where to write
-        analysis_result: dictionary of analyzed functions, where:
-
-            - `key`: name of analyzed function
-            - `value`: triple with following positional values:
-
-                - `[0]`: final relation produced by analysis
-                - `[1]`: list of non-infinity choices
-                - `[2]`: `True` when function does not have polynomial bounds
+        analysis_result: A [`Result`](result.md) object.
     """
 
     file_content = {}
