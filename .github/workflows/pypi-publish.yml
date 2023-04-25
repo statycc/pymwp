@@ -22,7 +22,7 @@ jobs:
       - name: Run tests
         run: make test
 
-      - uses: vimtor/action-zip@v1
+      - uses: vimtor/action-zip@v1.1
         with:
           files: c_files/
           dest: examples.zip

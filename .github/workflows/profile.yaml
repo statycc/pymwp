@@ -47,7 +47,7 @@ jobs:
         run: make profile
 
       - name: Save profiler results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cProfile results
           path: output/profile/*.txt
@@ -65,4 +65,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
           draft: false
-          files: ${{ github.workspace }}/profile.zip
+          files: profile.zip
