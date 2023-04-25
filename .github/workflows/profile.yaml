@@ -50,12 +50,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: cProfile results
-          path: profile/*.txt
+          path: output/profile/*.txt
           retention-days: 7
 
-      - uses: vimtor/action-zip@v1
+      - uses: vimtor/action-zip@v1.1
         with:
-          files: output/profile/*.txt
+          files: output/profile/
           dest: profile.zip
 
       - name: release results
@@ -65,4 +65,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
           draft: false
-          files: profile.zip
+          files: ${{ github.workspace }}/profile.zip

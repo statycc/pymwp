@@ -24,7 +24,7 @@ jobs:
 
       - uses: vimtor/action-zip@v1
         with:
-          files: c_files
+          files: c_files/
           dest: examples.zip
 
       - name: Build and publish
@@ -39,4 +39,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: examples.zip
+          artifacts: ${{ github.workspace }}/examples.zip
