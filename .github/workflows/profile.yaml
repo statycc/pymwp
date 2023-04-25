@@ -53,6 +53,11 @@ jobs:
           path: profile/*.txt
           retention-days: 7
 
+      - uses: vimtor/action-zip@v1
+        with:
+          files: output/profile/*.txt
+          dest: profile.zip
+
       - name: release results
         uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -60,4 +65,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
           draft: false
-          files: output/profile/*.txt
+          files: profile.zip

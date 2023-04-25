@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Publish & Release
 
 on:
   push:
@@ -22,6 +22,11 @@ jobs:
       - name: Run tests
         run: make test
 
+      - uses: vimtor/action-zip@v1
+        with:
+          files: c_files
+          dest: examples.zip
+
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__
@@ -34,3 +39,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: examples.zip
