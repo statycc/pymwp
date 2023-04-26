@@ -98,7 +98,7 @@ class Monomial:
             True otherwise
         """
         for b in m.deltas:
-            if not (b in self.deltas):
+            if b not in self.deltas:
                 return False
         return True
 

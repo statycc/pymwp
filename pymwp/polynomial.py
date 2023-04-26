@@ -36,7 +36,7 @@ class Polynomial:
 
     def __init__(
             self, *monomials:
-            Optional[Union[str, Monomial, List[Monomial], Tuple[str, DELTAS]]]
+            Optional[Union[str, Monomial, Tuple[str, DELTAS]]]
     ):
         """Create a polynomial.
 
@@ -67,13 +67,9 @@ class Polynomial:
         ```
 
         Arguments:
-            monomials: list of monomials
-            :rtype: object
+            monomials: arbitrary number of monomials
         """
-        m_list = [mono for list2d in [
-            [Monomial.format(v) for v in
-             (m if isinstance(m, List) else [m])] for
-            m in monomials] for mono in list2d]
+        m_list = [Monomial.format(v) for v in monomials]
         self.list = m_list if len(m_list) > 0 else [Monomial(ZERO_MWP)]
 
     def __str__(self):
@@ -98,12 +94,12 @@ class Polynomial:
     @staticmethod
     def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
             -> Tuple[bool, int]:
-        """filter list_monom regarding to mono inclusion and return info
+        """filter list_monom regarding mono inclusion and return info.
 
-        remove all monomials of list_monom that are included in mono.
+        Remove all monomials of list_monom that are included in mono.
 
         return CONTAINS if one of monomials of list_monom contains mono
-        (regarding to Monomial.inclusion def).
+        (regarding Monomial.inclusion def).
 
         Arguments:
             list_monom: a list of monomials
@@ -127,7 +123,7 @@ class Polynomial:
                     i = i - 1  # shift left position
                 continue
             elif incl == SetInclusion.INCLUDED:
-                #  We don't want to add mono, inform with CONTAINS
+                # We don't want to add mono, inform with CONTAINS
                 return False, i
             j = j + 1
         # No inclusion
@@ -140,7 +136,7 @@ class Polynomial:
         - If one list is empty, the result will be the other list
         of polynomials.
 
-        Otherwise the operation will zip the two lists together
+        Otherwise, the operation will zip the two lists together
         and return a new polynomial of sorted monomials.
 
         Arguments:
@@ -204,7 +200,7 @@ class Polynomial:
                 j = j + 1
 
         sorted_monomials = Polynomial.sort_monomials(new_list)
-        return Polynomial(sorted_monomials).remove_zeros()
+        return Polynomial(*sorted_monomials).remove_zeros()
 
     def times(self, polynomial: Polynomial) -> Polynomial:
         """Multiply two polynomials.
@@ -303,7 +299,7 @@ class Polynomial:
                     index_list.append(smallest)
             # 7. repeat until done
 
-        return Polynomial(result).remove_zeros()
+        return Polynomial(*result).remove_zeros()
 
     def equal(self, polynomial: Polynomial) -> bool:
         """Determine if two polynomials are equal.
@@ -338,7 +334,7 @@ class Polynomial:
 
     def copy(self) -> Polynomial:
         """Make a deep copy of polynomial."""
-        return Polynomial([m.copy() for m in self.list])
+        return Polynomial(*[m.copy() for m in self.list])
 
     def show(self) -> None:
         """Display polynomial."""
@@ -545,4 +541,4 @@ class Polynomial:
 
         monomials = [Monomial(scalar, [(number, index)])
                      for number, scalar in enumerate(scalars)]
-        return Polynomial(monomials)
+        return Polynomial(*monomials)

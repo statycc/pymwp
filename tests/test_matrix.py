@@ -35,7 +35,7 @@ def test_resize_modifies_matrix_size():
     """Resizing matrix changes matrix size correctly, it preserves the
     polynomials from the input matrix, and when enlarging, the newly added
     positions are filled with identity matrix values."""
-    poly = Polynomial([Monomial('m')])
+    poly = Polynomial(Monomial('m'))
     before_resize = init_matrix(2, poly)
     after_resize = resize(before_resize, 5)
 
@@ -58,10 +58,10 @@ def test_resize_modifies_matrix_size():
 
 def test_matrix_sum():
     """Matrix sum should add two matrices element-wise."""
-    expected = Polynomial([Monomial('m', [(0, 0)]), Monomial('w', [(1, 1)])])
+    expected = Polynomial(Monomial('m', [(0, 0)]), Monomial('w', [(1, 1)]))
 
-    mat_a = init_matrix(2, Polynomial([Monomial('m', [(0, 0)])]))
-    mat_b = init_matrix(2, Polynomial([Monomial('w', [(1, 1)])]))
+    mat_a = init_matrix(2, Polynomial(Monomial('m', (0, 0))))
+    mat_b = init_matrix(2, Polynomial(Monomial('w', (1, 1))))
     result = matrix_sum(mat_a, mat_b)
 
     assert result[0][0] == expected
@@ -73,10 +73,10 @@ def test_matrix_sum():
 def test_matrix_prod():
     """Matrix product test -- here we check using an elaborate test case
     that the product is what it should be, at each position."""
-    p1 = Polynomial([Monomial('p', [(0, 1)]), Monomial('w', [(1, 1)])])
-    p2 = Polynomial([Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)])])
-    p3 = Polynomial([Monomial('m', [(0, 2)]), Monomial('w', [(1, 2)])])
-    p4 = Polynomial([Monomial('p', [(0, 2)]), Monomial('w', [(1, 2)])])
+    p1 = Polynomial(Monomial('p', [(0, 1)]), Monomial('w', [(1, 1)]))
+    p2 = Polynomial(Monomial('m', [(0, 1)]), Monomial('w', [(1, 1)]))
+    p3 = Polynomial(Monomial('m', [(0, 2)]), Monomial('w', [(1, 2)]))
+    p4 = Polynomial(Monomial('p', [(0, 2)]), Monomial('w', [(1, 2)]))
 
     #          m p3 o
     #          o m  o
@@ -109,7 +109,7 @@ def test_matrix_prod():
 
 def test_encode():
     """Encoding converts matrix of polynomials to a list of dictionaries."""
-    p = Polynomial([Monomial('m', [(0, 1)])])
+    p = Polynomial(Monomial('m', [(0, 1)]))
     mat = init_matrix(2, p)
     encoded = encode(mat)
     expected = [
@@ -132,19 +132,19 @@ def test_decode():
     ]
 
     decoded = decode(sample)
-    expected = init_matrix(2, Polynomial([Monomial('m', [(0, 1)])]))
+    expected = init_matrix(2, Polynomial(Monomial('m', (0, 1))))
 
     assert decoded == expected
 
 
 def test_matrix_equals():
     """Two polynomial matrices are equal when their monomials match exactly."""
-    p1 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
-    p2 = Polynomial([Monomial('m', [(0, 1), (1, 1)])])
-    p3 = Polynomial([Monomial('m', [(0, 0)])])
-    p4 = Polynomial([Monomial('m', [(0, 0)])])
-    p5 = Polynomial([Monomial('m', [(1, 1), (2, 2)])])
-    p6 = Polynomial([Monomial('m', [(1, 1), (2, 2)])])
+    p1 = Polynomial(Monomial('m', [(0, 1), (1, 1)]))
+    p2 = Polynomial(Monomial('m', [(0, 1), (1, 1)]))
+    p3 = Polynomial(Monomial('m', [(0, 0)]))
+    p4 = Polynomial(Monomial('m', [(0, 0)]))
+    p5 = Polynomial(Monomial('m', [(1, 1), (2, 2)]))
+    p6 = Polynomial(Monomial('m', [(1, 1), (2, 2)]))
 
     m1 = [[o, p1, o], [p3, o, o], [o, o, p5]]
     m2 = [[o, p2, o], [p4, o, o], [o, o, p6]]
@@ -154,9 +154,8 @@ def test_matrix_equals():
 
 def test_matrix_not_equals():
     """Two matrices where monomials differ by deltas are not equal."""
-    p1 = Polynomial([Monomial('m', [(0, 1)])])
-    p2 = Polynomial([Monomial('m', [(1, 1)])])
-
+    p1 = Polynomial(Monomial('m', [(0, 1)]))
+    p2 = Polynomial(Monomial('m', [(1, 1)]))
     m1 = [[o, o, o], [o, o, o], [o, o, p1]]
     m2 = [[o, o, o], [o, o, o], [o, o, p2]]
 
