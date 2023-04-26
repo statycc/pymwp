@@ -5,7 +5,7 @@ from pymwp import Polynomial, Monomial
 def test_polynomial_copy():
     """Copying a polynomial returns different reference but of identical
     content."""
-    p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    p = Polynomial(Monomial('m', [(0, 0), (1, 1)]))
     poly_copy = p.copy()
 
     assert poly_copy == p  # their data is identical
@@ -17,7 +17,7 @@ def test_poly_decl_equivalence():
     Both syntax define the same polynomial; the list
     brackets are superfluous.
     """
-    p1 = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    p1 = Polynomial(Monomial('m', [(0, 0), (1, 1)]))
     p2 = Polynomial(Monomial('m', (0, 0), (1, 1)))
 
     assert len(p1.list) == len(p2.list) == 1
@@ -40,10 +40,9 @@ def test_poly_decl_shorthand():
 
 def test_poly_decl_equivalence_multi():
     """Both syntax define the same polynomial; many monomials."""
-    p1 = Polynomial([
+    p1 = Polynomial(
         Monomial('i', [(0, 0), (1, 1)]), Monomial('i'),
-        Monomial('w', [(1, 0), (2, 1), (0, 2)])
-    ])
+        Monomial('w', [(1, 0), (2, 1), (0, 2)]))
     p2 = Polynomial(Monomial('i', (0, 0), (1, 1)), Monomial('i'),
                     Monomial('w', (1, 0), (2, 1), (0, 2)))
 
@@ -56,7 +55,7 @@ def test_poly_decl_equivalence_multi():
 def test_polynomial_times_empty():
     """Multiplying two polynomials where one is 0-monomial, results in 0."""
     z = Polynomial(ZERO_MWP)
-    p = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    p = Polynomial(Monomial('m', [(0, 0), (1, 1)]))
 
     assert (p * z) == Polynomial(ZERO_MWP)
 
@@ -82,11 +81,11 @@ def test_polynomial_add_by_non_empty():
     result."""
     mono1 = Monomial('m', [(2, 2)])
     mono2 = Monomial('m', [(0, 0), (1, 1)])
-    m = Polynomial([mono1])
-    p = Polynomial([mono2])
+    m = Polynomial(mono1)
+    p = Polynomial(mono2)
     c = p + m
     expected = Polynomial(
-        [Monomial('m', [(0, 0), (1, 1)]), Monomial('m', [(2, 2)])])
+        Monomial('m', [(0, 0), (1, 1)]), Monomial('m', [(2, 2)]))
 
     assert c == expected
 
@@ -96,12 +95,11 @@ def test_polynomial_add_simpl():
     mono1 = Monomial('m', [(0, 1), (0, 2), (0, 3)])
     mono2 = Monomial('w', [(0, 2), (0, 3), (0, 4)])
     mono3 = Monomial('p', [(0, 2), (0, 3), (0, 5)])
-    m = Polynomial(Polynomial.sort_monomials([mono1, mono2, mono3]))
-    print(m)
+    m = Polynomial(*Polynomial.sort_monomials([mono1, mono2, mono3]))
     mono0 = Monomial('w', [(0, 2), (0, 3)])
-    p = Polynomial([mono0])
+    p = Polynomial(mono0)
     c = p.add(m)
-    expected = Polynomial([mono0, mono3])
+    expected = Polynomial(mono0, mono3)
 
     assert c == expected
 
@@ -109,9 +107,9 @@ def test_polynomial_add_simpl():
 def test_polynomial_times_by_non_empty():
     """Multiplying two polynomials with monomials with deltas gives expected
      result."""
-    p1 = Polynomial([Monomial('m', [(2, 2)])])
-    p2 = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
-    expected = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
+    p1 = Polynomial(Monomial('m', [(2, 2)]))
+    p2 = Polynomial(Monomial('m', [(0, 0), (1, 1)]))
+    expected = Polynomial(Monomial('m', [(0, 0), (1, 1), (2, 2)]))
 
     assert (p1 * p2) == expected
 
@@ -121,22 +119,15 @@ def test_polynomial_times_by_non_empty2():
     mono12 = Monomial('m', [(1, 1)])
     mono2 = Monomial('m', [(0, 0)])
     mono22 = Monomial('m', [(3, 3)])
-    m = Polynomial([mono1, mono12])
-    p = Polynomial([mono2, mono22])
+    m = Polynomial(mono1, mono12)
+    p = Polynomial(mono2, mono22)
     c = p * m
-    expected = Polynomial([
+    expected = Polynomial(
         Monomial('m', [(0, 0), (1, 1)]),
         Monomial('m', [(0, 0), (2, 2)]),
         Monomial('m', [(1, 1), (3, 3)]),
-        Monomial('m', [(2, 2), (3, 3)])])
-    try:
-        assert c == expected
-    except AssertionError:
-        print("expected:")
-        print(expected)
-        print("prod:")
-        print(c)
-        raise
+        Monomial('m', [(2, 2), (3, 3)]))
+    assert c == expected
 
 
 def test_polynomial_equals_empty_are_equal():
@@ -148,15 +139,15 @@ def test_polynomial_equals_empty_are_equal():
 
 def test_polynomial_equals_same_returns_true():
     """equal returns true when two polynomials are the same."""
-    p1 = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
-    p2 = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
+    p1 = Polynomial(Monomial('m', [(0, 0), (1, 1), (2, 2)]))
+    p2 = Polynomial(Monomial('m', [(0, 0), (1, 1), (2, 2)]))
     assert p1.equal(p2) is True
 
 
 def test_polynomial_equals_different_returns_false():
     """equal returns false when two polynomials are different."""
-    p1 = Polynomial([Monomial('m', [(0, 0), (1, 1), (2, 2)])])
-    p2 = Polynomial([Monomial('m', [(1, 1), (3, 3)])])
+    p1 = Polynomial(Monomial('m', [(0, 0), (1, 1), (2, 2)]))
+    p2 = Polynomial(Monomial('m', [(1, 1), (3, 3)]))
 
     assert p1.equal(p2) is False
 
@@ -196,8 +187,8 @@ def test_polynomial_remove_zeros_with_deltas():
 
     see: https://github.com/statycc/pymwp/issues/16
     """
-    zero = Polynomial([Monomial('o')])
-    poly = Polynomial([Monomial('m', [(0, 0), (1, 1)])])
+    zero = Polynomial(Monomial('o'))
+    poly = Polynomial(Monomial('m', [(0, 0), (1, 1)]))
     after_add = zero + poly
 
     assert len(after_add.list) == 1
@@ -208,8 +199,8 @@ def test_polynomial_remove_zeros_no_deltas():
     """Adding two polynomials where one contains 0-monomial and another
     contains non-0 monomial without deltas, after addition, only the
     non-zero monomial remains in the result."""
-    zero = Polynomial([Monomial('o')])
-    poly = Polynomial([Monomial('w')])
+    zero = Polynomial(Monomial('o'))
+    poly = Polynomial(Monomial('w'))
     after_add = zero + poly
 
     assert len(after_add.list) == 1
@@ -219,7 +210,7 @@ def test_polynomial_remove_zeros_no_deltas():
 def test_polynomial_remove_zeros_empty():
     """For a polynomial that contains only 0-monomials, only one 0-monomial
     remains after removing zeros."""
-    poly = Polynomial([Monomial('o'), Monomial('o'), Monomial('o')])
+    poly = Polynomial(Monomial('o'), Monomial('o'), Monomial('o'))
     poly.remove_zeros()
 
     assert len(poly.list) == 1
@@ -228,9 +219,9 @@ def test_polynomial_remove_zeros_empty():
 
 def test_polynomial_init_shorthand_syntax():
     """Shorthand syntax gives equivalent polynomial as the longer syntax."""
-    assert Polynomial('m') == Polynomial([Monomial('m')])
-    assert Polynomial('w') == Polynomial([Monomial('w')])
-    assert Polynomial('p') == Polynomial([Monomial('p')])
+    assert Polynomial('m') == Polynomial(Monomial('m'))
+    assert Polynomial('w') == Polynomial(Monomial('w'))
+    assert Polynomial('p') == Polynomial(Monomial('p'))
 
 
 def test_finds_infty_scalar():
