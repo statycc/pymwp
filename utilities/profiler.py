@@ -37,6 +37,7 @@ class Profiler:
         self.divider_len = 72
         self.no_external = args.no_external
         self.callers = args.callers
+        self.save = args.save
 
     @property
     def file_count(self):
@@ -119,12 +120,13 @@ class Profiler:
             remove(out_file)
 
     @staticmethod
-    def build_cmd(file_in, file_out):
+    def build_cmd(file_in, file_out, save=False):
         """Build cProfile command"""
         return ' '.join([
             'python3 -m cProfile',
             f'-o {file_out}',
-            '-m pymwp --no_save --silent',
+            '-m pymwp --silent',
+            '--no_save' if not save else '',
             file_in
         ])
 
@@ -148,7 +150,7 @@ class Profiler:
         """Profile single C file"""
         file_name = Profiler.filename_only(c_file)
         out_file = join(self.output, file_name)
-        cmd = Profiler.build_cmd(c_file, out_file)
+        cmd = Profiler.build_cmd(c_file, out_file, self.save)
         loc = Profiler.get_loc(c_file)
 
         timeout = False
@@ -262,6 +264,11 @@ def _args(parser, args=None):
         "--callers",
         action='store_true',
         help="include caller stats"
+    )
+    parser.add_argument(
+        "--save",
+        action='store_true',
+        help="save analysis result"
     )
     return parser.parse_args(args)
 
