@@ -11,7 +11,7 @@ from pymwp.file_io import default_file_out
 To save or restore results as JSON:
 
 ```python
-from pymwp.file_io import save_relation, load_relation
+from pymwp.file_io import save_result, load_result
 ```
 
 ::: pymwp.file_io

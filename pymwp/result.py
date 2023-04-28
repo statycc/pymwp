@@ -3,10 +3,33 @@ from __future__ import annotations
 import logging
 import time
 from typing import Optional, Dict, Union
+from pathlib import Path
 
 from pymwp import Relation, Bound, Choices
+from .matrix import decode
 
 logger = logging.getLogger(__name__)
+
+
+class Program(object):
+    """Details about analyzed program."""
+
+    def __init__(self, n_lines: int = -1, program_path: str = None):
+        self.n_lines: int = n_lines
+        self.program_path: Optional[str] = program_path
+
+    def to_dict(self):
+        return {
+            'n_lines': self.n_lines,
+            'program_path': self.program_path}
+
+    @property
+    def name(self) -> Optional[str]:
+        return Path(self.program_path).stem if self.program_path else None
+
+    @staticmethod
+    def from_dict(**kwargs):
+        return Program(kwargs['n_lines'], kwargs['program_path'])
 
 
 class FuncResult:
@@ -16,7 +39,7 @@ class FuncResult:
             self, name: str, infinite: bool,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
-            bound: Optional[Bound] = None,
+            bound: Optional[Bound] = None
     ):
         self.name = name
         self.infinite = infinite
@@ -24,14 +47,34 @@ class FuncResult:
         self.choices = choices
         self.bound = bound
 
+    @property
+    def n_vars(self) -> int:
+        return len(self.relation.variables) if self.relation else -1
 
-class Program(object):
-    """Details about analyzed program."""
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "infinity": self.infinite,
+            "relation": self.relation.to_dict() if self.relation else None,
+            **({"choices": self.choices.valid if self.choices else None,
+                "bound": self.bound.to_dict() if self.bound else None}
+               if not self.infinite else
+               {"infty_vars": self.relation.infty_vars()}
+               if self.relation else {})}
 
-    def __init__(self):
-        self.n_lines: int = -1
-        self.program_path: Optional[str] = None
-        self.raw_source: Optional[str] = None
+    @staticmethod
+    def from_dict(**kwargs):
+        func = FuncResult(kwargs['name'], kwargs['infinity'])
+        if kwargs['relation']:
+            matrix = kwargs['relation']['matrix']
+            variables = kwargs['relation']['variables']
+            func.relation = Relation(variables, decode(matrix))
+        if 'choices' in kwargs:
+            func.choices = Choices(kwargs['choices'])
+        if 'bound' in kwargs and func.choices and func.relation:
+            simple = func.relation.apply_choice(*func.choices.first)
+            func.bound = Bound(simple)
+        return func
 
 
 class Result:
@@ -116,3 +159,24 @@ class Result:
         dur_sc = round(self.time_diff / 1e9, 1)
         dur_ms = int(self.time_diff / 1e6)
         logger.info(f'Total time: {dur_sc} s ({dur_ms} ms)')
+
+    def serialize(self):
+        """JSON serialize result object."""
+        return {
+            'start_time': self.start_time,
+            'end_time': self.end_time,
+            'program': self.program.to_dict(),
+            'relations': [v.to_dict() for v in self.relations.values()]}
+
+    @staticmethod
+    def deserialize(**kwargs) -> Result:
+        """Reverse of serialize."""
+        st, et, r = 'start_time', 'end_time', Result()
+        r.start_time = int(kwargs[st]) if st in kwargs else 0
+        r.end_time = int(kwargs[et]) if et in kwargs else 0
+        if 'program' in kwargs:
+            r.program = Program.from_dict(**kwargs['program'])
+        if 'relations' in kwargs:
+            for value in kwargs['relations']:
+                r.add_relation(FuncResult.from_dict(**value))
+        return r

@@ -2,7 +2,7 @@
 import logging
 from typing import List, Tuple, Optional
 
-from .file_io import save_relation
+from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -49,8 +49,9 @@ class Analysis:
 
             for i, node in enumerate(function_body.block_items):
                 logger.debug(f'computing relation...{i} of {total}')
-                index, rel_list, delta_infty = Analysis \
+                index, rel_list, delta_infty_ = Analysis \
                     .compute_relation(index, node, dg)
+                delta_infty = delta_infty or delta_infty_  # cannot erase
                 if stop_early and delta_infty:
                     break
                 logger.debug(f'computing composition...{i} of {total}')
@@ -59,7 +60,8 @@ class Analysis:
             # evaluate unless not enforcing finish and delta-infty
             if not skip_eval and not delta_infty:
                 choices = relations.first.eval(options, index)
-                bound = Bound(relations.first.apply_choice(*choices.first))
+                if not choices.infinite:
+                    bound = Bound(relations.first.apply_choice(*choices.first))
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
@@ -80,7 +82,7 @@ class Analysis:
         result.log_result()
 
         if save:
-            save_relation(file_out, res)
+            save_result(file_out, res)
         return result
 
     @staticmethod
