@@ -62,8 +62,8 @@ class Plot:
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['Benchmark', 'LOC', 'func', 't/ms',
-                '#var', '#bound', 'bound value']
+        return ['Benchmark', 'LOC', 'func', 't,ms',
+                'vars', 'bounds', 'bound (instance)']
 
     @staticmethod
     def table_entry(result, func_result, max_char=500) \
