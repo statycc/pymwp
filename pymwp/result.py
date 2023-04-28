@@ -51,6 +51,10 @@ class FuncResult:
     def n_vars(self) -> int:
         return len(self.relation.variables) if self.relation else -1
 
+    @property
+    def n_bounds(self) -> int:
+        return self.choices.n_bounds if self.choices else 0
+
     def to_dict(self) -> dict:
         return {
             "name": self.name,

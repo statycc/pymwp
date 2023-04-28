@@ -62,10 +62,11 @@ class Plot:
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['Benchmark', 'func', 'LOC', 't/ms', '#var', 'Bound']
+        return ['Benchmark', 'func', 'LOC', 't/ms',
+                '#var', '#bound', 'bound value']
 
     @staticmethod
-    def table_entry(result, func_result, first, max_char=50) \
+    def table_entry(result, func_result, first, max_char=500) \
             -> Tuple[any, ...]:
         """Generate one table row.
 
@@ -83,10 +84,8 @@ class Plot:
         b_format = func_result.bound.show(True) if func_result.bound else '∞'
         b_format = b_format[:max_char] + '...' \
             if len(b_format) > max_char else b_format
-        return (
-            result.program.name, func_result.name, *loc_time,
-            func_result.n_vars,
-            b_format)
+        return (result.program.name, func_result.name, *loc_time,
+                func_result.n_vars, func_result.n_bounds, b_format)
 
     def build_matrix(self) -> List[Tuple[any]]:
         """Construct table data."""
