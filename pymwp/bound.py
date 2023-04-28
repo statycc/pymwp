@@ -6,6 +6,7 @@ from pymwp.relation import SimpleRelation
 
 class HonestPoly:
     """Models an honest polynomial."""
+
     def __init__(self, operator: str):
         self.variables = set()
         self.op = operator
@@ -28,6 +29,7 @@ class HonestPoly:
 
 class MaxVar(HonestPoly):
     """m-variables"""
+
     def __init__(self):
         super().__init__(operator=',')
 
@@ -62,6 +64,8 @@ class MwpBound:
 class Bound:
     """Calculates MWP bound for a relation."""
 
+    # TODO: make this bound format easier to recover
+    #   serialize: to_dict() -> deserialize: how???
     def __init__(self, relation: SimpleRelation = None):
         self.bound_dict = {}
         if relation:

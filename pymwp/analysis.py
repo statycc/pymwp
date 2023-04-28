@@ -2,7 +2,7 @@
 import logging
 from typing import List, Tuple, Optional
 
-from .file_io import save_relation
+from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -80,7 +80,7 @@ class Analysis:
         result.log_result()
 
         if save:
-            save_relation(file_out, res)
+            save_result(file_out, res)
         return result
 
     @staticmethod

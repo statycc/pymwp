@@ -130,11 +130,6 @@ class Profiler:
             file_in
         ])
 
-    @staticmethod
-    def get_loc(file_in):
-        """Count number of lines in a file"""
-        return sum(1 for _ in open(file_in))
-
     def run(self):
         """Run cProfile on all discovered files"""
         self.pre_log()
@@ -151,7 +146,6 @@ class Profiler:
         file_name = Profiler.filename_only(c_file)
         out_file = join(self.output, file_name)
         cmd = Profiler.build_cmd(c_file, out_file, self.save)
-        loc = Profiler.get_loc(c_file)
 
         timeout = False
         start_time = time.monotonic()
@@ -178,17 +172,17 @@ class Profiler:
             message = 'error'
         self.write_stats(out_file)
 
-        logger.info(f'{file_name.ljust(self.pad)}... '
-                    f'{message.ljust(7)} | {str(loc).ljust(5)} | ' +
+        logger.info(f'{file_name.ljust(self.pad)} ... '
+                    f'{message.ljust(7)} | ' +
                     f'{(end_time - start_time):.2f}s')
 
     def pre_log(self):
         """Print info before running profiler."""
         self.__log(f'Profiling {self.file_count} C files... ' +
                    f'(limit: {self.timeout} sec)')
-        logger.info(f'{"EXAMPLE".ljust(self.pad + 4)}'
+        logger.info(f'{"EXAMPLE".ljust(self.pad + 5)}'
                     f'{"RESULT".ljust(7)} '
-                    f'| LINES | TIME  ')
+                    f'| TIME  ')
 
     def post_log(self):
         """Print info after running profiler."""
@@ -204,8 +198,7 @@ def setup_logger():
     """Initialize logger."""
     logger.setLevel(logging.INFO)
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter(
-        "[%(asctime)s]: %(message)s", datefmt="%H:%M:%S"))
+    stream_handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(stream_handler)
 
 
