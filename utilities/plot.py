@@ -28,6 +28,42 @@ from pymwp import Result
 from pymwp.file_io import load_result
 
 
+class LatexTableWriterExt(LatexTableWriter):
+    """Overrides some LaTeX table writer behavior"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.char_right_side_row = r" \\"
+
+    def _get_opening_row_items(self) -> List[str]:
+        return ["".join([
+            r"\begin{tabular}{",
+            "{:s}".format("".join(self._get_col_align_char_list())),
+            r"}", ])]
+
+    def _get_header_row_separator_items(self) -> List[str]:
+        return [r"\toprule"]
+
+    def _get_closing_row_items(self) -> List[str]:
+        return [r"\end{tabular}"]
+
+    def __is_requre_verbatim(self, value_dp) -> bool:
+        return False
+
+    def __verbatim(self, value: str) -> str:
+        return f"{value:s}"
+
+    def _to_header_item(self, col_dp, value_dp) -> str:
+        return super()._to_header_item(col_dp, value_dp) \
+            .replace('\\verb|', '').replace('|', '').strip()
+
+    def _to_row_item(self, row_idx: int, col_dp, value_dp) -> str:
+        row_item = super()._to_row_item(row_idx, col_dp, value_dp)
+        if self._is_math_parts(value_dp):
+            return self._to_math_parts(row_item)
+        return row_item.replace('\\verb|', '').replace('|', '').strip()
+
+
 class Plot:
 
     def __init__(self, src_path: str, out_dir: str, table_format: str):
@@ -54,42 +90,63 @@ class Plot:
         return f'table.{ext}'
 
     @property
-    def get_writer(self) -> Union[LatexTableWriter, SpaceAlignedTableWriter]:
+    def get_writer(self) \
+            -> Union[LatexTableWriterExt, SpaceAlignedTableWriter]:
         """Choose table writer."""
-        return LatexTableWriter() if self.format == 'tex' \
+        return LatexTableWriterExt() if self.format == 'tex' \
             else SpaceAlignedTableWriter()
 
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['Benchmark', 'LOC', 'func', 't,ms',
-                'vars', 'bounds', 'bound (instance)']
+        return ['Benchmark', 'loc', 'func', 't.ms',
+                'vars', 'bounds', 'bound']
 
     @staticmethod
-    def table_entry(result, func_result, max_char=500) \
-            -> Tuple[any, ...]:
-        """Generate one table row.
+    def table_entry(result, func_result) -> Tuple[any, ...]:
+        """Generate one table row (plain text optimized).
 
         Arguments:
             result: a result object (covers entire C file)
             func_result: analysis result of one function (possibly 1 of N)
-            max_char: clip table text, if it exceeds max_chars value.
 
         Returns:
             Formatted table row.
         """
-        b_format = func_result.bound.show(compact=True, significant=True) \
-            if func_result.bound else '∞'
-        b_format = b_format[:max_char] + '...' \
-            if len(b_format) > max_char else b_format
         return (result.program.name, result.program.n_lines,
                 func_result.name, func_result.dur_ms,
-                func_result.n_vars, func_result.n_bounds, b_format)
+                func_result.n_vars, func_result.n_bounds,
+                func_result.bound.show(compact=True, significant=True)
+                if func_result.bound else '∞')
 
-    def build_matrix(self) -> List[Tuple[any]]:
+    @staticmethod
+    def tex_entry(result, func_result) -> Tuple[any, ...]:
+        """Generate one table for latex table
+
+        Arguments:
+            result: a result object (covers entire C file)
+            func_result: analysis result of one function (possibly 1 of N)
+
+        Returns:
+            Formatted table row.
+        """
+        prime = "'"
+        prog_name = result.program.name.replace('_', '\_')
+        tt = lambda v: "\scriptsize \\texttt{" + str(v) + "}"
+        bound_fmt = lambda b: ' $\land$ '.join([
+            f"{tt(str(k) + prime)}$\leq${v}" for k, v in b.items()
+            if str(k) != str(v)])
+
+        return (prog_name, result.program.n_lines,
+                func_result.name, func_result.dur_ms,
+                func_result.n_vars, func_result.n_bounds,
+                bound_fmt(func_result.bound.bound_dict)
+                if func_result.bound else '$\infty$')
+
+    def build_matrix(self, fmt_func) -> List[Tuple[any]]:
         """Construct table data."""
-        return [e for sublist in [[
-            self.table_entry(ex, ex.get_func(f_name))
+        return [e for sublist in [[fmt_func(
+            ex, ex.get_func(f_name))
             for f_name in ex.relations.keys()]
             for _, ex in sorted(self.results.items())] for e in sublist]
 
@@ -98,11 +155,13 @@ class Plot:
         if not self.has_data:
             return
         fn = join(self.out_dir, self.filename)
-        writer = self.get_writer
-        writer.headers = self.headers()
-        writer.value_matrix = self.build_matrix()
-        writer.write_table()
-        writer.dump(fn)
+        # file writer, screen-writer, screen is always plain text
+        f_writer, s_writer = self.get_writer, SpaceAlignedTableWriter()
+        f_writer.headers = s_writer.headers = self.headers()
+        f_writer.value_matrix = self.build_matrix(self.tex_entry)
+        s_writer.value_matrix = self.build_matrix(self.table_entry)
+        s_writer.write_table()  # show the table
+        f_writer.dump(fn)  # write to file
         print(f'Saved to {fn}')
 
 

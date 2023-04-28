@@ -86,9 +86,10 @@ class Bound:
         Returns:
             A formatted string of the bound.
         """
-        return ' ∧ '.join([f'{k}′ ≤ {v}' if not compact else f'{k}≤{v}'
-                           for k, v in self.bound_dict.items()
-                           if (not significant or str(k) != str(v))])
+        symbol_and, prime, symbol_lt = ' ∧ ', '′', '≤' if compact else ' ≤ '
+        return symbol_and.join([
+            f'{k}{prime}{symbol_lt}{v}' for k, v in self.bound_dict.items()
+            if (not significant or str(k) != str(v))])
 
     def to_dict(self) -> dict:
         """Get (serializable) dictionary representation of a bound."""
