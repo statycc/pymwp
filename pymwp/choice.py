@@ -44,6 +44,13 @@ class Choices:
         return tuple([choices[0] for choices in self.valid[0]]) \
             if not self.infinite else None
 
+    @property
+    def n_bounds(self) -> int:
+        """Number of bounds that can be generated from a choice vector"""
+        return sum([
+            reduce(lambda total, n: total * (n[0] ** n[1]), lens.items(), 1)
+            for lens in [Counter([len(x) for x in v]) for v in self.valid]])
+
     @staticmethod
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
         """Generate the choice representation.
