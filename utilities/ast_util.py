@@ -1,32 +1,36 @@
+#!/usr/bin/env python3
+
+"""
+This is a utility script reads and parses a C file, then generates an AST.
+
+It uses gcc and pycparser, then writes the AST to a file. This script is
+mainly useful for generating/updating test cases for unit testing, or
+inspecting AST structure and nodes.
+
+# Usage
+
+python3 utilities/ast_util.py [ARG1] [ARG2]
+
+# Positional arguments (required):
+
+1. input path -- give a C file, or path to a directory of C files
+2. output directory -- where to save AST
+
+Note the parser options are hard-coded, and assumes C file has no custom
+headers, and that gcc is a valid C compiler.
+"""
+
 import os.path
 import re
 import sys
 from pathlib import Path
+from os.path import join, abspath, dirname
 
-# import from sibling
-sys.path.append("..")
+# run relative to repository root
+cwd = abspath(join(dirname(__file__), '../'))
+sys.path.insert(0, cwd)
+
 from pymwp.parser import Parser
-
-"""
-This is a utility script reads and parses a C file, then generates an AST.
- 
-It uses gcc and pycparser, then writes the AST to a file. This script is 
-mainly useful for generating/updating test cases for unit testing, or
-inspecting AST structure and nodes. 
-
-# Usage
-
-cd utilities
-python3 ast_util.py [ARG1] [ARG2]
-
-# Positional arguments (required):
-
-1. input path -- give a C file, or path to a directory of C files 
-2. output directory -- where to save AST 
-
-Note the parser options are hard-coded, and assumes C file has no custom
-headers, and that gcc is a valid C compiler. 
-"""
 
 PARSER_ARGS = {'use_cpp': True, 'cpp_path': 'gcc', 'cpp_args': '-E'}
 _RE_COMBINE_WHITESPACE = re.compile(r'\s+')

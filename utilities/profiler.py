@@ -6,19 +6,17 @@ This is a utility script for running cProfile on a bunch of C files.
 USAGE: see docs/utilities.md
 """
 
-import os
-import asyncio
-import pstats
-import logging
 import argparse
-import subprocess
+import asyncio
+import os
+import pstats
 import signal
+import subprocess
 import time
 
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
-logger = logging.getLogger(__name__)
 cwd = abspath(join(dirname(__file__), '../'))  # repository root
 
 
@@ -125,7 +123,7 @@ class Profiler:
         return ' '.join([
             'python3 -m cProfile',
             f'-o {file_out}',
-            '-m pymwp --silent',
+            '-m pymwp --silent --fin',
             '--no_save' if not save else '',
             file_in
         ])
@@ -172,17 +170,16 @@ class Profiler:
             message = 'error'
         self.write_stats(out_file)
 
-        logger.info(f'{file_name.ljust(self.pad)} ... '
-                    f'{message.ljust(7)} | ' +
-                    f'{(end_time - start_time):.2f}s')
+        print(f'{file_name.ljust(self.pad)} ... '
+              f'{message.ljust(7)} : ' +
+              f'{(end_time - start_time):.2f}s')
 
     def pre_log(self):
         """Print info before running profiler."""
         self.__log(f'Profiling {self.file_count} C files... ' +
                    f'(limit: {self.timeout} sec)')
-        logger.info(f'{"EXAMPLE".ljust(self.pad + 5)}'
-                    f'{"RESULT".ljust(7)} '
-                    f'| TIME  ')
+        print(f'{"EXAMPLE".ljust(self.pad + 5)}'
+              f'{"RESULT".ljust(7)}   TIME  ')
 
     def post_log(self):
         """Print info after running profiler."""
@@ -191,18 +188,10 @@ class Profiler:
     def __log(self, msg):
         """Log something using print and visual dividers."""
         divider = '=' * self.divider_len
-        logger.info(f'\n{divider}\n{msg}\n{divider}')
+        print(f'\n{divider}\n{msg}\n{divider}')
 
 
-def setup_logger():
-    """Initialize logger."""
-    logger.setLevel(logging.INFO)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter("%(message)s"))
-    logger.addHandler(stream_handler)
-
-
-def _args(parser, args=None):
+def parse_args(parser):
     """Define available arguments."""
     parser.add_argument(
         '--in',
@@ -263,11 +252,10 @@ def _args(parser, args=None):
         action='store_true',
         help="save analysis result"
     )
-    return parser.parse_args(args)
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
     """Run profiler using provided args."""
-    setup_logger()
-    args = _args(argparse.ArgumentParser())
+    args = parse_args(argparse.ArgumentParser())
     Profiler(args.in_, args.out, args).run()

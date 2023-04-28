@@ -60,4 +60,4 @@ plot-output:
 
 compute-ast:
 	rm -rf test/mocks/*.txt
-	cd utilities && python3 ast_util.py ../tests/test_examples ../tests/mocks && cd ..
+	python3 utilities/ast_util.py tests/test_examples tests/mocks
