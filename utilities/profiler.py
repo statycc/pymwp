@@ -123,7 +123,7 @@ class Profiler:
         return ' '.join([
             'python3 -m cProfile',
             f'-o {file_out}',
-            '-m pymwp --silent --fin',
+            '-m pymwp --silent',
             '--no_save' if not save else '',
             file_in
         ])

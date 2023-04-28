@@ -62,36 +62,35 @@ class Plot:
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['Benchmark', 'func', 'LOC', 't/ms',
+        return ['Benchmark', 'LOC', 'func', 't/ms',
                 '#var', '#bound', 'bound value']
 
     @staticmethod
-    def table_entry(result, func_result, first, max_char=500) \
+    def table_entry(result, func_result, max_char=500) \
             -> Tuple[any, ...]:
         """Generate one table row.
 
         Arguments:
             result: a result object (covers entire C file)
             func_result: analysis result of one function (possibly 1 of N)
-            first: True if this is the first function of the C file
             max_char: clip table text, if it exceeds max_chars value.
 
         Returns:
             Formatted table row.
         """
-        loc_time = (result.program.n_lines, result.dur_ms) \
-            if first else ('', '')
-        b_format = func_result.bound.show(True) if func_result.bound else '∞'
+        b_format = func_result.bound.show(compact=True, significant=True) \
+            if func_result.bound else '∞'
         b_format = b_format[:max_char] + '...' \
             if len(b_format) > max_char else b_format
-        return (result.program.name, func_result.name, *loc_time,
+        return (result.program.name, result.program.n_lines,
+                func_result.name, func_result.dur_ms,
                 func_result.n_vars, func_result.n_bounds, b_format)
 
     def build_matrix(self) -> List[Tuple[any]]:
         """Construct table data."""
         return [e for sublist in [[
-            self.table_entry(ex, ex.get_func(f_name), i == 0)
-            for i, f_name in enumerate(ex.relations.keys())]
+            self.table_entry(ex, ex.get_func(f_name))
+            for f_name in ex.relations.keys()]
             for _, ex in sorted(self.results.items())] for e in sublist]
 
     def generate(self) -> None:
@@ -134,6 +133,6 @@ def cmd_args(parser):
 if __name__ == '__main__':
     args = cmd_args(argparse.ArgumentParser())
     if not isdir(args.in_):
-        print(f"Invalid directory {args.in_}")
+        print(f"Non-existent directory {args.in_}")
     else:
         Plot(args.in_, args.out, args.fmt).generate()

@@ -56,13 +56,13 @@ def test_load_relation(mocker):
         },
         "relations": [{
             "name": "foo",
+            "variables": ["x", "y"],
             "relation":
-                {"variables": ["x", "y"],
-                 "matrix": [
-                     [[{"scalar": "m", "deltas": [(0, 0)]}],
-                      [{"scalar": "o", "deltas": []}]],
-                     [[{"scalar": "o", "deltas": []}],
-                      [{"scalar": "m", "deltas": []}]]]},
+                {"matrix": [
+                    [[{"scalar": "m", "deltas": [(0, 0)]}],
+                     [{"scalar": "o", "deltas": []}]],
+                    [[{"scalar": "o", "deltas": []}],
+                     [{"scalar": "m", "deltas": []}]]]},
             "choices": [[[0, 1], [0]]],
             "bound": {"x": "x", "y": "y"},
             "infinity": False

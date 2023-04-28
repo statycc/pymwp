@@ -76,10 +76,19 @@ class Bound:
                     var_bound.append(matrix[row_id][col_id], vars_[row_id])
                 self.bound_dict[name] = var_bound
 
-    def show(self, compact=False) -> str:
-        """Format a nice display string of mwp-bounds."""
+    def show(self, compact=False, significant=False) -> str:
+        """Format a nice display string of mwp-bounds.
+
+        Arguments:
+            compact - reduce whitespace in the output
+            significant - omit bounds that depend only on self
+
+        Returns:
+            A formatted string of the bound.
+        """
         return ' ∧ '.join([f'{k}′ ≤ {v}' if not compact else f'{k}≤{v}'
-                           for k, v in self.bound_dict.items()])
+                           for k, v in self.bound_dict.items()
+                           if (not significant or str(k) != str(v))])
 
     def to_dict(self) -> dict:
         """Get (serializable) dictionary representation of a bound."""
