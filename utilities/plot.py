@@ -59,10 +59,10 @@ class Plot:
 
     @staticmethod
     def headers():
-        return ['Benchmark', 'func', 'LOC', 't/ms', '#var', 'bound']
+        return ['Benchmark', 'func', 'LOC', 't/ms', '#var', 'Bound']
 
     @staticmethod
-    def table_entry(r, f, first, max_char=50):
+    def table_entry(r, f, first, max_char=500):
         loc_time = (r.program.n_lines, r.dur_ms) if first else ('', '')
         b_format = f.bound.show(True) if f.bound else '∞'
         b_format = b_format[:max_char] + '...' \
@@ -80,7 +80,6 @@ class Plot:
             return
         fn = join(self.out_dir, self.filename)
         writer = self.get_writer
-        print('generating table!')
         writer.headers = self.headers()
         writer.value_matrix = self.build_matrix()
         writer.write_table()

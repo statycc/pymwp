@@ -23,6 +23,8 @@ clean:
 	@find . -name '*~' -exec rm -f {} +
 	@find . -name '__pycache__' -exec rm -fr {} +
 
+C_FILES = basics implementation_paper infinite not_infinite original_paper other
+
 pre-commit: dev-env lint-only test-only
 
 test: dev-env test-only
@@ -31,7 +33,7 @@ lint: dev-env lint-only
 
 profile: dev-env cprofile
 
-bench: dev-env bench-only
+bench: dev-env bench-only plot
 
 dev-env:
 	@test -d venv || python3 -m venv venv;
@@ -51,11 +53,10 @@ cprofile:
 	python3 utilities/profiler.py --lines=100 --no-external --skip for_loop
 
 bench-only:
-	# this will do for now
-	python3 utilities/profiler.py --lines=100 --no-external --skip for_loop --save
-	make plot-output
+	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \
+ 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)"; ))
 
-plot-output:
+plot:
 	python3 utilities/plot.py -r output
 
 compute-ast:
