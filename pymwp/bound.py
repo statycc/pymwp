@@ -48,7 +48,7 @@ class MwpBound:
                 if not self.x.empty and not self.y.empty else
                 self.x if not self.x.empty else
                 self.y if not self.y.empty else None)
-        return (str(term) if self.z.empty else f'{term} + {self.z}') \
+        return (str(term) if self.z.empty else f'{term}+{self.z}') \
             if term else str(self.z)
 
     def append(self, scalar: str, var_name: str):
@@ -76,9 +76,10 @@ class Bound:
                     var_bound.append(matrix[row_id][col_id], vars_[row_id])
                 self.bound_dict[name] = var_bound
 
-    def show(self) -> str:
+    def show(self, compact=False) -> str:
         """Format a nice display string of mwp-bounds."""
-        return ' ∧ '.join([f'{k}′ ≤ {v}' for k, v in self.bound_dict.items()])
+        return ' ∧ '.join([f'{k}′ ≤ {v}' if not compact else f'{k}≤{v}'
+                           for k, v in self.bound_dict.items()])
 
     def to_dict(self) -> dict:
         """Get (serializable) dictionary representation of a bound."""

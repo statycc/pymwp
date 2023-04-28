@@ -31,6 +31,8 @@ lint: dev-env lint-only
 
 profile: dev-env cprofile
 
+bench: dev-env bench-only
+
 dev-env:
 	@test -d venv || python3 -m venv venv;
 	@source venv/bin/activate;
@@ -46,7 +48,15 @@ lint-only:
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
-	python3 utilities/profiler.py --lines=100 --no-external
+	python3 utilities/profiler.py --lines=100 --no-external --skip for_loop
+
+bench-only:
+	# this will do for now
+	python3 utilities/profiler.py --lines=100 --no-external --skip for_loop --save
+	make plot-output
+
+plot-output:
+	python3 utilities/plot.py -r output
 
 compute-ast:
 	rm -rf test/mocks/*.txt

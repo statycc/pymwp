@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from typing import Optional, Dict, Union
+from pathlib import Path
 
 from pymwp import Relation, Bound, Choices
 from .matrix import decode
@@ -22,6 +23,10 @@ class Program(object):
             'n_lines': self.n_lines,
             'program_path': self.program_path}
 
+    @property
+    def name(self) -> Optional[str]:
+        return Path(self.program_path).stem if self.program_path else None
+
     @staticmethod
     def from_dict(**kwargs):
         return Program(kwargs['n_lines'], kwargs['program_path'])
@@ -34,13 +39,17 @@ class FuncResult:
             self, name: str, infinite: bool,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
-            bound: Optional[Bound] = None,
+            bound: Optional[Bound] = None
     ):
         self.name = name
         self.infinite = infinite
         self.relation = relation
         self.choices = choices
         self.bound = bound
+
+    @property
+    def n_vars(self) -> int:
+        return len(self.relation.variables) if self.relation else -1
 
     def to_dict(self) -> dict:
         return {
