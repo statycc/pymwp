@@ -116,7 +116,7 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
         Decoded matrix of polynomials.
     """
     return [[
-        Polynomial([Monomial(
+        Polynomial(*[Monomial(
             scalar=monomial["scalar"],
             deltas=monomial["deltas"])
             for monomial in polynomial])

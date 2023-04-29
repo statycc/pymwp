@@ -1,4 +1,3 @@
-from pytest import raises
 from pymwp import Monomial
 from pymwp.constants import SetInclusion
 

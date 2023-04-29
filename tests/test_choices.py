@@ -70,3 +70,12 @@ def test_first_choice():
 
     assert Choices.generate(choices, 3, infty1).first == (1, 0, 1)
     assert Choices.generate(choices, 2, infty2).first == (2, 2)
+
+
+def test_choice_counter():
+    """test bounds count"""
+    choice1 = Choices([[[0, 1, 2], [0, 1, 2], [2]]])
+    choice2 = Choices([[[0, 1, 2], [0, 1], [0, 1, 2], [0, 1, 2], [0, 2], [0]]])
+
+    assert choice1.n_bounds == 9
+    assert choice2.n_bounds == 108

@@ -2,7 +2,7 @@
 import logging
 from typing import List, Tuple, Optional
 
-from .file_io import save_relation
+from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -35,7 +35,8 @@ class Analysis:
         result.on_start()
         for ast_ext in [f for f in ast if pr.is_func(f)]:
             index, options, choices = 0, [0, 1, 2], []
-            function_name = ast_ext.decl.name
+            outcome: FuncResult = FuncResult(ast_ext.decl.name).on_start()
+            function_name = outcome.name
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
@@ -49,8 +50,9 @@ class Analysis:
 
             for i, node in enumerate(function_body.block_items):
                 logger.debug(f'computing relation...{i} of {total}')
-                index, rel_list, delta_infty = Analysis \
+                index, rel_list, delta_infty_ = Analysis \
                     .compute_relation(index, node, dg)
+                delta_infty = delta_infty or delta_infty_  # cannot erase
                 if stop_early and delta_infty:
                     break
                 logger.debug(f'computing composition...{i} of {total}')
@@ -59,7 +61,9 @@ class Analysis:
             # evaluate unless not enforcing finish and delta-infty
             if not skip_eval and not delta_infty:
                 choices = relations.first.eval(options, index)
-                bound = Bound(relations.first.apply_choice(*choices.first))
+                if not choices.infinite:
+                    bound = Bound().calculate(
+                        relations.first.apply_choice(*choices.first))
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
@@ -68,7 +72,9 @@ class Analysis:
                     evaluated and not choices.valid)
 
             # record and display results
-            outcome = FuncResult(function_name, infinite)
+            outcome.on_end()
+            outcome.vars = relations.first.variables
+            outcome.infinite = infinite
             if not (infinite and stop_early):
                 outcome.relation = relations.first
             if not infinite:
@@ -80,7 +86,7 @@ class Analysis:
         result.log_result()
 
         if save:
-            save_relation(file_out, res)
+            save_result(file_out, res)
         return result
 
     @staticmethod

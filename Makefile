@@ -23,6 +23,8 @@ clean:
 	@find . -name '*~' -exec rm -f {} +
 	@find . -name '__pycache__' -exec rm -fr {} +
 
+C_FILES = basics implementation_paper infinite not_infinite original_paper other
+
 pre-commit: dev-env lint-only test-only
 
 test: dev-env test-only
@@ -30,6 +32,8 @@ test: dev-env test-only
 lint: dev-env lint-only
 
 profile: dev-env cprofile
+
+bench: dev-env bench-only plot
 
 dev-env:
 	@test -d venv || python3 -m venv venv;
@@ -46,8 +50,16 @@ lint-only:
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
-	python3 utilities/profiler.py --lines=100 --no-external
+	python3 utilities/profiler.py --lines=100 --no-external --out profile
+
+bench-only:
+	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \
+ 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)" ; )) \
+ 		python3 utilities/runtime.py output
+
+plot:
+	python3 utilities/plot.py -r output -f tex
 
 compute-ast:
 	rm -rf test/mocks/*.txt
-	cd utilities && python3 ast_util.py ../tests/test_examples ../tests/mocks && cd ..
+	python3 utilities/ast_util.py tests/test_examples tests/mocks
