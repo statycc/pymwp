@@ -83,13 +83,13 @@ latest release), use the version from source following these steps.
     install required packages
 
     ```
-    python -m pip install -q -r requirements.txt
+    python -m pip install -r requirements.txt
     ``` 
     
     Note: for development purposes or to run tests, install dev dependencies instead: 
     
     ```
-    python -m pip install -q -r requirements-dev.txt
+    python -m pip install -r requirements-dev.txt
     ```
 
 3. Run the analysis
