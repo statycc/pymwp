@@ -1,6 +1,10 @@
 -r requirements.txt
 
+# all things needed to test/measure/profile/benchmark
+
 flake8
 pytest
 pytest-cov
 pytest-mock
+pytablewriter==0.64.2
+psutil

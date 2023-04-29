@@ -69,7 +69,7 @@ def machine_info() -> str:
 
 
 def write_info(output_dir: str):
-    fp = join(output_dir, '.machine_info')
+    fp = join(output_dir, '__machine_info')
     with open(fp, 'w') as mi:
         mi.write(machine_info())
     print(f'Wrote machine details to {fp}')

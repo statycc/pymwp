@@ -78,18 +78,18 @@ latest release), use the version from source following these steps.
     git clone https://github.com/statycc/pymwp.git
     ``` 
 
-2. Set up Python environment
+2. Set up Python environment (use [`venv`](https://docs.python.org/3/library/venv.html))
 
     install required packages
 
     ```
-    python -m pip install -q -r requirements.txt
+    python -m pip install -r requirements.txt
     ``` 
     
-    Note: for development purposes or to run tests, install dev dependencies instead: 
+    Note: for development purposes install dev dependencies instead: 
     
     ```
-    python -m pip install -q -r requirements-dev.txt
+    python -m pip install -r requirements-dev.txt
     ```
 
 3. Run the analysis
