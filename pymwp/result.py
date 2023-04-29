@@ -121,8 +121,7 @@ class FuncResult(Timeable):
         if 'choices' in kwargs:
             func.choices = Choices(kwargs['choices'])
         if 'bound' in kwargs and func.choices and func.relation:
-            simple = func.relation.apply_choice(*func.choices.first)
-            func.bound = Bound(simple)
+            func.bound = Bound(kwargs['bound'])
         return func
 
 
@@ -144,7 +143,7 @@ class Result(Timeable):
         self.relations[func_result.name] = func_result
         if not func_result.infinite:
             if func_result.bound:
-                logger.info(f'Bound: {Bound.show(func_result.bound)}')
+                logger.info(f'Bound: {Bound.show_poly(func_result.bound)}')
             else:
                 logger.info('Some bound exists')
         if func_result.infinite:

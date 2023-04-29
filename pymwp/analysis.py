@@ -62,7 +62,8 @@ class Analysis:
             if not skip_eval and not delta_infty:
                 choices = relations.first.eval(options, index)
                 if not choices.infinite:
-                    bound = Bound(relations.first.apply_choice(*choices.first))
+                    bound = Bound().calculate(
+                        relations.first.apply_choice(*choices.first))
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:

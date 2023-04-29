@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Tuple, Union
 
 from pymwp.relation import SimpleRelation
 
@@ -7,9 +7,10 @@ from pymwp.relation import SimpleRelation
 class HonestPoly:
     """Models an honest polynomial."""
 
-    def __init__(self, operator: str):
-        self.variables = set()
+    def __init__(self, operator: str, *init_vars: str):
+        self.variables = set(init_vars)
         self.op = operator
+        self.var_fmt = None
 
     @property
     def empty(self) -> bool:
@@ -17,39 +18,70 @@ class HonestPoly:
 
     @property
     def vars(self) -> List[str]:
-        return sorted(list(self.variables))
+        var_list = [self.var_fmt(v) for v in self.variables] \
+            if self.var_fmt else self.variables
+        return sorted(list(var_list))
 
-    def add(self, identifier: str):
-        self.variables.add(identifier)
+    @property
+    def value(self) -> Union[int, str]:
+        return 0 if self.empty else self.op.join(self.vars)
+
+    def add(self, *identifier: str):
+        for i in identifier:
+            self.variables.add(i)
 
     def __str__(self):
-        return '0' if self.empty else \
-            self.op.join(self.vars)
+        return str(self.value)
 
 
 class MaxVar(HonestPoly):
     """m-variables"""
 
-    def __init__(self):
-        super().__init__(operator=',')
+    def __init__(self, *init_vars):
+        super().__init__(',', *init_vars)
 
 
 class MwpBound:
     """Represents MWP bound."""
 
-    def __init__(self):
-        self.x = MaxVar()
-        self.y = HonestPoly('+')
-        self.z = HonestPoly('*')
+    def __init__(self, triple=None):
+        x, y, z = self.parse_triple_str(triple)
+        self.x = MaxVar(*x)
+        self.y = HonestPoly('+', *y)
+        self.z = HonestPoly('*', *z)
 
     def __str__(self):
-        # Any of the three variable lists x, y, z might be empty
-        term = (f'max({self.x},{self.y})'
-                if not self.x.empty and not self.y.empty else
-                self.x if not self.x.empty else
-                self.y if not self.y.empty else None)
-        return (str(term) if self.z.empty else f'{term}+{self.z}') \
-            if term else str(self.z)
+        return self.bound_poly(self)
+
+    @property
+    def bound_triple(self) -> Tuple[Tuple[str], Tuple[str], Tuple[str]]:
+        """Alternative bounds representation"""
+        return tuple(self.x.vars), tuple(self.y.vars), tuple(self.z.vars)
+
+    @property
+    def bound_triple_str(self) -> str:
+        """Alternative bounds representation"""
+        return f'{";".join([",".join(v) for v in self.bound_triple])}'
+
+    @staticmethod
+    def parse_triple_str(value: str = None):
+        """Restore bound from triple format"""
+        return [v.split(',') if v else [] for v in value.split(";")] \
+            if value else ([], [], [])
+
+    @staticmethod
+    def bound_poly(mwp: MwpBound):
+        x, y, z, term = mwp.x, mwp.y, mwp.z, None
+        # Any of the three variable lists might be empty
+        if not x.empty and not y.empty:
+            term = f'max({x},{y})'
+        elif not x.empty:
+            term = f'max({x})' if len(x.vars) > 1 else str(x)
+        elif not y.empty:
+            term = str(y)
+        if term:
+            return str(term) if z.empty else f'{term}+{z}'
+        return str(z)
 
     def append(self, scalar: str, var_name: str):
         """Append variable dependency in the right list by scalar."""
@@ -62,22 +94,33 @@ class MwpBound:
 
 
 class Bound:
-    """Calculates MWP bound for a relation."""
+    """Represents an MWP bound for a relation.
 
-    # TODO: make this bound format easier to recover
-    #   serialize: to_dict() -> deserialize: how???
-    def __init__(self, relation: SimpleRelation = None):
-        self.bound_dict = {}
-        if relation:
-            vars_, matrix = relation.variables, relation.matrix
-            for col_id, name in enumerate(vars_):
-                var_bound = MwpBound()
-                for row_id in range(len(matrix)):
-                    var_bound.append(matrix[row_id][col_id], vars_[row_id])
-                self.bound_dict[name] = var_bound
+    There is one mwp-bound expression for each input variable.
+    """
 
-    def show(self, compact=False, significant=False) -> str:
-        """Format a nice display string of mwp-bounds.
+    def __init__(self, bounds: dict = None):
+        self.bound_dict = dict([
+            (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
+            if bounds else {}
+
+    def calculate(self, relation: SimpleRelation):
+        """Calculate bound from a simple-valued matrix"""
+        vars_, matrix = relation.variables, relation.matrix
+        for col_id, name in enumerate(vars_):
+            var_bound = MwpBound()
+            for row_id in range(len(matrix)):
+                var_bound.append(matrix[row_id][col_id], vars_[row_id])
+            self.bound_dict[name] = var_bound
+        return self
+
+    def to_dict(self) -> dict:
+        """Get serializable dictionary representation of a bound."""
+        return dict([(k, v.bound_triple_str)
+                     for k, v in self.bound_dict.items()])
+
+    def show_poly(self, compact=False, significant=False) -> str:
+        """Format a nice display string of bounds.
 
         Arguments:
             compact - reduce whitespace in the output
@@ -86,11 +129,7 @@ class Bound:
         Returns:
             A formatted string of the bound.
         """
-        symbol_and, prime, symbol_lt = ' ∧ ', '′', '≤' if compact else ' ≤ '
-        return symbol_and.join([
-            f'{k}{prime}{symbol_lt}{v}' for k, v in self.bound_dict.items()
+        return ' ∧ '.join([
+            f'{k}′{"≤" if compact else " ≤ "}{v}'
+            for k, v in self.bound_dict.items()
             if (not significant or str(k) != str(v))])
-
-    def to_dict(self) -> dict:
-        """Get (serializable) dictionary representation of a bound."""
-        return dict([(k, str(v)) for k, v in self.bound_dict.items()])
