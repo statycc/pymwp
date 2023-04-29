@@ -18,10 +18,10 @@ they are only available from the development repository.
 
 ## Getting started
 
-To run utilities, install development dependencies first.
+To run utilities, install required dependencies first.
 
 ```
-python -m pip install -q -r requirements-dev.txt
+python -m pip install -r requirements-test.txt
 ```
 
 ## AST Generator
