@@ -56,15 +56,15 @@ def test_load_relation(mocker):
         },
         "relations": [{
             "name": "foo",
+            "variables": ["x", "y"],
             "relation":
-                {"variables": ["x", "y"],
-                 "matrix": [
-                     [[{"scalar": "m", "deltas": [(0, 0)]}],
-                      [{"scalar": "o", "deltas": []}]],
-                     [[{"scalar": "o", "deltas": []}],
-                      [{"scalar": "m", "deltas": []}]]]},
+                {"matrix": [
+                    [[{"scalar": "m", "deltas": [(0, 0)]}],
+                     [{"scalar": "o", "deltas": []}]],
+                    [[{"scalar": "o", "deltas": []}],
+                     [{"scalar": "m", "deltas": []}]]]},
             "choices": [[[0, 1], [0]]],
-            "bound": {"x": "x", "y": "y"},
+            "bound": {"x": "x;;", "y": "y;;x"},
             "infinity": False
         }]
     })
@@ -88,7 +88,9 @@ def test_load_relation(mocker):
     assert first_mono.deltas == [(0, 0)]
 
     # restores bound details correctly
-    assert foo_res.bound.to_dict() == {"x": "x", "y": "y"}
+    assert foo_res.bound.bound_dict['x'].x.vars == ["x"]
+    assert foo_res.bound.bound_dict['y'].x.vars == ["y"]
+    assert foo_res.bound.bound_dict['y'].z.vars == ["x"]
 
 
 def test_load_relation_infty(mocker):

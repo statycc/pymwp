@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional, Dict, Union
+from typing import Optional, Dict, Union, List
 from pathlib import Path
 
 from pymwp import Relation, Bound, Choices
@@ -11,8 +11,41 @@ from .matrix import decode
 logger = logging.getLogger(__name__)
 
 
+class Timeable:
+    """Represents an entity whose runtime can be measured."""
+
+    def __init__(self):
+        self.start_time = 0
+        self.end_time = 0
+
+    @property
+    def time_diff(self) -> int:
+        """Time delta between analysis start and end time."""
+        return self.end_time - self.start_time
+
+    @property
+    def dur_s(self) -> float:
+        """Duration in seconds."""
+        return round(self.time_diff / 1e9, 1)
+
+    @property
+    def dur_ms(self) -> int:
+        """Duration in milliseconds."""
+        return int(self.time_diff / 1e6)
+
+    def on_start(self) -> Timeable:
+        """At start of function analysis"""
+        self.start_time = time.time_ns()
+        return self
+
+    def on_end(self) -> Timeable:
+        """Called immediately after function analysis"""
+        self.end_time = time.time_ns()
+        return self
+
+
 class Program(object):
-    """Details about analyzed program."""
+    """Details about analyzed C program."""
 
     def __init__(self, n_lines: int = -1, program_path: str = None):
         self.n_lines: int = n_lines
@@ -32,16 +65,18 @@ class Program(object):
         return Program(kwargs['n_lines'], kwargs['program_path'])
 
 
-class FuncResult:
-    """Analysis result for one function."""
+class FuncResult(Timeable):
+    """Capture details of analysis result for one function."""
 
     def __init__(
-            self, name: str, infinite: bool,
+            self, name: str, infinite: bool = False,
+            variables: Optional[List[str]] = None,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
-            bound: Optional[Bound] = None
-    ):
+            bound: Optional[Bound] = None):
+        super().__init__()
         self.name = name
+        self.vars = variables or []
         self.infinite = infinite
         self.relation = relation
         self.choices = choices
@@ -49,16 +84,20 @@ class FuncResult:
 
     @property
     def n_vars(self) -> int:
-        return len(self.relation.variables) if self.relation else -1
+        return len(self.vars)
 
     @property
     def n_bounds(self) -> int:
         return self.choices.n_bounds if self.choices else 0
 
     def to_dict(self) -> dict:
+        """Serialize function result."""
         return {
             "name": self.name,
             "infinity": self.infinite,
+            "variables": self.vars,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
             "relation": self.relation.to_dict() if self.relation else None,
             **({"choices": self.choices.valid if self.choices else None,
                 "bound": self.bound.to_dict() if self.bound else None}
@@ -68,54 +107,43 @@ class FuncResult:
 
     @staticmethod
     def from_dict(**kwargs):
+        """Deserialize function result."""
+        st, et = 'start_time', 'end_time'
         func = FuncResult(kwargs['name'], kwargs['infinity'])
+        func.start_time = int(kwargs[st]) if st in kwargs else 0
+        func.end_time = int(kwargs[et]) if et in kwargs else 0
+        if 'variables' in kwargs:
+            func.vars = kwargs['variables']
         if kwargs['relation']:
             matrix = kwargs['relation']['matrix']
-            variables = kwargs['relation']['variables']
-            func.relation = Relation(variables, decode(matrix))
+            if func.vars:
+                func.relation = Relation(func.vars, decode(matrix))
         if 'choices' in kwargs:
             func.choices = Choices(kwargs['choices'])
         if 'bound' in kwargs and func.choices and func.relation:
-            simple = func.relation.apply_choice(*func.choices.first)
-            func.bound = Bound(simple)
+            func.bound = Bound(kwargs['bound'])
         return func
 
 
-class Result:
+class Result(Timeable):
     """Captures analysis result and details about the process."""
 
     def __init__(self):
+        super().__init__()
         self.program: Program = Program()
         self.relations: Dict[str, FuncResult] = {}
-        self.start_time: int = -1
-        self.end_time: int = -1
 
     @property
     def n_functions(self) -> int:
         """number of functions in analyzed program"""
         return len(self.relations.keys())
 
-    @property
-    def time_diff(self) -> int:
-        """Time delta between analysis start and end time."""
-        return self.end_time - self.start_time
-
-    @property
-    def dur_s(self) -> float:
-        """Duration in seconds."""
-        return round(self.time_diff / 1e9, 1)
-
-    @property
-    def dur_ms(self) -> int:
-        """Duration in milliseconds."""
-        return int(self.time_diff / 1e6)
-
     def add_relation(self, func_result: FuncResult) -> None:
         """Appends function analysis outcome to result."""
         self.relations[func_result.name] = func_result
         if not func_result.infinite:
             if func_result.bound:
-                logger.info(f'Bound: {Bound.show(func_result.bound)}')
+                logger.info(f'Bound: {Bound.show_poly(func_result.bound)}')
             else:
                 logger.info('Some bound exists')
         if func_result.infinite:
@@ -146,14 +174,6 @@ class Result:
             key = next(iter(self.relations))
             return self.relations[key]
         return self.relations
-
-    def on_start(self):
-        """Called immediately before analysis of AST."""
-        self.start_time = time.time_ns()
-
-    def on_end(self):
-        """Called immediately after analysis of AST has completed."""
-        self.end_time = time.time_ns()
 
     def log_result(self):
         """Display here all interesting stats."""

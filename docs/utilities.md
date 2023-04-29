@@ -1,8 +1,8 @@
 # Utilities
 
-There are several utility scripts in the repository `utilities` directory. 
-These utilities mainly help to inspect, test, and measure performance of pymwp in different ways.
-These tools are not shipped with the distributed version of pymwp; they are only available from the development repository.
+There are several utility scripts in the repository `utilities` directory. These utilities mainly help to inspect, test,
+and measure performance of pymwp in different ways. These tools are not shipped with the distributed version of pymwp;
+they are only available from the development repository.
 
 !!! info "**Current Utilities**"
 
@@ -16,12 +16,19 @@ These tools are not shipped with the distributed version of pymwp; they are only
       : Profiler inspectes execution of various functions. It is helpful to locate bottlenecks and to understand analyzer function call structure.  
 
 
+## Getting started
+
+To run utilities, install development dependencies first.
+
+```
+python -m pip install -q -r requirements-dev.txt
+```
+
 ## AST Generator
 
-This is a utility script reads and parses C file(s), then generates an AST.
-It uses gcc and pycparser, then writes the AST to a file. This script is
-mainly useful for generating/updating test cases for unit testing, or
-inspecting AST structure and nodes.
+This is a utility script reads and parses C file(s), then generates an AST. It uses gcc and pycparser, then writes the
+AST to a file. This script is mainly useful for generating/updating test cases for unit testing, or inspecting AST
+structure and nodes.
 
 **Usage**
 
@@ -34,8 +41,7 @@ Positional arguments (required):
 1. input path -- give a C file, or path to a directory of C files
 2. output directory -- where to save AST
 
-Note the parser options are hard-coded, and assumes C file has no custom
-headers, and that gcc is a valid C compiler.
+Note the parser options are hard-coded, and assumes C file has no custom headers, and that gcc is a valid C compiler.
 
 ---
 
@@ -55,9 +61,9 @@ Run `python3 utilities/plot.py --help` for more assistance.
 
 ## Execution Profiling
 
-Profiling shows how many times different functions are called during analysis. Profiling is carried out using 
-[cProfile](https://docs.python.org/3/library/profile.html#module-cProfile). You can profile execution of analysis on 
-a single file or multiple files.
+Profiling shows how many times different functions are called during analysis. Profiling is carried out using
+[cProfile](https://docs.python.org/3/library/profile.html#module-cProfile). You can profile execution of analysis on a
+single file or multiple files.
 
 <h3>Single file</h3>
 
@@ -68,16 +74,17 @@ python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
 ```
 
 - use `-m pymwp` if running from source
-- use `-s` to specify cProfile output sort order (cf. [options](https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats))
+- use `-s` to specify cProfile output sort order (
+  cf. [options](https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats))
 - use `--silent` to mute analysis output
 
 <h3>Multiple file</h3>
 
-Utility module [`profiler.py`](https://github.com/statycc/pymwp/blob/master/utilities/profiler.py) is a wrapper for cProfile. 
-This utility is not distributed with pymwp package - it must be run from source.
+Utility module [`profiler.py`](https://github.com/statycc/pymwp/blob/master/utilities/profiler.py) is a wrapper for
+cProfile. This utility is not distributed with pymwp package - it must be run from source.
 
-It enables profiling multiple executions of analysis on a _directory_ of C files (it recursively searches for 
-C files). The results of each execution are stored in corresponding files.
+It enables profiling multiple executions of analysis on a _directory_ of C files (it recursively searches for C files).
+The results of each execution are stored in corresponding files.
 
 1. Run with defaults:
 
@@ -85,7 +92,7 @@ C files). The results of each execution are stored in corresponding files.
     make profile
     ```    
 
-    <small>Default behavior is to profile all repository examples.</small>
+   <small>Default behavior is to profile all repository examples.</small>
 
 2. Run with custom arguments:
 
@@ -98,10 +105,11 @@ C files). The results of each execution are stored in corresponding files.
     ```
     python utilities/profiler.py --help
     ```
-    
+
 1 of 3 possible outputs is displayed for each profiled execution:
 
-- done-ok : profiling subprocess terminated without error, note: even if analysis ends with non-0 exit code, it falls into this category if it does not crash the process.
+- done-ok : profiling subprocess terminated without error, note: even if analysis ends with non-0 exit code, it falls
+  into this category if it does not crash the process.
 - error : profiling subprocess terminated in error.
 - timeout : profiling subprocess did not terminate within time limit and was forced to quit.
     

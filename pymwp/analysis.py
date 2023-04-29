@@ -35,7 +35,8 @@ class Analysis:
         result.on_start()
         for ast_ext in [f for f in ast if pr.is_func(f)]:
             index, options, choices = 0, [0, 1, 2], []
-            function_name = ast_ext.decl.name
+            outcome: FuncResult = FuncResult(ast_ext.decl.name).on_start()
+            function_name = outcome.name
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
@@ -61,7 +62,8 @@ class Analysis:
             if not skip_eval and not delta_infty:
                 choices = relations.first.eval(options, index)
                 if not choices.infinite:
-                    bound = Bound(relations.first.apply_choice(*choices.first))
+                    bound = Bound().calculate(
+                        relations.first.apply_choice(*choices.first))
                 evaluated = True
 
             # the evaluation is infinite when either of these conditions holds:
@@ -70,7 +72,9 @@ class Analysis:
                     evaluated and not choices.valid)
 
             # record and display results
-            outcome = FuncResult(function_name, infinite)
+            outcome.on_end()
+            outcome.vars = relations.first.variables
+            outcome.infinite = infinite
             if not (infinite and stop_early):
                 outcome.relation = relations.first
             if not infinite:

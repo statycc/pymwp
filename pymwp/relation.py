@@ -309,10 +309,7 @@ class Relation:
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""
-        return {
-            "variables": self.variables,
-            "matrix": matrix_utils.encode(self.matrix)
-        }
+        return {"matrix": matrix_utils.encode(self.matrix)}
 
     def show(self):
         """Display relation."""

@@ -6,3 +6,4 @@ mkdocstrings-python==0.9.0
 mkdocs-include-markdown-plugin==4.0.4
 importlib-metadata<5.0
 pytablewriter==0.64.2
+psutil

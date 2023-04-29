@@ -45,7 +45,6 @@
 | Other                | `dense.c`             | Produces a 3 x 3 dense matrix.                            |
 |                      | `dense_loop.c`        | Produces a dense matrix with infinite coefficients in it. |
 |                      | `explosion.c`         | Explosion of the number of cases                          |
-|                      | `for_loop.c`          | Loop example using `for`                                  |
 |                      | `gcd.c`               | Greatest common divisor by subtraction                    |
 |                      | `long.c`              | Longer program with multiple loops and nested statements  |
 |                      | `simplified_dense.c`  | Simplified dense matrix                                   |
