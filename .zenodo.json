@@ -1,5 +1,5 @@
 {
-  "title": "pymwp: MWP analysis on C code in Python",
+  "title": "pymwp: MWP analysis in Python",
   "description": "pymwp is a tool for automatically performing static analysis on programs written in C. It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.",
   "upload_type": "software",
   "access_right": "open",

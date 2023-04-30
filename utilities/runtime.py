@@ -1,5 +1,11 @@
 """
 Capture details of the current machine and runtime.
+
+# Usage
+
+python3 utilities/runtime.py [output_dir]
+
+Where [output_dir] specifies where to write the output.
 """
 
 # noinspection PyPackageRequirements

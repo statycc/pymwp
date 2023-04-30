@@ -23,13 +23,15 @@ setuptools.setup(
     project_urls={
         'Bug Tracker': 'https://github.com/statycc/pymwp/issues',
         'Documentation': 'https://statycc.github.io/pymwp/',
+        'Source Code': 'https://github.com/statycc/pymwp',
+        'Archive': 'https://doi.org/10.5281/zenodo.7879822'
     },
     package_data={"": ["LICENSE"], },
     include_package_data=True,
     classifiers=[
         'Natural Language :: English',
         'Intended Audience :: Science/Research',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',

@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: 'pymwp: MWP analysis on C code in Python'
+title: 'pymwp: MWP analysis in Python'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -24,6 +24,10 @@ authors:
     family-names: Seiller
     orcid: 'https://orcid.org/0000-0001-6313-0898'
     affiliation: LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7879822
+    description: Zenodo
 repository-code: 'https://github.com/statycc/pymwp'
 url: 'https://statycc.github.io/pymwp/'
 repository-artifact: 'https://zenodo.org/record/7159134'
