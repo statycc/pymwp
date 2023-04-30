@@ -1,28 +1,39 @@
-# YAML 1.2
----
-authors: 
-  -
-    affiliation: "School of Computer and Cyber Sciences, Augusta University"
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: 'pymwp: MWP analysis on C code in Python'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Clément
     family-names: Aubert
-    given-names: "Clément"
-    orcid: "https://orcid.org/0000-0001-6346-3043"
-  -
-    affiliation: "LIPN – UMR 7030 Université Sorbonne Paris Nord"
+    affiliation: School of Computer and Cyber Sciences, Augusta University
+    orcid: 'https://orcid.org/0000-0001-6346-3043'
+  - given-names: Thomas
     family-names: Rubiano
-    given-names: Thomas
-  -
-    affiliation: "School of Computer and Cyber Sciences, Augusta University"
+    affiliation: LIPN – UMR 7030 Université Sorbonne Paris Nord
+  - given-names: Neea
     family-names: Rusch
-    given-names: Neea
-    orcid: "https://orcid.org/0000-0002-7354-5330"
-  -
-    affiliation: "LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS"
+    email: nrusch@augusta.edu
+    affiliation: School of Computer and Cyber Sciences, Augusta University
+    orcid: 'https://orcid.org/0000-0002-7354-5330'
+  - given-names: Thomas
     family-names: Seiller
-    given-names: Thomas
-    orcid: "https://orcid.org/0000-0001-6313-0898"
-cff-version: "1.1.0"
-license: "gpl-3.0"
-message: "Thanks for using the following metadata to cite this software."
-repository-code: "https://github.com/statycc/pymwp/"
-title: "pymwp: MWP analysis in Python"
-...
+    orcid: 'https://orcid.org/0000-0001-6313-0898'
+    affiliation: LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS
+repository-code: 'https://github.com/statycc/pymwp'
+url: 'https://statycc.github.io/pymwp/'
+repository-artifact: 'https://zenodo.org/record/7159134'
+abstract: >-
+  pymwp is a tool for automatically performing static
+  analysis on programs written in C. It analyzes resource
+  usage and determines if a program's variables growth rates
+  are no more than polynomially related to their inputs sizes.
+keywords:
+  - program analysis
+  - mwp-analysis
+  - implicit computational complexity
+license: GPL-3.0
