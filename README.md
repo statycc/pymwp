@@ -4,6 +4,8 @@
 [![codecov](https://codecov.io/gh/statycc/pymwp/branch/main/graph/badge.svg?token=4v3zRbkAjM)](https://codecov.io/gh/statycc/pymwp)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
 [![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
+[![DOI](https://zenodo.org/badge/355822953.svg)](https://zenodo.org/badge/latestdoi/355822953)
+
 
 <!--
     do not remove start and end comments (e.g. "include-start", "include-end").
@@ -18,7 +20,6 @@ It is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](ht
 It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
 Try our online [demo](https://statycc.github.io/pymwp/demo/) to see it action.
 For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
-See latest [profiling results](https://github.com/statycc/pymwp/releases/tag/profile-latest) for interesting performance metrics. 
 
 <!--desc-end--> 
 
@@ -66,6 +67,9 @@ show(matrix)
 ```
 
 See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
+
+
+
 
 ## Running from source
 

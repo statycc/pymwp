@@ -22,6 +22,14 @@ jobs:
       - name: Run tests
         run: make test
 
+      - name: Run profiler
+        run: make profile
+
+      - uses: vimtor/action-zip@v1.1
+        with:
+          files: profile/
+          dest: profile.zip
+
       - uses: vimtor/action-zip@v1.1
         with:
           files: c_files/
@@ -39,4 +47,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: ${{ github.workspace }}/examples.zip
+          artifacts: |
+            ${{ github.workspace }}/examples.zip
+            ${{ github.workspace }}/profile.zip
