@@ -3,7 +3,7 @@ import setuptools
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __desc__ = "Implementation of MWP analysis on C code in Python."
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
