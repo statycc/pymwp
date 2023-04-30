@@ -42,6 +42,7 @@ setuptools.setup(
         'Typing :: Typed',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
     ],
     python_requires=">=3.7",
     install_requires=[
