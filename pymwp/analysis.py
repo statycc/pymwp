@@ -346,17 +346,10 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         if node is not None:
-            # when branch has braces
-            if hasattr(node, 'block_items'):
-                for child in node.block_items:
-                    index, rel_list, exit_ = Analysis.compute_relation(
-                        index, child, dg)
-                    if exit_:
-                        return index, exit_
-                    relation_list.composition(rel_list)
-            else:
-                index, rel_list, exit_ = Analysis.compute_relation(
-                    index, node, dg)
+            for child in node.block_items \
+                    if hasattr(node, 'block_items') else [node]:
+                index, rel_list, exit_ = Analysis \
+                    .compute_relation(index, child, dg)
                 if exit_:
                     return index, exit_
                 relation_list.composition(rel_list)
@@ -378,7 +371,8 @@ class Analysis:
         logger.debug("analysing While")
 
         relations = RelationList()
-        for child in node.stmt.block_items:
+        for child in node.stmt.block_items \
+                if hasattr(node, 'block_items') else [node.stmt]:
             index, rel_list, exit_ = Analysis.compute_relation(
                 index, child, dg)
             if exit_:
@@ -446,6 +440,7 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         relations = RelationList()
+
         if node.block_items:
             for node in node.block_items:
                 index, rel_list, exit_ = Analysis.compute_relation(
