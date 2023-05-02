@@ -55,12 +55,34 @@ class MwpBound:
 
     @property
     def bound_triple(self) -> Tuple[Tuple[str], Tuple[str], Tuple[str]]:
-        """Alternative bounds representation"""
+        """Alternative bounds representation.
+
+        Example:
+            ```
+            (X1,) (,) (X4, X5)
+            ```
+
+        Returns:
+            Current bound as $(m_1,...m_n), (w_1,...w_n), (p_1,...p_n)$
+                where the first contains list of variables in m,
+                second contains variables in w, and last in p (if any).
+        """
         return tuple(self.x.vars), tuple(self.y.vars), tuple(self.z.vars)
 
     @property
     def bound_triple_str(self) -> str:
-        """Alternative bounds representation"""
+        """Alternative bounds representation.
+
+        Example:
+            ```
+            X1;;X4,X5
+            ```
+
+        Returns:
+            Current bound as `m;w;p` where the first section contains
+                list of variables in m, second contains variables in w,
+                and last in p (if any).
+        """
         return f'{";".join([",".join(v) for v in self.bound_triple])}'
 
     @staticmethod
@@ -104,8 +126,15 @@ class Bound:
             (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
             if bounds else {}
 
-    def calculate(self, relation: SimpleRelation):
-        """Calculate bound from a simple-valued matrix"""
+    def calculate(self, relation: SimpleRelation) -> Bound:
+        """Calculate bound from a simple-valued matrix.
+
+        Arguments
+            relation: a simple-valued relation.
+
+        Returns:
+            The bound for the relation.
+        """
         vars_, matrix = relation.variables, relation.matrix
         for col_id, name in enumerate(vars_):
             var_bound = MwpBound()
@@ -119,12 +148,14 @@ class Bound:
         return dict([(k, v.bound_triple_str)
                      for k, v in self.bound_dict.items()])
 
-    def show_poly(self, compact=False, significant=False) -> str:
+    def show_poly(
+            self, compact: bool = False, significant: bool = False
+    ) -> str:
         """Format a nice display string of bounds.
 
         Arguments:
-            compact - reduce whitespace in the output
-            significant - omit bounds that depend only on self
+            compact: reduce whitespace in the output
+            significant: omit bounds that depend only on self
 
         Returns:
             A formatted string of the bound.

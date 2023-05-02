@@ -294,8 +294,8 @@ class Relation:
 
         Returns:
             Dictionary of potentially infinite dependencies, where
-            the key is source variable and value is list of targets;
-            All entries are non-empty.
+                the key is source variable and value is list of targets.
+                All entries are non-empty.
         """
         vars_ = self.variables
         return dict([(x, y) for x, y in [
@@ -393,7 +393,7 @@ class Relation:
 
 class SimpleRelation(Relation):
     """Specialized instance of relation, where matrix contains only
-       scalar values, no Polynomials."""
+       scalar values, no polynomials."""
 
     def __init__(self, variables: Optional[List[str]] = None,
                  matrix: Optional[List[List[str]]] = None):

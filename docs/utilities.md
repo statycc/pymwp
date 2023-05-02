@@ -4,17 +4,17 @@ There are several utility scripts in the repository `utilities` directory. These
 and measure performance of pymwp in different ways. These tools are not shipped with the distributed version of pymwp;
 they are only available from the development repository.
 
-!!! info "**Current Utilities**"
+## List of Utilities
 
-    - **AST Generator** (`ast_util.py`)
-      : Uses PyCParser to generate an AST of C file(s). It is useful for debugging, testing, and inspecting AST structure.
+!!! info " "
+
+    : :one: &nbsp; **AST Generator** (`ast_util.py`)<br/>Uses PyCParser to generate an AST of C files. It is useful for debugging, testing, and inspecting AST structure.
     
-    - **Results Plotter** (`plot.py`) 
-      : Make plots of analyzer results. This is useful for benchmarking and inspecting performance. This scripts takes as input a directory path to pymwp results (output by default), then generates a table of those results.
+    : :two: &nbsp; **Results Plotter** (`plot.py`)<br/>Make plots of analyzer results. This is useful for benchmarking and inspecting performance. This scripts takes as input a directory path to pymwp results (output by default), then generates a table of those results.
 
-    - **Execution Profiling** (`profiler.py`)
-      : Profiler inspectes execution of various functions. It is helpful to locate bottlenecks and to understand analyzer function call structure.  
+    : :three: &nbsp; **Execution Profiling** (`profiler.py`)<br/>Profiler inspectes execution of various functions. It is helpful to locate bottlenecks and to understand analyzer function call structure.  
 
+    : :four: &nbsp; **Machine Details** (`runtime.py`)<br/>Captures details of executing machine &mdash; useful for reporting results of benchmarking or profiling.
 
 ## Getting started
 
@@ -112,4 +112,17 @@ The results of each execution are stored in corresponding files.
   into this category if it does not crash the process.
 - error : profiling subprocess terminated in error.
 - timeout : profiling subprocess did not terminate within time limit and was forced to quit.
-    
+
+---
+
+## Machine Details
+
+Captures e.g., hardware details for executing machine.
+
+**Usage**
+
+```
+python3 utilities/runtime.py [output_dir]
+```
+
+Where `output_dir` specifies a directory where to write the machine details. 
