@@ -3,22 +3,22 @@
 pymwp analyzes programs written in C language.
 The project repository `c_files` directory contains many examples.
 
+## Program Categories
 
-### Program Categories
+!!! info " "
 
-: :material-hand-wave-outline: **Basics**<br/>Programs performing operations that correspond to simple derivation trees.
+    : :material-hand-wave-outline: &nbsp; **Basics**<br/>Programs performing operations that correspond to simple derivation trees.
+    
+    : :material-infinity: &nbsp; **Infinite**<br/>Programs that are assigned matrices that always contain infinite coefficients, no matter the choices.
+    
+    : :octicons-move-to-end-24: &nbsp; **Not Infinite**<br/>Programs that are assigned matrices that do not always contain infinite coefficients.
+    
+    : :material-circle-outline: &nbsp; **Original Paper**<br/>Examples taken from or inspired by paper "A Flow Calculus of mwp-Bounds for Complexity Analysis".
+    
+    : :material-asterisk: &nbsp; **Implementation Paper**<br/>Examples from "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity".
+    
+    : :material-dots-horizontal: &nbsp; **Other**<br/>Other programs of interest.
 
-: :material-infinity: **Infinite**<br/>Programs that are assigned matrices that always contain infinite coefficients, no matter the choices.
-
-: :octicons-move-to-end-24: **Not Infinite**<br/>Programs that are assigned matrices that do not always contain infinite coefficients.
-
-: :material-circle-outline: **Original Paper**<br/>Examples taken from or inspired by paper "A Flow Calculus of mwp-Bounds for Complexity Analysis".
-
-: :material-asterisk: **Implementation Paper**<br/>Examples from paper "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity".
-
-: :material-dots-horizontal: **Other**<br/>Other programs of interest.
-
-<style>.md-content .md-typeset dd {margin-left:0}</style>
 
 <h3>Demo</h3>
 

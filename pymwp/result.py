@@ -34,39 +34,59 @@ class Timeable:
         return int(self.time_diff / 1e6)
 
     def on_start(self) -> Timeable:
-        """At start of function analysis"""
+        """Called at start of timeable entity."""
         self.start_time = time.time_ns()
         return self
 
     def on_end(self) -> Timeable:
-        """Called immediately after function analysis"""
+        """Called at end of timeable entity."""
         self.end_time = time.time_ns()
         return self
 
 
 class Program(object):
-    """Details about analyzed C program."""
+    """Details about analyzed C file."""
 
     def __init__(self, n_lines: int = -1, program_path: str = None):
+        """Create program object.
+
+        Attributes:
+            n_lines (int): number of lines.
+            program_path (str): path to program file.
+        """
         self.n_lines: int = n_lines
         self.program_path: Optional[str] = program_path
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[int, str]]:
+        """Convert Program object to a dictionary."""
         return {
             'n_lines': self.n_lines,
             'program_path': self.program_path}
 
     @property
     def name(self) -> Optional[str]:
+        """Get name of program, without path and extension.
+
+        Returns:
+            Program name or `None` if not set.
+        """
         return Path(self.program_path).stem if self.program_path else None
 
     @staticmethod
-    def from_dict(**kwargs):
+    def from_dict(**kwargs) -> Program:
+        """Initialize Program object from kwargs.
+
+        Returns:
+            Program: initialized program object.
+
+        Raises:
+            KeyError: if all Program attributes are not included as kwargs.
+        """
         return Program(kwargs['n_lines'], kwargs['program_path'])
 
 
 class FuncResult(Timeable):
-    """Capture details of analysis result for one function."""
+    """Capture details of analysis result for one program (function in C)."""
 
     def __init__(
             self, name: str, infinite: bool = False,
@@ -74,6 +94,17 @@ class FuncResult(Timeable):
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
             bound: Optional[Bound] = None):
+        """
+        Create a function result.
+
+        Attributes:
+            name: function name
+            infinite: True if result is infinite.
+            variables: list of variables.
+            relation: corresponding [`Relation`](relation.md)
+            choices: choice object [`Choice`](choice.md)
+            bound: bound object [`Bound`](bound.md)
+        """
         super().__init__()
         self.name = name
         self.vars = variables or []
@@ -84,10 +115,12 @@ class FuncResult(Timeable):
 
     @property
     def n_vars(self) -> int:
+        """Number of variables."""
         return len(self.vars)
 
     @property
     def n_bounds(self) -> int:
+        """Number of bounds."""
         return self.choices.n_bounds if self.choices else 0
 
     def to_dict(self) -> dict:
@@ -126,7 +159,18 @@ class FuncResult(Timeable):
 
 
 class Result(Timeable):
-    """Captures analysis result and details about the process."""
+    """Captures analysis result and details about the process.
+
+    This result contains
+
+    - program: information about analyzed C File:
+        type [`Program`](result.md#pymwp.result.Program)
+    - relations: dictionary of function results:
+        type [`FuncResult`](result.md#pymwp.result.FuncResult)
+    - analysis time: measured from before any function
+        has been analyzed, until all functions have been analyzed.
+        It excludes time to write result to file.
+    """
 
     def __init__(self):
         super().__init__()
@@ -135,11 +179,15 @@ class Result(Timeable):
 
     @property
     def n_functions(self) -> int:
-        """number of functions in analyzed program"""
+        """Number of functions in analyzed program."""
         return len(self.relations.keys())
 
     def add_relation(self, func_result: FuncResult) -> None:
-        """Appends function analysis outcome to result."""
+        """Appends function analysis outcome to result.
+
+        Attributes:
+            func_result: function analysis to append to Result.
+        """
         self.relations[func_result.name] = func_result
         if not func_result.infinite:
             if func_result.bound:
@@ -152,18 +200,20 @@ class Result(Timeable):
                 logger.info('Possibly problematic flows:')
                 logger.info(func_result.relation.infty_pairs())
 
-    def get_func(self, name: Optional[str] = None) \
-            -> Union[FuncResult, Dict[str, FuncResult]]:
-        """Returns the analysis result.
+    def get_func(
+            self, name: Optional[str] = None
+    ) -> Union[FuncResult, Dict[str, FuncResult]]:
+        """Returns analysis result for function(s).
 
-        - If `name` argument is provided and key exists, returns value match.
-        - If program contained 1 function, returns result for that function.
-
-        Otherwise, returns a dictionary of results for each
-        analyzed function, as in: `<function_name, analysis_result>`
+        * If `name` argument is provided and key exists,
+          returns function result for exact value match.
+        * If program contained exactly 1 function,
+          returns result for that function.
+        * Otherwise, returns a dictionary of results for each
+          analyzed function, as in: `<function_name, analysis_result>`
 
         Arguments:
-            name - name of function
+            name: name of function
 
         Returns:
             Function analysis result, or dictionary of results.
@@ -175,7 +225,7 @@ class Result(Timeable):
             return self.relations[key]
         return self.relations
 
-    def log_result(self):
+    def log_result(self) -> None:
         """Display here all interesting stats."""
         if self.n_functions == 0:
             logger.warning("Input C file contained no analyzable functions!")
@@ -184,8 +234,12 @@ class Result(Timeable):
         dur_ms = int(self.time_diff / 1e6)
         logger.info(f'Total time: {dur_sc} s ({dur_ms} ms)')
 
-    def serialize(self):
-        """JSON serialize result object."""
+    def serialize(self) -> dict:
+        """JSON serialize a result object.
+
+        Returns:
+            dict: dictionary representation.
+        """
         return {
             'start_time': self.start_time,
             'end_time': self.end_time,
@@ -194,7 +248,11 @@ class Result(Timeable):
 
     @staticmethod
     def deserialize(**kwargs) -> Result:
-        """Reverse of serialize."""
+        """Reverse of serialize.
+
+        Returns:
+            Result: Initialized Result object.
+        """
         st, et, r = 'start_time', 'end_time', Result()
         r.start_time = int(kwargs[st]) if st in kwargs else 0
         r.end_time = int(kwargs[et]) if et in kwargs else 0
