@@ -23,7 +23,7 @@ clean:
 	@find . -name '*~' -exec rm -f {} +
 	@find . -name '__pycache__' -exec rm -fr {} +
 
-C_FILES = basics implementation_paper infinite not_infinite original_paper other
+C_FILES = basics implementation_paper infinite not_infinite original_paper other tool_paper
 
 pre-commit: dev-env lint-only test-only
 
