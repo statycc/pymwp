@@ -48,5 +48,8 @@
 |                      | `gcd.c`               | Greatest common divisor by subtraction                    |
 |                      | `long.c`              | Longer program with multiple loops and nested statements  |
 |                      | `simplified_dense.c`  | Simplified dense matrix                                   |
+| Tool paper           | `t19.c`               | Example t19.c from Carbonneaux et al. 2015                |
+|                      | `t20.c`               | Example t20.c from Carbonneaux et al. 2015                |
+|                      | `t47.c`               | Example t47.c from Carbonneaux et al. 2015                |
 
 <!--end-->
