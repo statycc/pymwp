@@ -48,6 +48,7 @@
 |                      | `gcd.c`               | Greatest common divisor by subtraction                    |
 |                      | `long.c`              | Longer program with multiple loops and nested statements  |
 |                      | `simplified_dense.c`  | Simplified dense matrix                                   |
+|                      | `xnu.c`               | SPEC CPU2006	hmmer/src/masks.c XNU function               |
 | Tool paper           | `tool_ex_1.c`         | Example 1 from pymwp tool paper                           |
 |                      | `tool_ex_2.c`         | Example 2 from pymwp tool paper                           |
 |                      | `tool_ex_3.c`         | Example 3 from pymwp tool paper                           |

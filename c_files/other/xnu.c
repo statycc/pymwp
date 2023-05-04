@@ -4,9 +4,9 @@ int nondet();
 
 //O(n)
 void xnu(int len, int beg, int end, int i, int k) {
-//    beg = 0;
-//    end = 0;
-//    i = 0;
+    beg = 0;
+    end = 0;
+    i = 0;
     while (i < len) {
         i = i + 1;
         if (nondet())
