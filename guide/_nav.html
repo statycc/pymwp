@@ -1,28 +1,42 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-dark fixed-top navbar-expand-lg" style="background-color: var(--bs-gray-700)">
   <div class="container-fluid">
     <a class="navbar-brand" href="index.html">pymwp</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-            aria-expanded="false" aria-label="Toggle navigation">
+            aria-expanded="false" aria-label="Toggle">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a href="setup.html" class="nav-link">Getting Started</a></li>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav justify-content-start flex-grow-1 pe-3">
+        <li class="nav-item">
+          <a class="nav-link" href="#title-block-header">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#installation">Installation</a>
+        </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
              role="button" data-bs-toggle="dropdown" aria-expanded="false">
-             Examples Explained
+             Examples
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="example_assign.html">Binary Assignment</a></li>
-            <li><a class="dropdown-item" href="example_exponent.html">Exponential Program</a></li>
-            <li><a class="dropdown-item" href="example_while.html">While Analysis</a></li>
-            <li><a class="dropdown-item" href="example_infinite.html">Infinite While</a></li>
-            <li><a class="dropdown-item" href="example_challenge.html">Challenge Program</a></li>
+            <li><a class="dropdown-item" href="#binary-assignment">Binary Assignment</a></li>
+            <li><a class="dropdown-item" href="#exponential-program">Exponential Program</a></li>
+            <li><a class="dropdown-item" href="#while-analysis">While Analysis</a></li>
+            <li><a class="dropdown-item" href="#infinite-program">Infinite While</a></li>
+            <li><a class="dropdown-item" href="#challenge-example">Challenge Program</a></li>
           </ul>
         </li>
-        <li class="nav-item"><a href="" class="nav-link disabled">Paper on arXiv ↗</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#learn-more">Learn more</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" download
+             href="guide.pdf"><i class="bi bi-file-earmark-arrow-down-fill"></i> PDF Guide</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+        <li class="nav-item"><a href="" class="nav-link disabled">Paper on ArXiv ↗</a></li>
         <li class="nav-item"><a href="https://github.com/statycc/pymwp" class="nav-link">Source Code ↗</a></li>
       </ul>
     </div>

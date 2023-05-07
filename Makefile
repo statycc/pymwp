@@ -1,13 +1,14 @@
 SHELL := /bin/bash
 
 SRC_DIR = guide/
-OUT_DIR = web/
+OUT_DIR = out/
 
-MARKDOWN = $(shell find $(SRC_DIR) -name '*.md')
-IN_FILES :=  $(addprefix $(SRC_DIR), $(addsuffix .md,  $(basename $(notdir $(MARKDOWN)))))
-OPTIONS = -f markdown -t html --mathjax --template=$(SRC_DIR)_template.html
+OPTIONS = -f markdown --section-divs
+HTML_OPTS = $(OPTIONS) --template=$(SRC_DIR)_template.html -t html --mathjax --shift-heading-level-by=0 --number-sections --number-offset=0
+PDF_OPTS = $(OPTIONS) --pdf-engine=xelatex -V links-as-notes --toc --toc-depth=2
 
-all: clean main
+
+all: clean main doc
 
 .PHONY: clean
 clean:
@@ -15,6 +16,9 @@ clean:
 
 .PHONY: main
 main:
-	 mkdir -p $(OUT_DIR) && $(foreach file, $(IN_FILES),  \
-	 pandoc $(OPTIONS) -s $(file) -o $(addprefix $(OUT_DIR), \
-	 $(addsuffix .html, $(basename $(notdir $(file)))));)
+	 mkdir -p $(OUT_DIR) &&  pandoc $(HTML_OPTS) -s $(SRC_DIR)*.md -o $(OUT_DIR)index.html
+
+
+.PHONY: doc
+doc:
+	 mkdir -p $(OUT_DIR) &&  pandoc $(PDF_OPTS) -s $(SRC_DIR)*.md -o $(OUT_DIR)guide.pdf
