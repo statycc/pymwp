@@ -4,7 +4,7 @@
 
 A program that shows infinite coefficients for all choices.
 
-<h4>**Analyzed Program**</h4>
+### Analyzed Program
 
 ```c
 int foo(int X1, int X2, int X3){
@@ -24,7 +24,7 @@ But we remove variable `X0` and change its usages: the loop condition and assign
 This example demonstrates how this seemingly small change impacts the analysis result. 
 The page title obviously reveals the outcome, but let us see why.
 
-<h4>**CLI Command**</h4>
+### CLI Command
 
 ```console
 pymwp infinite/infinite_3.c --fin --info --no_time
@@ -40,7 +40,7 @@ INFO (result): Total time: 0.0 s (6 ms)
 INFO (file_io): saved result in output/infinite_3.json
 ```
 
-<h4>**Discussion**</h4>
+### Discussion
 
 The two rightmost matrix columns do not contain $\infty$ coefficients. 
 This means data flow to variables `X2` and `X3` have polynomially bounded growth.

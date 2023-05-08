@@ -1,0 +1,236 @@
+html {
+    line-height: 1.5;
+    background-color: #fdfdfd;
+}
+
+body {
+    margin: 0 auto;
+    max-width: 56em;
+    padding: 70px 50px 6rem 50px;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.4em;
+}
+
+h5, h6 {
+    font-size: 1em;
+    font-style: italic;
+}
+
+h6 {
+    font-weight: normal;
+}
+
+p {
+    margin: 1em 0;
+}
+
+header {
+    padding-top: 2em;
+    margin-bottom: 4em;
+    text-align: center;
+}
+
+kbd, pre, samp, code {
+    font-family: "Source Code Pro", "Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
+}
+
+pre {
+    margin: 1em 0;
+    overflow: auto;
+}
+
+pre code {
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    overflow-wrap: normal;
+    background: transparent;
+}
+
+section p code, section table code {
+    padding: 0.2em 0.4em;
+    margin: 0;
+    color: rgb(31, 35, 40);
+    font-size: 85%;
+    border-radius: 6px;
+    background: rgba(175, 184, 193, 0.2);
+    display: inline-block;
+}
+
+
+ol, ul {
+    padding-left: 1.7em;
+}
+
+li > ol, li > ul {
+    margin-top: 0;
+}
+
+hr {
+    background-color: #1a1a1a;
+    border: none;
+    height: 1px;
+    margin: 2rem 0;
+}
+
+.navbar {
+    box-shadow: 0 0 .2rem #0000001a, 0 .2rem .4rem #0003;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, .95);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    padding-left: .75em;
+}
+
+.subtitle {
+    font-size: 1.4em;
+}
+
+.display.math {
+    display: block;
+    text-align: center;
+    margin: 0.5rem auto;
+}
+
+pre.sourceCode {
+    background: #ECEFF199;
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px #CFD8DC99;
+}
+
+pre.console {
+    background-color: rgb(40, 44, 52);
+    color: #fff;
+    font-weight: 600;
+    padding: .85em 1em;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+code span.co {
+    font-style: normal;
+}
+
+code span.dt {
+    color: #a626a4 !important;
+}
+
+code span.cf {
+    color: #4078f2 !important;
+}
+
+code span.dv {
+    color: #D5004F !important;
+}
+
+section > h1, section > h2 {
+    margin-top: 0;
+    padding-top: calc(56px + 0.5em);
+}
+
+h3 > .header-section-number,
+h4 > .header-section-number{
+    display: none;
+}
+
+h3[data-number] {
+    font-weight: 300;
+}
+
+h3 .bi {margin-right:.75em; font-size:80%; color:var(--bs-gray-600);}
+
+#introduction > h1 {
+    display: none
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 0.95em;
+        padding: calc(1em + 56px) 1em 1em;
+    }
+
+    header {
+        padding-top: 1.2em;
+    }
+
+    .navbar-brand {
+        padding-left: 0;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .subtitle {
+        font-size: 1.2em;
+    }
+}
+
+@media print {
+    body {
+        color: black;
+        background-color: transparent;
+        font-size: 12pt;
+        padding: 50px;
+    }
+
+    .navbar, .challenge {
+        display: none !important;
+    }
+
+    h1, h2, h3, h4, h5, h6, section > h1, section > h2 {
+        margin-top: 1em;
+        padding-top: 0;
+        page-break-after: avoid;
+    }
+
+    section h1 {
+        font-size: 2em;
+    }
+
+    section h2 {
+        font-size: 1.6em;
+    }
+
+    section h3 {
+        font-size: 1.35em;
+    }
+
+    section h4 {
+        font-size: 1.25em;
+    }
+
+    header {
+        padding-top: 0;
+        margin-bottom: 4em;
+    }
+
+    p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    body > div > section:not(:first-child):not(:last-child),
+    body > div > section:not(:first-child):not(:nth-child(2)) > section {
+        page-break-before: always;
+    }
+
+    body > div > section > section {
+        margin-top: 0;
+    }
+
+    #introduction > h1, #solution.collapse:not(.show) {
+        display: block!important;
+    }
+}
