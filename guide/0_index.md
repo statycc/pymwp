@@ -23,11 +23,11 @@ keywords:
 
 # Introduction
 
-pymwp ("pai m-w-p") is a tool for automatically performing static analysis on programs written in subset of C language.
+pymwp ("pai m-w-p") is a tool for automatically performing static analysis on programs written in a subset of the C language. <!-- [ˈpaɪ.m.w.p] requires some additional features to typeset correctly.-->
 It analyzes resource usage and determines if program variables' growth rates are no more than polynomially related to their inputs sizes.
 
-The theoretical foundations are described in paper "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity".
-The technique is generic and applicable to imperative languages. 
+The theoretical foundations are described in paper the "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity" (cf. ["Learn More"](#learn-more) for additional references and links).
+The technique is generic and applicable to any imperative language. 
 pymwp is an implementation demonstrating this technique concretely on C programs.
 The technique is originally inspired by "A Flow Calculus of mwp-Bounds for Complexity Analysis".
 
@@ -36,8 +36,7 @@ This guide explains pymwp usage and behavior through several examples.
 ## Property of Interest
 
 For an imperative program, the goal is to discover a polynomially bounded data-flow relation, 
-between its initial values $\texttt{X}_1,...,\texttt{X}_n$ and final value $\texttt{X}_1^\prime,...,\texttt{X}_n^\prime$.
-
+between the _initial values_ of the variables `X1`, `X2` and `X3` (denoted  `X1`, `X2` and `X3`) and its _final values_ (denoted  `X1`', `X2`' and `X3`').
 For a program written in C language, this property can be presented as follows.   
 
 ```c
@@ -55,7 +54,7 @@ void main(int X1, int X2, int X3){
 
 Question: $\forall i$, is $\texttt{X}_i \rightsquigarrow \texttt{X}_i^\prime$ polynomially bounded in inputs? 
 
-We answer this question with mwp-flow analysis, implemented in pymwp static analyzer.
+We answer this question using the mwp-flow analysis, implemented in the pymwp static analyzer.
 
 ## What mwp-flow Analysis Computes
 
@@ -71,12 +70,12 @@ They characterize how data flows between variables.
 * $p$ --- polynomial
 * $\infty$ --- infinite
 
-Ordering:  $0 < m < w < p < \infty$.
+with ordering:  $0 < m < w < p < \infty$.
 The analysis name also comes from these coefficients.
 
 After analysis, two outcomes are possible.
-(A) The program has a polynomial growth, or (B) the analysis determines it is impossible to establish such a bound.
-Due to non-determinism, may derivation paths need to be explored to determine this result.
+(A) The program's variables values can be bounded by a polynomial in the input's values, or (B) the analysis determines it is impossible to establish such a bound.
+Due to non-determinism, many derivation paths need to be explored to determine this result.
 
 The analysis succeeds if -- for some derivation -- no pair of variables is characterized by $\infty$-flow.
 That is, obtaining an $\infty$-free derivation implies existence of a polynomial growth bound; 
@@ -89,13 +88,13 @@ For these programs, pymwp reports an $\infty$-result.
 
 ## Interpreting mwp-Bounds
 
-If the analysis is successful, i.e. polynomial growth bound exists, it is represented using an _mwp-bound_.
+If the analysis is successful, i.e., polynomial growth bound exists, it is represented using an _mwp-bound_.
 
 An mwp-bound is a number theoretic expression of form: $\text{max}(\vec x, poly_1(\vec y)) + poly_2(\vec z)$.
 
 Disjoint variable lists $\vec x$, $\vec y$ and $\vec z$ capture dependencies of an input variable.
 Dependencies characterized by $m$-flow are in $\vec x$, $w$-flow in $\vec y$, and $p$-flow in $\vec z$.
-The polynomials $poly_1$ and $poly_2$ are built up from constants and variables, and operators $+$ and $\times$.
+The polynomials $poly_1$ and $poly_2$ are built up from constants, variables, and operators $+$ and $\times$.
 Each variable list may be empty and $poly_1$ and $poly_2$ may not be present.
 
 For multiple input variables, the result is a conjunction of mwp-bounds, one for each input variable.

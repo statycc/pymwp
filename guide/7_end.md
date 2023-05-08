@@ -1,8 +1,8 @@
-<br/>
+  
 
 ---
 
-# Learn More
+# Learn More{learn-more}
 
 This guide has offered only a *very short* introduction to mwp-analysis and pymwp.  
 If you wish to explore more, have a look at:

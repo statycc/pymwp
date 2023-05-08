@@ -41,7 +41,7 @@ INFO (file_io): saved result in output/notinfinite_3.json
 
 Compared to previous examples, the analysis is now getting more complicated.
 We can observe this in the number of discovered bounds and the form of the bound expression.
-The number of times the loop iterates, or which branch of the `if` statement is taken, is not a barrier to determine the result.
+The number of times the loop iterates, or which branch of the `if` statement is taken, is not a barrier to determining the result.
 
 From the bound expression, we can determine the following.
 

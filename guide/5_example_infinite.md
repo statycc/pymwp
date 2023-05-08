@@ -19,7 +19,7 @@ int foo(int X1, int X2, int X3){
 ```
 
 If you studied the previous example carefully, you will  observe that this example is _very similar_.
-There is a subtle change: variable $\texttt{X0}$ has been removed and ist usages changed to $\texttt{X1}$.
+There is a subtle change: variable $\texttt{X0}$ has been removed and its usages changed to $\texttt{X1}$.
 This example demonstrates how this seemingly small change impacts the analysis result.
 
 ### CLI Command

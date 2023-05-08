@@ -16,7 +16,7 @@ python3 --version
 On systems that default to Python 3 runtime, use `python` instead of `python3`.
 
 Instructions for installing Python for different operating systems can be found at 
-<a href="https://www.python.org/downloads/" target="blank" rel="nofollow noreferrer">python.org ↗</a>  
+<a href="https://www.python.org/downloads/" target="blank" rel="nofollow noreferrer">python.org ↗</a>.  
 
 ### <i class="bi bi-2-square-fill"></i>Install pymwp
 

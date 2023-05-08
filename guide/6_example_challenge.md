@@ -23,7 +23,7 @@ int foo(int X0, int X1, int X2){
 ```
 
 After seeing the various preceding examples -- with and without polynomial bounds -- we present the following challenge.
-By inspection, try to determine if this program is polynomially bounded wrt. inputs.
+By inspection, try to determine if this program is polynomially bounded w.r.t. its input values.
 
 It is unknown which `if` branch will be taken, and whether the `while` loop will terminate,
 but this is not a problem for determining the result.
@@ -89,7 +89,7 @@ The program has a `while` loop performing assignments to $\texttt{X2}$ (potentia
   However, notice the command is loop invariant.
   No matter how many times the loop iterates, the final value of $\texttt{X2}$ is $\texttt{X1} + \texttt{X0}$.
   We already know those two variables have polynomial growth bounds.
-  Therefore, $\texttt{X2}$ also grows polynomially wrt. inputs.
+  Therefore, $\texttt{X2}$ also grows polynomially w.r.t. its input values.
 
 This reasoning concurs with the result determined by pymwp.
 

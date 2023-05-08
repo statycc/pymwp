@@ -2,7 +2,7 @@
 
 ## Exponential Program
 
-A program computing the exponentiation produces a matrix with infinite coefficient, no matter the choices.
+A program computing the exponentiation returns an infinite coefficient, no matter the derivation strategy chosen.
 
 ### Analyzed Program: exponent_2.c
 
