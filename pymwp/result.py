@@ -192,6 +192,7 @@ class Result(Timeable):
         if not func_result.infinite:
             if func_result.bound:
                 logger.info(f'Bound: {Bound.show_poly(func_result.bound)}')
+                logger.info(f'Bounds: {func_result.n_bounds}')
             else:
                 logger.info('Some bound exists')
         if func_result.infinite:
