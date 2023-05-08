@@ -27,7 +27,7 @@ pymwp basics/assign_expression.c --fin --info --no_time
 
 Output:
 
-```console
+```text
 INFO (result): Bound: y1' ≤ y1 ∧ y2' ≤ y1
 INFO (result): Bounds: 3
 INFO (result): Total time: 0.0 s (0 ms)

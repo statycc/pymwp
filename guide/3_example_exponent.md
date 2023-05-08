@@ -28,7 +28,7 @@ pymwp infinite/exponent_2.c --fin --info --no_time
 
 Output:
 
-```console
+```text
 INFO (result): foo is infinite
 INFO (result): Possibly problematic flows:
 INFO (result): base ➔ result ‖ exp ➔ result ‖ i ➔ result ‖ result ➔ result

@@ -30,7 +30,7 @@ pymwp infinite/infinite_3.c --fin --info --no_time
 
 Output:
 
-```console
+```text
 INFO (result): foo is infinite
 INFO (result): Possibly problematic flows:
 INFO (result): X1 ➔ X1 ‖ X2 ➔ X1 ‖ X3 ➔ X1

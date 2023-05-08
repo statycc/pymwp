@@ -30,7 +30,7 @@ pymwp not_infinite/notinfinite_3.c --fin --info --no_time
 
 Output: 
 
-```console
+```text
 INFO (result): Bound: X0' ≤ max(X0,X1)+X2*X3 ∧ X1' ≤ X1+X2 ∧ X2' ≤ X2+X3 ∧ X3' ≤ X3
 INFO (result): Bounds: 9
 INFO (result): Total time: 0.0 s (3 ms)

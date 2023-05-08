@@ -58,7 +58,7 @@ pymwp other/dense_loop.c --fin --no_time --info
 
 Output:
 
-```console
+```text
 INFO (result): Bound: X0' ≤ max(X0,X2)+X1 ∧ X1' ≤ X0*X1*X2 ∧ X2' ≤ max(X0,X2)+X1
 INFO (result): Bounds: 81
 INFO (result): Total time: 0.0 s (29 ms)
