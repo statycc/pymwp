@@ -23,7 +23,7 @@ Instructions for installing Python for different operating systems can be found 
 Install pymwp from Python Package Index:
 
 ```console
-pip install pymwp==0.4.1
+pip install pymwp==0.4.2
 ```
 
 ### <i class="bi bi-3-square-fill"></i>Download examples
@@ -31,16 +31,15 @@ pip install pymwp==0.4.1
 Download a collection of examples.
 
 ```console
-wget https://github.com/statycc/pymwp/releases/download/0.4.1/examples.zip
+wget https://github.com/statycc/pymwp/releases/download/0.4.2/examples.zip
 ```
 
 Alternatively, download the examples using a web browser:
 
-<https://github.com/statycc/pymwp/releases/download/0.4.1/examples.zip>  
+<https://github.com/statycc/pymwp/releases/download/0.4.2/examples.zip>  
 
 ### <i class="bi bi-4-square-fill"></i>Unzip the examples
 
 Unzip `examples.zip` using your preferred approach.
 
 This completes the setup.
-
