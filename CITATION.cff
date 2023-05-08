@@ -29,7 +29,7 @@ identifiers:
     value: 10.5281/zenodo.7879822
     description: Zenodo
 repository-code: 'https://github.com/statycc/pymwp'
-url: 'https://statycc.github.io/pymwp/'
+url: 'https://doi.org/10.5281/zenodo.7879822'
 repository-artifact: 'https://zenodo.org/record/7159134'
 abstract: >-
   pymwp is a tool for automatically performing static
