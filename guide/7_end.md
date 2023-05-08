@@ -4,7 +4,7 @@
 
 # Learn More
 
-This guide has offered only a \*very short\* introduction to mwp-analysis and pymwp.  
+This guide has offered only a *very short* introduction to mwp-analysis and pymwp.  
 If you wish to explore more, have a look at:
 
 * [“mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity”](https://doi.org/10.4230/LIPIcs.FSCD.2022.26)  
