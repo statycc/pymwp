@@ -2,9 +2,9 @@
 
 ## While Analysis
 
-A program that shows infinite coefficients for some choices.
+A program that shows infinite coefficients for some derivations.
 
-### Analyzed Program
+### Analyzed Program: notinfinite_3.c
 
 ```c
 int foo(int X0, int X1, int X2, int X3){
@@ -18,7 +18,7 @@ int foo(int X0, int X1, int X2, int X3){
 }
 ```
 
-This program contains decision logic, a while loop, and multiple variables.
+This program contains decision logic, iteration, and multiple variables.
 Determining if a polynomial growth bound exists is not immediate by inspection.
 It is therefore an interesting candidate for analysis with pymwp!
 
@@ -31,18 +31,26 @@ pymwp not_infinite/notinfinite_3.c --fin --info --no_time
 Output: 
 
 ```console
-INFO (result): Bound: X0' ≤ max(X0,X1)+X2*X3 ∧ X1' ≤ X1+X2 
-∧ X2' ≤ X2+X3 ∧ X3' ≤ X3
-INFO (result): Bound count: 9
-INFO (result): Total time: 0.0 s (9 ms)
+INFO (result): Bound: X0' ≤ max(X0,X1)+X2*X3 ∧ X1' ≤ X1+X2 ∧ X2' ≤ X2+X3 ∧ X3' ≤ X3
+INFO (result): Bounds: 9
+INFO (result): Total time: 0.0 s (3 ms)
 INFO (file_io): saved result in output/notinfinite_3.json
 ```
 
-
 ### Discussion
 
-Compared to previous examples, the matrix is now getting more complicated.
-The choice vector tells us that every derivation choice is allowed at indices 0 and 1 . These correspond to the operations inside the `if` statement.
-But inside the `while` loop, only choice 2 is allowed to obtain a valid derivation result.
-Because there exists a choice for which the program is derivable, this program's variable values growth is bounded by polynomials in inputs.
+Compared to previous examples, the analysis is now getting more complicated.
+We can observe this in the number of discovered bounds and the form of the bound expression.
+The number of times the loop iterates, or which branch of the `if` statement is taken, is not a barrier to determine the result.
 
+From the bound expression, we can determine the following.
+
+* $\texttt{X0}$ has the most complicated dependency relation.
+  Its mwp-bound combines the impact of the `if` statement, the `while` loop, and the chance that
+  the loop may not execute.
+
+* $\texttt{X1}$ and $\texttt{X2}$ have fairly simple growth dependencies; originating from the `if` statement.
+
+* $\texttt{X3}$ is the most simple case -- it never changes. Therefore, it only depends on itself.
+
+Overall, the analysis concludes the program has a polynomial growth bound.

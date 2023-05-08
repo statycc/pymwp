@@ -7,13 +7,13 @@ We recommend installing pymwp locally for an interactive tutorial experience.
 
 ### <i class="bi bi-1-square-fill"></i>Check environment requirements
 
-pymwp requires Python runtime $\geq$ 3.7 To check currently installed version run:
+pymwp requires Python runtime $\geq$ 3.7. To check currently installed version, run:
 
 ```console
-python --version 
+python3 --version 
 ```
 
-On systems that do not default to Python3 runtime, use `python3` instead of `python`.
+On systems that default to Python 3 runtime, use `python` instead of `python3`.
 
 Instructions for installing Python for different operating systems can be found at 
 <a href="https://www.python.org/downloads/" target="blank" rel="nofollow noreferrer">python.org ↗</a>  
@@ -23,7 +23,7 @@ Instructions for installing Python for different operating systems can be found 
 Install pymwp from Python Package Index:
 
 ```console
-pip install pymwp==0.4.2
+pip3 install pymwp==0.4.2
 ```
 
 ### <i class="bi bi-3-square-fill"></i>Download examples

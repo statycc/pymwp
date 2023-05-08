@@ -4,7 +4,7 @@
 
 A program that shows infinite coefficients for all choices.
 
-### Analyzed Program
+### Analyzed Program: infinite_3.c
 
 ```c
 int foo(int X1, int X2, int X3){
@@ -18,11 +18,9 @@ int foo(int X1, int X2, int X3){
 }
 ```
 
-
-Compared to the previous example, this program looks very similar.
-But we remove variable `X0` and change its usages: the loop condition and assignment inside the `while` loop.
-This example demonstrates how this seemingly small change impacts the analysis result. 
-The page title obviously reveals the outcome, but let us see why.
+If you studied the previous example carefully, you will  observe that this example is _very similar_.
+There is a subtle change: variable $\texttt{X0}$ has been removed and ist usages changed to $\texttt{X1}$.
+This example demonstrates how this seemingly small change impacts the analysis result.
 
 ### CLI Command
 
@@ -36,17 +34,23 @@ Output:
 INFO (result): foo is infinite
 INFO (result): Possibly problematic flows:
 INFO (result): X1 ➔ X1 ‖ X2 ➔ X1 ‖ X3 ➔ X1
-INFO (result): Total time: 0.0 s (6 ms)
+INFO (result): Total time: 0.0 s (2 ms)
 INFO (file_io): saved result in output/infinite_3.json
 ```
 
 ### Discussion
 
-The two rightmost matrix columns do not contain $\infty$ coefficients. 
-This means data flow to variables `X2` and `X3` have polynomially bounded growth.
-The problematic variable is `X1`.
-Observe that it is impossible to make a choice, at index 2, that would produce a matrix without infinite coefficients.
-This corresponds to the assignment statement inside the `while` loop. 
-Thus, we have identified the point and source of failure. 
-The conclusion of this analysis is $\infty$ result. 
+We can observe the result is $\infty$.
+Thus, even a small change can change the analysis result entirely.
+
+The output reveals the problem arises from how data flows
+from source variables $\texttt{X1}$, $\texttt{X2}$, and $\texttt{X3}$, to target variable $\texttt{X1}$.
+Observe that even though there is no direct assignment from $\texttt{X3}$ to $\texttt{X1}$, 
+the analysis correctly identifies this dependency relation, that occurs through $\texttt{X2}$.
+
+From the output, we have identified the point and source of failure.
+Conversely, we know other variable pairs are not problematic.
+By focusing on how to avoid "too strong" dependencies targeting variable $\texttt{X1}$, programmer may be
+able to refactor and improve the program's complexity properties.
+
 

@@ -4,46 +4,46 @@
 
 A program computing the exponentiation produces a matrix with infinite coefficient, no matter the choices.
 
-### Analyzed Program
+### Analyzed Program: exponent_2.c
 
 ```C
-int main(int x, int n, int p, int r){
-    p = x;
-    while (n > 0)
-    {
-        if (n % 2 == 1)
-            r = p * r;
-        p = p * p;
-        n = n / 2;
+int foo(int base, int exp, int i, int result){
+    while (i < exp){
+        result = result * base;
+        i = i + 1;
     }
 }
 ```
 
-This program's variables `p` and `r` grow exponentially.
-It is impossible to find a polynomial growth bound, and the analysis is expected to report "infinity" result.
+This program's variable $\texttt{result}$ grows exponentially.
+It is impossible to find a polynomial growth bound, and the analysis is expected to report $\infty$-result.
 This example demonstrates how pymwp arrives to that conclusion.
 
 
 ### CLI Command
 
 ```console
-pymwp infinite/exponent_1.c --fin --no_time --info
+pymwp infinite/exponent_2.c --fin --info --no_time
 ```
 
 Output:
 
 ```console
-INFO (result): main is infinite
+INFO (result): foo is infinite
 INFO (result): Possibly problematic flows:
-INFO (result): x ➔ p, r ‖ n ➔ p, r ‖ p ➔ p, r ‖ r ➔ p, r
-INFO (result): Total time: 0.0 s (8 ms)
-INFO (file_io): saved result in output/exponent_1.json
+INFO (result): base ➔ result ‖ exp ➔ result ‖ i ➔ result ‖ result ➔ result
+INFO (result): Total time: 0.0 s (2 ms)
+INFO (file_io): saved result in output/exponent_2.json
 ```
 
 ### Discussion
 
-The matrix shows that the problematic variables  are `p` and `r`. 
-In the program, inside the `while` loop, there are two critical multiplication operations that introduce choices (indices 1 and 2).
-No matter what choice is made, it is not possible to obtain an $\infty$-free result.
-This concludes the program does not pass the analysis.
+The output shows that the analyzer correctly detects that no bound can be established, and we obtain $\infty$-result.
+The output also gives a list of problematic flows.
+This list indicates all variable pairs, that along some derivation paths, cause $\infty$ coefficients to occur.
+The arrow direction means data flows from `source ➔ target`.
+We can see the problem with this program is the data flowing to $\texttt{result}$ variable.
+This clearly indicates the source of the problem, and allows programmer to determine if the issue can be repaired, 
+to improve program's complexity properties.
+
 

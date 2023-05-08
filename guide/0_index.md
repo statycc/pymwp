@@ -78,7 +78,7 @@ After analysis, two outcomes are possible.
 (A) The program has a polynomial growth, or (B) the analysis determines it is impossible to establish such a bound.
 Due to non-determinism, may derivation paths need to be explored to determine this result.
 
-The analysis succeeds if (for some derivation) no pair of variables is characterized by $\infty$-flow.
+The analysis succeeds if -- for some derivation -- no pair of variables is characterized by $\infty$-flow.
 That is, obtaining an $\infty$-free derivation implies existence of a polynomial growth bound; 
 i.e., the program has the property of interest, or we can say that the program is _derivable_.
 The soundness theorem of the mwp-calculus guarantees that if such derivation exists, the program variables' value growth is polynomially bounded in inputs.
@@ -108,11 +108,11 @@ Obtained bound: $\texttt{X}' \leq \texttt{X}$
 - Assume program has one input variable named $\texttt{X}$.
 - The bound expression means the final value $\texttt{X}'$ depends only on its own input $\texttt{X}$.
 
-Obtained bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq max(\texttt{X}, 0) + \texttt{Y}$   
+Obtained bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \text{max}(\texttt{X}, 0) + \texttt{Y}$   
 
 - Assume program has two inputs, $\texttt{X}$ and $\texttt{Y}$.
 - Final value $\texttt{X}'$ depends on its own input $\texttt{X}$.
-- Final value $\texttt{Y}'$ depends on inputs $\texttt{X}$ and $\texttt{Y}$.   
+- Final value $\texttt{Y}'$ depends on inputs $\texttt{X}$ and $\texttt{Y}$.
 - The expression can be simplified to: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
 
 

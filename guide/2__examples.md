@@ -3,16 +3,15 @@
 # Examples
 
 We now demonstrate use of pymwp on several examples.
-Throughout these examples, we will add multiple command line arguments, to ease this presentation.
+To ease the presentation, we will use multiple command line arguments.
 
-```
---fin      always runs analysis to completion
---info     reduces the amount of terminal output 
---no_time  omits timestamps
-```
+* `--fin` --- always run analysis to completion (even on fail)
+* `--info` --- reduces amount of terminal output to info level
+* `--no_time` --- omits timestamps from output log
 
 For a complete list of available command arguments, run:
 
-```
+```console
 pymwp --help
 ```
+
