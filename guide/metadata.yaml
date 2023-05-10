@@ -2,6 +2,7 @@ title: "pymwp: A Static Analyzer Determining Polynomial Growth Bounds"
 subtitle: "Tool User Guide"
 documentclass: scrartcl  
 lang: en
+date: \today
 fontsize: 10pt
 numbersections: true
 papersize: letter
