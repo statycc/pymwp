@@ -36,7 +36,9 @@ This guide explains pymwp usage and behavior through several examples.
 ## Property of Interest
 
 For an imperative program, the goal is to discover a polynomially bounded data-flow relation, 
-between the _initial values_ of the variables `X1`, `X2` and `X3` (denoted  `X1`, `X2` and `X3`) and its _final values_ (denoted  `X1`', `X2`' and `X3`').
+between the _initial values_ of the variables (denoted  `X1,...,Xn`) 
+and its _final values_ (denoted  `X1',...,Xn'`).
+
 For a program written in C language, this property can be presented as follows.   
 
 ```c
@@ -52,7 +54,7 @@ void main(int X1, int X2, int X3){
 }
 ```
 
-Question: $\forall i$, is $\texttt{X}_i \rightsquigarrow \texttt{X}_i^\prime$ polynomially bounded in inputs? 
+Question: $\forall n$, is $\texttt{X}_n \rightsquigarrow \texttt{X}_n^\prime$ polynomially bounded in inputs? 
 
 We answer this question using the mwp-flow analysis, implemented in the pymwp static analyzer.
 
@@ -82,7 +84,7 @@ That is, obtaining an $\infty$-free derivation implies existence of a polynomial
 i.e., the program has the property of interest, or we can say that the program is _derivable_.
 The soundness theorem of the mwp-calculus guarantees that if such derivation exists, the program variables' value growth is polynomially bounded in inputs.
 
-Program fails the analysis if every derivation contains infinite coefficients.
+Program fails the analysis if every derivation contains an $\infty$ coefficient.
 Then it is not possible to establish polynomial growth bound.
 For these programs, pymwp reports an $\infty$-result.
 
@@ -99,19 +101,14 @@ Each variable list may be empty and $poly_1$ and $poly_2$ may not be present.
 
 For multiple input variables, the result is a conjunction of mwp-bounds, one for each input variable.
 
-**Example.** Using the mwp-bound expression, the analysis can produce various results.
-This example gives intuition of how to interpret some possible results.
+**Example 1.** Assume program has one input variable named $\texttt{X}$, and we have obtained a bound: $\texttt{X}' \leq \texttt{X}$.   
+The bound expression means the final value $\texttt{X}'$ depends only on its own initial value $\texttt{X}$.
 
-Obtained bound: $\texttt{X}' \leq \texttt{X}$   
-
-- Assume program has one input variable named $\texttt{X}$.
-- The bound expression means the final value $\texttt{X}'$ depends only on its own input $\texttt{X}$.
-
-Obtained bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \text{max}(\texttt{X}, 0) + \texttt{Y}$   
-
-- Assume program has two inputs, $\texttt{X}$ and $\texttt{Y}$.
-- Final value $\texttt{X}'$ depends on its own input $\texttt{X}$.
-- Final value $\texttt{Y}'$ depends on inputs $\texttt{X}$ and $\texttt{Y}$.
-- The expression can be simplified to: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
+**Example 2.** Assume program has two inputs, $\texttt{X}$ and $\texttt{Y}$,
+and we obtained a bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \text{max}(\texttt{X}, 0) + \texttt{Y}$.
+ 
+- Final value $\texttt{X}'$ depends on its own initial value $\texttt{X}$.
+- Final value $\texttt{Y}'$ depends on initial values of inputs $\texttt{X}$ and $\texttt{Y}$.
+- The expression can be simplified to $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
 
 

@@ -14,7 +14,7 @@ int foo(int y1, int y2){
 
 
 It is straightforward to observe that this program has a polynomial growth bound.
-The precise value of that bound is $\texttt{y1}^\prime \leq \texttt{y1} \land \texttt{y2}^\prime \leq 2 * \texttt{y1}$.
+The precise value of that bound is $\texttt{y1}^\prime = \texttt{y1} \land \texttt{y2}^\prime \leq 2 * \texttt{y1}$.
 Although the program is simple, it is interesting because binary operations introduce complexity in program analysis.
 
 ### CLI Command

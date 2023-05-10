@@ -121,7 +121,6 @@ pre.console {
 }
 
 pre.console::after {
-    content: "click to copy";
     text-transform: uppercase;
     font-family: var(--bs-body-font-family);
     position: absolute;
@@ -138,15 +137,16 @@ pre.console::after {
     background-color: rgb(40, 44, 52);
 }
 
+pre.console:not(.copied):hover::after {
+    content: "click to copy";
+    opacity: 1;
+}
+
 pre.console.copied::after {
     content: "OK ✓";
     opacity: 1;
     border-color: transparent;
     background: var(--bs-success);
-}
-
-pre.console:hover::after {
-    opacity: 1;
 }
 
 code span.co {
