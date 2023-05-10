@@ -2,15 +2,15 @@
 
 ---
 
-# Learn More{learn-more}
+# Learn More{#learn-more}
 
 This guide has offered only a *very short* introduction to mwp-analysis and pymwp.  
 If you wish to explore more, have a look at:
 
-* [“mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity”](https://doi.org/10.4230/LIPIcs.FSCD.2022.26)  
+* ["*mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity*"](https://doi.org/10.4230/LIPIcs.FSCD.2022.26)  
   Describes theoretical foundations behind pymwp. 
 
-* [“A Flow Calculus of mwp-Bounds for Complexity Analysis”](https://doi.org/10.1145/1555746.1555752)  
+* ["*A Flow Calculus of mwp-Bounds for Complexity Analysis*"](https://doi.org/10.1145/1555746.1555752)  
   Original mwp-flow analysis technique.
 
 * [Documentation](https://statycc.github.io/pymwp)

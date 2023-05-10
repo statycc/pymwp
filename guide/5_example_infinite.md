@@ -1,6 +1,6 @@
 \pagebreak
 
-## Infinite Program
+## Infinite Program{#inf-prog}
 
 A program that shows infinite coefficients for all choices.
 

@@ -1,24 +1,3 @@
----
-title: "pymwp: A Static Analyzer Determining Polynomial Growth Bounds"
-subtitle: Paper Companion & User Guide
-documentclass: scrartcl  
-lang: en
-fontsize: 10pt
-numbersections: true
-papersize: letter
-geometry: margin=1in
-secnumdepth: 2
-author:
-- Clément Aubert
-- Thomas Rubiano
-- Neea Rusch
-- Thomas Seiller
-keywords:
-- Static Program Analysis
-- Automatic Complexity Analysis
-- Program Verification
----
-
 \pagebreak
 
 # Introduction
@@ -26,10 +5,10 @@ keywords:
 pymwp ("pai m-w-p") is a tool for automatically performing static analysis on programs written in a subset of the C language. <!-- [ˈpaɪ.m.w.p] requires some additional features to typeset correctly.-->
 It analyzes resource usage and determines if program variables' growth rates are no more than polynomially related to their inputs sizes.
 
-The theoretical foundations are described in paper the "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity" (cf. ["Learn More"](#learn-more) for additional references and links).
+The theoretical foundations are described in paper the "*mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity*" (cf. ["Learn More"](#learn-more) for additional references and links).
 The technique is generic and applicable to any imperative language. 
 pymwp is an implementation demonstrating this technique concretely on C programs.
-The technique is originally inspired by "A Flow Calculus of mwp-Bounds for Complexity Analysis".
+The technique is originally inspired by "*A Flow Calculus of mwp-Bounds for Complexity Analysis*".
 
 This guide explains pymwp usage and behavior through several examples.
 
@@ -110,5 +89,4 @@ and we obtained a bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \te
 - Final value $\texttt{X}'$ depends on its own initial value $\texttt{X}$.
 - Final value $\texttt{Y}'$ depends on initial values of inputs $\texttt{X}$ and $\texttt{Y}$.
 - The expression can be simplified to $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
-
 

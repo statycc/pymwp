@@ -1,0 +1,18 @@
+title: "pymwp: A Static Analyzer Determining Polynomial Growth Bounds"
+subtitle: "Paper Companion & User Guide"
+documentclass: scrartcl  
+lang: en
+fontsize: 10pt
+numbersections: true
+papersize: letter
+geometry: margin=1in
+secnumdepth: 2
+author:
+- Clément Aubert
+- Thomas Rubiano
+- Neea Rusch
+- Thomas Seiller
+keywords:
+- Static Program Analysis
+- Automatic Complexity Analysis
+- Program Verification
