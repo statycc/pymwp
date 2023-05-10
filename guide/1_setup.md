@@ -7,7 +7,9 @@ We recommend installing pymwp locally for an interactive tutorial experience.
 
 ### <i class="bi bi-1-square-fill"></i>Check environment requirements
 
-pymwp requires Python runtime $\geq$ 3.7. To check currently installed version, run:
+pymwp requires Python runtime 3.7 -- 3.11 (current latest).
+
+To check currently installed version, run:
 
 ```console
 python3 --version 

@@ -69,7 +69,7 @@ For these programs, pymwp reports an $\infty$-result.
 
 ## Interpreting mwp-Bounds
 
-If the analysis is successful, i.e., polynomial growth bound exists, it is represented using an _mwp-bound_.
+If the analysis is successful, i.e., polynomial growth bound exists, it is represented using _mwp-bounds_.
 
 An mwp-bound is a number theoretic expression of form: $\text{max}(\vec x, poly_1(\vec y)) + poly_2(\vec z)$.
 
@@ -88,5 +88,5 @@ and we obtained a bound: $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \te
  
 - Final value $\texttt{X}'$ depends on its own initial value $\texttt{X}$.
 - Final value $\texttt{Y}'$ depends on initial values of inputs $\texttt{X}$ and $\texttt{Y}$.
-- The expression can be simplified to $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
+- The bound expression can be simplified to $\texttt{X}' \leq \texttt{X} \land \texttt{Y}' \leq \texttt{X} + \texttt{Y}$.
 
