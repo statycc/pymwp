@@ -37,7 +37,7 @@ Question: $\forall n$, is $\texttt{X}_n \rightsquigarrow \texttt{X}_n^\prime$ po
 
 We answer this question using the mwp-flow analysis, implemented in the pymwp static analyzer.
 
-## What mwp-flow Analysis Computes
+## What mwp-Flow Analysis Computes
 
 The mwp-flow analysis works to establish a polynomial growth bound for input variables by applying inference rules to program's commands.
 

@@ -30,13 +30,13 @@ pip3 install pymwp==0.4.2
 
 ### <i class="bi bi-3-square-fill"></i>Download examples
 
-Download a collection of examples.
+Download a set of examples.
 
 ```console
 wget https://github.com/statycc/pymwp/releases/download/0.4.2/examples.zip
 ```
 
-Alternatively, download the examples using a web browser:
+Alternatively, download the set of examples using a web browser:
 
 <https://github.com/statycc/pymwp/releases/download/0.4.2/examples.zip>  
 
