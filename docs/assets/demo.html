@@ -73,8 +73,7 @@
         return div;
     };
 
-    const buildProgramOutput = (source, url, name) => {
-        const div = document.createElement('div');
+    const buildProgramOutput = (source, url, name, res) => {
         const header = document.createElement('h2');
         header.innerText = 'Program'
         const para = document.createElement('p');
@@ -89,10 +88,23 @@
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'nofollow noopener')
         link.innerText = `${name} ↗`;
+        let details = ''
+        if (res) {
+            const {program = {}, n_functions = 0, dur_ms = -1} = res;
+            const text = [
+                program.n_lines ? `LOC: ${program.n_lines}` : null,
+                n_functions > 0 ? `Functions: ${n_functions}` : null,
+                dur_ms >= 0 ? `Analysis time: ${dur_ms} ms` : null].join("   ")
+            if (text.trim().length > 0)
+                details = partialResult('', 'Program analysis metrics', textBlock(text))
+        }
+
+        const div = document.createElement('div');
         div.append(header);
         div.append(para);
         div.append(pre);
         div.append(link);
+        div.append(details);
         return div;
     };
 
@@ -147,7 +159,7 @@
         const label = document.createElement('p');
         div.append(label);
         eval.innerText = title;
-        label.innerText = details;
+        label.innerHTML = details;
         if (child) div.append(child);
         return div;
     };
@@ -194,20 +206,37 @@
         return div;
     };
 
-    function buildFunctionResult([functionName, [relation, combinations, infinite]]) {
+    function buildFunctionResult(functionName, details, bound = null, reason = null) {
+        const relation = details.relation
+        const combinations = details.choices
+        const infinite = details.infinite
+
         const div = document.createElement('div');
-        const offset = functionName ? 3 : 2;
+        const offset = functionName ? 4 : 3;
         if (functionName) {
-            const header = document.createElement('h2');
+            const header = document.createElement('h3');
             header.innerText = `Function: ${functionName}`;
             div.append(header);
         }
         if (infinite) {
-            div.append(partialResult('Evaluation', `Infinite: no polynomial bound exists.`, undefined, offset));
+            let inftyRes = '<p>Infinite: no polynomial bound exists.</p>'
+            if (reason) {
+                const issues = Object.entries(reason).map(([k, vals]) => {
+                    const valMap = vals.map(v => `<code>${v}</code>`).join('')
+                    return `<li><code>${k}</code> &rarr; ${valMap}</li>`
+                })
+                inftyRes += `<p>Problematic dependencies:<br/> <ol>${issues.join('')}</ol></p>`
+            }
+            div.append(partialResult('Evaluation', inftyRes,
+                undefined, offset));
         } else {
             if (combinations && combinations.valid)
-                div.append(partialResult('Choices', '',
+                div.append(partialResult(
+                    `Choices (${details.n_bounds} bound${details.n_bounds === 1 ? '' : 's'})`, '',
                     textBlock(JSON.stringify(combinations.valid)), offset));
+            if (bound)
+                div.append(partialResult(`Bound ${details.n_bounds === 1 ? '' : '(one example)'}`, '',
+                    textBlock(bound), offset));
             if (relation)
                 div.append(partialResult('Matrix', '',
                     renderMatrix(relation), offset));
@@ -216,8 +245,8 @@
     }
 
     function displayAnalysisResult(response) {
-        const {url, program, name, result, error = false} = response;
-        const output = [buildProgramOutput(program, url, name)];
+        const {url, program, name, result = {}, bounds = {}, fail = {}, error = false} = response;
+        const output = [buildProgramOutput(program, url, name, result)];
         if (error)
             output.push(buildTextResult(
                 'Analysis terminated with non-0 exit code. ' +
@@ -225,13 +254,10 @@
                 'input that yields no result) or if an error occurs during ' +
                 `analysis.\n\n${response.error_msg}`, 'Evaluation'));
         else {
-            if (Array.isArray(result)) {
-                output.push(buildFunctionResult([undefined, result]))
-            } else {
-                Object.entries(result)
-                    .map(buildFunctionResult)
-                    .forEach(item => output.push(item))
-            }
+            const relations = result && result.relations ? result.relations : {}
+            Object.entries(relations)
+                .map(([k, v]) => buildFunctionResult(k, v, bounds[k], fail[k]))
+                .forEach(item => output.push(item))
         }
         setDisplay(output);
         highlightOutput();
@@ -261,6 +287,10 @@
 
     #demo-output {
         margin: 2rem 0 5rem 0;
+    }
+
+    #demo-output h3, #demo-output h4, #demo-output h5, #demo-output h6 {
+        font-weight: 300
     }
 
     #demo-output .wrap, #demo-output .wrap code {
