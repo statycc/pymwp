@@ -4,7 +4,7 @@ docs_dir: docs
 site_dir: pages
 repo_url: https://github.com/statycc/pymwp
 repo_name: statycc/pymwp
-edit_uri: blob/master/docs/
+edit_uri: blob/main/docs/
 use_directory_urls: true
 
 
@@ -29,7 +29,7 @@ nav:
 - Utilities: utilities.md
 - Source Code: https://github.com/statycc/pymwp
 - Release History: https://github.com/statycc/pymwp/releases
-- License: https://github.com/statycc/pymwp/blob/master/LICENSE
+- License: https://github.com/statycc/pymwp/blob/main/LICENSE
 - Zenodo Archive: https://doi.org/10.5281/zenodo.7879822
 
 theme:

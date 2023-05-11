@@ -80,7 +80,7 @@ python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
 
 <h3>Multiple file</h3>
 
-Utility module [`profiler.py`](https://github.com/statycc/pymwp/blob/master/utilities/profiler.py) is a wrapper for
+Utility module [`profiler.py`](https://github.com/statycc/pymwp/blob/main/utilities/profiler.py) is a wrapper for
 cProfile. This utility is not distributed with pymwp package - it must be run from source.
 
 It enables profiling multiple executions of analysis on a _directory_ of C files (it recursively searches for C files).
