@@ -5,6 +5,10 @@
  */
 
 int foo(int X1, int X2, int X3, int X4, int X5){
+    /*
+     * The original analysis uses loop,
+     * which changes outcome of the analysis.
+     */
     while (X1 > 0){
         /*
          * The original example reads

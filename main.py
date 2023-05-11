@@ -7,7 +7,7 @@ from flask import Flask, Response, jsonify
 from flask_cors import CORS
 from pymwp import __version__
 from pymwp.parser import parse_file
-from pymwp.analysis import Analysis
+from pymwp.analysis import Analysis, Result
 
 app = Flask(__name__)
 CORS(app)
@@ -43,7 +43,19 @@ def analyze_v2(category, filename):
         result['program'] = file_text(file) or ""
         ast = parse_file(file, use_cpp=True, cpp_path=pre_parser,
                          cpp_args='-E')
-        result['result'] = Analysis.run(ast, no_save=True)
+        analysis_result = Result()
+        analysis_result.program.program_path = sample
+        analysis_result.program.n_lines = \
+            len(result['program'].split("\n"))
+        res = Analysis.run(
+            ast, no_save=True, res=analysis_result, fin=True)
+        result['fail'] = dict([
+            (r, vals.relation.infty_vars())
+            for r, vals in res.relations.items() if vals.infinite])
+        result['bounds'] = dict([
+            (r, vals.bound.show_poly())
+            for r, vals in res.relations.items() if not vals.infinite])
+        result['result'] = res
     except:
         type_, value, tb = sys.exc_info()
         result['error'] = True

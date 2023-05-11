@@ -20,7 +20,7 @@ https://{server-url}/v2/
 
 ```bash
 # install dependencies
-pip install -q -r requirements.txt
+pip install -r requirements.txt
 
 # run the server
 python main.py
