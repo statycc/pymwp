@@ -49,13 +49,14 @@
 |                      | `long.c`              | Longer program with multiple loops and nested statements  |
 |                      | `simplified_dense.c`  | Simplified dense matrix                                   |
 |                      | `xnu.c`               | SPEC CPU2006	hmmer/src/masks.c XNU function               |
-| Tool paper           | `tool_ex_1.c`         | Example 1 from pymwp tool paper                           |
-|                      | `tool_ex_2.c`         | Example 2 from pymwp tool paper                           |
-|                      | `tool_ex_3.c`         | Example 3 from pymwp tool paper                           |
-|                      | `t19.c_c4b`           | Example t19.c from Carbonneaux et al. 2015[^1]            |
-|                      | `t20.c_c4b`           | Example t20.c from Carbonneaux et al. 2015[^1]            |
-|                      | `t47.c_c4b`           | Example t47.c from Carbonneaux et al. 2015[^1]            |
+| Tool paper[^2]       | `tool_ex_1.c`         | Sect 1. Example 1 from pymwp tool paper                   |
+|                      | `tool_ex_2.c`         | Sect 2.2 Example 2 from pymwp tool paper                  |
+|                      | `tool_ex_3.c`         | Sect 2.2 Example 3 from pymwp tool paper                  |
+|                      | `t19.c_c4b`           | Table 1: t19.c from Carbonneaux et al. 2015[^1]           |
+|                      | `t20.c_c4b`           | Table 1: t20.c from Carbonneaux et al. 2015[^1]           |
+|                      | `t47.c_c4b`           | Table 1: t47.c from Carbonneaux et al. 2015[^1]           |
 
 [^1]: Syntax of these examples is adjusted to semantically equivalent statements supported by pymwp, e.g., unary `x++` must be expressed as `x = x + 1`.
+[^2]: Sect 4.2 Example 4 is `infinite/infinite_3.c`
 
 <!--end-->

@@ -17,7 +17,7 @@ The project repository `c_files` directory contains many examples.
     
     : :material-asterisk: &nbsp; **Implementation Paper**<br/>Examples from "mwp-Analysis Improvement and Implementation: Realizing Implicit Computational Complexity".
 
-    : :material-language-python: &nbsp: **Tool paper**<br/>Examples from pymwp tool paper.
+    : :material-language-python: &nbsp; **Tool paper**<br/>Examples from "pymwp: A Static Analyzer Determining Polynomial Growth Bounds".
     
     : :material-dots-horizontal: &nbsp; **Other**<br/>Other programs of interest.
 
