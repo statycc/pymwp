@@ -15,8 +15,8 @@ This guide explains pymwp usage and behavior through several examples.
 ## Property of Interest
 
 For an imperative program, the goal is to discover a polynomially bounded data-flow relation, 
-between the _initial values_ of the variables (denoted  `X1,...,Xn`) 
-and its _final values_ (denoted  `X1',...,Xn'`).
+between the _initial values_ of the variables (denoted  `X1,…,Xn`) 
+and its _final values_ (denoted  `X1',…,Xn'`).
 
 For a program written in C language, this property can be presented as follows.   
 

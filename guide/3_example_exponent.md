@@ -43,7 +43,7 @@ The output also gives a list of problematic flows.
 This list indicates all variable pairs, that along some derivation paths, cause $\infty$ coefficients to occur.
 The arrow direction means data flows from `source ➔ target`.
 We can see the problem with this program is the data flowing to $\texttt{result}$ variable.
-This clearly indicates the source of the problem, and allows programmer to determine if the issue can be repaired, 
+This clearly indicates the origin of the problem, and allows programmer to determine if the issue can be repaired, 
 to improve program's complexity properties.
 
 

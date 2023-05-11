@@ -1,5 +1,3 @@
-  
-
 ---
 
 # Learn More{#learn-more}
@@ -23,4 +21,4 @@ If you wish to explore more, have a look at:
   – pymwp is open source.
 
 * [License](https://github.com/statycc/pymwp/blob/main/LICENSE)
-  – pymwp is licenced under GPLv3.
+  – pymwp is licensed under GPLv3.

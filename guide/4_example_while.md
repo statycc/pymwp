@@ -49,8 +49,8 @@ From the bound expression, we can determine the following.
   Its mwp-bound combines the impact of the `if` statement, the `while` loop, and the chance that
   the loop may not execute.
 
-* $\texttt{X1}$ and $\texttt{X2}$ have fairly simple growth dependencies; originating from the `if` statement.
+* $\texttt{X1}$ and $\texttt{X2}$ have fairly simple growth dependencies, originating from the `if` statement.
 
-* $\texttt{X3}$ is the most simple case -- it never changes. Therefore, it only depends on itself.
+* $\texttt{X3}$ is the simplest case -- it never changes. Therefore, it only depends on itself.
 
 Overall, the analysis concludes the program has a polynomial growth bound.
