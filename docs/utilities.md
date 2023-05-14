@@ -18,7 +18,7 @@ they are only available from the development repository.
 
 ## Getting started
 
-To run utilities, install required dependencies first.
+To run utilities, first install required dependencies:
 
 ```
 python -m pip install -r requirements-test.txt
