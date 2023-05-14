@@ -52,6 +52,9 @@ make lint         # check code style only
 * Unit tests are in `tests` directory. You can run unit tests on specific files or the entire source.
   See [pytest documentation](https://docs.pytest.org/en/stable/contents.html) for more details.
 
+* There are additional interesting performance checks, e.g., benchmarking and profiling.
+  These are documented in [utilities](https://statycc.github.io/pymwp/utilities/).
+
 Relevant workflows:
 
 * `build.yaml` automatic check of changes (the latest Python runtime)
