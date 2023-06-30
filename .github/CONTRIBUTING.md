@@ -1,10 +1,10 @@
 # Contributing Guidelines
 
 This guide explains how to set up a development environment, how to make various changes, including documentation and deployments.
-It also explains the CI/CD setup.
+It also explains the relevant workflows for various development tasks.
 
 
-## Environment setup
+## Environment Setup
 
 1. Create a Python virtual environment
     
@@ -27,7 +27,7 @@ It also explains the CI/CD setup.
 
 ## Source Code Changes
 
-### Debugging Changes
+<h3>Debugging Changes</h3>
 
 The source code is in `pymwp` directory. When running from source, use the command:
 
@@ -35,7 +35,7 @@ The source code is in `pymwp` directory. When running from source, use the comma
 python3 -m pymwp [args]
 ```
 
-### Checking Changes
+<h3>Checking Changes</h3>
 
 Any changes to source code must pass lint and unit tests. These are checked automatically for PRs
 and commits to main branch. 
@@ -55,10 +55,12 @@ make lint         # check code style only
 * There are additional interesting performance checks, e.g., benchmarking and profiling.
   These are documented in [utilities](https://statycc.github.io/pymwp/utilities/).
 
-Relevant workflows:
+**Relevant workflows**
 
-* `build.yaml` automatic check of changes (the latest Python runtime)
-* `pyversion.yaml` checks changes against various Python runtimes 
+[![Build](https://github.com/statycc/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/build.yaml) [![Version test](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml) 
+
+- Build workflow automatically checks code changes using the latest Python runtime.
+- Version test workflow checks code changes against various Python runtimes.              
 
 ---
 
@@ -78,13 +80,37 @@ Then it is possible to preview documentation changes locally in browser.
 
 Once those changes are satisfactory, commits to main branch will automatically deploy the documentation changes.
 
-Relevant workflows:
+**Relevant workflows**
 
-* `docs.yaml` build and deploy documentation
+[![Docs](https://github.com/statycc/pymwp/actions/workflows/docs.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/docs.yaml) [![pages-build-deployment](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment)
+
+- Docs workflow builds and pushes documentation to gh-pages branch.
+- The pages-build-deployment is automatic after commits to gh-pages branch. 
 
 ---
 
-## Deployments
+## Web Demo & Server
+
+The pymwp demo has two parts: back-end (a web server) and front-end.
+
+A small web server provides an interface to run pymwp online. The webserver code is in `demo` branch. 
+It is built with Flask with `pymwp` as a dependency.
+The primary maintenance activity here is to keep the (orphan) `demo`-branch `c_files` consistent with the `main`-branch,
+and updating pymwp version dependency on new releases. 
+We duplicate the examples in demo branch mainly to avoid handling (maybe unsafe) string inputs.
+
+The front-end of the demo is in `docs/assets/demo.html` and updated like the rest of the documentation,
+added with some scripts and styles.
+
+**Relevant workflows**
+
+[![Deploy demo](https://github.com/statycc/pymwp/actions/workflows/deploy.yml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/deploy.yml)
+
+- Deploy demo workflow updates the running server instance.
+
+---
+
+## Code Releases
 
 Tagging a commit in `main` branch will automatically kick off a deployment and release,
 for all configured distribution channels.
@@ -108,6 +134,8 @@ The expected behavior is as follows:
     - Pre-set meta data for Zenodo deposit is defined in `.zenodo.json`.
     - See [deposit meta data docs](https://developers.zenodo.org/#representation) for possible options.
 
-Relevant workflows:
+**Relevant workflows**
 
-* `publish.yaml` release and deployment tasks
+[![Publish & Release](https://github.com/statycc/pymwp/actions/workflows/publish.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/publish.yaml)
+
+* Publish & Release workflow defines release and deployment tasks.

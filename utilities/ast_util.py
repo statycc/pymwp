@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This is a utility script reads and parses a C file, then generates an AST.
+This is a utility script that reads and parses a C file, then generates an AST.
 
 It uses gcc and pycparser, then writes the AST to a file. This script is
 mainly useful for generating/updating test cases for unit testing, or

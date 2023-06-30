@@ -19,7 +19,8 @@ def test_bound_str_format():
 
 
 def test_bound_load():
-    bound = Bound({"X0": "X0;X1;X2,X3", "X1": "X1;;X2",
+    bound = Bound({"X0": "X0;X1;X2,X3",
+                   "X1": "X1;;X2",
                    "X2": "X2;;X3", "X3": "X3;;"})
 
     assert bound.bound_dict['X0'].x.vars == ['X0']
