@@ -51,6 +51,8 @@ For all available options and help, run:
 pymwp --help
 ```
 
+A comprehensive tool user guide, with detailed examples, is available at: 
+[statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp)
 
 You can also use pymwp by importing it in a Python script:
 
@@ -73,8 +75,7 @@ See [modules documentation](https://statycc.github.io/pymwp/analysis/) for avail
 
 ## Running from source
 
-If you want to use the latest stable version (possibly ahead of 
-latest release), use the version from source following these steps.
+If you want to use the latest stable version (possibly ahead of the latest release), use the version from source following these steps.
 
 1. Clone the repository
 
@@ -90,7 +91,7 @@ latest release), use the version from source following these steps.
     python -m pip install -r requirements.txt
     ``` 
     
-    Note: for development purposes install dev dependencies instead: 
+    Note: for development purposes and testing, install dev dependencies instead: 
     
     ```
     python -m pip install -r requirements-dev.txt

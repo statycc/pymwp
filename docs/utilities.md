@@ -17,14 +17,14 @@ These tools are not shipped with the distributed version of pymwp, but are avail
     : :four: &nbsp; **Machine Details** (`runtime.py`)<br/>Captures details of executing machine, mainly useful for reporting results of benchmarking or profiling.
 
 
-!!! tip Getting started
 
-    Install required dependencies for using utilities:
+## Getting started
 
-    ```
-    python -m pip install -r requirements-test.txt
-    ```
+First install required dependencies for using utilities:
 
+```
+python -m pip install -r requirements-test.txt
+```
 
 ## AST Generator
 
