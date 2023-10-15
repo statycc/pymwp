@@ -13,6 +13,7 @@
 |                      | `inline_variable.c`   | local variable declaration                                |
 |                      | `while_1.c`           | while loop with assignment                                |
 |                      | `while_2.c`           | while loop with binary operation                          |
+|                      | `while_3.c`           | non-infinite while loop with three variables              |
 |                      | `while_if.c`          | while loop followed by `if...else`                        |
 | Implementation Paper | `example8.c`          | An illustration of the sum of two choices.                |
 |                      | `example14.c`         | Examples with function call                               |
