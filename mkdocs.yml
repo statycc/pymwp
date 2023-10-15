@@ -7,7 +7,6 @@ repo_name: statycc/pymwp
 edit_uri: blob/main/docs/
 use_directory_urls: true
 
-
 nav:
 - Installation & Use: index.md
 - Supported Features: features.md
@@ -38,6 +37,10 @@ theme:
   favicon: ""
   features:
     - navigation.expand
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.top
+    - content.code.copy
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"

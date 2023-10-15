@@ -89,27 +89,6 @@ Once those changes are satisfactory, commits to main branch will automatically d
 
 ---
 
-## Web Demo & Server
-
-The pymwp demo has two parts: back-end (a web server) and front-end.
-
-A small web server provides an interface to run pymwp online. The webserver code is in `demo` branch. 
-It is built with Flask with `pymwp` as a dependency.
-The primary maintenance activity here is to keep the (orphan) `demo`-branch `c_files` consistent with the `main`-branch,
-and updating pymwp version dependency on new releases. 
-We duplicate the examples in demo branch mainly to avoid handling (maybe unsafe) string inputs.
-
-The front-end of the demo is in `docs/assets/demo.html` and updated like the rest of the documentation,
-added with some scripts and styles.
-
-**Relevant workflows**
-
-[![Deploy demo](https://github.com/statycc/pymwp/actions/workflows/deploy.yml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/deploy.yml)
-
-- Deploy demo workflow updates the running server instance.
-
----
-
 ## Code Releases
 
 Tagging a commit in `main` branch will automatically kick off a deployment and release,

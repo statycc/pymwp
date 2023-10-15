@@ -1,6 +1,6 @@
-# Development Utilities
+# Evaluation Utilities
 
-There are several utility scripts in the repository `utilities` directory. 
+There are several make commands and utility scripts in the repository's `utilities` directory. 
 They mainly help to inspect, test, and measure and report of performance of pymwp in different ways. 
 These tools are not shipped with the distributed version of pymwp, but are available from the source code repository.
 
@@ -8,14 +8,15 @@ These tools are not shipped with the distributed version of pymwp, but are avail
 
 !!! info " "
 
-    : :one: &nbsp; **AST Generator** (`ast_util.py`)<br/>Generate ASTs from C files using PyCParser. It is useful for debugging, testing, and inspecting AST structure.
+    : :material-file-tree: &nbsp; **AST Generator** (`ast_util.py`)<br/>Convert C files to ASTs using pycparser. It is useful for debugging, testing, and inspecting AST structure.
     
-    : :two: &nbsp; **Results Plotter** (`plot.py`)<br/>Make plots of analyzer results. This utility takes as input a directory path to pymwp results, then generates a table plot of those results.
+    : :octicons-clock-16: &nbsp; **Benchmarks** (`make bench`)<br/>Run benchmarks on all examples.
 
-    : :three: &nbsp; **Execution Profiling** (`profiler.py`)<br/>The Python cProfiler inspects execution of various functions at runtime. It is helpful to locate bottlenecks and to understand analyzer function call structure.  
+    : :fontawesome-solid-flask-vial: &nbsp; **Execution Profiling** (`profiler.py`)<br/>The Python cProfiler inspects execution of various functions at runtime. It is helpful to locate bottlenecks and to understand analyzer function call structure.  
 
-    : :four: &nbsp; **Machine Details** (`runtime.py`)<br/>Captures details of executing machine, mainly useful for reporting results of benchmarking or profiling.
+    : :fontawesome-solid-computer: &nbsp; **Machine Details** (`runtime.py`)<br/>Captures details of executing machine, mainly useful for reporting evaluation results.
 
+    : :material-chart-box-outline: &nbsp; **Results Plotter** (`plot.py`)<br/>Make table plots of analyzer results for a specified directory.
 
 
 ## Getting started
@@ -25,6 +26,8 @@ First install required dependencies for using utilities:
 ```
 python -m pip install -r requirements-test.txt
 ```
+
+---
 
 ## AST Generator
 
@@ -47,17 +50,19 @@ Note the parser options are hard-coded, and assumes C file has no custom headers
 
 ---
 
-## Results Plotter
-
-Makes a table plot of analysis results.
+## Benchmarks
 
 **Usage**
 
 ```
-python3 utilities/plot.py [ARGS]
+make bench
 ```
 
-Run `python3 utilities/plot.py --help` for more assistance.
+The command runs
+
+- Benchmarks for all examples in `c_files`
+- Captures the executing machine details
+- Generates plots of the results
 
 ---
 
@@ -72,6 +77,8 @@ single file or multiple files.
 This option can be used with pymwp installed from package registry or when running from source,
 since cProfile is a standard module of Python runtime.
 
+**Usage**
+
 ```
 python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
 ```
@@ -81,12 +88,14 @@ python -m cProfile -s ncalls pymwp path/to_some_file.c --silent
   cf. [options](https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats))
 - use `--silent` to mute analysis output
 
-<h3>Multiple file</h3>
+<h3>Multiple files</h3>
 
 Utility module [`profiler.py`](https://github.com/statycc/pymwp/blob/main/utilities/profiler.py) is a wrapper for
 cProfile. 
 It enables profiling multiple executions of analysis on a _directory_ of C files (it recursively searches for C files).
 The results of each execution are stored in corresponding files.
+
+**Usage**
 
 1. Run with defaults (profiles all repository examples)
 
@@ -126,3 +135,17 @@ python3 utilities/runtime.py [output_dir]
 ```
 
 Where `output_dir` specifies a directory where to write the machine details. 
+
+---
+
+## Results Plotter
+
+Makes a table plot of analysis results.
+
+**Usage**
+
+```
+python3 utilities/plot.py [ARGS]
+```
+
+Run `python3 utilities/plot.py --help` for more assistance.
