@@ -6,4 +6,3 @@ mkdocs-material==9.4.6
 mkdocstrings==0.23.0
 mkdocstrings-python==1.7.3
 mkdocs-include-markdown-plugin==6.0.3
-# importlib-metadata<5.0

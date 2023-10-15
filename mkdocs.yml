@@ -36,9 +36,7 @@ theme:
   name: material
   favicon: ""
   features:
-    - navigation.expand
-    - navigation.instant
-    - navigation.instant.progress
+    - navigation.sections
     - navigation.top
     - content.code.copy
   palette:
