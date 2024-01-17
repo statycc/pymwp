@@ -1,0 +1,42 @@
+.doc.doc-object.doc-method {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    border-top: 2px solid #ddd;
+}
+
+.doc.doc-heading {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.doc.doc-heading > code {
+    background: transparent;
+    padding-left: 0;
+}
+
+/* Site width etc.*/
+.md-grid {
+    max-width: 64rem !important;
+}
+
+/* navigation bar active color*/
+.md-nav__item .md-nav__link--active {
+    font-weight: bold !important;
+    color: var(--md-accent-fg-color);
+}
+
+.md-nav__item .md-nav__link--active {
+    font-weight: bold !important;
+    font-size: .75rem !important;
+    color: var(--md-accent-fg-color);
+}
+
+.md-content article {
+    padding-bottom: 3rem;
+}
+
+.md-content article a {
+    color: var(--md-accent-fg-color);
+}
