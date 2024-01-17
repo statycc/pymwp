@@ -17,15 +17,22 @@
 
 pymwp is a tool for automatically performing static analysis on programs written in C.
 It is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
-It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to their inputs sizes.
+It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to
+their inputs sizes.
 Try our online [demo](https://statycc.github.io/pymwp/demo/) to see it action.
-For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
+For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/),
+particularly [supported C language features](https://statycc.github.io/pymwp/features/).
 
 <!--desc-end--> 
 
 ## Documentation and Demo
 
-Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a documentation, an [online demo](https://statycc.github.io/pymwp/demo/), and a presentation of [examples](https://statycc.github.io/pymwp/examples/).
+Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a documentation,
+an [online demo](https://statycc.github.io/pymwp/demo/), and a presentation
+of [examples](https://statycc.github.io/pymwp/examples/).
+
+For a publication, see ["pymwp: A Static Analyzer Determining Polynomial Growth Bounds"](http://doi.org/10.1007/978-3-031-45332-8_14)
+also available on [HAL](https://hal.science/hal-03269121v4/document).
 
 <!--include-start-->
 
@@ -39,7 +46,7 @@ pip install pymwp
 
 ## How to Use
 
-To analyze a C file, run:
+To analyze a C file, run in terminal:
 
 ```
 pymwp path/to_some_file.c
@@ -51,10 +58,15 @@ For all available options and help, run:
 pymwp --help
 ```
 
-A comprehensive tool user guide, with detailed examples, is available at: 
+#### Tool User Guide
+
+A comprehensive tool user guide, with detailed examples, is available at:
 [statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp)
 
-You can also use pymwp by importing it in a Python script:
+#### Use in Python Scripts
+
+You can also use pymwp by importing it in a Python script.
+See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
 
 ```python
 from pymwp import Polynomial
@@ -68,14 +80,11 @@ matrix[2][1] = Polynomial('p')
 show(matrix)
 ```
 
-See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
-
-
-
 
 ## Running from source
 
-If you want to use the latest stable version (possibly ahead of the latest release), use the version from source following these steps.
+If you want to use the latest stable version (possibly ahead of the latest release), use the version from source
+following these steps.
 
 1. Clone the repository
 
@@ -90,9 +99,9 @@ If you want to use the latest stable version (possibly ahead of the latest relea
     ```
     python -m pip install -r requirements.txt
     ``` 
-    
-    Note: for development purposes and testing, install dev dependencies instead: 
-    
+
+    For development and testing, install dev dependencies instead:
+
     ```
     python -m pip install -r requirements-dev.txt
     ```
@@ -100,23 +109,21 @@ If you want to use the latest stable version (possibly ahead of the latest relea
 3. Run the analysis
 
     From project root run:
-    
+
     ```
     python -m pymwp path/to_some_file.c
     ```
 
     for example:
-    
+
     ```
     python -m pymwp c_files/basics/if.c
     ```
-    
+
     for all available options and help, run:
-    
+
     ```
     python -m pymwp
     ```
 
 <!--include-end--> 
-
-

@@ -136,7 +136,7 @@ class Plot:
             for (_, ex) in sorted(self.results.items())] for e in sublist]
 
         bound_dict = [
-            (i + 1, Plot.texify_bound(f.bound) if self.format == 'tex' else p)
+            (i + 1, (Plot.texify_bound(f.bound), p))
             for i, f, p in [(i, f, f.bound.show_poly(True, True)
             if f.bound else None) for (i, (_, f)) in enumerate(inputs)]
             if f.n_bounds > 0 and len(p) > 0]
@@ -146,6 +146,11 @@ class Plot:
                  ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
                 for i, (ex, fun) in enumerate(inputs)], dict(bound_dict)
 
+    @staticmethod
+    def text_fmt(bound, pad, wrap_at):
+        return bound if len(bound) < wrap_at else \
+            bound.replace('∧', f'\n{" " * pad}∧')
+
     def generate(self) -> None:
         """Generate a table plot, then show it, and save it to file."""
         if not self.has_data:
@@ -153,20 +158,27 @@ class Plot:
         fn = join(self.out_dir, self.filename())
         mn = join(self.out_dir, self.filename('_map'))
 
-        txt_writer = SpaceAlignedTableWriter()
+        t1_writer = SpaceAlignedTableWriter()
         f1_writer, f2_writer = self.writer(), self.writer()
 
-        f1_writer.headers = txt_writer.headers = self.headers()
-        f1_writer.value_matrix, bd = self.build_matrix()
+        f1_writer.headers = t1_writer.headers = self.headers()
+        f1_writer.value_matrix, _ = t1_values, bounds = self.build_matrix()
         f1_writer.dump(fn)  # write to file
 
         f2_writer.headers = ['#', 'bound']
-        f2_writer.value_matrix = [(k, v) for k, v in bd.items()]
+        f2_writer.value_matrix = [
+            (k, tex if self.format == 'tex' else str_b)
+            for k, (tex, str_b) in bounds.items()]
         f2_writer.dump(mn)
 
-        txt_writer.value_matrix, _ = self.build_matrix()
-        txt_writer.write_table()  # show the table
-
+        # display text tables
+        pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
+        t1_writer.value_matrix = t1_values
+        t1_writer.write_table()
+        print()
+        [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
+         for k, (_, v) in bounds.items()]
+        print()
         print(f'Wrote tables to: {fn}\nand to: {mn}')
 
 

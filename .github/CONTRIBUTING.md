@@ -57,10 +57,9 @@ make lint         # check code style only
 
 **Relevant workflows**
 
-[![Build](https://github.com/statycc/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/build.yaml) [![Version test](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml) 
+[![Build](https://github.com/statycc/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/build.yaml) checks code changes using the latest Python runtime.
 
-- Build workflow automatically checks code changes using the latest Python runtime.
-- Version test workflow checks code changes against various Python runtimes.              
+[![Version test](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pyversion.yaml) checks code changes against various Python runtimes.              
 
 ---
 
@@ -82,10 +81,9 @@ Once those changes are satisfactory, commits to main branch will automatically d
 
 **Relevant workflows**
 
-[![Docs](https://github.com/statycc/pymwp/actions/workflows/docs.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/docs.yaml) [![pages-build-deployment](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment)
+[![Docs](https://github.com/statycc/pymwp/actions/workflows/docs.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/docs.yaml) builds and pushes documentation to gh-pages branch.
 
-- Docs workflow builds and pushes documentation to gh-pages branch.
-- The pages-build-deployment is automatic after commits to gh-pages branch. 
+[![pages-build-deployment](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/pages/pages-build-deployment) deploys gh-pages branch. 
 
 ---
 
@@ -93,8 +91,6 @@ Once those changes are satisfactory, commits to main branch will automatically d
 
 Tagging a commit in `main` branch will automatically kick off a deployment and release,
 for all configured distribution channels.
-
-The expected behavior is as follows:
 
 : Python Package Index
 
@@ -115,6 +111,4 @@ The expected behavior is as follows:
 
 **Relevant workflows**
 
-[![Publish & Release](https://github.com/statycc/pymwp/actions/workflows/publish.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/publish.yaml)
-
-* Publish & Release workflow defines release and deployment tasks.
+[![Publish & Release](https://github.com/statycc/pymwp/actions/workflows/publish.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/publish.yaml) handles all release and deployment tasks.
