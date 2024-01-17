@@ -5,7 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+  workflow_dispatch:
+    branches: [ main ]
+    
 jobs:
   pyversion:
     runs-on: ubuntu-latest
@@ -13,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # test legacy runtimes only; build workflow is set to latest
-        python: [ 3.7, 3.8, 3.9, "3.10" ]
+        python: [ 3.7, 3.8, 3.9, "3.10", "3.11" ]
 
     steps:
       - name: Checkout repo
