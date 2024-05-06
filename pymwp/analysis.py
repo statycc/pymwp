@@ -346,7 +346,7 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         if node is not None:
-            for child in node.block_items \
+            for child in (node.block_items or []) \
                     if hasattr(node, 'block_items') else [node]:
                 index, rel_list, exit_ = Analysis \
                     .compute_relation(index, child, dg)
