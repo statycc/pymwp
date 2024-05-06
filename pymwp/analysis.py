@@ -346,7 +346,7 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         if node is not None:
-            for child in node.block_items \
+            for child in (node.block_items or []) \
                     if hasattr(node, 'block_items') else [node]:
                 index, rel_list, exit_ = Analysis \
                     .compute_relation(index, child, dg)
@@ -418,8 +418,9 @@ class Analysis:
             relations.composition(rel_list)
 
         relations.fixpoint()
-        # TODO: unknown method conditionRel
-        #  ref: https://github.com/statycc/pymwp/issues/5
+        # This is not done, and I know it
+        # ref: https://github.com/statycc/pymwp/issues/5
+        # unknown method conditionRel
         # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
         return index, relations, False
 
