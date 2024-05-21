@@ -2,6 +2,7 @@
 
 pymwp analyzes programs written in C language.
 The project repository `c_files` directory contains many examples.
+See the [tool user guide](https://statycc.github.io/.github/pymwp) for details on interpreting the tool outputs.
 
 ## Program Categories
 

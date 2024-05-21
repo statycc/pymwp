@@ -1,11 +1,15 @@
 # noinspection DuplicatedCode
 
 """
-Sample ASTs for unit testing Analysis
+Sample ASTs for unit testing Analysis.
+We mock the outputs of pycparser.parse_file.
+These ASTs match the examples in tests/test_examples.
 
-here we mock the outputs of pycparser.parse_file
-
-These ASTs match the examples in c_files by name, or tests/test_examples
+How add a new example:
+1. add .c file to test_examples
+2. run `make compute-ast`
+3. add a new variable here that loads the AST .txt file
+4. import the variable in a unit test
 """
 
 # noinspection PyUnresolvedReferences

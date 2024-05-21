@@ -58,11 +58,6 @@ For all available options and help, run:
 pymwp --help
 ```
 
-#### Tool User Guide
-
-A comprehensive tool user guide, with detailed examples, is available at:
-[statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp)
-
 #### Use in Python Scripts
 
 You can also use pymwp by importing it in a Python script.
@@ -79,6 +74,11 @@ matrix[2][1] = Polynomial('p')
 
 show(matrix)
 ```
+
+## Tool User Guide
+
+A comprehensive tool user guide, with detailed examples, is available at:
+[statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp)
 
 
 ## Running from source
