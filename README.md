@@ -58,7 +58,7 @@ For all available options and help, run:
 pymwp --help
 ```
 
-#### Use in Python Scripts
+<h4>Use in Python Scripts</h4>
 
 You can also use pymwp by importing it in a Python script.
 See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
