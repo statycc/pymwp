@@ -24,7 +24,7 @@ pymwp: implementation of MWP analysis on C code in Python.
 
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
-__license__ = "GPLv3 or later"
+__license__ = "GPL-3.0-or-later"
 __version__ = "0.4.2"
 
 # flake8: noqa: F401
