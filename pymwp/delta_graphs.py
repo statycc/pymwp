@@ -160,7 +160,7 @@ class DeltaGraph:
             self.graph_dict[size] = {}
             self.graph_dict[size][node] = {}
         else:
-            # TODO: Case may exist where we need to perform simplification
+            # Case may exist where we need to perform simplification
             #    over monomials -> Add here the simplification
             inserted = False
             if node not in self.graph_dict[size]:
