@@ -1,3 +1,21 @@
+# -----------------------------------------------------------------------------
+# Copyright (c) 2020-2024 C. Aubert, T. Rubiano, N. Rusch and T. Seiller.
+#
+# This file is part of pymwp.
+#
+# pymwp is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# pymwp is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# pymwp. If not, see <https://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
+
 import setuptools
 
 __title__ = "pymwp"
@@ -7,7 +25,6 @@ __version__ = "0.4.2"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
-
 setuptools.setup(
     name=__title__,
     version=__version__,
@@ -15,7 +32,7 @@ setuptools.setup(
     author_email='nrusch@augusta.edu',
     packages=['pymwp'],
     entry_points={'console_scripts': ['pymwp = pymwp.__main__:main'], },
-    license='GPLv3',
+    license='GPLv3+',
     description=__desc__,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -26,6 +43,7 @@ setuptools.setup(
         'Source Code': 'https://github.com/statycc/pymwp',
         'Archive': 'https://doi.org/10.5281/zenodo.7879822'
     },
+    license_files=('LICENSE',),
     package_data={"": ["LICENSE"], },
     include_package_data=True,
     classifiers=[
@@ -45,7 +63,7 @@ setuptools.setup(
         'Typing :: Typed',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
     ],
     python_requires=">=3.7",
     install_requires=[
@@ -53,3 +71,4 @@ setuptools.setup(
         'pycparser-fake-libc'
     ]
 )
+
