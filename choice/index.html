@@ -1,0 +1,3608 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Implementation of MWP analysis on C code in Python.">
+      
+      
+      
+      
+        <link rel="prev" href="../bound/">
+      
+      
+        <link rel="next" href="../delta_graphs/">
+      
+      
+      <link rel="icon" href="..">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+    
+    
+      
+        <title>Choice - pymwp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../assets/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#choicepy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pymwp" class="md-header__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pymwp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Choice
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/statycc/pymwp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pymwp" class="md-nav__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    pymwp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/statycc/pymwp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation & Use
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Supported Features
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Demo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Modules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Modules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bound/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bound
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Choice
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Choice
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#determining-valid-choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Determining valid choices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      choice
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.CHOICES" class="md-nav__link">
+    <span class="md-ellipsis">
+      CHOICES
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.SEQ" class="md-nav__link">
+    <span class="md-ellipsis">
+      SEQ
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.first" class="md-nav__link">
+    <span class="md-ellipsis">
+      first
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.n_bounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      n_bounds
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.build_choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      build_choices()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.generate" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.is_valid" class="md-nav__link">
+    <span class="md-ellipsis">
+      is_valid()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.prod" class="md-nav__link">
+    <span class="md-ellipsis">
+      prod()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.reduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      reduce()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.remove_subset" class="md-nav__link">
+    <span class="md-ellipsis">
+      remove_subset()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.simplify" class="md-nav__link">
+    <span class="md-ellipsis">
+      simplify()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.sub_equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      sub_equal()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.unique_sequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      unique_sequences()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../delta_graphs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Delta Graph
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file_io/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File I/O
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Matrix
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monomial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monomial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../polynomial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Polynomial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relation List
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../result/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Result
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semiring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semiring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utilities
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/releases" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release History
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://doi.org/10.5281/zenodo.7879822" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Archive
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/blob/main/LICENSE" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#determining-valid-choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Determining valid choices
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      choice
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.CHOICES" class="md-nav__link">
+    <span class="md-ellipsis">
+      CHOICES
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.SEQ" class="md-nav__link">
+    <span class="md-ellipsis">
+      SEQ
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Choices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.first" class="md-nav__link">
+    <span class="md-ellipsis">
+      first
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.n_bounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      n_bounds
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.build_choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      build_choices()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.generate" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.is_valid" class="md-nav__link">
+    <span class="md-ellipsis">
+      is_valid()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.prod" class="md-nav__link">
+    <span class="md-ellipsis">
+      prod()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.reduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      reduce()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.remove_subset" class="md-nav__link">
+    <span class="md-ellipsis">
+      remove_subset()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.simplify" class="md-nav__link">
+    <span class="md-ellipsis">
+      simplify()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.sub_equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      sub_equal()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.choice.Choices.unique_sequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      unique_sequences()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="choicepy">Choice.py<a class="headerlink" href="#choicepy" title="Permanent link">&para;</a></h1>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pymwp</span> <span class="kn">import</span> <span class="n">Choices</span>
+</code></pre></div>
+<h2 id="determining-valid-choices">Determining valid choices<a class="headerlink" href="#determining-valid-choices" title="Permanent link">&para;</a></h2>
+<p>Choice module calculates and generates a compact representation of analysis derivation result. 
+This section gives a high-level description of this process.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Data type</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>i</code></td>
+<td><code>int</code></td>
+<td>(index) number of assignments in analyzed program function</td>
+</tr>
+<tr>
+<td><code>choices</code></td>
+<td><code>List[int]</code></td>
+<td>possible inference choices at a program point, e.g. <code>[0,1,2]</code></td>
+</tr>
+<tr>
+<td><code>delta_sequences</code></td>
+<td><code>Set[SEQ]</code></td>
+<td>sequences of choices leading to non-polynomial flows (<span class="arithmatex">\(\infty\)</span> from matrix)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Computation Steps</strong></p>
+<ol>
+<li>
+<p><strong>Simplify</strong>. Using <span class="arithmatex">\(\delta\)</span>-sequences set, simplify it in two ways:</p>
+<ol>
+<li>Replace combinations that can be represented by a single shorter
+  sequence.</li>
+<li>Remove supersets.</li>
+</ol>
+<p>Iteratively apply these simplifications until convergence.</p>
+<details class="example">
+<summary>Simplification example</summary>
+<p>(a) All possible choices occur at index 0: any choice
+followed by sequence <span class="arithmatex">\((2,1)(1,2)\)</span> results in infinity.
+Remove <span class="arithmatex">\(a, b, c\)</span> and insert <span class="arithmatex">\([(2,1)(1,2)]\)</span> in their place.</p>
+<div class="highlight"><pre><span></span><code><span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># sequences before:</span>
+  <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>     <span class="c1"># a</span>
+  <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>     <span class="c1"># b</span>
+  <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>     <span class="c1"># c</span>
+
+<span class="c1"># sequences after:</span>
+  <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>
+</code></pre></div>
+<p>(b) Sequence <span class="arithmatex">\(a\)</span> is subset of <span class="arithmatex">\(b\)</span>. Since <span class="arithmatex">\(b\)</span> cannot be selected
+without selecting <span class="arithmatex">\(a\)</span>, we can remove <span class="arithmatex">\(b\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># sequences before:</span>
+  <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>               <span class="c1"># a</span>
+  <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>     <span class="c1"># b</span>
+
+<span class="c1"># sequences after:</span>
+  <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>
+</code></pre></div>
+</details>
+</li>
+<li>
+<p><strong>Build the choice vectors.</strong> Initially consider all choices as valid.
+   Then eliminate those that lead to infinity, for all possible
+   combinations.</p>
+<p>Compute cross product of remaining <span class="arithmatex">\(\delta\)</span>-sequences.
+Iterate the product, for each:</p>
+<ul>
+<li>Create a vector whose length equals <code>i</code>.</li>
+<li>Each vector element is a set of <code>choices</code>.</li>
+<li>Eliminate choices that lead to infinity.</li>
+</ul>
+<p>Discard invalid and redundant vectors. Add remaining vectors to result.</p>
+<details class="example">
+<summary>Choice vector example</summary>
+<div class="highlight"><pre><span></span><code><span class="c1"># remaining after simplification</span>
+<span class="n">sequences</span> <span class="o">=</span> <span class="p">[[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)]]</span>
+
+<span class="c1"># compute cross product of sequences, which gives e.g.</span>
+<span class="n">infty_path</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">each</span> <span class="n">infinity</span> <span class="n">path</span><span class="p">:</span>
+
+    <span class="c1"># initialize vector with all choices at each vector element</span>
+    <span class="n">vector_init</span> <span class="o">=</span> <span class="p">[{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">}]</span>
+
+    <span class="c1"># eliminate infinity path choices, to obtain:</span>
+    <span class="n">vector_final</span> <span class="o">=</span> <span class="p">[{</span><span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">}]</span>  <span class="c1"># add to result</span>
+</code></pre></div>
+</details>
+</li>
+<li>
+<p><strong>Result.</strong> The result is a disjunction of choice vectors.
+    Choose one vector, then select one value at each vector index. 
+    This yields a bounded result.</p>
+<details class="example">
+<summary>Result example</summary>
+<div class="highlight"><pre><span></span><code><span class="p">[[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span>  <span class="ow">or</span>  <span class="p">[[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span>  <span class="ow">or</span>  <span class="o">...</span> <span class="p">]</span>
+</code></pre></div>
+<p><span class="arithmatex">\([1, 2, 2]\)</span> is valid choice, so is <span class="arithmatex">\([2,0,2]\)</span> and <span class="arithmatex">\([1,1,0]\)</span> ... etc.</p>
+</details>
+<p>If all choices are valid, the result is a single vector allowing all choices.
+If no valid derivation exists, the result is empty <code>[ ]</code>.</p>
+</li>
+</ol>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="pymwp.choice"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h2 id="pymwp.choice.CHOICES" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">CHOICES</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#pymwp.choice.CHOICES" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Type hint for representing a list of choice vectors.</p>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h2 id="pymwp.choice.SEQ" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">SEQ</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#pymwp.choice.SEQ" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Type hint to represent a sequence of deltas.</p>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="pymwp.choice.Choices" class="doc doc-heading">
+          <code>Choices</code>
+
+
+<a href="#pymwp.choice.Choices" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Generates a compact representation of derivation rule choices that do
+not lead to infinity.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>pymwp/choice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Choices</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a compact representation of derivation rule choices that do</span>
+<span class="sd">    not lead to infinity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">CHOICES</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize representation with precomputed vector.</span>
+
+<span class="sd">        This initialization is primarily useful for restoring a result from</span>
+<span class="sd">        file. When first creating the choice representation, call</span>
+<span class="sd">        [`generate()`](choice.md#pymwp.choice.Choices.generate) method</span>
+<span class="sd">        instead.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            vectors: list of choice vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid</span> <span class="o">=</span> <span class="n">vectors</span> <span class="ow">or</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">infinite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the first valid derivation choice, if exists&quot;&quot;&quot;</span>
+        <span class="c1"># take first vector, then first choice at each index</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">choices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> \
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">infinite</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of bounds that can be generated from a choice vector&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span>
+            <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">total</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">total</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">lens</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">lens</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Counter</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">]])</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inf</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Choices</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the choice representation.</span>
+
+<span class="sd">        This works in two steps: 1. simplify delta sequences 2. build</span>
+<span class="sd">        choice vectors.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: list of valid choices for one index, e.g. [0,1,2]</span>
+<span class="sd">            index: the length of the vector, e.g. 10. This is the same as</span>
+<span class="sd">                number of assignments in the analyzed function.</span>
+<span class="sd">            inf: set of deltas that lead to infinity</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Generated choice object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># simplify the set of infinities</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">inf</span><span class="p">)</span>
+
+        <span class="c1"># now only min unique paths that lead to infinity remain</span>
+        <span class="c1"># only sorted here for presentation purposes</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">sequences</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">))]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;infinity paths: </span><span class="si">{</span><span class="s2">&quot; # &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;None&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># build vectors representing valid choices</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">build_choices</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Choices</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">choices</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if sequence of choices can be made without infinity.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            ```Python</span>
+<span class="sd">            choice_obj.is_valid(0,1,2,1,1,0)</span>
+<span class="sd">            ```</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: sequences of delta values to check</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the given choices can be made without infinity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span> <span class="ow">and</span> <span class="kc">False</span> <span class="ow">not</span> <span class="ow">in</span> \
+                    <span class="p">[</span><span class="n">value</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
+                     <span class="nb">enumerate</span><span class="p">(</span><span class="n">choices</span><span class="p">)]:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the most simplified, equivalent representation of</span>
+<span class="sd">        the set of choices that cause infinity.</span>
+
+<span class="sd">        Reduce sequences of deltas, as explained in [`reduce`](#reduce).</span>
+<span class="sd">        This operation will repeat until set of sequences cannot be reduced</span>
+<span class="sd">        any further. Then remove all superset contained by some shorter</span>
+<span class="sd">        sequence. This process repeats until no more simplification can be</span>
+<span class="sd">        applied.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: list of valid per index choices, e.g. [0,1,2]</span>
+<span class="sd">            sequences: set of delta sequences</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Simplified list of infinity paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">Choices</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">sequences</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">len_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+            <span class="n">sequences</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">unique_sequences</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+            <span class="n">len_after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">len_before</span> <span class="o">==</span> <span class="n">len_after</span> <span class="ow">or</span> <span class="n">len_after</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sequences</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look for first reducible sequence, if exists, then replace it.</span>
+
+<span class="sd">        ??? example &quot;Example&quot;</span>
+
+<span class="sd">            Consider the following sequences, where deltas differ only on</span>
+<span class="sd">            first value and never on index, and all possible choice values are</span>
+<span class="sd">            represented in the first delta:</span>
+
+<span class="sd">             ```</span>
+<span class="sd">             (0,0) (2,1) (1,4)</span>
+<span class="sd">             (1,0) (2,1) (1,4)</span>
+<span class="sd">             (2,0) (2,1) (1,4)</span>
+<span class="sd">             ```</span>
+
+<span class="sd">            Since all possible choices occur at 0th index, and are followed</span>
+<span class="sd">            by same subsequent deltas, it does not matter which choice is</span>
+<span class="sd">            made at index 0. The 3 paths can be collapsed into a single,</span>
+<span class="sd">            shorter path: `(2,1)(1,4)`.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: list of valid per index choices, e.g. [0,1,2]</span>
+<span class="sd">            sequences: set of delta sequences</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if a reduction occurred and False otherwise. The meaning of</span>
+<span class="sd">            False is to say the operation is done and should not be repeated</span>
+<span class="sd">            any further.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sequences</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">subs</span> <span class="o">=</span> <span class="p">[</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">sequences</span> <span class="k">if</span> <span class="n">Choices</span><span class="o">.</span><span class="n">sub_equal</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)]</span>
+            <span class="c1"># all paths must exist</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
+                <span class="c1"># keep rest of sequence</span>
+                <span class="n">keep</span> <span class="o">=</span> <span class="n">s1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="c1"># remove all sequences contained by the shorter path</span>
+                <span class="n">Choices</span><span class="o">.</span><span class="n">remove_subset</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
+                <span class="c1"># finally add the shorter sequence to the set</span>
+                <span class="n">sequences</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">unique_sequences</span><span class="p">(</span><span class="n">infinities</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove superset delta sequences.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            infinities: set of delta sequences causing infinity</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list where all longer sequences, whose pattern is covered</span>
+<span class="sd">            by some shorter sequence, are removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">infinity_deltas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">infinities</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">infinity_deltas</span><span class="p">:</span>
+            <span class="n">first</span><span class="p">:</span> <span class="n">SEQ</span> <span class="o">=</span> <span class="n">infinity_deltas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">Choices</span><span class="o">.</span><span class="n">remove_subset</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">infinity_deltas</span><span class="p">)</span>
+            <span class="n">sequences</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sequences</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">remove_subset</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">,</span> <span class="n">List</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If `match` is a subset of any item in `items`, removes the superset</span>
+<span class="sd">        from items, in place.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            match: single delta sequence</span>
+<span class="sd">            items: list of delta sequences to check against match</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">match</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">item</span><span class="p">)):</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sub_equal</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare two delta sequences for equality, except their 0th value.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            first: first delta sequence</span>
+<span class="sd">            second: second delta sequence</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if two delta sequences are equal excluding the 0th value,</span>
+<span class="sd">            and False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">first</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">second</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">first</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">second</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">prod</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the product of numeric list.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            values: 1d list of numbers</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Product of values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">((</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">),</span> <span class="n">values</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_choices</span><span class="p">(</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">infinities</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CHOICES</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a list of distinct choice vectors excluding infinite choices.</span>
+
+<span class="sd">        This method works by taking a list of delta paths that lead to infinity</span>
+<span class="sd">        and then negates those choices; the result is a list of choice</span>
+<span class="sd">        vectors such that any remaining choice will give a valid derivation.</span>
+
+<span class="sd">        ??? example &quot;Example&quot;</span>
+
+<span class="sd">            assume the paths leading to infinity are:</span>
+
+<span class="sd">            `[(0,0)], [(1,0)], [(1,1)(0,3)]`</span>
+
+<span class="sd">            Then, the valid choices that do not lead to infinity are:</span>
+
+<span class="sd">            `[[ [2], [0,2], [0,1,2]]`  or  `[[2], [0,1,2], [1,2]]]`</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: list of valid choices for one index, e.g. [0,1,2]</span>
+<span class="sd">            index: the length of the vector, e.g. 10</span>
+<span class="sd">            infinities: set of deltas that lead to infinity</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Choice vector that excludes all paths leading to infinity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">infinities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">choices</span><span class="p">[:])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">)]]</span>
+
+        <span class="c1"># noinspection PyTypeChecker</span>
+        <span class="c1"># sort the infinity paths by length, the shortest first</span>
+        <span class="n">sorted_infty</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">infinities</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+
+        <span class="c1"># get length of each infinity path</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sorted_infty</span><span class="p">]</span>
+        <span class="c1"># helper for generating distinct combinations of indices</span>
+        <span class="n">iters</span> <span class="o">=</span> <span class="p">[</span><span class="n">Choices</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">lens</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:])</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lens</span><span class="p">)]</span>
+
+        <span class="c1"># the product of path lengths gives the max number of distinct vectors</span>
+        <span class="n">max_</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;maximum distinct vectors: </span><span class="si">{</span><span class="n">max_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># number of times each delta occurs in remaining paths</span>
+        <span class="n">delta_freq</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">sorted_infty</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
+
+        <span class="n">vectors</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># generate all possible vectors by iterating the max count of</span>
+        <span class="c1"># distinct vectors</span>
+        <span class="k">for</span> <span class="n">iter_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_</span><span class="p">):</span>
+
+            <span class="c1"># from iteration count, generate selectors for deltas</span>
+            <span class="c1"># this one line does a lot - only edit if you have a good reason</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">iter_i</span> <span class="o">//</span> <span class="n">i</span><span class="p">)</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lens</span><span class="p">,</span> <span class="n">iters</span><span class="p">)]</span>
+
+            <span class="c1"># now choose the specific delta values, 1 value for each infinite</span>
+            <span class="c1"># path, so that it is not possible to choose any bad path fully</span>
+            <span class="c1"># this is same as taking cross product of deltas</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">sorted_infty</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)]</span>
+            <span class="n">idx_freq</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">deltas</span><span class="p">)]</span>
+            <span class="n">vector_freq</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">deltas</span><span class="p">))</span>
+            <span class="n">minimal</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">delta_freq</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">vector_freq</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                           <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">vector_freq</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+            <span class="n">is_valid</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">idx_freq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">idx_freq</span><span class="p">)])</span>
+
+            <span class="c1"># This iteration will not produce a valid vector if all choices</span>
+            <span class="c1"># are eliminated at some index. It will also not produce the</span>
+            <span class="c1"># optimal vector, if some delta is duplicated in the</span>
+            <span class="c1"># infinities-set but not in this vector. Discard these choices</span>
+            <span class="c1"># in both cases.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># initialize a vector with all allowed choices</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">choices</span><span class="p">[:])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span>
+
+            <span class="c1"># iterate the infinity deltas to remove them from the vector</span>
+            <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">deltas</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+
+            <span class="c1"># must be hashable type to add to set, shouldn&#39;t generate same</span>
+            <span class="c1"># vector ever but not sure, so using a set</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">])</span>
+            <span class="n">vectors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+        <span class="c1"># change the remaining choices at each index to lists (not sets)</span>
+        <span class="c1"># so the vectors can be saved to file</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vectors</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h3 id="pymwp.choice.Choices.first" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">first</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.first" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Gets the first valid derivation choice, if exists</p>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h3 id="pymwp.choice.Choices.n_bounds" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">n_bounds</span><span class="p">:</span> <span class="nb">int</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.n_bounds" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Number of bounds that can be generated from a choice vector</p>
+  </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.__init__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">vectors</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#pymwp.choice.Choices.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Initialize representation with precomputed vector.</p>
+<p>This initialization is primarily useful for restoring a result from
+file. When first creating the choice representation, call
+<a href="./#pymwp.choice.Choices.generate"><code>generate()</code></a> method
+instead.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>vectors</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.CHOICES" href="#pymwp.choice.CHOICES">CHOICES</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of choice vectors</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">CHOICES</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize representation with precomputed vector.</span>
+
+<span class="sd">    This initialization is primarily useful for restoring a result from</span>
+<span class="sd">    file. When first creating the choice representation, call</span>
+<span class="sd">    [`generate()`](choice.md#pymwp.choice.Choices.generate) method</span>
+<span class="sd">    instead.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        vectors: list of choice vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">valid</span> <span class="o">=</span> <span class="n">vectors</span> <span class="ow">or</span> <span class="p">[]</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.build_choices" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">build_choices</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">infinities</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.build_choices" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Build a list of distinct choice vectors excluding infinite choices.</p>
+<p>This method works by taking a list of delta paths that lead to infinity
+and then negates those choices; the result is a list of choice
+vectors such that any remaining choice will give a valid derivation.</p>
+<details class="example">
+<summary>Example</summary>
+<p>assume the paths leading to infinity are:</p>
+<p><code>[(0,0)], [(1,0)], [(1,1)(0,3)]</code></p>
+<p>Then, the valid choices that do not lead to infinity are:</p>
+<p><code>[[ [2], [0,2], [0,1,2]]</code>  or  <code>[[2], [0,1,2], [1,2]]]</code></p>
+</details>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of valid choices for one index, e.g. [0,1,2]</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>index</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the length of the vector, e.g. 10</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>infinities</code></td>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>set of deltas that lead to infinity</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.CHOICES" href="#pymwp.choice.CHOICES">CHOICES</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Choice vector that excludes all paths leading to infinity.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">build_choices</span><span class="p">(</span>
+        <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">infinities</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CHOICES</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a list of distinct choice vectors excluding infinite choices.</span>
+
+<span class="sd">    This method works by taking a list of delta paths that lead to infinity</span>
+<span class="sd">    and then negates those choices; the result is a list of choice</span>
+<span class="sd">    vectors such that any remaining choice will give a valid derivation.</span>
+
+<span class="sd">    ??? example &quot;Example&quot;</span>
+
+<span class="sd">        assume the paths leading to infinity are:</span>
+
+<span class="sd">        `[(0,0)], [(1,0)], [(1,1)(0,3)]`</span>
+
+<span class="sd">        Then, the valid choices that do not lead to infinity are:</span>
+
+<span class="sd">        `[[ [2], [0,2], [0,1,2]]`  or  `[[2], [0,1,2], [1,2]]]`</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: list of valid choices for one index, e.g. [0,1,2]</span>
+<span class="sd">        index: the length of the vector, e.g. 10</span>
+<span class="sd">        infinities: set of deltas that lead to infinity</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Choice vector that excludes all paths leading to infinity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">infinities</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">choices</span><span class="p">[:])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">)]]</span>
+
+    <span class="c1"># noinspection PyTypeChecker</span>
+    <span class="c1"># sort the infinity paths by length, the shortest first</span>
+    <span class="n">sorted_infty</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">infinities</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+
+    <span class="c1"># get length of each infinity path</span>
+    <span class="n">lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sorted_infty</span><span class="p">]</span>
+    <span class="c1"># helper for generating distinct combinations of indices</span>
+    <span class="n">iters</span> <span class="o">=</span> <span class="p">[</span><span class="n">Choices</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">lens</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:])</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lens</span><span class="p">)]</span>
+
+    <span class="c1"># the product of path lengths gives the max number of distinct vectors</span>
+    <span class="n">max_</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;maximum distinct vectors: </span><span class="si">{</span><span class="n">max_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># number of times each delta occurs in remaining paths</span>
+    <span class="n">delta_freq</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">sorted_infty</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span>
+
+    <span class="n">vectors</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># generate all possible vectors by iterating the max count of</span>
+    <span class="c1"># distinct vectors</span>
+    <span class="k">for</span> <span class="n">iter_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_</span><span class="p">):</span>
+
+        <span class="c1"># from iteration count, generate selectors for deltas</span>
+        <span class="c1"># this one line does a lot - only edit if you have a good reason</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">iter_i</span> <span class="o">//</span> <span class="n">i</span><span class="p">)</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lens</span><span class="p">,</span> <span class="n">iters</span><span class="p">)]</span>
+
+        <span class="c1"># now choose the specific delta values, 1 value for each infinite</span>
+        <span class="c1"># path, so that it is not possible to choose any bad path fully</span>
+        <span class="c1"># this is same as taking cross product of deltas</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">sorted_infty</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)]</span>
+        <span class="n">idx_freq</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">deltas</span><span class="p">)]</span>
+        <span class="n">vector_freq</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">deltas</span><span class="p">))</span>
+        <span class="n">minimal</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">delta_freq</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">vector_freq</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                       <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">vector_freq</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">idx_freq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">idx_freq</span><span class="p">)])</span>
+
+        <span class="c1"># This iteration will not produce a valid vector if all choices</span>
+        <span class="c1"># are eliminated at some index. It will also not produce the</span>
+        <span class="c1"># optimal vector, if some delta is duplicated in the</span>
+        <span class="c1"># infinities-set but not in this vector. Discard these choices</span>
+        <span class="c1"># in both cases.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># initialize a vector with all allowed choices</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">choices</span><span class="p">[:])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span>
+
+        <span class="c1"># iterate the infinity deltas to remove them from the vector</span>
+        <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">deltas</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+
+        <span class="c1"># must be hashable type to add to set, shouldn&#39;t generate same</span>
+        <span class="c1"># vector ever but not sure, so using a set</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">])</span>
+        <span class="n">vectors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+    <span class="c1"># change the remaining choices at each index to lists (not sets)</span>
+    <span class="c1"># so the vectors can be saved to file</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vectors</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.generate" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">generate</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">inf</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.generate" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Generate the choice representation.</p>
+<p>This works in two steps: 1. simplify delta sequences 2. build
+choice vectors.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of valid choices for one index, e.g. [0,1,2]</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>index</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>the length of the vector, e.g. 10. This is the same as
+number of assignments in the analyzed function.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>inf</code></td>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>set of deltas that lead to infinity</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.Choices" href="#pymwp.choice.Choices">Choices</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Generated choice object.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inf</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Choices</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the choice representation.</span>
+
+<span class="sd">    This works in two steps: 1. simplify delta sequences 2. build</span>
+<span class="sd">    choice vectors.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: list of valid choices for one index, e.g. [0,1,2]</span>
+<span class="sd">        index: the length of the vector, e.g. 10. This is the same as</span>
+<span class="sd">            number of assignments in the analyzed function.</span>
+<span class="sd">        inf: set of deltas that lead to infinity</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Generated choice object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># simplify the set of infinities</span>
+    <span class="n">sequences</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">inf</span><span class="p">)</span>
+
+    <span class="c1"># now only min unique paths that lead to infinity remain</span>
+    <span class="c1"># only sorted here for presentation purposes</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">sequences</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">))]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;infinity paths: </span><span class="si">{</span><span class="s2">&quot; # &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;None&quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># build vectors representing valid choices</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">build_choices</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Choices</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.is_valid" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">is_valid</span><span class="p">(</span><span class="o">*</span><span class="n">choices</span><span class="p">)</span></code>
+
+<a href="#pymwp.choice.Choices.is_valid" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Checks if sequence of choices can be made without infinity.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>```Python
+choice_obj.is_valid(0,1,2,1,1,0)
+```
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>sequences of delta values to check</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>True if the given choices can be made without infinity.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">choices</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if sequence of choices can be made without infinity.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        ```Python</span>
+<span class="sd">        choice_obj.is_valid(0,1,2,1,1,0)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: sequences of delta values to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the given choices can be made without infinity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span> <span class="ow">and</span> <span class="kc">False</span> <span class="ow">not</span> <span class="ow">in</span> \
+                <span class="p">[</span><span class="n">value</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
+                 <span class="nb">enumerate</span><span class="p">(</span><span class="n">choices</span><span class="p">)]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.prod" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">prod</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.prod" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Compute the product of numeric list.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>values</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>1d list of numbers</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Product of values.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">prod</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the product of numeric list.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        values: 1d list of numbers</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Product of values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">((</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">),</span> <span class="n">values</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.reduce" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">reduce</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.reduce" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Look for first reducible sequence, if exists, then replace it.</p>
+<details class="example">
+<summary>Example</summary>
+<p>Consider the following sequences, where deltas differ only on
+first value and never on index, and all possible choice values are
+represented in the first delta:</p>
+<div class="highlight"><pre><span></span><code>(0,0) (2,1) (1,4)
+(1,0) (2,1) (1,4)
+(2,0) (2,1) (1,4)
+</code></pre></div>
+<p>Since all possible choices occur at 0th index, and are followed
+by same subsequent deltas, it does not matter which choice is
+made at index 0. The 3 paths can be collapsed into a single,
+shorter path: <code>(2,1)(1,4)</code>.</p>
+</details>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of valid per index choices, e.g. [0,1,2]</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sequences</code></td>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>set of delta sequences</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>True if a reduction occurred and False otherwise. The meaning of</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>False is to say the operation is done and should not be repeated</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>any further.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Look for first reducible sequence, if exists, then replace it.</span>
+
+<span class="sd">    ??? example &quot;Example&quot;</span>
+
+<span class="sd">        Consider the following sequences, where deltas differ only on</span>
+<span class="sd">        first value and never on index, and all possible choice values are</span>
+<span class="sd">        represented in the first delta:</span>
+
+<span class="sd">         ```</span>
+<span class="sd">         (0,0) (2,1) (1,4)</span>
+<span class="sd">         (1,0) (2,1) (1,4)</span>
+<span class="sd">         (2,0) (2,1) (1,4)</span>
+<span class="sd">         ```</span>
+
+<span class="sd">        Since all possible choices occur at 0th index, and are followed</span>
+<span class="sd">        by same subsequent deltas, it does not matter which choice is</span>
+<span class="sd">        made at index 0. The 3 paths can be collapsed into a single,</span>
+<span class="sd">        shorter path: `(2,1)(1,4)`.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: list of valid per index choices, e.g. [0,1,2]</span>
+<span class="sd">        sequences: set of delta sequences</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if a reduction occurred and False otherwise. The meaning of</span>
+<span class="sd">        False is to say the operation is done and should not be repeated</span>
+<span class="sd">        any further.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sequences</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]:</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">[</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">sequences</span> <span class="k">if</span> <span class="n">Choices</span><span class="o">.</span><span class="n">sub_equal</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)]</span>
+        <span class="c1"># all paths must exist</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
+            <span class="c1"># keep rest of sequence</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="n">s1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="c1"># remove all sequences contained by the shorter path</span>
+            <span class="n">Choices</span><span class="o">.</span><span class="n">remove_subset</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span>
+            <span class="c1"># finally add the shorter sequence to the set</span>
+            <span class="n">sequences</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.remove_subset" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">remove_subset</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.remove_subset" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>If <code>match</code> is a subset of any item in <code>items</code>, removes the superset
+from items, in place.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>match</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>single delta sequence</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>items</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="typing.Set">Set</span>, <span title="typing.List">List</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of delta sequences to check against match</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">remove_subset</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">,</span> <span class="n">List</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;If `match` is a subset of any item in `items`, removes the superset</span>
+<span class="sd">    from items, in place.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        match: single delta sequence</span>
+<span class="sd">        items: list of delta sequences to check against match</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">match</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">item</span><span class="p">)):</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.simplify" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">simplify</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.simplify" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Generate the most simplified, equivalent representation of
+the set of choices that cause infinity.</p>
+<p>Reduce sequences of deltas, as explained in <a href="#pymwp.choice.Choices.simplify--reduce"><code>reduce</code></a>.
+This operation will repeat until set of sequences cannot be reduced
+any further. Then remove all superset contained by some shorter
+sequence. This process repeats until no more simplification can be
+applied.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of valid per index choices, e.g. [0,1,2]</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sequences</code></td>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>set of delta sequences</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Simplified list of infinity paths.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the most simplified, equivalent representation of</span>
+<span class="sd">    the set of choices that cause infinity.</span>
+
+<span class="sd">    Reduce sequences of deltas, as explained in [`reduce`](#reduce).</span>
+<span class="sd">    This operation will repeat until set of sequences cannot be reduced</span>
+<span class="sd">    any further. Then remove all superset contained by some shorter</span>
+<span class="sd">    sequence. This process repeats until no more simplification can be</span>
+<span class="sd">    applied.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: list of valid per index choices, e.g. [0,1,2]</span>
+<span class="sd">        sequences: set of delta sequences</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Simplified list of infinity paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">Choices</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">sequences</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">len_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="n">Choices</span><span class="o">.</span><span class="n">unique_sequences</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+        <span class="n">len_after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">len_before</span> <span class="o">==</span> <span class="n">len_after</span> <span class="ow">or</span> <span class="n">len_after</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sequences</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.sub_equal" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">sub_equal</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.sub_equal" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Compare two delta sequences for equality, except their 0th value.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>first</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>first delta sequence</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>second</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>second delta sequence</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>True if two delta sequences are equal excluding the 0th value,</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>and False otherwise.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">sub_equal</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">SEQ</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two delta sequences for equality, except their 0th value.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        first: first delta sequence</span>
+<span class="sd">        second: second delta sequence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if two delta sequences are equal excluding the 0th value,</span>
+<span class="sd">        and False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">first</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">second</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">first</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">second</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.choice.Choices.unique_sequences" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">unique_sequences</span><span class="p">(</span><span class="n">infinities</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.choice.Choices.unique_sequences" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Remove superset delta sequences.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>infinities</code></td>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>set of delta sequences causing infinity</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>A list where all longer sequences, whose pattern is covered</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+                <code><span title="typing.Set">Set</span>[<a class="autorefs autorefs-internal" title="pymwp.choice.SEQ" href="#pymwp.choice.SEQ">SEQ</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>by some shorter sequence, are removed.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/choice.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">unique_sequences</span><span class="p">(</span><span class="n">infinities</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove superset delta sequences.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        infinities: set of delta sequences causing infinity</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list where all longer sequences, whose pattern is covered</span>
+<span class="sd">        by some shorter sequence, are removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sequences</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">infinity_deltas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SEQ</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">infinities</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">infinity_deltas</span><span class="p">:</span>
+        <span class="n">first</span><span class="p">:</span> <span class="n">SEQ</span> <span class="o">=</span> <span class="n">infinity_deltas</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">Choices</span><span class="o">.</span><span class="n">remove_subset</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">infinity_deltas</span><span class="p">)</span>
+        <span class="n">sequences</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sequences</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../assets/config.js"></script>
+      
+    
+  </body>
+</html>

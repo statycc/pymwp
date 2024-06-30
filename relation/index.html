@@ -1,0 +1,3835 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Implementation of MWP analysis on C code in Python.">
+      
+      
+      
+      
+        <link rel="prev" href="../polynomial/">
+      
+      
+        <link rel="next" href="../relation_list/">
+      
+      
+      <link rel="icon" href="..">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+    
+    
+      
+        <title>Relation - pymwp</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../assets/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#relationpy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pymwp" class="md-header__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pymwp
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Relation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="light" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/statycc/pymwp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pymwp" class="md-nav__button md-logo" aria-label="pymwp" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    pymwp
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/statycc/pymwp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    statycc/pymwp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation & Use
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Supported Features
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Demo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Modules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Modules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bound/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bound
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../choice/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Choice
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../delta_graphs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Delta Graph
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file_io/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File I/O
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Matrix
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monomial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monomial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../polynomial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Polynomial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Relation
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Relation
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      relation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.apply_choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      apply_choice()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      composition()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      equal()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      eval()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.fixpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      fixpoint()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.homogenisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      homogenisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      identity()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.infty_pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      infty_pairs()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.infty_vars" class="md-nav__link">
+    <span class="md-ellipsis">
+      infty_vars()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.relation_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      relation_str()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.replace_column" class="md-nav__link">
+    <span class="md-ellipsis">
+      replace_column()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.show" class="md-nav__link">
+    <span class="md-ellipsis">
+      show()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.sum" class="md-nav__link">
+    <span class="md-ellipsis">
+      sum()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      to_dict()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.while_correction" class="md-nav__link">
+    <span class="md-ellipsis">
+      while_correction()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation.SimpleRelation" class="md-nav__link">
+    <span class="md-ellipsis">
+      SimpleRelation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../relation_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relation List
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../result/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Result
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semiring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semiring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utilities
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/releases" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release History
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://doi.org/10.5281/zenodo.7879822" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code Archive
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/statycc/pymwp/blob/main/LICENSE" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      relation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.apply_choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      apply_choice()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      composition()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      equal()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      eval()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.fixpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      fixpoint()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.homogenisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      homogenisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      identity()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.infty_pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      infty_pairs()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.infty_vars" class="md-nav__link">
+    <span class="md-ellipsis">
+      infty_vars()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.relation_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      relation_str()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.replace_column" class="md-nav__link">
+    <span class="md-ellipsis">
+      replace_column()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.show" class="md-nav__link">
+    <span class="md-ellipsis">
+      show()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.sum" class="md-nav__link">
+    <span class="md-ellipsis">
+      sum()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      to_dict()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pymwp.relation.Relation.while_correction" class="md-nav__link">
+    <span class="md-ellipsis">
+      while_correction()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pymwp.relation.SimpleRelation" class="md-nav__link">
+    <span class="md-ellipsis">
+      SimpleRelation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="relationpy">relation.py<a class="headerlink" href="#relationpy" title="Permanent link">&para;</a></h1>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pymwp</span> <span class="kn">import</span> <span class="n">Relation</span>
+</code></pre></div>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="pymwp.relation"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="pymwp.relation.Relation" class="doc doc-heading">
+          <code>Relation</code>
+
+
+<a href="#pymwp.relation.Relation" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>A relation is made of a list of variables and a 2D-matrix:</p>
+<ul>
+<li>
+<p>Variables of a relation represent the variables of the input
+program under analysis, for example: <span class="arithmatex">\(X_0, X_1, X_2\)</span>.</p>
+</li>
+<li>
+<p>Matrix holds <a href="../polynomial/#pymwp.polynomial"><code>Polynomials</code></a>
+and represents the current state of the analysis.</p>
+</li>
+</ul>
+
+            <details class="quote">
+              <summary>Source code in <code>pymwp/relation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A relation is made of a list of variables and a 2D-matrix:</span>
+
+<span class="sd">    - Variables of a relation represent the variables of the input</span>
+<span class="sd">    program under analysis, for example: $X_0, X_1, X_2$.</span>
+
+<span class="sd">    - Matrix holds [`Polynomials`](polynomial.md#pymwp.polynomial)</span>
+<span class="sd">    and represents the current state of the analysis.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">matrix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Polynomial</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a relation.</span>
+
+<span class="sd">        When constructing a relation, provide a list of variables</span>
+<span class="sd">        and an initial matrix.</span>
+
+<span class="sd">        If matrix is not provided, the relation matrix will be initialized to</span>
+<span class="sd">        zero matrix of size matching the number of variables.</span>
+
+<span class="sd">        Also see: [`Relation.identity()`](relation.md#pymwp.relation</span>
+<span class="sd">        .Relation.identity) for creating a relation whose matrix is an</span>
+<span class="sd">        identity matrix.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        Create a new relation from a list of variables:</span>
+
+<span class="sd">        ```python</span>
+<span class="sd">        r = Relation([&#39;X0&#39;, &#39;X1&#39;, &#39;X2&#39;])</span>
+
+<span class="sd">        # Creates relation with 0-matrix with and specified variables:</span>
+<span class="sd">        #</span>
+<span class="sd">        #  X0  |  0  0  0</span>
+<span class="sd">        #  X1  |  0  0  0</span>
+<span class="sd">        #  X2  |  0  0  0</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            variables: program variables</span>
+<span class="sd">            matrix: relation matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">variables</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span> <span class="ow">or</span> <span class="n">matrix_utils</span> \
+            <span class="o">.</span><span class="n">init_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an identity relation.</span>
+
+<span class="sd">        This method allows creating a relation whose</span>
+<span class="sd">        matrix is an identity matrix.</span>
+
+<span class="sd">        This is an alternative way to construct a relation.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        Create a new identity relation from a list of variables:</span>
+
+<span class="sd">        ```python</span>
+<span class="sd">        r = Relation.identity([&#39;X0&#39;, &#39;X1&#39;, &#39;X2&#39;, &#39;X3&#39;])</span>
+
+<span class="sd">        # Creates relation with identity matrix with and specified variables:</span>
+<span class="sd">        #</span>
+<span class="sd">        #  X0  |  m  0  0  0</span>
+<span class="sd">        #  X1  |  0  m  0  0</span>
+<span class="sd">        #  X2  |  0  0  m  0</span>
+<span class="sd">        #  X3  |  0  0  0  m</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            variables: list of variables</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             Generated relation of given variables and an identity matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">matrix_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Relation</span><span class="o">.</span><span class="n">relation_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">relation_str</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">any</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Formatted string of variables and matrix.&quot;&quot;&quot;</span>
+        <span class="n">right_pad</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">))</span> <span class="k">if</span> <span class="n">variables</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">right_pad</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; | &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">poly</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+             <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span>
+             <span class="p">[(</span><span class="n">var</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))])</span>
+              <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)]])</span>
+
+    <span class="k">def</span> <span class="nf">replace_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace identity matrix column by a vector.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            vector: vector by which a matrix column will be replaced.</span>
+<span class="sd">            variable: program variable, column replacement</span>
+<span class="sd">                will occur at the index of this variable.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">              ValueError: if variable is not found in this relation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            new relation after applying the column replacement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_relation</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+                <span class="n">new_relation</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">new_relation</span>
+
+    <span class="k">def</span> <span class="nf">while_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace invalid scalars in a matrix by $\\infty$.</span>
+
+<span class="sd">        Following the computation of fixpoint for a while loop node, this</span>
+<span class="sd">        method checks the resulting matrix and replaces all invalid scalars</span>
+<span class="sd">        with $\\infty$ (W rule in MWP paper):</span>
+
+<span class="sd">        - scalar $p$ anywhere in the matrix becomes $\\infty$</span>
+<span class="sd">        - scalar $w$ at the diagonal becomes $\\infty$</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        ```text</span>
+<span class="sd">           Before:                After:</span>
+
+<span class="sd">           | m  o  o  o  o |      | m  o  o  o  o |</span>
+<span class="sd">           | o  w  o  p  o |      | o  i  o  i  o |</span>
+<span class="sd">           | o  o  m  o  o |      | o  o  m  o  o |</span>
+<span class="sd">           | w  o  o  m  o |      | w  o  o  m  o |</span>
+<span class="sd">           | o  o  o  o  p |      | o  o  o  o  i |</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        This method is where $\\infty$ is introduced in a matrix.</span>
+
+<span class="sd">        Related discussion: [issue #14](</span>
+<span class="sd">        https://github.com/statycc/pymwp/issues/14).</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            dg: DeltaGraph instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vector</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="s2">&quot;p&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">):</span>
+                        <span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="s2">&quot;i&quot;</span>
+                        <span class="n">dg</span><span class="o">.</span><span class="n">from_monomial</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sum two relations.</span>
+
+<span class="sd">        Calling this method is equivalent to syntax `relation + relation`.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            other: Relation to sum with self.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           A new relation that is a sum of inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+        <span class="n">new_matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">matrix_sum</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">new_matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Composition of current and another relation.</span>
+
+<span class="sd">        Calling this method is equivalent to syntax `relation * relation`.</span>
+
+<span class="sd">        Composition will:</span>
+
+<span class="sd">        1. combine the variables of two relations, and</span>
+<span class="sd">        2. produce a single matrix that is the product of matrices of</span>
+<span class="sd">            the two input relations.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            other: Relation to compose with current</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           a new relation that is a product of inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;starting composition...&quot;</span><span class="p">)</span>
+        <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;composing matrix product...&quot;</span><span class="p">)</span>
+        <span class="n">new_matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">matrix_prod</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;...relation composition done!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">new_matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if two relations are equal.</span>
+
+<span class="sd">        For two relations to be equal they must have:</span>
+
+<span class="sd">        1. the same variables (independent of order), and</span>
+<span class="sd">        2. matrix polynomials must be equal element-wise.</span>
+
+<span class="sd">        See [`polynomial#equal`](</span>
+<span class="sd">        polynomial.md#pymwp.polynomial.Polynomial.equal)</span>
+<span class="sd">        for details on how to determine equality of two polynomials.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            other: relation to compare</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            true when two relations are equal</span>
+<span class="sd">            and false otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># must have same variables in same order</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># not sure homogenisation is necessary here</span>
+        <span class="c1"># --&gt; yes we need it</span>
+        <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">row1</span><span class="p">,</span> <span class="n">row2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">poly1</span><span class="p">,</span> <span class="n">poly2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">poly1</span> <span class="o">!=</span> <span class="n">poly2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">fixpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute sum of compositions until no changes occur.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            resulting relation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fix_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">))</span>
+        <span class="n">fix</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="n">prev_fix</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;computing fixpoint for variables </span><span class="si">{</span><span class="n">fix_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">prev_fix</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">matrix</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">current</span> <span class="o">*</span> <span class="bp">self</span>
+            <span class="n">fix</span> <span class="o">=</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">current</span>
+            <span class="k">if</span> <span class="n">fix</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">prev_fix</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fixpoint done </span><span class="si">{</span><span class="n">fix_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">fix</span>
+
+    <span class="k">def</span> <span class="nf">apply_choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">choices</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimpleRelation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the matrix corresponding to provided sequence of choices.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            choices: tuple of choices</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New relation with simple-values matrix of scalars.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">choice_scalar</span><span class="p">(</span><span class="o">*</span><span class="n">choices</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_size</span><span class="p">)]</span>
+                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_size</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">SimpleRelation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">matrix</span><span class="o">=</span><span class="n">new_mat</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">infty_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Identify all variable pairs that for some choices, can raise</span>
+<span class="sd">        infinity result.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary of potentially infinite dependencies, where</span>
+<span class="sd">                the key is source variable and value is list of targets.</span>
+<span class="sd">                All entries are non-empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vars_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="p">[</span><span class="n">tgt</span> <span class="k">for</span> <span class="n">tgt</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vars_</span><span class="p">,</span> <span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">some_infty</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">polys</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vars_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">infty_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of potential infinity dependencies.&quot;&quot;&quot;</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1"> ➔ </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">infty_vars</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="s1">&#39; ‖ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get dictionary representation of a relation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display relation.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">homogenisation</span><span class="p">(</span><span class="n">r1</span><span class="p">:</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">r2</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Relation</span><span class="p">,</span> <span class="n">Relation</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs homogenisation on two relations.</span>
+
+<span class="sd">        After this operation both relations will have same</span>
+<span class="sd">        variables and their matrices of the same size.</span>
+
+<span class="sd">        This operation will internally resize matrices as needed.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            r1: first relation to homogenise</span>
+<span class="sd">            r2: second relation to homogenise</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Homogenised versions of the 2 inputs relations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># check equality</span>
+        <span class="k">if</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span>
+
+        <span class="c1"># check empty cases</span>
+        <span class="k">if</span> <span class="n">r1</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">),</span> <span class="n">r2</span>
+
+        <span class="k">if</span> <span class="n">r2</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">r1</span><span class="p">,</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;matrix homogenisation...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># build a list of all distinct variables; maintain order</span>
+        <span class="n">extended_vars</span> <span class="o">=</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span> <span class="o">+</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span>
+                                        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+
+        <span class="c1"># resize matrices to match new number of variables</span>
+        <span class="n">new_matrix_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">)</span>
+
+        <span class="c1"># first matrix: just resize -&gt; this one is now done</span>
+        <span class="n">matrix1</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">new_matrix_size</span><span class="p">)</span>
+
+        <span class="c1"># second matrix: create and initialize as identity matrix</span>
+        <span class="n">matrix2</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">new_matrix_size</span><span class="p">)</span>
+
+        <span class="c1"># index of each extended_vars iff variable exists in r2.</span>
+        <span class="c1"># we will use this to mapping from old -&gt; new matrix to fill</span>
+        <span class="c1"># the new matrix; the indices may be in different order.</span>
+        <span class="n">index_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">)</span>
+                      <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">}</span>
+
+        <span class="c1"># generate a list of all valid &lt;row, column&gt; combinations</span>
+        <span class="n">index_map</span> <span class="o">=</span> <span class="p">[</span><span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="k">for</span> <span class="n">t1</span> <span class="ow">in</span> <span class="n">index_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                     <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="n">index_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+        <span class="c1"># fill the resized matrix with values from original matrix</span>
+        <span class="k">for</span> <span class="n">mj</span><span class="p">,</span> <span class="n">rj</span><span class="p">,</span> <span class="n">mi</span><span class="p">,</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">index_map</span><span class="p">:</span>
+            <span class="n">matrix2</span><span class="p">[</span><span class="n">mi</span><span class="p">][</span><span class="n">mj</span><span class="p">]</span> <span class="o">=</span> <span class="n">r2</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">ri</span><span class="p">][</span><span class="n">rj</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">,</span> <span class="n">matrix1</span><span class="p">),</span> <span class="n">Relation</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">,</span>
+                                                          <span class="n">matrix2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Choices</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Eval experiment: returns a choice object.&quot;&quot;&quot;</span>
+
+        <span class="n">infinity_deltas</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># get all choices leading to infinity</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">infinity_deltas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">eval</span><span class="p">)</span>
+
+        <span class="c1"># generate valid choices</span>
+        <span class="k">return</span> <span class="n">Choices</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">infinity_deltas</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.__init__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create a relation.</p>
+<p>When constructing a relation, provide a list of variables
+and an initial matrix.</p>
+<p>If matrix is not provided, the relation matrix will be initialized to
+zero matrix of size matching the number of variables.</p>
+<p>Also see: <a href="./#pymwp.relation.Relation.identity"><code>Relation.identity()</code></a> for creating a relation whose matrix is an
+identity matrix.</p>
+<p>Example:</p>
+<p>Create a new relation from a list of variables:</p>
+<div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s1">&#39;X0&#39;</span><span class="p">,</span> <span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;X2&#39;</span><span class="p">])</span>
+
+<span class="c1"># Creates relation with 0-matrix with and specified variables:</span>
+<span class="c1">#</span>
+<span class="c1">#  X0  |  0  0  0</span>
+<span class="c1">#  X1  |  0  0  0</span>
+<span class="c1">#  X2  |  0  0  0</span>
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>variables</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>program variables</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>matrix</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[<span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="pymwp.Polynomial" href="../polynomial/#pymwp.polynomial.Polynomial">Polynomial</a>]]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>relation matrix</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">matrix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Polynomial</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a relation.</span>
+
+<span class="sd">    When constructing a relation, provide a list of variables</span>
+<span class="sd">    and an initial matrix.</span>
+
+<span class="sd">    If matrix is not provided, the relation matrix will be initialized to</span>
+<span class="sd">    zero matrix of size matching the number of variables.</span>
+
+<span class="sd">    Also see: [`Relation.identity()`](relation.md#pymwp.relation</span>
+<span class="sd">    .Relation.identity) for creating a relation whose matrix is an</span>
+<span class="sd">    identity matrix.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    Create a new relation from a list of variables:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    r = Relation([&#39;X0&#39;, &#39;X1&#39;, &#39;X2&#39;])</span>
+
+<span class="sd">    # Creates relation with 0-matrix with and specified variables:</span>
+<span class="sd">    #</span>
+<span class="sd">    #  X0  |  0  0  0</span>
+<span class="sd">    #  X1  |  0  0  0</span>
+<span class="sd">    #  X2  |  0  0  0</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        variables: program variables</span>
+<span class="sd">        matrix: relation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">variables</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span> <span class="ow">or</span> <span class="n">matrix_utils</span> \
+        <span class="o">.</span><span class="n">init_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.apply_choice" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">apply_choice</span><span class="p">(</span><span class="o">*</span><span class="n">choices</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.apply_choice" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the matrix corresponding to provided sequence of choices.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>choices</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>tuple of choices</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.SimpleRelation" href="#pymwp.relation.SimpleRelation">SimpleRelation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>New relation with simple-values matrix of scalars.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">apply_choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">choices</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimpleRelation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the matrix corresponding to provided sequence of choices.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        choices: tuple of choices</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        New relation with simple-values matrix of scalars.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">choice_scalar</span><span class="p">(</span><span class="o">*</span><span class="n">choices</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_size</span><span class="p">)]</span>
+               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_size</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">SimpleRelation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">matrix</span><span class="o">=</span><span class="n">new_mat</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.composition" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">composition</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.composition" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Composition of current and another relation.</p>
+<p>Calling this method is equivalent to syntax <code>relation * relation</code>.</p>
+<p>Composition will:</p>
+<ol>
+<li>combine the variables of two relations, and</li>
+<li>produce a single matrix that is the product of matrices of
+    the two input relations.</li>
+</ol>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>other</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Relation to compose with current</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>a new relation that is a product of inputs.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composition of current and another relation.</span>
+
+<span class="sd">    Calling this method is equivalent to syntax `relation * relation`.</span>
+
+<span class="sd">    Composition will:</span>
+
+<span class="sd">    1. combine the variables of two relations, and</span>
+<span class="sd">    2. produce a single matrix that is the product of matrices of</span>
+<span class="sd">        the two input relations.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        other: Relation to compose with current</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       a new relation that is a product of inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;starting composition...&quot;</span><span class="p">)</span>
+    <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;composing matrix product...&quot;</span><span class="p">)</span>
+    <span class="n">new_matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">matrix_prod</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;...relation composition done!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">new_matrix</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.equal" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.equal" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Determine if two relations are equal.</p>
+<p>For two relations to be equal they must have:</p>
+<ol>
+<li>the same variables (independent of order), and</li>
+<li>matrix polynomials must be equal element-wise.</li>
+</ol>
+<p>See <a href="../polynomial/#pymwp.polynomial.Polynomial.equal"><code>polynomial#equal</code></a>
+for details on how to determine equality of two polynomials.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>other</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>relation to compare</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>true when two relations are equal</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>and false otherwise.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine if two relations are equal.</span>
+
+<span class="sd">    For two relations to be equal they must have:</span>
+
+<span class="sd">    1. the same variables (independent of order), and</span>
+<span class="sd">    2. matrix polynomials must be equal element-wise.</span>
+
+<span class="sd">    See [`polynomial#equal`](</span>
+<span class="sd">    polynomial.md#pymwp.polynomial.Polynomial.equal)</span>
+<span class="sd">    for details on how to determine equality of two polynomials.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        other: relation to compare</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        true when two relations are equal</span>
+<span class="sd">        and false otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># must have same variables in same order</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># not sure homogenisation is necessary here</span>
+    <span class="c1"># --&gt; yes we need it</span>
+    <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row1</span><span class="p">,</span> <span class="n">row2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">poly1</span><span class="p">,</span> <span class="n">poly2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">poly1</span> <span class="o">!=</span> <span class="n">poly2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.eval" class="doc doc-heading">
+          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.eval" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Eval experiment: returns a choice object.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Choices</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Eval experiment: returns a choice object.&quot;&quot;&quot;</span>
+
+    <span class="n">infinity_deltas</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># get all choices leading to infinity</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">infinity_deltas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">eval</span><span class="p">)</span>
+
+    <span class="c1"># generate valid choices</span>
+    <span class="k">return</span> <span class="n">Choices</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">infinity_deltas</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.fixpoint" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">fixpoint</span><span class="p">()</span></code>
+
+<a href="#pymwp.relation.Relation.fixpoint" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Compute sum of compositions until no changes occur.</p>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>resulting relation.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fixpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute sum of compositions until no changes occur.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        resulting relation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fix_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">))</span>
+    <span class="n">fix</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+    <span class="n">prev_fix</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">fix_vars</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;computing fixpoint for variables </span><span class="si">{</span><span class="n">fix_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">prev_fix</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">current</span> <span class="o">*</span> <span class="bp">self</span>
+        <span class="n">fix</span> <span class="o">=</span> <span class="n">fix</span> <span class="o">+</span> <span class="n">current</span>
+        <span class="k">if</span> <span class="n">fix</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">prev_fix</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fixpoint done </span><span class="si">{</span><span class="n">fix_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fix</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.homogenisation" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">homogenisation</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.relation.Relation.homogenisation" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs homogenisation on two relations.</p>
+<p>After this operation both relations will have same
+variables and their matrices of the same size.</p>
+<p>This operation will internally resize matrices as needed.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>r1</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>first relation to homogenise</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>r2</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>second relation to homogenise</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[<a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a>, <a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Homogenised versions of the 2 inputs relations</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">homogenisation</span><span class="p">(</span><span class="n">r1</span><span class="p">:</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">r2</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Relation</span><span class="p">,</span> <span class="n">Relation</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs homogenisation on two relations.</span>
+
+<span class="sd">    After this operation both relations will have same</span>
+<span class="sd">    variables and their matrices of the same size.</span>
+
+<span class="sd">    This operation will internally resize matrices as needed.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        r1: first relation to homogenise</span>
+<span class="sd">        r2: second relation to homogenise</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Homogenised versions of the 2 inputs relations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># check equality</span>
+    <span class="k">if</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span>
+
+    <span class="c1"># check empty cases</span>
+    <span class="k">if</span> <span class="n">r1</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">),</span> <span class="n">r2</span>
+
+    <span class="k">if</span> <span class="n">r2</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">r1</span><span class="p">,</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;matrix homogenisation...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># build a list of all distinct variables; maintain order</span>
+    <span class="n">extended_vars</span> <span class="o">=</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span> <span class="o">+</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span>
+                                    <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r1</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+
+    <span class="c1"># resize matrices to match new number of variables</span>
+    <span class="n">new_matrix_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">)</span>
+
+    <span class="c1"># first matrix: just resize -&gt; this one is now done</span>
+    <span class="n">matrix1</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">new_matrix_size</span><span class="p">)</span>
+
+    <span class="c1"># second matrix: create and initialize as identity matrix</span>
+    <span class="n">matrix2</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="n">new_matrix_size</span><span class="p">)</span>
+
+    <span class="c1"># index of each extended_vars iff variable exists in r2.</span>
+    <span class="c1"># we will use this to mapping from old -&gt; new matrix to fill</span>
+    <span class="c1"># the new matrix; the indices may be in different order.</span>
+    <span class="n">index_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">index</span><span class="p">:</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">)</span>
+                  <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">r2</span><span class="o">.</span><span class="n">variables</span><span class="p">}</span>
+
+    <span class="c1"># generate a list of all valid &lt;row, column&gt; combinations</span>
+    <span class="n">index_map</span> <span class="o">=</span> <span class="p">[</span><span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="k">for</span> <span class="n">t1</span> <span class="ow">in</span> <span class="n">index_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                 <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="n">index_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+    <span class="c1"># fill the resized matrix with values from original matrix</span>
+    <span class="k">for</span> <span class="n">mj</span><span class="p">,</span> <span class="n">rj</span><span class="p">,</span> <span class="n">mi</span><span class="p">,</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">index_map</span><span class="p">:</span>
+        <span class="n">matrix2</span><span class="p">[</span><span class="n">mi</span><span class="p">][</span><span class="n">mj</span><span class="p">]</span> <span class="o">=</span> <span class="n">r2</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">ri</span><span class="p">][</span><span class="n">rj</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">,</span> <span class="n">matrix1</span><span class="p">),</span> <span class="n">Relation</span><span class="p">(</span><span class="n">extended_vars</span><span class="p">,</span>
+                                                      <span class="n">matrix2</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.identity" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.relation.Relation.identity" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create an identity relation.</p>
+<p>This method allows creating a relation whose
+matrix is an identity matrix.</p>
+<p>This is an alternative way to construct a relation.</p>
+<p>Example:</p>
+<p>Create a new identity relation from a list of variables:</p>
+<div class="highlight"><pre><span></span><code><span class="n">r</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">([</span><span class="s1">&#39;X0&#39;</span><span class="p">,</span> <span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;X2&#39;</span><span class="p">,</span> <span class="s1">&#39;X3&#39;</span><span class="p">])</span>
+
+<span class="c1"># Creates relation with identity matrix with and specified variables:</span>
+<span class="c1">#</span>
+<span class="c1">#  X0  |  m  0  0  0</span>
+<span class="c1">#  X1  |  0  m  0  0</span>
+<span class="c1">#  X2  |  0  0  m  0</span>
+<span class="c1">#  X3  |  0  0  0  m</span>
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>variables</code></td>
+          <td>
+                <code><span title="typing.List">List</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>list of variables</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Generated relation of given variables and an identity matrix.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an identity relation.</span>
+
+<span class="sd">    This method allows creating a relation whose</span>
+<span class="sd">    matrix is an identity matrix.</span>
+
+<span class="sd">    This is an alternative way to construct a relation.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    Create a new identity relation from a list of variables:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    r = Relation.identity([&#39;X0&#39;, &#39;X1&#39;, &#39;X2&#39;, &#39;X3&#39;])</span>
+
+<span class="sd">    # Creates relation with identity matrix with and specified variables:</span>
+<span class="sd">    #</span>
+<span class="sd">    #  X0  |  m  0  0  0</span>
+<span class="sd">    #  X1  |  0  m  0  0</span>
+<span class="sd">    #  X2  |  0  0  m  0</span>
+<span class="sd">    #  X3  |  0  0  0  m</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        variables: list of variables</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         Generated relation of given variables and an identity matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">identity_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.infty_pairs" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">infty_pairs</span><span class="p">()</span></code>
+
+<a href="#pymwp.relation.Relation.infty_pairs" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>List of potential infinity dependencies.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">infty_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of potential infinity dependencies.&quot;&quot;&quot;</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1"> ➔ </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">infty_vars</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="s1">&#39; ‖ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.infty_vars" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">infty_vars</span><span class="p">()</span></code>
+
+<a href="#pymwp.relation.Relation.infty_vars" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Identify all variable pairs that for some choices, can raise
+infinity result.</p>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[str]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Dictionary of potentially infinite dependencies, where
+the key is source variable and value is list of targets.
+All entries are non-empty.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">infty_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identify all variable pairs that for some choices, can raise</span>
+<span class="sd">    infinity result.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary of potentially infinite dependencies, where</span>
+<span class="sd">            the key is source variable and value is list of targets.</span>
+<span class="sd">            All entries are non-empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vars_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="p">[</span><span class="n">tgt</span> <span class="k">for</span> <span class="n">tgt</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vars_</span><span class="p">,</span> <span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">some_infty</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">polys</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vars_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.relation_str" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">relation_str</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#pymwp.relation.Relation.relation_str" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Formatted string of variables and matrix.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">relation_str</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">any</span><span class="p">]]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Formatted string of variables and matrix.&quot;&quot;&quot;</span>
+    <span class="n">right_pad</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">))</span> <span class="k">if</span> <span class="n">variables</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">right_pad</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; | &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">poly</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span>
+         <span class="p">[(</span><span class="n">var</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))])</span>
+          <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)]])</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.replace_column" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">replace_column</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.replace_column" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Replace identity matrix column by a vector.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>vector</code></td>
+          <td>
+                <code><span title="typing.List">List</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>vector by which a matrix column will be replaced.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>variable</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>program variable, column replacement
+will occur at the index of this variable.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Raises:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ValueError</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>if variable is not found in this relation.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>new relation after applying the column replacement.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">replace_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace identity matrix column by a vector.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        vector: vector by which a matrix column will be replaced.</span>
+<span class="sd">        variable: program variable, column replacement</span>
+<span class="sd">            will occur at the index of this variable.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">          ValueError: if variable is not found in this relation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        new relation after applying the column replacement.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_relation</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+            <span class="n">new_relation</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">new_relation</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.show" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">show</span><span class="p">()</span></code>
+
+<a href="#pymwp.relation.Relation.show" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Display relation.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display relation.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.sum" class="doc doc-heading">
+          <code class="highlight language-python"><span class="nb">sum</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.sum" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sum two relations.</p>
+<p>Calling this method is equivalent to syntax <code>relation + relation</code>.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>other</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Relation to sum with self.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>A new relation that is a sum of inputs.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Relation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sum two relations.</span>
+
+<span class="sd">    Calling this method is equivalent to syntax `relation + relation`.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        other: Relation to sum with self.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       A new relation that is a sum of inputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">er1</span><span class="p">,</span> <span class="n">er2</span> <span class="o">=</span> <span class="n">Relation</span><span class="o">.</span><span class="n">homogenisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+    <span class="n">new_matrix</span> <span class="o">=</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">matrix_sum</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">er2</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Relation</span><span class="p">(</span><span class="n">er1</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">new_matrix</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.to_dict" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">to_dict</span><span class="p">()</span></code>
+
+<a href="#pymwp.relation.Relation.to_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get dictionary representation of a relation.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get dictionary representation of a relation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="n">matrix_utils</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="pymwp.relation.Relation.while_correction" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">while_correction</span><span class="p">(</span><span class="n">dg</span><span class="p">)</span></code>
+
+<a href="#pymwp.relation.Relation.while_correction" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Replace invalid scalars in a matrix by <span class="arithmatex">\(\infty\)</span>.</p>
+<p>Following the computation of fixpoint for a while loop node, this
+method checks the resulting matrix and replaces all invalid scalars
+with <span class="arithmatex">\(\infty\)</span> (W rule in MWP paper):</p>
+<ul>
+<li>scalar <span class="arithmatex">\(p\)</span> anywhere in the matrix becomes <span class="arithmatex">\(\infty\)</span></li>
+<li>scalar <span class="arithmatex">\(w\)</span> at the diagonal becomes <span class="arithmatex">\(\infty\)</span></li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>   Before:                After:
+
+   | m  o  o  o  o |      | m  o  o  o  o |
+   | o  w  o  p  o |      | o  i  o  i  o |
+   | o  o  m  o  o |      | o  o  m  o  o |
+   | w  o  o  m  o |      | w  o  o  m  o |
+   | o  o  o  o  p |      | o  o  o  o  i |
+</code></pre></div>
+<p>This method is where <span class="arithmatex">\(\infty\)</span> is introduced in a matrix.</p>
+<p>Related discussion: <a href="https://github.com/statycc/pymwp/issues/14">issue #14</a>.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>dg</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="pymwp.DeltaGraph" href="../delta_graphs/#pymwp.delta_graphs.DeltaGraph">DeltaGraph</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>DeltaGraph instance</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>pymwp/relation.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">while_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dg</span><span class="p">:</span> <span class="n">DeltaGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace invalid scalars in a matrix by $\\infty$.</span>
+
+<span class="sd">    Following the computation of fixpoint for a while loop node, this</span>
+<span class="sd">    method checks the resulting matrix and replaces all invalid scalars</span>
+<span class="sd">    with $\\infty$ (W rule in MWP paper):</span>
+
+<span class="sd">    - scalar $p$ anywhere in the matrix becomes $\\infty$</span>
+<span class="sd">    - scalar $w$ at the diagonal becomes $\\infty$</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ```text</span>
+<span class="sd">       Before:                After:</span>
+
+<span class="sd">       | m  o  o  o  o |      | m  o  o  o  o |</span>
+<span class="sd">       | o  w  o  p  o |      | o  i  o  i  o |</span>
+<span class="sd">       | o  o  m  o  o |      | o  o  m  o  o |</span>
+<span class="sd">       | w  o  o  m  o |      | w  o  o  m  o |</span>
+<span class="sd">       | o  o  o  o  p |      | o  o  o  o  i |</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    This method is where $\\infty$ is introduced in a matrix.</span>
+
+<span class="sd">    Related discussion: [issue #14](</span>
+<span class="sd">    https://github.com/statycc/pymwp/issues/14).</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        dg: DeltaGraph instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vector</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="s2">&quot;p&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">):</span>
+                    <span class="n">mon</span><span class="o">.</span><span class="n">scalar</span> <span class="o">=</span> <span class="s2">&quot;i&quot;</span>
+                    <span class="n">dg</span><span class="o">.</span><span class="n">from_monomial</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="pymwp.relation.SimpleRelation" class="doc doc-heading">
+          <code>SimpleRelation</code>
+
+
+<a href="#pymwp.relation.SimpleRelation" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="pymwp.relation.Relation" href="#pymwp.relation.Relation">Relation</a></code></p>
+
+  
+      <p>Specialized instance of relation, where matrix contains only
+scalar values, no polynomials.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>pymwp/relation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SimpleRelation</span><span class="p">(</span><span class="n">Relation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specialized instance of relation, where matrix contains only</span>
+<span class="sd">       scalar values, no polynomials.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">matrix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../assets/config.js"></script>
+      
+    
+  </body>
+</html>
