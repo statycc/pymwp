@@ -29,7 +29,7 @@ Analysis will bypass any unsupported statement and raises a warning.
 | Variable declarations                            |  🟩   | `int x;`                                    |
 | Constant declarations                            |  🟩   | `const int x;`                              |
 | **Arithmetic operations**                        |       |                                             |
-| Unary operations ($+, -, ++,--,!$, `sizeof`)[^1] |  🟧   | `++x`, `x--`, `sizeof(x)`                   |
+| Unary operations ($+, -, ++,--,!$, `sizeof`)[^1] |  🟩   | `++x`, `x--`, `sizeof(x)`                   |
 | Binary operations ($+, \times, -$)               |  🟩   | `x = y + z`                                 |
 | $n$-ary operation                                |  🟧   | `x = y + z * w`                             |
 | Compound assignment operators                    |   ⬜   | `x += 1`                                    |
