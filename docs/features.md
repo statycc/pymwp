@@ -20,31 +20,31 @@ Analysis will bypass any unsupported statement and raises a warning.
 :  🟧 &nbsp; in progress — implementation is in progress but not ready
 :  ⬜ &nbsp; planned — implementation is in a planning stage
 
-| Description                                | State | Example                                     |
-|--------------------------------------------|:-----:|---------------------------------------------|
-| **Basic data types**                       |       |                                             |
-| Integer types (incl. `signed`, `unsigned`) |  🟩   | `char`, `short`, `int`, `long`, `long long` |
-| Floating point types                       |  🟩   | `float`, `double`, `long double`            |
-| **Declarations**                           |       |                                             |     
-| Variable declarations                      |  🟩   | `int x;`                                    |
-| Constant declarations                      |  🟩   | `const int x;`                              |
-| **Arithmetic operations**                  |       |                                             |
-| Unary operations[^1]                       |  🟧   | `+`, `-`, `++`, `--`, `sizeof`, `!`         |
-| Binary operations ($+, \times, -$)         |  🟩   | `x = y + z`                                 |
-| $n$-ary operation                          |  🟧   | `x = y + z * w`                             |
-| Compound assignment operators              |   ⬜   | `x += 1`                                    |
-| **Conditional statements**                 |       |                                             |
-| if statement                               |  🟩   | `if(x > 0) { ... }`                         |
-| if-else statement                          |  🟩   | `if(x > 0) { ... } else { ... }`            |
-| nested conditional                         |  🟩   | `if(x > 0) {  if (y > 0) { ... } }`         |
-| **Repetition statements**                  |       |                                             |
-| while loop                                 |  🟩   | `while(x < 20) { ... }`                     |
-| for loop                                   |  🟧   | `for (i = 0; i < 10; ++i) { ... }`          |
-| **Functions**                              |  🟧   |                                             |     
-| **Pointers**                               |   ⬜   |                                             |     
-| **Arrays**                                 |   ⬜   |                                             |      
-| **Header Files Inclusion**                 |  🟩   |                                             |      
-| **Comments** (single-line, delimited)      |  🟩   | `// comment`, `/* comment */`               |
+| Description                                      | State | Example                                     |
+|--------------------------------------------------|:-----:|---------------------------------------------|
+| **Basic data types**                             |       |                                             |
+| Integer types (incl. `signed`, `unsigned`)       |  🟩   | `char`, `short`, `int`, `long`, `long long` |
+| Floating point types                             |  🟩   | `float`, `double`, `long double`            |
+| **Declarations**                                 |       |                                             |     
+| Variable declarations                            |  🟩   | `int x;`                                    |
+| Constant declarations                            |  🟩   | `const int x;`                              |
+| **Arithmetic operations**                        |       |                                             |
+| Unary operations[^1] ($+, -, ++,--,!$, `sizeof`) |  🟧   | `++x`, `x--`, `sizeof(x)`                   |
+| Binary operations ($+, \times, -$)               |  🟩   | `x = y + z`                                 |
+| $n$-ary operation                                |  🟧   | `x = y + z * w`                             |
+| Compound assignment operators                    |   ⬜   | `x += 1`                                    |
+| **Conditional statements**                       |       |                                             |
+| if statement                                     |  🟩   | `if(x > 0) { ... }`                         |
+| if-else statement                                |  🟩   | `if(x > 0) { ... } else { ... }`            |
+| nested conditional                               |  🟩   | `if(x > 0) {  if (y > 0) { ... } }`         |
+| **Repetition statements**                        |       |                                             |
+| while loop                                       |  🟩   | `while(x < 20) { ... }`                     |
+| for loop                                         |  🟧   | `for (i = 0; i < 10; ++i) { ... }`          |
+| **Functions**                                    |  🟧   |                                             |     
+| **Pointers**                                     |   ⬜   |                                             |     
+| **Arrays**                                       |   ⬜   |                                             |      
+| **Header Files Inclusion**                       |  🟩   |                                             |      
+| **Comments** (single-line, delimited)            |  🟩   | `// comment`, `/* comment */`               |
 
 [^1]: Except unary `&` address of.
 
