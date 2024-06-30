@@ -177,11 +177,13 @@ class Analysis:
             if isinstance(node.rvalue, pr.Constant):
                 return Analysis.constant(index, node.lvalue.name)
             if isinstance(node.rvalue, pr.UnaryOp):
-                return Analysis.unary_op(index, node)
+                return Analysis.unary_asgn(index, node)
             if isinstance(node.rvalue, pr.ID):
                 return Analysis.id(index, node)
             if isinstance(node.rvalue, pr.FuncCall):
                 return Analysis.func_call(index)
+        if isinstance(node, pr.UnaryOp):
+            return Analysis.unary_op(index, node)
         if isinstance(node, pr.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, pr.While):
@@ -251,7 +253,7 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (first case, binary op)')
+        logger.debug('Computing Relation: binary op')
         x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
         non_constants = tuple([v.name if hasattr(v, 'name') else None
                                for v in [x, y, z]])
@@ -293,23 +295,66 @@ class Analysis:
         return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_op(index: int, node: pr.Assignment) \
+    def unary_asgn(index: int, node: pr.Assignment) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze unary operator.
+        """Assignment where right-hand-size is a unary op e.g. `x = y++`.
 
         Arguments:
             index: delta index
-            node: unary operator node
+            node: Assignment, where the right-side is a unary operation.
 
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug('Computing Relation (third case: unary)')
-        variables = []
-        if hasattr(node.lvalue, 'expr') and \
-                hasattr(node.lvalue.expr, 'name'):
-            variables = [node.lvalue.expr.name]
-        return index, RelationList.identity(variables), False
+        logger.debug('Computing Relation: unary')
+        tgt, unary = node.lvalue, node.rvalue
+        op, exp = unary.op, unary.expr.name
+        if op in ('p++', '++', 'p--', '--'):
+            # expand unary incr/decr to a binary op
+            # this ignores the +1/-1 applied to exp, but this is ok since
+            # constants are irrelevant
+            op_code = '+' if op in ('p++', '++') else '-'
+            dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
+            logger.debug(f'{dsp} converted to {exp}{op_code}1')
+            r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
+            return Analysis.binary_op(index, pr.Assignment('=', tgt, r_node))
+        if op == '!':
+            # negation ! of an integer gives either 0 or 1
+            logger.debug(f'int negation of {exp} is a constant')
+            return Analysis.id(index, pr.Assignment(
+                '=', tgt, pr.Constant('int', 1)))
+        if op == 'sizeof':
+            # sizeof gets variable's size in bytes
+            # for all integers, the value is 8--64
+            # https://en.wikipedia.org/wiki/C_data_types
+            logger.debug(f'sizeof({exp}) is a constant')
+            return Analysis.id(index, pr.Assignment(
+                '=', tgt, pr.Constant('int', 64)))
+        if op == '+':  # does nothing; just an explicit sign
+            return Analysis.id(index, pr.Assignment('=', tgt, unary.expr))
+        if op == '-':  # flips variable sign
+            r_node = pr.BinaryOp('*', pr.ID(exp), pr.Constant('int', -1))
+            logger.debug(f'{op}{exp} converted to -1*{exp}')
+            return Analysis.binary_op(index, pr.Assignment('=', tgt, r_node))
+
+        # unary address of "&" will fall through
+        Analysis.unsupported(f"{op}{exp}")
+        return index, RelationList(), False
+
+    @staticmethod
+    def unary_op(index: int, node: pr.UnaryOp) \
+            -> Tuple[int, RelationList, bool]:
+        """Analyze a standalone unary operation."""
+        op, exp = node.op, node.expr.name
+        if op in ('p++', '++', 'p--', '--'):
+            # expand unary incr/decr to a binary op
+            op_code = '+' if op in ('p++', '++') else '-'
+            dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
+            logger.debug(f'{dsp} expanded to {exp}={exp}{op_code}1')
+            r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
+            return Analysis.binary_op(index, pr.Assignment('=', exp, r_node))
+        # all other unary operators do nothing if used without assignment.
+        return index, RelationList(), False
 
     @staticmethod
     def if_(index: int, node: pr.If, dg: DeltaGraph) \
