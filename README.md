@@ -31,10 +31,13 @@ Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a d
 an [online demo](https://statycc.github.io/pymwp/demo/), and a presentation
 of [examples](https://statycc.github.io/pymwp/examples/).
 
+<!--include-start-->
+
 For a publication, see ["pymwp: A Static Analyzer Determining Polynomial Growth Bounds"](http://doi.org/10.1007/978-3-031-45332-8_14)
 also available on [HAL](https://hal.science/hal-03269121v4/document).
 
-<!--include-start-->
+A comprehensive tool user guide, with detailed examples, is available at:
+[statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp).
 
 ## Installation
 
@@ -74,12 +77,6 @@ matrix[2][1] = Polynomial('p')
 
 show(matrix)
 ```
-
-## Tool User Guide
-
-A comprehensive tool user guide, with detailed examples, is available at:
-[statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp)
-
 
 ## Running from source
 
