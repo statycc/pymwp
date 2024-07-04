@@ -30,7 +30,7 @@ identifiers:
     description: Zenodo
 repository-code: 'https://github.com/statycc/pymwp'
 url: 'https://doi.org/10.5281/zenodo.7879822'
-repository-artifact: 'https://zenodo.org/record/7159134'
+repository-artifact: 'https://zenodo.org/record/7879822'
 abstract: >-
   pymwp is a tool for automatically performing static
   analysis on programs written in C. It analyzes resource
