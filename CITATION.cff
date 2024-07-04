@@ -6,6 +6,15 @@ title: 'pymwp: MWP analysis in Python'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
+abstract: >-
+  pymwp is a tool for automatically performing static
+  analysis on programs written in C. It analyzes resource
+  usage and determines if a program's variables growth rates
+  are no more than polynomially related to their inputs sizes.
+keywords:
+  - program analysis
+  - mwp-analysis
+  - implicit computational complexity
 type: software
 authors:
   - given-names: Clément
@@ -24,20 +33,9 @@ authors:
     family-names: Seiller
     orcid: 'https://orcid.org/0000-0001-6313-0898'
     affiliation: LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.7879822
-    description: Zenodo
-repository-code: 'https://github.com/statycc/pymwp'
-url: 'https://doi.org/10.5281/zenodo.7879822'
-repository-artifact: 'https://zenodo.org/record/7879822'
-abstract: >-
-  pymwp is a tool for automatically performing static
-  analysis on programs written in C. It analyzes resource
-  usage and determines if a program's variables growth rates
-  are no more than polynomially related to their inputs sizes.
-keywords:
-  - program analysis
-  - mwp-analysis
-  - implicit computational complexity
+repository-code: https://github.com/statycc/pymwp
+repository-artifact: https://zenodo.org/record/7879822
+doi: 10.5281/zenodo.7879822
+version: 0.4.2
+date-released: 2023-05-23
 license: GPL-3.0-or-later
