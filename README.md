@@ -16,18 +16,17 @@
 <!--desc-start-->
 
 pymwp is a tool for automatically performing static analysis on programs written in C.
-It is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
 It analyzes resource usage and determines if a program's variables growth rates are no more than polynomially related to
 their inputs sizes.
+It is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
 Try our online [demo](https://statycc.github.io/pymwp/demo/) to see it action.
-For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/),
-particularly [supported C language features](https://statycc.github.io/pymwp/features/).
+For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
 
 <!--desc-end--> 
 
 ## Documentation and Demo
 
-Refer to **[statycc.github.io/pymwp](https://statycc.github.io/pymwp/)** for a documentation,
+Refer to [statycc.github.io/pymwp](https://statycc.github.io/pymwp/) for technical documentation,
 an [online demo](https://statycc.github.io/pymwp/demo/), and a presentation
 of [examples](https://statycc.github.io/pymwp/examples/).
 
@@ -36,8 +35,9 @@ of [examples](https://statycc.github.io/pymwp/examples/).
 For a publication, see ["pymwp: A Static Analyzer Determining Polynomial Growth Bounds"](http://doi.org/10.1007/978-3-031-45332-8_14)
 also available on [HAL](https://hal.science/hal-03269121v4/document).
 
-A comprehensive tool user guide, with detailed examples, is available at:
+A comprehensive **tool user guide**, with detailed examples, is available at:
 [statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp).
+The user guide is the ideal place to start for a general and interactive introduction to pymwp.
 
 ## Installation
 
@@ -80,8 +80,7 @@ show(matrix)
 
 ## Running from source
 
-If you want to use the latest stable version (possibly ahead of the latest release), use the version from source
-following these steps.
+If you want to use the latest stable version (possibly ahead of the latest release, and with special utilities and examples), use pymwp directly from source.
 
 1. Clone the repository
 
