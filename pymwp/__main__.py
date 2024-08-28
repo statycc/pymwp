@@ -40,6 +40,7 @@ import argparse
 import logging
 import sys
 from typing import List, Optional
+from argparse import RawTextHelpFormatter
 
 from pymwp import Parser, Result, Analysis, __version__, __title__ as pymwp
 from .file_io import default_file_out, loc
@@ -47,7 +48,9 @@ from .file_io import default_file_out, loc
 
 def main():
     """Implementation of MWP analysis on C code in Python."""
-    parser = argparse.ArgumentParser(prog=pymwp, description=main.__doc__)
+    parser = argparse.ArgumentParser(
+        prog=pymwp, description=main.__doc__,
+        formatter_class=RawTextHelpFormatter)
     args = __parse_args(parser)
 
     if not args.input_file:
@@ -93,26 +96,30 @@ def __parse_args(
         nargs="?"
     )
     parser.add_argument(
-        '-o', '--out',
+        '--out', '-o',
         action="store",
         dest="out",
+        metavar="FILE",
         help="file where to store analysis result",
     )
     parser.add_argument(
         '--cpp_path',
         action='store',
         default='gcc',
+        metavar="PATH",
         help='C pre-processor [default: gcc]',
     )
     parser.add_argument(
         '--cpp_args',
         action='store',
         default='-E',
+        metavar="ARGS",
         help='C pre-processor arguments [default: -E]',
     )
     parser.add_argument(
         "--headers",
         action="store",
+        metavar="DIR",
         help="C headers dir paths, separate by comma",
     )
     parser.add_argument(
@@ -143,15 +150,16 @@ def __parse_args(
     parser.add_argument(
         "--logfile",
         action="store",
+        metavar="FILE",
         help="write console output to a file",
     )
     parser.add_argument(
-        '-i', "--info",
+        '--info', '-i',
         action='store_true',
         help="set logging level to info"
     )
     parser.add_argument(
-        '-s', "--silent",
+        "--silent", '-s',
         action='store_true',
         help="disable all terminal output"
     )
