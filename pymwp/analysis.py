@@ -130,9 +130,24 @@ class Analysis:
         variables = []
 
         def recurse_nodes(node_):
-            # only look for declarations
+            if isinstance(node_, pr.DeclList):
+                for d in node_.decls:
+                    recurse_nodes(d)
             if isinstance(node_, pr.Decl):
                 variables.append(node_.name)
+                recurse_nodes(node_.init)
+            if isinstance(node_, pr.ID):
+                variables.append(node_.name)
+            if hasattr(node_, 'expr'):
+                recurse_nodes(node_.expr)
+            if hasattr(node_, 'lvalue'):
+                recurse_nodes(node_.lvalue)
+            if hasattr(node_, 'rvalue'):
+                recurse_nodes(node_.rvalue)
+            if hasattr(node_, 'left'):
+                recurse_nodes(node_.left)
+            if hasattr(node_, 'right'):
+                recurse_nodes(node_.right)
             if hasattr(node_, 'block_items'):
                 for sub_node in node_.block_items:
                     recurse_nodes(sub_node)
@@ -141,13 +156,14 @@ class Analysis:
         if hasattr(function_body, 'block_items'):
             for node in function_body.block_items:
                 recurse_nodes(node)
+        elif function_body:
+            recurse_nodes(function_body)
 
         # process param list which is a list of declarations
         if param_list and hasattr(param_list, 'params'):
             for node in param_list.params:
                 recurse_nodes(node)
-
-        return variables
+        return sorted(list(set(variables)))
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) \
@@ -188,12 +204,12 @@ class Analysis:
             return Analysis.if_(index, node, dg)
         if isinstance(node, pr.While):
             return Analysis.while_(index, node, dg)
-        if isinstance(node, pr.For):
+        if isinstance(node, pr.For) and Analysis.loop_compat(node)[0]:
             return Analysis.for_(index, node, dg)
         if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
 
-        Analysis.unsupported(f"{type(node)}")
+        Analysis.unsupported(f"\n{type(node)}")
 
         return index, RelationList(), False
 
@@ -419,6 +435,15 @@ class Analysis:
         return index, False
 
     @staticmethod
+    def check_exit(dg: DeltaGraph) -> bool:
+        exit_ = False
+        if 0 in dg.graph_dict:
+            if dg.graph_dict[0] == {(): {}}:
+                logger.debug('delta_graphs: infinite -> Exit now')
+                exit_ = True
+        return exit_
+
+    @staticmethod
     def while_(index: int, node: pr.While, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze while loop.
@@ -431,7 +456,7 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug("analysing While")
+        logger.debug("analysing while")
 
         relations = RelationList()
         for child in node.stmt.block_items \
@@ -447,18 +472,52 @@ class Analysis:
         relations.while_correction(dg)
         dg.fusion()
 
-        exit_ = False
-        if 0 in dg.graph_dict:
-            if dg.graph_dict[0] == {(): {}}:
-                logger.debug('delta_graphs: infinite -> Exit now')
-                exit_ = True
+        return index, relations, Analysis.check_exit(dg)
 
-        return index, relations, exit_
+    @staticmethod
+    def loop_compat(node: pr.For) -> Tuple[bool, Optional[str]]:
+        """Check if C-language for loop is compatible with a "mwp-loop".
+
+        The mwp-loop has form loop X { C }. Try to identify C-language
+        for loops that have similar form ("repeat command X times").
+        The variable X is not allowed to occur in the body C of the
+        iteration loop X {C}.
+
+        Arguments:
+            node: AST node to inspect.
+
+        Returns:
+            A tuple containing (1) compatibility result: true if for loop is
+            mwp-loop compatible, otherwise false; and (2) name of iteration
+            variable (X), possibly None.
+        """
+        # check loop control: iteration depends on single control
+        # variable, that does not occur in body
+        iter_vars = []
+        if isinstance(node.init, pr.DeclList) and \
+                hasattr(node.init, 'decls'):
+            for decl in node.init.decls:
+                if isinstance(decl, pr.Decl):
+                    iter_vars.append(decl.name)
+        ctrl_vars = set(Analysis.find_variables(node.init, None) +
+                        Analysis.find_variables(node.cond, None))
+        body_vars = Analysis.find_variables(node.stmt, None)
+        disjoint = ctrl_vars.intersection(set(body_vars)) == set()
+        loop_x = list(ctrl_vars - set(iter_vars))
+        compat = disjoint and len(loop_x) == 1
+        x_var = None if not compat else loop_x[0]
+        return compat, x_var
 
     @staticmethod
     def for_(index: int, node: pr.For, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze for loop node.
+
+        The mwp-loop has form loop X { C }. The method supports C-language
+        for loops that have similar form ("repeat command X times").
+        The variable X is not allowed to occur in the body C of the
+        iteration loop X {C}. If it is not possible to infer similar loop
+        control format, analysis skips the loop.
 
         Arguments:
             index: delta index
@@ -468,10 +527,9 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        logger.debug("analysing for:")
-
-        relations = RelationList()
-
+        comp, x_var = Analysis.loop_compat(node)
+        assert comp
+        relations = RelationList(variables=[x_var])
         for child in node.stmt.block_items \
                 if hasattr(node, 'block_items') else [node.stmt]:
             index, rel_list, exit_ = Analysis.compute_relation(
@@ -480,12 +538,11 @@ class Analysis:
                 return index, rel_list, True
             relations.composition(rel_list)
 
+        logger.debug('loop fixpoint')
         relations.fixpoint()
-        # This is not done, and I know it
-        # ref: https://github.com/statycc/pymwp/issues/5
-        # unknown method conditionRel
-        # relations = relations.conditionRel(VarVisitor.list_var(node.cond))
-        return index, relations, False
+        relations.loop_correction(x_var, dg)
+        dg.fusion()
+        return index, relations, Analysis.check_exit(dg)
 
     @staticmethod
     def compound_(index: int, node: pr.Compound, dg: DeltaGraph) \
@@ -572,7 +629,9 @@ class Analysis:
     @staticmethod
     def unsupported(command: any):
         """Handle unsupported command."""
-        logger.warning(f'Unsupported syntax: {command} -> not evaluated')
+        warning, endc = '\033[93m', '\033[0m'
+        logger.warning(f'{warning}Unsupported syntax: {command}'
+                       f' -> not evaluated{endc}')
 
     @staticmethod
     def func_call(index: int) -> Tuple[int, RelationList, bool]:

@@ -195,6 +195,31 @@ class Relation:
                         mon.scalar = "i"
                         dg.from_monomial(mon)
 
+    def loop_correction(self, x_var: str, dg: DeltaGraph) -> None:
+        """Loop correction to replace invalid scalars by $\\infty$.
+
+        Following computation of a loop fixpoint, this method checks
+        the resulting matrix by rule L: scalars >$m$ at the diagonal
+        become $\\infty$. If exists M$_ij$ = p then row X, col j => p.
+
+        Related discussion [issue #5](
+        https://github.com/statycc/pymwp/issues/5).
+
+        Arguments:
+            x_var: loop control variable
+            dg: DeltaGraph instance
+        """
+        ell = self.variables.index(x_var)
+        for i, vector in enumerate(self.matrix):
+            for j, poly in enumerate(vector):
+                for mon in poly.list:
+                    if i == j and mon.scalar != "m":
+                        mon.scalar = "i"
+                        dg.from_monomial(mon)
+                    if mon.scalar == "p":
+                        self.matrix[ell][j] = self.matrix[ell][j]\
+                            .add(Polynomial(mon.copy()))
+
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
 
@@ -301,7 +326,7 @@ class Relation:
         Returns:
             New relation with simple-values matrix of scalars.
         """
-        new_mat = [[self.matrix[i][j].choice_scalar(*choices)
+        new_mat = [[self.matrix[i][j].choice_scalar(*choices) or 'o'
                     for j in range(self.matrix_size)]
                    for i in range(self.matrix_size)]
         return SimpleRelation(self.variables.copy(), matrix=new_mat)

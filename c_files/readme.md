@@ -39,7 +39,8 @@
 |                      | `example3_1_c.c`      | Binary operation inside `while` loop                      |
 |                      | `example3_1_d.c`      | Two variables and a `while` loop                          |
 |                      | `example3_2.c`        | Three variables and `while` loop                          |
-|                      | `example3_4.c`        | Iteration with 5 variables                                |
+|                      | `example3_4.c`        | Iteration with 5 variables, using while (W) rule          |
+|                      | `example3_4_loop.c`   | Iteration with 5 variables, using loop (L) rule           |
 |                      | `example5_1.c`        | Adding two variables                                      |
 |                      | `example7_10.c`       | program with `if...else` and 3 variables                  |
 |                      | `example7_11.c`       | Binary operations with 4 variables                        |

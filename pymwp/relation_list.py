@@ -234,3 +234,8 @@ class RelationList:
         .while_correction) to all relations in a relation list."""
         for rel in self.relations:
             rel.while_correction(dg)
+
+    def loop_correction(self, x_var: str, dg: DeltaGraph) -> None:
+        """Apply loop correction."""
+        for rel in self.relations:
+            rel.loop_correction(x_var, dg)

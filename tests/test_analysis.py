@@ -2,7 +2,7 @@ from pymwp import Analysis, Polynomial
 from .mocks.ast_mocks import \
     INFINITE_2C, INFINITE_8C, NOT_INFINITE_2C, NOT_INFINITE_3C, \
     IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED, BRACES_ISSUES, \
-    PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES
+    PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES, FOR_LOOP, FOR_INVALID
 
 
 def test_analyze_infinite2():
@@ -123,7 +123,7 @@ def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
     see issue: #25: https://github.com/statycc/pymwp/issues/25"""
     result = Analysis.run(BRACES_ISSUES, no_save=True).get_func()
-    relation, combinations = result.relation, result.choices
+    relation = result.relation
     assert set(relation.variables) == {'x', 'y'}
     assert relation.matrix[0][0] == Polynomial('m')
     assert relation.matrix[0][1] == Polynomial('o')
@@ -158,3 +158,31 @@ def test_analysis_handles_empty_program():
 def test_analysis_handles_empty_decision_body():
     result = Analysis.run(IF_EMPTY_BRACES, no_save=True).get_func('foo')
     assert not result.infinite
+
+
+def test_analysis_loop():
+    """
+    The matrix for loop x{y = y + z;}
+
+    Loop body y = y + z =>  m p / p m / w w
+    Last two derivations fail because need all m's on the diagonal.
+    Loop correction: M* has p at row=2 col=1 => add p to row ℓ=0 col=1.
+    Only one valid derivation.
+
+        x   y   z
+    x | m | p | o |
+    y | o | m | o |
+    z | o | p | m |
+    """
+    result = Analysis.run(FOR_LOOP, no_save=True).get_func('foo')
+    assert result.choices.n_bounds == 1
+    simple_mat = result.relation.apply_choice(*result.choices.first)
+    assert simple_mat.matrix[0][0] == 'm'
+    assert simple_mat.matrix[0][1] == 'p'
+    assert simple_mat.matrix[0][2] == 'o'
+    assert simple_mat.matrix[1][0] == 'o'
+    assert simple_mat.matrix[1][1] == 'm'
+    assert simple_mat.matrix[1][2] == 'o'
+    assert simple_mat.matrix[2][0] == 'o'
+    assert simple_mat.matrix[2][1] == 'p'
+    assert simple_mat.matrix[2][2] == 'm'
