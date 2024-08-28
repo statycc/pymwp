@@ -110,15 +110,19 @@ class MwpBound:
             if value else ([], [], [])
 
     @staticmethod
-    def bound_poly(mwp: MwpBound):
+    def bound_poly(mwp: MwpBound, compact=False):
         x, y, z, term = mwp.x, mwp.y, mwp.z, None
         # Any of the three variable lists might be empty
         if not x.empty and not y.empty:
             term = f'max({x},{y})'
         elif not x.empty:
-            term = f'max({x})' if len(x.vars) > 1 else str(x)
+            term = (f'max({x})' if len(x.vars) > 1 else str(x)) \
+                if compact else (
+                f'max({x},0)' if (len(x.vars) > 1 or not z.empty) else str(x))
         elif not y.empty:
-            term = str(y)
+            term = (f'max({y})' if len(y.vars) > 1 else str(y)) \
+                if compact else (
+                f'max({y},0)' if (len(y.vars) > 1 or not z.empty) else str(y))
         if term:
             return str(term) if z.empty else f'{term}+{z}'
         return str(z)
@@ -179,6 +183,7 @@ class Bound:
             A formatted string of the bound.
         """
         return ' ∧ '.join([
-            f'{k}′{"≤" if compact else " ≤ "}{v}'
+            f'{k}′{"≤" if compact else " ≤ "}'
+            f'{MwpBound.bound_poly(v, compact=compact)}'
             for k, v in self.bound_dict.items()
             if (not significant or str(k) != str(v))])
