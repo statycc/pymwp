@@ -21,7 +21,8 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from functools import reduce
-from typing import Tuple, List, Set, Union, Optional
+from itertools import product
+from typing import Tuple, List, Set, Union, Optional, Generator
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,12 @@ class Choices:
         # take first vector, then first choice at each index
         return tuple([choices[0] for choices in self.valid[0]]) \
             if not self.infinite else None
+
+    def all(self) -> Generator[Tuple[int, ...]]:
+        """Generator for all valid derivation choices."""
+        for choices in self.valid:
+            for p in product(*choices):
+                yield p
 
     @property
     def n_bounds(self) -> int:

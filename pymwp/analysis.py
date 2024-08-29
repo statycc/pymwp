@@ -53,8 +53,8 @@ class Analysis:
         result.on_start()
         for ast_ext in [f for f in ast if pr.is_func(f)]:
             index, options, choices = 0, [0, 1, 2], []
-            outcome: FuncResult = FuncResult(ast_ext.decl.name).on_start()
-            function_name = outcome.name
+            f_result: FuncResult = FuncResult(ast_ext.decl.name).on_start()
+            function_name = f_result.name
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
@@ -84,21 +84,22 @@ class Analysis:
                         relations.first.apply_choice(*choices.first))
                 evaluated = True
 
-            # the evaluation is infinite when either of these conditions holds:
+            # the evaluation is infinite when either
+            # of these conditions holds:
             infinite = delta_infty or (
                     relations.first.variables and index > 0 and
                     evaluated and not choices.valid)
 
             # record and display results
-            outcome.on_end()
-            outcome.vars = relations.first.variables
-            outcome.infinite = infinite
+            f_result.on_end()
+            f_result.vars = relations.first.variables
+            f_result.infinite = infinite
             if not (infinite and stop_early):
-                outcome.relation = relations.first
+                f_result.relation = relations.first
             if not infinite:
-                outcome.bound = bound
-                outcome.choices = choices
-            result.add_relation(outcome)
+                f_result.bound = bound
+                f_result.choices = choices
+            result.add_relation(f_result)
 
         result.on_end()
         result.log_result()
@@ -294,7 +295,7 @@ class Analysis:
         """Analyze a constant assignment of form `x = c` where x is some
         variable and c is constant.
 
-        !!! quote "From MWP paper:"
+        !!! quote "From A Flow Calculus of mwp-Bounds for Complexity Analysis"
 
             To deal with constants, just replace the program’s constants by
             variables and regard the replaced constants as input to these
@@ -360,7 +361,15 @@ class Analysis:
     @staticmethod
     def unary_op(index: int, node: pr.UnaryOp) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze a standalone unary operation."""
+        """Analyze a standalone unary operation.
+
+        Arguments:
+            index: delta index
+            node: unary operation AST node
+
+        Returns:
+            Updated index value, relation list, and an exit flag.
+        """
         op, exp = node.op, node.expr.name
         if op in ('p++', '++', 'p--', '--'):
             # expand unary incr/decr to a binary op
@@ -369,7 +378,7 @@ class Analysis:
             logger.debug(f'{dsp} expanded to {exp}={exp}{op_code}1')
             r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
             return Analysis.binary_op(index, pr.Assignment('=', exp, r_node))
-        # all other unary operators do nothing if used without assignment.
+        # all other unary ops do nothing ("skip") without assignment.
         return index, RelationList(), False
 
     @staticmethod
