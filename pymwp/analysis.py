@@ -308,12 +308,10 @@ class Analysis:
         """
         logger.debug('Computing Relation: unary')
         tgt, unary, op = node.lvalue, node.rvalue, node.rvalue.op
-        analyzable = False
-        if isinstance(unary.expr, pr.ID):
-            exp, analyzable = unary.expr.name, True
         if isinstance(unary.expr, pr.Constant):
-            exp, analyzable = str(unary.expr.value), True
-        if analyzable:
+            return Analysis.constant(index, tgt.name)
+        if isinstance(unary.expr, pr.ID):
+            exp = unary.expr.name
             if op in ('p++', '++', 'p--', '--'):
                 # expand unary incr/decr to a binary op
                 # this ignores the +1/-1 applied to exp, but this is ok since
