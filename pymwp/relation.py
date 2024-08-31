@@ -327,8 +327,8 @@ class Relation:
         Returns:
             New relation with simple-values matrix of scalars.
         """
-        new_mat = [[self.matrix[i][j].choice_scalar(*choices)
-                    or (UNIT_MWP if i == j else ZERO_MWP)
+        new_mat = [[self.matrix[i][j].choice_scalar(
+            *choices, least_scalar=UNIT_MWP if i == j else ZERO_MWP)
                     for j in range(self.matrix_size)]
                    for i in range(self.matrix_size)]
         return SimpleRelation(self.variables.copy(), matrix=new_mat)

@@ -23,6 +23,7 @@ from __future__ import annotations
 import logging
 from typing import Optional, List, Tuple, Union
 from typing import TypeVar
+from functools import reduce
 
 from .constants import Comparison, SetInclusion
 from .monomial import Monomial, DELTA
@@ -366,19 +367,20 @@ class Polynomial:
                 return True
         return False
 
-    def choice_scalar(self, *choices: int) -> Optional[str]:
+    def choice_scalar(self, *choices: int, least_scalar: str = None) \
+            -> Optional[str]:
         """For given sequence of choices, determine corresponding scalar.
 
         Arguments:
             choices: tuple of choices
+            least_scalar: typically zero, but can be m on the diagonal
 
         Returns:
             Scalar value matching choices or None.
         """
-        for mono in self.list:
-            scalar = mono.choice_scalar(*choices)
-            if scalar:
-                return scalar
+        scalars = [mono.choice_scalar(*choices) for mono in self.list]
+        scalars = [scalar for scalar in scalars if scalar]  # exclude None
+        return reduce(sum_mwp, scalars) if scalars else least_scalar
 
     @staticmethod
     def compare(delta_list1: list, delta_list2: list) -> Comparison:
