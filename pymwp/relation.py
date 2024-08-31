@@ -24,6 +24,7 @@ import logging
 from typing import Optional, Tuple, List, Dict
 
 from pymwp import Choices, DeltaGraph, Polynomial
+from pymwp.semiring import UNIT_MWP, ZERO_MWP
 from . import matrix as matrix_utils
 
 logger = logging.getLogger(__name__)
@@ -217,7 +218,7 @@ class Relation:
                         mon.scalar = "i"
                         dg.from_monomial(mon)
                     if mon.scalar == "p":
-                        self.matrix[ell][j] = self.matrix[ell][j]\
+                        self.matrix[ell][j] = self.matrix[ell][j] \
                             .add(Polynomial(mon.copy()))
 
     def sum(self, other: Relation) -> Relation:
@@ -326,7 +327,8 @@ class Relation:
         Returns:
             New relation with simple-values matrix of scalars.
         """
-        new_mat = [[self.matrix[i][j].choice_scalar(*choices) or 'o'
+        new_mat = [[self.matrix[i][j].choice_scalar(*choices)
+                    or (UNIT_MWP if i == j else ZERO_MWP)
                     for j in range(self.matrix_size)]
                    for i in range(self.matrix_size)]
         return SimpleRelation(self.variables.copy(), matrix=new_mat)

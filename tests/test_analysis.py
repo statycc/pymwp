@@ -1,8 +1,13 @@
 from pymwp import Analysis, Polynomial
+from pymwp.semiring import ZERO_MWP, UNIT_MWP
 from .mocks.ast_mocks import \
     INFINITE_2C, INFINITE_8C, NOT_INFINITE_2C, NOT_INFINITE_3C, \
     IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED, BRACES_ISSUES, \
-    PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES, FOR_LOOP, FOR_INVALID
+    PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES, FOR_LOOP, FOR_SUBST
+
+o = ZERO_MWP
+m = UNIT_MWP
+w, p = 'w', 'p'
 
 
 def test_analyze_infinite2():
@@ -40,9 +45,12 @@ def test_analyze_non_infinite_2():
     assert combinations.is_valid(2, 2)
 
     # match *some* deltas from the matrix
-    assert str(relation.matrix[0][0].list[0]) == 'w.delta(0,0)'
-    assert str(relation.matrix[0][0].list[1]) == 'w.delta(1,0)'
-    assert str(relation.matrix[0][0].list[2]) == 'w.delta(2,0)'
+    assert relation.matrix[0][0].list[0].scalar == \
+           relation.matrix[0][0].list[1].scalar == \
+           relation.matrix[0][0].list[2].scalar == w
+    assert relation.matrix[0][0].list[0].deltas == [(0, 0)]
+    assert relation.matrix[0][0].list[1].deltas == [(1, 0)]
+    assert relation.matrix[0][0].list[2].deltas == [(2, 0)]
 
 
 def test_analyze_non_infinite_3():
@@ -110,13 +118,9 @@ def test_analyze_variable_ignore():
         [o, o, o, o],
     ]
 
-    try:
-        for i in range(len(relation.variables)):
-            for j in range(len(relation.variables)):
-                assert str(relation.matrix[i][j]).strip() == res[i][j]
-    except AssertionError:
-        relation.show()
-        raise
+    for i in range(len(relation.variables)):
+        for j in range(len(relation.variables)):
+            assert str(relation.matrix[i][j]).strip() == res[i][j]
 
 
 def test_extra_braces_are_ignored():
@@ -125,10 +129,10 @@ def test_extra_braces_are_ignored():
     result = Analysis.run(BRACES_ISSUES, no_save=True).get_func()
     relation = result.relation
     assert set(relation.variables) == {'x', 'y'}
-    assert relation.matrix[0][0] == Polynomial('m')
-    assert relation.matrix[0][1] == Polynomial('o')
-    assert relation.matrix[1][0] == Polynomial('m')
-    assert relation.matrix[1][1] == Polynomial('m')
+    assert relation.matrix[0][0] == Polynomial(m)
+    assert relation.matrix[0][1] == Polynomial(o)
+    assert relation.matrix[1][0] == Polynomial(m)
+    assert relation.matrix[1][1] == Polynomial(m)
 
 
 def test_analysis_identifies_function_params():
@@ -175,14 +179,33 @@ def test_analysis_loop():
     z | o | p | m |
     """
     result = Analysis.run(FOR_LOOP, no_save=True).get_func('foo')
-    assert result.choices.n_bounds == 1
     simple_mat = result.relation.apply_choice(*result.choices.first)
-    assert simple_mat.matrix[0][0] == 'm'
-    assert simple_mat.matrix[0][1] == 'p'
-    assert simple_mat.matrix[0][2] == 'o'
-    assert simple_mat.matrix[1][0] == 'o'
-    assert simple_mat.matrix[1][1] == 'm'
-    assert simple_mat.matrix[1][2] == 'o'
-    assert simple_mat.matrix[2][0] == 'o'
-    assert simple_mat.matrix[2][1] == 'p'
-    assert simple_mat.matrix[2][2] == 'm'
+    assert result.choices.n_bounds == 1
+    assert simple_mat.matrix[0][0] == \
+           simple_mat.matrix[1][1] == \
+           simple_mat.matrix[2][2] == m
+    assert simple_mat.matrix[0][1] == \
+           simple_mat.matrix[2][1] == p
+    assert simple_mat.matrix[0][2] == \
+           simple_mat.matrix[1][0] == \
+           simple_mat.matrix[1][2] == \
+           simple_mat.matrix[2][0] == o
+
+
+def test_analysis_loop_subst():
+    """If loop variable occurs in body, substitute.
+       x_ = x; loop x { y = y + x_; }
+    """
+    result = Analysis.run(FOR_SUBST, no_save=True).get_func('foo')
+    simple_mat = result.relation.apply_choice(*result.choices.first)
+    assert result.relation.variables == ['x', 'x_', 'y']
+    assert result.choices.n_bounds == 3
+    assert simple_mat.matrix[0][0] == m
+    assert simple_mat.matrix[1][0] == \
+           simple_mat.matrix[2][0] == o
+    assert simple_mat.matrix[0][1] == m
+    assert simple_mat.matrix[1][1] == \
+           simple_mat.matrix[2][0] == o
+    assert simple_mat.matrix[0][2] == p
+    assert simple_mat.matrix[1][2] == o
+    assert simple_mat.matrix[2][2] == m

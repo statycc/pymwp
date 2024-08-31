@@ -143,16 +143,18 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
 
 
 def matrix_sum(
-        matrix1: List[List[Any]], matrix2: List[List[Any]]
-) -> List[List[Any]]:
+        matrix1: List[List[Polynomial]], matrix2: List[List[Polynomial]]
+) -> List[List[Polynomial]]:
     """Compute the sum of two matrices.
+
+    Matrix elements type must define a relation on +-operator.
 
     Arguments:
         matrix1: first matrix.
         matrix2: second matrix.
 
     Returns:
-        new matrix that represents the sum of the two inputs.
+        A new matrix that represents the sum of the two inputs.
     """
 
     return [[matrix1[i][j] + matrix2[i][j]
