@@ -324,38 +324,47 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         logger.debug('Computing Relation: unary')
-        tgt, unary = node.lvalue, node.rvalue
-        op, exp = unary.op, unary.expr.name
-        if op in ('p++', '++', 'p--', '--'):
-            # expand unary incr/decr to a binary op
-            # this ignores the +1/-1 applied to exp, but this is ok since
-            # constants are irrelevant
-            op_code = '+' if op in ('p++', '++') else '-'
-            dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
-            logger.debug(f'{dsp} converted to {exp}{op_code}1')
-            r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
-            return Analysis.binary_op(index, pr.Assignment('=', tgt, r_node))
-        if op == '!':
-            # negation ! of an integer gives either 0 or 1
-            logger.debug(f'int negation of {exp} is a constant')
-            return Analysis.id(index, pr.Assignment(
-                '=', tgt, pr.Constant('int', 1)))
-        if op == 'sizeof':
-            # sizeof gets variable's size in bytes
-            # for all integers, the value is 8--64
-            # https://en.wikipedia.org/wiki/C_data_types
-            logger.debug(f'sizeof({exp}) is a constant')
-            return Analysis.id(index, pr.Assignment(
-                '=', tgt, pr.Constant('int', 64)))
-        if op == '+':  # does nothing; just an explicit sign
-            return Analysis.id(index, pr.Assignment('=', tgt, unary.expr))
-        if op == '-':  # flips variable sign
-            r_node = pr.BinaryOp('*', pr.ID(exp), pr.Constant('int', -1))
-            logger.debug(f'{op}{exp} converted to -1*{exp}')
-            return Analysis.binary_op(index, pr.Assignment('=', tgt, r_node))
+        tgt, unary, op = node.lvalue, node.rvalue, node.rvalue.op
+        analyzable = False
+        if isinstance(unary.expr, pr.ID):
+            exp, analyzable = unary.expr.name, True
+        if isinstance(unary.expr, pr.Constant):
+            exp, analyzable = str(unary.expr.value), True
+        if analyzable:
+            if op in ('p++', '++', 'p--', '--'):
+                # expand unary incr/decr to a binary op
+                # this ignores the +1/-1 applied to exp, but this is ok since
+                # constants are irrelevant
+                op_code = '+' if op in ('p++', '++') else '-'
+                dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
+                logger.debug(f'{dsp} converted to {exp}{op_code}1')
+                r_node = pr.BinaryOp(
+                    op_code, pr.ID(exp), pr.Constant('int', 1))
+                return Analysis.binary_op(
+                    index, pr.Assignment('=', tgt, r_node))
+            if op == '!':
+                # negation ! of an integer gives either 0 or 1
+                logger.debug(f'int negation of {exp} is a constant')
+                return Analysis.id(index, pr.Assignment(
+                    '=', tgt, pr.Constant('int', 1)))
+            if op == 'sizeof':
+                # sizeof gets variable's size in bytes
+                # for all integers, the value is 8--64
+                # https://en.wikipedia.org/wiki/C_data_types
+                logger.debug(f'sizeof({exp}) is a constant')
+                return Analysis.id(index, pr.Assignment(
+                    '=', tgt, pr.Constant('int', 64)))
+            if op == '+':  # does nothing; just an explicit sign
+                return Analysis.id(index, pr.Assignment('=', tgt, unary.expr))
+            if op == '-':  # flips variable sign
+                r_node = pr.BinaryOp('*', pr.ID(exp), pr.Constant('int', -1))
+                logger.debug(f'{op}{exp} converted to -1*{exp}')
+                return Analysis.binary_op(
+                    index, pr.Assignment('=', tgt, r_node))
 
         # unary address of "&" will fall through
-        Analysis.unsupported(f"{op}{exp}")
+        # expr not in {ID, Constant} will fall through
+        Analysis.unsupported(type(node))
         return index, RelationList(), False
 
     @staticmethod

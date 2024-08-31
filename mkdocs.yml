@@ -91,7 +91,7 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [pymwp]
+          # paths: [pymwp]
           selection:
             new_path_syntax: yes
             filters:
