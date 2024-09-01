@@ -55,6 +55,7 @@ class Analysis:
             index, options, choices = 0, [0, 1, 2], []
             f_result: FuncResult = FuncResult(ast_ext.decl.name).on_start()
             function_name = f_result.name
+            logger.debug(f"Analyzing {function_name}")
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
@@ -209,9 +210,10 @@ class Analysis:
             return Analysis.for_(index, node, dg)
         if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
+        if isinstance(node, pr.Break):  # => skip
+            return index, RelationList(), False
 
-        Analysis.unsupported(f"\n{type(node)}")
-
+        Analysis.unsupported(type(node))
         return index, RelationList(), False
 
     @staticmethod
