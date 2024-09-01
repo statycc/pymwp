@@ -206,35 +206,41 @@ class Result(Timeable):
         Attributes:
             func_result: function analysis to append to Result.
         """
-        self.relations[func_result.name] = func_result
-        txt = None
-        if not func_result.infinite:
-            if func_result.bound:
-                txt = f'Function: {func_result.name} • ' \
-                      f'num-bounds: {func_result.n_bounds}\n' + \
-                      f'Example: {Bound.show_poly(func_result.bound)}'
-            else:
-                logger.info('Some bound exists')
-        if func_result.infinite:
-            txt = f'Function: {func_result.name} • ' \
-                  f'{func_result.name} is infinite'
-            if func_result.relation:
-                txt += '\nProblematic flows: ' + \
-                       func_result.relation.infty_pairs()
-        if txt:
-            Result.pretty_print_result(txt)
+        self.relations[func_result.name] = f = func_result
+        if not f.infinite and not f.bound:
+            logger.info('Some bound exists')
+            return
+        txt = (('num-bounds: 0 (infinite)' + (
+            ('\nProblematic flows: ' + f.relation.infty_pairs())
+            if f.relation else '')) if f.infinite else (
+                f'num-bounds: {f.n_bounds:,}\n' +
+                f'{Bound.show_poly(f.bound)}'))
+        Result.pretty_print_result(f'Function: {f.name} • {txt}')
 
     @staticmethod
-    def pretty_print_result(txt: str):
+    def pretty_print_result(txt: str) -> None:
+        """Draws a colored box around text before display.
+
+        Arguments:
+            txt: some text to display.
+        """
         color, endc, line_w = '\033[96m', '\033[0m', 50
         tl, tr, bl, br, vb, hb = '╭', '╮', '╰', '╯', '│', '─'
         top_bar = tl + (hb * (line_w + 2)) + tr
         bot_bar = bl + (hb * (line_w + 2)) + br
-        lines = []
-        for item in txt.split('\n'):
-            vals = item
+        lines, fst_land, land = [], True, '∧'
+        for vals in txt.split('\n'):
             while vals:
-                part, vals = vals[:line_w], vals[line_w:]
+                # don't wrap if bound expr fits in one line
+                fits = fst_land and len(vals) < line_w
+                # find ideal line break index
+                split_at = (line_w if (land not in vals[:line_w] or fits)
+                            else 1 + vals[:line_w].index(land))
+                # split to current...remaining
+                part = vals[:split_at].strip()
+                vals = vals[split_at:].strip()
+                fst_land = fst_land and land not in part
+                # format line and append
                 lines += [f'{vb} {part:<{line_w}} {vb}']
         parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
         logger.info(f'\n{color}{parts}{endc}')
