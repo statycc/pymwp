@@ -207,17 +207,37 @@ class Result(Timeable):
             func_result: function analysis to append to Result.
         """
         self.relations[func_result.name] = func_result
+        txt = None
         if not func_result.infinite:
             if func_result.bound:
-                logger.info(f'Bound: {Bound.show_poly(func_result.bound)}')
-                logger.info(f'Bounds: {func_result.n_bounds}')
+                txt = f'Function: {func_result.name} • ' \
+                      f'num-bounds: {func_result.n_bounds}\n' + \
+                      f'Example: {Bound.show_poly(func_result.bound)}'
             else:
                 logger.info('Some bound exists')
         if func_result.infinite:
-            logger.info(f'{func_result.name} is infinite')
+            txt = f'Function: {func_result.name} • ' \
+                  f'{func_result.name} is infinite'
             if func_result.relation:
-                logger.info('Possibly problematic flows:')
-                logger.info(func_result.relation.infty_pairs())
+                txt += '\nProblematic flows: ' + \
+                       func_result.relation.infty_pairs()
+        if txt:
+            Result.pretty_print_result(txt)
+
+    @staticmethod
+    def pretty_print_result(txt: str):
+        color, endc, line_w = '\033[96m', '\033[0m', 50
+        tl, tr, bl, br, vb, hb = '╭', '╮', '╰', '╯', '│', '─'
+        top_bar = tl + (hb * (line_w + 2)) + tr
+        bot_bar = bl + (hb * (line_w + 2)) + br
+        lines = []
+        for item in txt.split('\n'):
+            vals = item
+            while vals:
+                part, vals = vals[:line_w], vals[line_w:]
+                lines += [f'{vb} {part:<{line_w}} {vb}']
+        parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
+        logger.info(f'\n{color}{parts}{endc}')
 
     def get_func(
             self, name: Optional[str] = None
