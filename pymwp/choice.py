@@ -71,7 +71,21 @@ class Choices:
 
     @property
     def n_bounds(self) -> int:
-        """Number of bounds that can be generated from a choice vector"""
+        """Number of bounds that can be generated from a choice vector.
+        This can be calculated directly from the form of a choice vector.
+        Note: n-distinct bounds <= n-bounds.
+
+        ??? example "Example"
+
+            (1) The vector [[[0, 1, 2], [0, 1, 2], [0]]] allows making
+                [3, 3, 1] choices/index. Number of bounds is 3^2 * 1^1 = 9.
+
+            (2) A vector with choices/index: [3, 1, 2, 1, 3, 3] has
+                3^3 * 2^1 * 1^2 = 54 possible bounds.
+
+        Returns:
+            Number of (non-distinct) possible choices.
+        """
         return sum([
             reduce(lambda total, n: total * (n[0] ** n[1]), lens.items(), 1)
             for lens in [Counter([len(x) for x in v]) for v in self.valid]])
