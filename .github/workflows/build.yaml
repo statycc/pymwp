@@ -26,6 +26,9 @@ jobs:
     - name: Run unit tests
       run: pytest --cov=./pymwp tests --cov-report=xml
 
+    - name: Docs sanity test
+      run: mkdocs build
+
     - name: Report coverage
       uses: codecov/codecov-action@v3.1.4
       with:

@@ -509,9 +509,9 @@ class Analysis:
             node: AST node to inspect.
 
         Returns:
-            A tuple containing (1) compatibility result: true if for loop is
-            mwp-loop compatible, otherwise false; and (2) name of iteration
-            variable (X), possibly None.
+            A tuple containing (1) compatibility result -- true if for
+        loop is mwp-loop compatible, otherwise false -- and (2) name of
+        iteration variable `X`, possibly `None`.
         """
         # check loop control: iteration depends on single control
         # variable, that does not occur in body
