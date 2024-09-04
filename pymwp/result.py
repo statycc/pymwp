@@ -231,23 +231,31 @@ class Result(Timeable):
             txt: some text to display.
         """
         color, endc, line_w = '\033[96m', '\033[0m', 50
-        tl, tr, bl, br, vb, hb = '╭', '╮', '╰', '╯', '│', '─'
-        top_bar = tl + (hb * (line_w + 2)) + tr
-        bot_bar = bl + (hb * (line_w + 2)) + br
-        lines, fst_land, land = [], True, '∧'
+        # box-drawing, but a full box is not good for copy-paste.
+        # flake8: noqa: F841
+        tl, tr, bl, br, vb, hb = '─', '─', '─', '─', '│', '─'
+        top_bar = tl + (hb * (line_w + 1)) + tr
+        bot_bar = bl + (hb * (line_w + 1)) + br
+        land, i_bar = Bound.LAND, Relation.INFTY_BAR
+        lines, fst_land = [], True
         for vals in txt.split('\n'):
             while vals:
                 # don't wrap if bound expr fits in one line
                 fits = fst_land and len(vals) < line_w
                 # find ideal line break index
-                split_at = (line_w if (land not in vals[:line_w] or fits)
-                            else 1 + vals[:line_w].index(land))
+                if land in vals[:line_w] and not fits:
+                    split_at = 1 + vals[:line_w].index(land)
+                elif i_bar in vals[:line_w] and not fits:
+                    split_at = 1 + vals[:line_w].rindex(i_bar)
+                else:
+                    split_at = line_w
                 # split to current...remaining
                 part = vals[:split_at].strip()
                 vals = vals[split_at:].strip()
-                fst_land = fst_land and land not in part
+                fst_land = fst_land and (
+                        land not in part and i_bar not in part)
                 # format line and append
-                lines += [f'{vb} {part:<{line_w}} {vb}']
+                lines += [f' {part:<{line_w}}']
         parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
         logger.info(f'\n{color}{parts}{endc}')
 

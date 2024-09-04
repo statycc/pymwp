@@ -41,6 +41,7 @@ class Relation:
     and represents the current state of the analysis.
 
     """
+    INFTY_BAR = '‖'
 
     def __init__(self, variables: Optional[List[str]] = None,
                  matrix: Optional[List[List[Polynomial]]] = None):
@@ -354,7 +355,7 @@ class Relation:
         """List of potential infinity dependencies."""
         fmt = [f'{s} ➔ {", ".join(t)}'
                for s, t in self.infty_vars(only_incl).items()]
-        return ' ‖ '.join(fmt)
+        return f' {Relation.INFTY_BAR} '.join(fmt)
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""
