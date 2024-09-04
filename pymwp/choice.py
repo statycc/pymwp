@@ -347,14 +347,12 @@ class Choices:
                 if choice in vector[idx]:
                     vector[idx].remove(choice)
 
-            # must be hashable type to add to set, shouldn't generate same
-            # vector ever but not sure, so using a set
             vector = tuple([tuple(entry) for entry in vector])
-            # only keep maximal and distinct
-            # if distinct or Choices.vect_new(vectors, vector):
-            #     if not distinct:
-            #         Choices.vect_rm(vectors, vector)
-            vectors.add(vector)
+            # keep maximal and distinct choices
+            if distinct or Choices.vect_new(vectors, vector):
+                if not distinct:
+                    Choices.vect_rm(vectors, vector)
+                vectors.add(vector)
 
         # change the remaining choices at each index to lists (not sets)
         # so the vectors can be saved to file
@@ -362,24 +360,21 @@ class Choices:
 
     @staticmethod
     def vect_new(vectors: Set[Tuple[Tuple[int, ...]]],
-                 vect: Tuple[Tuple[int, ...]]) -> bool:
-        """Determine if vector is distinct from existing vectors."""
-        for sub in vectors:
-            if not Choices.vect_contains(vect, sub):
-                return False
-        return True
+                 vector: Tuple[Tuple[int, ...]]) -> bool:
+        """Determines if a vector is distinct from all existing vectors."""
+        return not next((Choices.vect_contains(v, vector)
+                         for v in vectors), False)
 
     @staticmethod
     def vect_rm(vectors: Set[Tuple[Tuple[int, ...]]],
-                vect: Tuple[Tuple[int, ...]]) -> None:
-        """Remove from vectors those that are contained by vect."""
-        to_remove = [v for v in vectors if Choices.vect_contains(vect, v)]
-        map(vectors.remove, to_remove)
+                vector: Tuple[Tuple[int, ...]]) -> None:
+        """Remove from vectors those that are contained by vector."""
+        to_remove = [v for v in vectors if Choices.vect_contains(vector, v)]
+        [vectors.remove(v) for v in to_remove]
 
     @staticmethod
-    def vect_contains(vect: Tuple[Tuple[int, ...]],
-                      sub: Tuple[Tuple[int, ...]]) -> bool:
-        """Check if vect allows making all choices as sub; i.e.,
-        vect is a "super-set" of sub-vector."""
+    def vect_contains(a: Tuple[Tuple[int, ...]],
+                      b: Tuple[Tuple[int, ...]]) -> bool:
+        """Check if A allows making all choices of B."""
         return all(all(ib in super_v for ib in sub)
-                   for super_v, sub in zip(vect, sub))
+                   for super_v, sub in zip(a, b))
