@@ -329,11 +329,12 @@ class Relation:
         """
         new_mat = [[self.matrix[i][j].choice_scalar(
             *choices, least_scalar=UNIT_MWP if i == j else ZERO_MWP)
-                    for j in range(self.matrix_size)]
-                   for i in range(self.matrix_size)]
+            for j in range(self.matrix_size)]
+            for i in range(self.matrix_size)]
         return SimpleRelation(self.variables.copy(), matrix=new_mat)
 
-    def infty_vars(self) -> Dict[str, List[str]]:
+    def infty_vars(self, only_incl: List[str] = None) \
+            -> Dict[str, List[str]]:
         """Identify all variable pairs that for some choices, can raise
         infinity result.
 
@@ -342,14 +343,17 @@ class Relation:
                 the key is source variable and value is list of targets.
                 All entries are non-empty.
         """
-        vars_ = self.variables
         return dict([(x, y) for x, y in [
-            (src, [tgt for tgt, p in zip(vars_, polys) if p.some_infty])
-            for src, polys in zip(vars_, self.matrix)] if len(y) != 0])
+            (src, [tgt for tgt, p in zip(self.variables, polys)
+                   if p.some_infty and
+                   (not only_incl or src in only_incl or tgt in only_incl)])
+            for src, polys in zip(self.variables, self.matrix)]
+                     if len(y) != 0])
 
-    def infty_pairs(self) -> str:
+    def infty_pairs(self, only_incl: List[str] = None) -> str:
         """List of potential infinity dependencies."""
-        fmt = [f'{s} ➔ {", ".join(t)}' for s, t in self.infty_vars().items()]
+        fmt = [f'{s} ➔ {", ".join(t)}'
+               for s, t in self.infty_vars(only_incl).items()]
         return ' ‖ '.join(fmt)
 
     def to_dict(self) -> dict:
@@ -423,8 +427,15 @@ class Relation:
                                                           matrix2)
 
     def eval(self, choices: List[int], index: int) -> Choices:
-        """Eval experiment: returns a choice object."""
+        """Evaluate program matrix for possible derivation choices.
 
+        Arguments:
+            choices: list of choices at each index, [0,1,2]
+            index: accumulated program counter.
+
+        Returns:
+            A choice object for the evaluated matrix.
+        """
         infinity_deltas = set()
 
         # get all choices leading to infinity
@@ -434,6 +445,24 @@ class Relation:
 
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
+
+    def var_eval(self, choices: List[int], index: int) -> Dict[str, Choices]:
+        """Evaluate choices for each individual variable.
+
+        This is same as `eval`, except it generates the choice-vectors
+        column-wise.
+
+        Returns:
+            A dictionary where the key is a variable name,
+            and value is a choice object for the evaluated variable.
+        """
+        result = {}
+        for col, v_name in enumerate(self.variables):
+            d = set()
+            for row in self.matrix:
+                d.update(row[col].eval)
+            result[v_name] = Choices.generate(choices, index, d)
+        return result
 
 
 class SimpleRelation(Relation):

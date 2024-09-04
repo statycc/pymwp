@@ -97,6 +97,10 @@ class Analysis:
             f_result.infinite = infinite
             if not (infinite and stop_early):
                 f_result.relation = relations.first
+            if infinite and not stop_early:
+                var_choices = relations.first.var_eval(options, index)
+                def_infty = [v for v, c in var_choices.items() if c.infinite]
+                f_result.inf_flows = relations.first.infty_pairs(def_infty)
             if not infinite:
                 f_result.bound = bound
                 f_result.choices = choices

@@ -111,7 +111,8 @@ class FuncResult(Timeable):
             variables: Optional[List[str]] = None,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
-            bound: Optional[Bound] = None):
+            bound: Optional[Bound] = None,
+            inf_flows: Optional[str] = None):
         """
         Create a function result.
 
@@ -122,11 +123,13 @@ class FuncResult(Timeable):
             relation: corresponding [`Relation`](relation.md)
             choices: choice object [`Choice`](choice.md)
             bound: bound object [`Bound`](bound.md)
+            inf_flows: description of problematic flows
         """
         super().__init__()
         self.name = name
         self.vars = variables or []
         self.infinite = infinite
+        self.inf_flows = inf_flows
         self.relation = relation
         self.choices = choices
         self.bound = bound
@@ -146,6 +149,7 @@ class FuncResult(Timeable):
         return {
             "name": self.name,
             "infinity": self.infinite,
+            "inf_flows": self.inf_flows,
             "variables": self.vars,
             "start_time": self.start_time,
             "end_time": self.end_time,
@@ -165,6 +169,8 @@ class FuncResult(Timeable):
         func.end_time = int(kwargs[et]) if et in kwargs else 0
         if 'variables' in kwargs:
             func.vars = kwargs['variables']
+        if 'inf_flows' in kwargs:
+            func.inf_flows = kwargs['inf_flows']
         if kwargs['relation']:
             matrix = kwargs['relation']['matrix']
             if func.vars:
@@ -211,8 +217,8 @@ class Result(Timeable):
             logger.info('Some bound exists')
             return
         txt = (('num-bounds: 0 (infinite)' + (
-            ('\nProblematic flows: ' + f.relation.infty_pairs())
-            if f.relation else '')) if f.infinite else (
+            ('\nProblematic flows: ' + f.inf_flows)
+            if f.inf_flows else '')) if f.infinite else (
                 f'num-bounds: {f.n_bounds:,}\n' +
                 f'{Bound.show_poly(f.bound)}'))
         Result.pretty_print_result(f'Function: {f.name} • {txt}')
