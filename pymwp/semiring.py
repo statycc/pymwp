@@ -43,6 +43,11 @@ __DICT_PROD: dict = {
 }
 
 
+def mwp_sort(scalars: List[str]):
+    """Ascending sort of scalars (o < m < w < p < i)"""
+    return sorted(scalars, key=lambda x: KEYS.index(x))
+
+
 def prod_mwp(scalar1: str, scalar2: str) -> str:
     """Compute product of two scalars.
 

@@ -30,6 +30,7 @@ def test_ast_node_types():
     assert hasattr(pycparser.c_ast, 'Constant')
     assert hasattr(pycparser.c_ast, 'Continue')
     assert hasattr(pycparser.c_ast, 'Decl')
+    assert hasattr(pycparser.c_ast, 'DeclList')
     assert hasattr(pycparser.c_ast, 'DoWhile')
     assert hasattr(pycparser.c_ast, 'For')
     assert hasattr(pycparser.c_ast, 'FuncCall')

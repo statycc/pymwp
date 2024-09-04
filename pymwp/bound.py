@@ -143,6 +143,8 @@ class Bound:
     There is one mwp-bound expression for each input variable.
     """
 
+    LAND = '∧'
+
     def __init__(self, bounds: dict = None):
         self.bound_dict = dict([
             (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
@@ -182,7 +184,7 @@ class Bound:
         Returns:
             A formatted string of the bound.
         """
-        return ' ∧ '.join([
+        return f' {Bound.LAND} '.join([
             f'{k}′{"≤" if compact else " ≤ "}'
             f'{MwpBound.bound_poly(v, compact=compact)}'
             for k, v in self.bound_dict.items()

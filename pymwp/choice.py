@@ -21,7 +21,8 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from functools import reduce
-from typing import Tuple, List, Set, Union, Optional
+from itertools import product
+from typing import Tuple, List, Set, Union, Optional, Generator
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +63,29 @@ class Choices:
         return tuple([choices[0] for choices in self.valid[0]]) \
             if not self.infinite else None
 
+    def all(self) -> Generator[Tuple[int, ...]]:
+        """Generator for all valid derivation choices."""
+        for choices in self.valid:
+            for p in product(*choices):
+                yield p
+
     @property
     def n_bounds(self) -> int:
-        """Number of bounds that can be generated from a choice vector"""
+        """Number of bounds that can be generated from a choice vector.
+        This can be calculated directly from the form of a choice vector.
+        Note: n-distinct bounds <= n-bounds.
+
+        ??? example "Example"
+
+            (1) The vector [[[0, 1, 2], [0, 1, 2], [0]]] allows making
+                [3, 3, 1] choices/index. Number of bounds is 3^2 * 1^1 = 9.
+
+            (2) A vector with choices/index: [3, 1, 2, 1, 3, 3] has
+                3^3 * 2^1 * 1^2 = 54 possible bounds.
+
+        Returns:
+            Number of (non-distinct) possible choices.
+        """
         return sum([
             reduce(lambda total, n: total * (n[0] ** n[1]), lens.items(), 1)
             for lens in [Counter([len(x) for x in v]) for v in self.valid]])
@@ -294,7 +315,7 @@ class Choices:
 
         # number of times each delta occurs in remaining paths
         delta_freq = Counter([j for sub in sorted_infty for j in sub])
-
+        distinct = max(delta_freq.values()) == 1
         vectors = set()
 
         # generate all possible vectors by iterating the max count of
@@ -309,19 +330,13 @@ class Choices:
             # path, so that it is not possible to choose any bad path fully
             # this is same as taking cross product of deltas
             deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
+
             idx_freq = [i for v, i in set(deltas)]
-            vector_freq = Counter(list(deltas))
-            minimal = all([delta_freq[k] == vector_freq[k]
-                           for k in vector_freq.keys()])
             is_valid = all([idx_freq.count(n) < len(choices)
                             for n in set(idx_freq)])
-
             # This iteration will not produce a valid vector if all choices
-            # are eliminated at some index. It will also not produce the
-            # optimal vector, if some delta is duplicated in the
-            # infinities-set but not in this vector. Discard these choices
-            # in both cases.
-            if not is_valid or not minimal:
+            # are eliminated at some index.
+            if not is_valid:
                 continue
 
             # initialize a vector with all allowed choices
@@ -332,11 +347,34 @@ class Choices:
                 if choice in vector[idx]:
                     vector[idx].remove(choice)
 
-            # must be hashable type to add to set, shouldn't generate same
-            # vector ever but not sure, so using a set
             vector = tuple([tuple(entry) for entry in vector])
-            vectors.add(vector)
+            # keep maximal and distinct choices
+            if distinct or Choices.vect_new(vectors, vector):
+                if not distinct:
+                    Choices.vect_rm(vectors, vector)
+                vectors.add(vector)
 
         # change the remaining choices at each index to lists (not sets)
         # so the vectors can be saved to file
         return [list([list(c) for c in v]) for v in vectors]
+
+    @staticmethod
+    def vect_new(vectors: Set[Tuple[Tuple[int, ...]]],
+                 vector: Tuple[Tuple[int, ...]]) -> bool:
+        """Determines if a vector is distinct from all existing vectors."""
+        return not next((Choices.vect_contains(v, vector)
+                         for v in vectors), False)
+
+    @staticmethod
+    def vect_rm(vectors: Set[Tuple[Tuple[int, ...]]],
+                vector: Tuple[Tuple[int, ...]]) -> None:
+        """Remove from vectors those that are contained by vector."""
+        to_remove = [v for v in vectors if Choices.vect_contains(vector, v)]
+        [vectors.remove(v) for v in to_remove]
+
+    @staticmethod
+    def vect_contains(a: Tuple[Tuple[int, ...]],
+                      b: Tuple[Tuple[int, ...]]) -> bool:
+        """Check if A allows making all choices of B."""
+        return all(all(ib in super_v for ib in sub)
+                   for super_v, sub in zip(a, b))

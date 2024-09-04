@@ -86,6 +86,10 @@ class ParserInterface:  # pragma: no cover
         return None
 
     @property
+    def DeclList(self):
+        return None
+
+    @property
     def DoWhile(self):
         return None
 
@@ -237,6 +241,10 @@ class PyCParser(ParserInterface):
     @property
     def Decl(self):
         return c_ast.Decl
+
+    @property
+    def DeclList(self):
+        return c_ast.DeclList
 
     @property
     def DoWhile(self):

@@ -1,6 +1,15 @@
 from pymwp.polynomial import Polynomial, Comparison
+from pymwp.semiring import mwp_sort, ZERO_MWP, UNIT_MWP
 
 """Unit tests for Polynomial.compare method"""
+
+o = ZERO_MWP
+m = UNIT_MWP
+w, p, i = 'w', 'p', 'i'
+
+
+def test_mwp_sort():
+    assert mwp_sort([w, m, o, p, i, w, p, m]) == [o, m, m, w, w, p, p, i]
 
 
 def test_compare_empty_list_is_smaller_than_nonempty():

@@ -111,7 +111,8 @@ class FuncResult(Timeable):
             variables: Optional[List[str]] = None,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
-            bound: Optional[Bound] = None):
+            bound: Optional[Bound] = None,
+            inf_flows: Optional[str] = None):
         """
         Create a function result.
 
@@ -122,11 +123,13 @@ class FuncResult(Timeable):
             relation: corresponding [`Relation`](relation.md)
             choices: choice object [`Choice`](choice.md)
             bound: bound object [`Bound`](bound.md)
+            inf_flows: description of problematic flows
         """
         super().__init__()
         self.name = name
         self.vars = variables or []
         self.infinite = infinite
+        self.inf_flows = inf_flows
         self.relation = relation
         self.choices = choices
         self.bound = bound
@@ -146,6 +149,7 @@ class FuncResult(Timeable):
         return {
             "name": self.name,
             "infinity": self.infinite,
+            "inf_flows": self.inf_flows,
             "variables": self.vars,
             "start_time": self.start_time,
             "end_time": self.end_time,
@@ -165,6 +169,8 @@ class FuncResult(Timeable):
         func.end_time = int(kwargs[et]) if et in kwargs else 0
         if 'variables' in kwargs:
             func.vars = kwargs['variables']
+        if 'inf_flows' in kwargs:
+            func.inf_flows = kwargs['inf_flows']
         if kwargs['relation']:
             matrix = kwargs['relation']['matrix']
             if func.vars:
@@ -206,18 +212,52 @@ class Result(Timeable):
         Attributes:
             func_result: function analysis to append to Result.
         """
-        self.relations[func_result.name] = func_result
-        if not func_result.infinite:
-            if func_result.bound:
-                logger.info(f'Bound: {Bound.show_poly(func_result.bound)}')
-                logger.info(f'Bounds: {func_result.n_bounds}')
-            else:
-                logger.info('Some bound exists')
-        if func_result.infinite:
-            logger.info(f'{func_result.name} is infinite')
-            if func_result.relation:
-                logger.info('Possibly problematic flows:')
-                logger.info(func_result.relation.infty_pairs())
+        self.relations[func_result.name] = f = func_result
+        if not f.infinite and not f.bound:
+            logger.info('Some bound exists')
+            return
+        txt = (('num-bounds: 0 (infinite)' + (
+            ('\nProblematic flows: ' + f.inf_flows)
+            if f.inf_flows else '')) if f.infinite else (
+                f'num-bounds: {f.n_bounds:,}\n' +
+                f'{Bound.show_poly(f.bound)}'))
+        Result.pretty_print_result(f'Function: {f.name} • {txt}')
+
+    @staticmethod
+    def pretty_print_result(txt: str) -> None:
+        """Draws a colored box around text before display.
+
+        Arguments:
+            txt: some text to display.
+        """
+        color, endc, line_w = '\033[96m', '\033[0m', 50
+        # box-drawing, but a full box is not good for copy-paste.
+        # flake8: noqa: F841
+        tl, tr, bl, br, vb, hb = '─', '─', '─', '─', '│', '─'
+        top_bar = tl + (hb * (line_w + 1)) + tr
+        bot_bar = bl + (hb * (line_w + 1)) + br
+        land, i_bar = Bound.LAND, Relation.INFTY_BAR
+        lines, fst_land = [], True
+        for vals in txt.split('\n'):
+            while vals:
+                # don't wrap if bound expr fits in one line
+                fits = fst_land and len(vals) < line_w
+                # find ideal line break index
+                if land in vals[:line_w] and not fits:
+                    split_at = 1 + vals[:line_w].index(land)
+                elif i_bar in vals[:line_w] and not fits:
+                    split_at = 1 + vals[:line_w].rindex(i_bar)
+                else:
+                    split_at = line_w
+                # split to current...remaining
+                part = vals[:split_at].strip()
+                vals = vals[split_at:].strip()
+                fst_land = fst_land and (
+                        land not in part and i_bar not in part)
+                # format line and append
+                lines += [f' {part:<{line_w}}']
+        parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
+        logger.info(f'\n{color}{parts}{endc}')
 
     def get_func(
             self, name: Optional[str] = None

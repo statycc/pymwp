@@ -24,6 +24,7 @@ import logging
 from typing import Optional, Tuple, List, Dict
 
 from pymwp import Choices, DeltaGraph, Polynomial
+from pymwp.semiring import UNIT_MWP, ZERO_MWP
 from . import matrix as matrix_utils
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ class Relation:
     and represents the current state of the analysis.
 
     """
+    INFTY_BAR = '‖'
 
     def __init__(self, variables: Optional[List[str]] = None,
                  matrix: Optional[List[List[Polynomial]]] = None):
@@ -195,6 +197,31 @@ class Relation:
                         mon.scalar = "i"
                         dg.from_monomial(mon)
 
+    def loop_correction(self, x_var: str, dg: DeltaGraph) -> None:
+        """Loop correction to replace invalid scalars by $\\infty$.
+
+        Following computation of a loop fixpoint, this method checks
+        the resulting matrix by rule L: scalars >$m$ at the diagonal
+        become $\\infty$. If exists M$_ij$ = p then row X, col j => p.
+
+        Related discussion [issue #5](
+        https://github.com/statycc/pymwp/issues/5).
+
+        Arguments:
+            x_var: loop control variable
+            dg: DeltaGraph instance
+        """
+        ell = self.variables.index(x_var)
+        for i, vector in enumerate(self.matrix):
+            for j, poly in enumerate(vector):
+                for mon in poly.list:
+                    if i == j and mon.scalar != "m":
+                        mon.scalar = "i"
+                        dg.from_monomial(mon)
+                    if mon.scalar == "p":
+                        self.matrix[ell][j] = self.matrix[ell][j] \
+                            .add(Polynomial(mon.copy()))
+
     def sum(self, other: Relation) -> Relation:
         """Sum two relations.
 
@@ -301,12 +328,14 @@ class Relation:
         Returns:
             New relation with simple-values matrix of scalars.
         """
-        new_mat = [[self.matrix[i][j].choice_scalar(*choices)
-                    for j in range(self.matrix_size)]
-                   for i in range(self.matrix_size)]
+        new_mat = [[self.matrix[i][j].choice_scalar(
+            *choices, least_scalar=UNIT_MWP if i == j else ZERO_MWP)
+            for j in range(self.matrix_size)]
+            for i in range(self.matrix_size)]
         return SimpleRelation(self.variables.copy(), matrix=new_mat)
 
-    def infty_vars(self) -> Dict[str, List[str]]:
+    def infty_vars(self, only_incl: List[str] = None) \
+            -> Dict[str, List[str]]:
         """Identify all variable pairs that for some choices, can raise
         infinity result.
 
@@ -315,15 +344,18 @@ class Relation:
                 the key is source variable and value is list of targets.
                 All entries are non-empty.
         """
-        vars_ = self.variables
         return dict([(x, y) for x, y in [
-            (src, [tgt for tgt, p in zip(vars_, polys) if p.some_infty])
-            for src, polys in zip(vars_, self.matrix)] if len(y) != 0])
+            (src, [tgt for tgt, p in zip(self.variables, polys)
+                   if p.some_infty and
+                   (not only_incl or src in only_incl or tgt in only_incl)])
+            for src, polys in zip(self.variables, self.matrix)]
+                     if len(y) != 0])
 
-    def infty_pairs(self) -> str:
+    def infty_pairs(self, only_incl: List[str] = None) -> str:
         """List of potential infinity dependencies."""
-        fmt = [f'{s} ➔ {", ".join(t)}' for s, t in self.infty_vars().items()]
-        return ' ‖ '.join(fmt)
+        fmt = [f'{s} ➔ {", ".join(t)}'
+               for s, t in self.infty_vars(only_incl).items()]
+        return f' {Relation.INFTY_BAR} '.join(fmt)
 
     def to_dict(self) -> dict:
         """Get dictionary representation of a relation."""
@@ -396,8 +428,15 @@ class Relation:
                                                           matrix2)
 
     def eval(self, choices: List[int], index: int) -> Choices:
-        """Eval experiment: returns a choice object."""
+        """Evaluate program matrix for possible derivation choices.
 
+        Arguments:
+            choices: list of choices at each index, [0,1,2]
+            index: accumulated program counter.
+
+        Returns:
+            A choice object for the evaluated matrix.
+        """
         infinity_deltas = set()
 
         # get all choices leading to infinity
@@ -407,6 +446,24 @@ class Relation:
 
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
+
+    def var_eval(self, choices: List[int], index: int) -> Dict[str, Choices]:
+        """Evaluate choices for each individual variable.
+
+        This is same as `eval`, except it generates the choice-vectors
+        column-wise.
+
+        Returns:
+            A dictionary where the key is a variable name,
+            and value is a choice object for the evaluated variable.
+        """
+        result = {}
+        for col, v_name in enumerate(self.variables):
+            d = set()
+            for row in self.matrix:
+                d.update(row[col].eval)
+            result[v_name] = Choices.generate(choices, index, d)
+        return result
 
 
 class SimpleRelation(Relation):

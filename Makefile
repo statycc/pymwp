@@ -60,6 +60,6 @@ bench-only:
 plot:
 	python3 utilities/plot.py -r output -f tex
 
-compute-ast:
+ast:
 	rm -rf test/mocks/*.txt
 	python3 utilities/ast_util.py tests/test_examples tests/mocks
