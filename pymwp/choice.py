@@ -315,7 +315,7 @@ class Choices:
 
         # number of times each delta occurs in remaining paths
         delta_freq = Counter([j for sub in sorted_infty for j in sub])
-
+        distinct = max(delta_freq.values()) == 1
         vectors = set()
 
         # generate all possible vectors by iterating the max count of
@@ -330,19 +330,13 @@ class Choices:
             # path, so that it is not possible to choose any bad path fully
             # this is same as taking cross product of deltas
             deltas = [sorted_infty[i][v] for i, v in enumerate(indices)]
+
             idx_freq = [i for v, i in set(deltas)]
-            vector_freq = Counter(list(deltas))
-            minimal = all([delta_freq[k] == vector_freq[k]
-                           for k in vector_freq.keys()])
             is_valid = all([idx_freq.count(n) < len(choices)
                             for n in set(idx_freq)])
-
             # This iteration will not produce a valid vector if all choices
-            # are eliminated at some index. It will also not produce the
-            # optimal vector, if some delta is duplicated in the
-            # infinities-set but not in this vector. Discard these choices
-            # in both cases.
-            if not is_valid or not minimal:
+            # are eliminated at some index.
+            if not is_valid:
                 continue
 
             # initialize a vector with all allowed choices
@@ -356,8 +350,36 @@ class Choices:
             # must be hashable type to add to set, shouldn't generate same
             # vector ever but not sure, so using a set
             vector = tuple([tuple(entry) for entry in vector])
+            # only keep maximal and distinct
+            # if distinct or Choices.vect_new(vectors, vector):
+            #     if not distinct:
+            #         Choices.vect_rm(vectors, vector)
             vectors.add(vector)
 
         # change the remaining choices at each index to lists (not sets)
         # so the vectors can be saved to file
         return [list([list(c) for c in v]) for v in vectors]
+
+    @staticmethod
+    def vect_new(vectors: Set[Tuple[Tuple[int, ...]]],
+                 vect: Tuple[Tuple[int, ...]]) -> bool:
+        """Determine if vector is distinct from existing vectors."""
+        for sub in vectors:
+            if not Choices.vect_contains(vect, sub):
+                return False
+        return True
+
+    @staticmethod
+    def vect_rm(vectors: Set[Tuple[Tuple[int, ...]]],
+                vect: Tuple[Tuple[int, ...]]) -> None:
+        """Remove from vectors those that are contained by vect."""
+        to_remove = [v for v in vectors if Choices.vect_contains(vect, v)]
+        map(vectors.remove, to_remove)
+
+    @staticmethod
+    def vect_contains(vect: Tuple[Tuple[int, ...]],
+                      sub: Tuple[Tuple[int, ...]]) -> bool:
+        """Check if vect allows making all choices as sub; i.e.,
+        vect is a "super-set" of sub-vector."""
+        return all(all(ib in super_v for ib in sub)
+                   for super_v, sub in zip(vect, sub))
