@@ -29,7 +29,7 @@ For example,
    ``` 
    
    is satisfactory because—between the initial variable values (`Xi`) and the final values (`Xi'`)—all variables have a polynomially bounded data-flow (omitting constants): 
-   `X1' ≤ X2+X3` and `X2' ≤ X2`  and `X3' ≤ X3`. pymwp derives this bound automatically [(:arrow_forward: demo)](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_b.c).
+   `X1' ≤ X2+X3` and `X2' ≤ X2`  and `X3' ≤ X3`. pymwp derives this bound automatically ([▶️ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_b.c)).
 
 However, program
 
@@ -41,7 +41,7 @@ However, program
    ```
 
    fails the analysis, because `X1` grows exponentially (`X1'` = 2$^{X2}$).
-   pymwp reports a program is _infinite_ when no polynomial bound can be derived [(:arrow_forward: demo)](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_d.c).
+   pymwp reports a program is _infinite_ when no polynomial bound can be derived ([▶️ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_d.c)).
 
 
 pymwp is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
