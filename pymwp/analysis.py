@@ -95,6 +95,7 @@ class Analysis:
             f_result.on_end()
             f_result.vars = relations.first.variables
             f_result.infinite = infinite
+            f_result.index = index
             if not (infinite and stop_early):
                 f_result.relation = relations.first
             if infinite and not stop_early:

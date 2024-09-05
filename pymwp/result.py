@@ -112,7 +112,8 @@ class FuncResult(Timeable):
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
             bound: Optional[Bound] = None,
-            inf_flows: Optional[str] = None):
+            inf_flows: Optional[str] = None,
+            index: int = 0):
         """
         Create a function result.
 
@@ -133,6 +134,7 @@ class FuncResult(Timeable):
         self.relation = relation
         self.choices = choices
         self.bound = bound
+        self.index = index
 
     @property
     def n_vars(self) -> int:
@@ -150,6 +152,7 @@ class FuncResult(Timeable):
             "name": self.name,
             "infinity": self.infinite,
             "inf_flows": self.inf_flows,
+            "index": self.index,
             "variables": self.vars,
             "start_time": self.start_time,
             "end_time": self.end_time,
@@ -171,6 +174,8 @@ class FuncResult(Timeable):
             func.vars = kwargs['variables']
         if 'inf_flows' in kwargs:
             func.inf_flows = kwargs['inf_flows']
+        if 'index' in kwargs:
+            func.index = kwargs['index']
         if kwargs['relation']:
             matrix = kwargs['relation']['matrix']
             if func.vars:
