@@ -1,6 +1,8 @@
 # pymwp
 
-**Implementation of MWP analysis on C code in Python.**
+pymwp is an implementation of MWP analysis on C code in Python.
+
+## Introduction
 
 {%
    include-markdown "../README.md"
