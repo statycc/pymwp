@@ -40,7 +40,7 @@ However, program
    }   
    ```
 
-   fails the analysis, because `X1` grows exponentially (`X1'` = 2$^{X2}$).
+   fails the analysis, because `X1` grows exponentially (`X1'` = $2^{\texttt{X2}}$).
    pymwp reports a program is _infinite_ when no polynomial bound can be derived ([▶️ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_d.c)).
 
 
