@@ -48,6 +48,7 @@ Calling [`get_func()`](result.md#pymwp.result.Result.get_func) then accesses the
     {'bound': {'x': 'x;;', 'y': 'x,y;;'},
     'choices': [[[0, 1, 2]]],
     'end_time': 1725498245384529000,
+    'index': 1,
     'inf_flows': None,
     'infinity': False,
     'name': 'foo',
