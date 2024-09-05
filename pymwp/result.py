@@ -216,12 +216,13 @@ class Result(Timeable):
         if not f.infinite and not f.bound:
             logger.info('Some bound exists')
             return
-        txt = (('num-bounds: 0 (infinite)' + (
+        txt = f'time: {func_result.dur_ms} ms • '
+        txt += (('num-bounds: 0 (infinite)' + (
             ('\nProblematic flows: ' + f.inf_flows)
             if f.inf_flows else '')) if f.infinite else (
                 f'num-bounds: {f.n_bounds:,}\n' +
                 f'{Bound.show_poly(f.bound)}'))
-        Result.pretty_print_result(f'Function: {f.name} • {txt}')
+        Result.pretty_print_result(f'function: {f.name}\n{txt}')
 
     @staticmethod
     def pretty_print_result(txt: str) -> None:
@@ -230,12 +231,9 @@ class Result(Timeable):
         Arguments:
             txt: some text to display.
         """
-        color, endc, line_w = '\033[96m', '\033[0m', 50
-        # box-drawing, but a full box is not good for copy-paste.
-        # flake8: noqa: F841
-        tl, tr, bl, br, vb, hb = '─', '─', '─', '─', '│', '─'
-        top_bar = tl + (hb * (line_w + 1)) + tr
-        bot_bar = bl + (hb * (line_w + 1)) + br
+        color, endc, line_w, hb = '\033[96m', '\033[0m', 50, '─'
+        top_bar = (hb * (line_w + 3))
+        bot_bar = top_bar[:]
         land, i_bar = Bound.LAND, Relation.INFTY_BAR
         lines, fst_land = [], True
         for vals in txt.split('\n'):
@@ -245,7 +243,7 @@ class Result(Timeable):
                 # find ideal line break index
                 if land in vals[:line_w] and not fits:
                     split_at = 1 + vals[:line_w].index(land)
-                elif i_bar in vals[:line_w] and not fits:
+                elif i_bar in vals[:line_w] and len(vals) > line_w:
                     split_at = 1 + vals[:line_w].rindex(i_bar)
                 else:
                     split_at = line_w
@@ -288,10 +286,7 @@ class Result(Timeable):
         """Display here all interesting stats."""
         if self.n_functions == 0:
             logger.warning("Input C file contained no analyzable functions!")
-
-        dur_sc = round(self.time_diff / 1e9, 1)
-        dur_ms = int(self.time_diff / 1e6)
-        logger.info(f'Total time: {dur_sc} s ({dur_ms} ms)')
+        logger.info(f'Total time: {self.dur_s} s ({self.dur_ms} ms)')
 
     def serialize(self) -> dict:
         """JSON serialize a result object.

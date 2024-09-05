@@ -1,4 +1,4 @@
-# analysis.py
+# pymwp Analysis
 
 ```python
 from pymwp import Analysis

@@ -13,6 +13,7 @@ nav:
 - Examples: examples.md
 - Demo: demo.md
 - Modules:
+  - Introduction: modules.md
   - Analysis: analysis.md
   - Bound: bound.md
   - Choice: choice.md
@@ -20,6 +21,7 @@ nav:
   - File I/O: file_io.md
   - Matrix: matrix.md
   - Monomial: monomial.md
+  - Parser: parser.md
   - Polynomial: polynomial.md
   - Relation: relation.md
   - Relation List: relation_list.md
@@ -75,6 +77,8 @@ markdown_extensions:
       permalink: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.snippets
   - pymdownx.magiclink
   - pymdownx.details
@@ -92,6 +96,11 @@ plugins:
       handlers:
         python:
           # paths: [pymwp]
+          options:
+            annotations_path: brief
+            show_labels: true
+            show_bases: true
+            docstring_section_style: table
           selection:
             new_path_syntax: yes
             filters:
@@ -101,7 +110,9 @@ plugins:
             docstring_section_style: table
             show_source: true
             show_root_heading: false
+            show_root_toc_entry: false
             show_category_heading: false
+            show_symbol_type_toc: true
 
 extra_css:
   - assets/styles.css

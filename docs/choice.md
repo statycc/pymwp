@@ -15,7 +15,7 @@ This section gives a high-level description of this process.
 | `choices`         | `List[int]` | possible inference choices at a program point, e.g. `[0,1,2]`               |
 | `delta_sequences` | `Set[SEQ]`  | sequences of choices leading to non-polynomial flows ($\infty$ from matrix) |
 
-**Computation Steps**
+**Steps**
 
 1. **Simplify**. Using $\delta$-sequences set, simplify it in two ways:
 
@@ -101,5 +101,6 @@ This section gives a high-level description of this process.
     If all choices are valid, the result is a single vector allowing all choices.
     If no valid derivation exists, the result is empty `[ ]`.
 
+---
 
 ::: pymwp.choice

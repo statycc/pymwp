@@ -77,7 +77,7 @@ def load_result(file_name: str) -> Result:
     """Load previous analysis result from file.
 
     This method is the reverse of
-    [`save_relation`](file_io.md#pymwp.file_io.save_relation)
+    [`save_result`](file_io.md#pymwp.file_io.save_result)
     and assumes the input matches the output of that method.
 
     Arguments:
