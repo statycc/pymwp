@@ -49,60 +49,94 @@ pip install pymwp
 
 ## How to Use
 
+<h4>Command-Line Use</h4>
+
 To analyze a C file, run in terminal:
 
 ```
 pymwp path/to_some_file.c
 ```
 
-For all available options and help, run:
+For a list of available command options and help, run:
 
 ```
-pymwp --help
+pymwp
 ```
 
 <h4>Use in Python Scripts</h4>
 
 You can also use pymwp by importing it in a Python script.
-See [modules documentation](https://statycc.github.io/pymwp/analysis/) for available methods.
 
 ```python
-from pymwp import Polynomial
-from pymwp.matrix import identity_matrix, show
+from pymwp import Analysis, Parser
+from pprint import pprint
 
-matrix = identity_matrix(3)
-matrix[0][1] = Polynomial('m')
-matrix[1][0] = Polynomial('w')
-matrix[2][1] = Polynomial('p')
+# path to file to analyze
+file = 'c_files/basics/if.c'
 
-show(matrix)
+# parses a C-langugage file using pycparser
+ast = Parser.parse(file, use_cpp=True, cpp_path='gcc')
+
+# run analysis, then access result for main function
+result = Analysis.run(ast, fin=True, no_save=True).get_func('main')
+
+# display analysis result and collected data
+pprint(result.to_dict())
 ```
+
+See [modules documentation](https://statycc.github.io/pymwp/modules/) for details and examples.
+
 
 ## Running from source
 
-If you want to use the latest stable version (possibly ahead of the latest release, and with special utilities and examples), use pymwp directly from source.
+If you want to use the latest stable version—possibly ahead of the latest release, and with special utilities and examples—use pymwp directly from source.
 
-1. Clone the repository
+1. **Clone the repository**
 
     ```
-    git clone https://github.com/statycc/pymwp.git
+    git clone https://github.com/statycc/pymwp.git 
+    cd pymwp
     ``` 
 
-2. Set up Python environment (use [`venv`](https://docs.python.org/3/library/venv.html))
+2. **Set up Python runtime environment of preference**
 
-    install required packages
+    * :a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
+   
+        Create and activate a virtual environment (POSIX bash/zsh):
+     
+        ```
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
+     
+        Install required packages:
+     
+        ```
+        python -m pip install -r requirements.txt
+        ``` 
+     
+        For development, install dev-dependencies instead:
+     
+        ```
+        python -m pip install -r requirements-dev.txt
+        ```
+      
+    * :b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
 
-    ```
-    python -m pip install -r requirements.txt
-    ``` 
+        Build a container -- also installs dev-dependencies:
+    
+        ```
+        docker build . -t pymwp
+        ```
+       
+        Run the container:
+    
+        ```
+        docker run --rm -v "$(pwd):$(pwd)" pymwp
+        ```
+ 
 
-    For development and testing, install dev dependencies instead:
-
-    ```
-    python -m pip install -r requirements-dev.txt
-    ```
-
-3. Run the analysis
+4. **Run the analysis**
 
     From project root run:
 

@@ -73,15 +73,16 @@ class Choices:
     def n_bounds(self) -> int:
         """Number of bounds that can be generated from a choice vector.
         This can be calculated directly from the form of a choice vector.
-        Note: n-distinct bounds <= n-bounds.
+        Note: n-distinct bounds $<=$ n-bounds.
 
-        ??? example "Example"
+        !!! example
 
-            (1) The vector [[[0, 1, 2], [0, 1, 2], [0]]] allows making
-                [3, 3, 1] choices/index. Number of bounds is 3^2 * 1^1 = 9.
+            1. The vector `[[[0, 1, 2], [0, 1, 2], [0]]]` allows making
+                `[3, 3, 1]` choices/index.
+                Number of bounds is $3^2 * 1^1 = 9$.
 
-            (2) A vector with choices/index: [3, 1, 2, 1, 3, 3] has
-                3^3 * 2^1 * 1^2 = 54 possible bounds.
+            2. A vector with choices/index: `[3, 1, 2, 1, 3, 3]` has
+                $3^3 * 2^1 * 1^2 = 54$ possible bounds.
 
         Returns:
             Number of (non-distinct) possible choices.
@@ -146,7 +147,8 @@ class Choices:
         """Generate the most simplified, equivalent representation of
         the set of choices that cause infinity.
 
-        Reduce sequences of deltas, as explained in [`reduce`](#reduce).
+        Reduce sequences of deltas, as explained in
+        [`reduce`](choice.md#pymwp.choice.Choices.reduce).
         This operation will repeat until set of sequences cannot be reduced
         any further. Then remove all superset contained by some shorter
         sequence. This process repeats until no more simplification can be
@@ -172,7 +174,7 @@ class Choices:
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
         """Look for first reducible sequence, if exists, then replace it.
 
-        ??? example "Example"
+        !!! example "Example"
 
             Consider the following sequences, where deltas differ only on
             first value and never on index, and all possible choice values are
@@ -279,7 +281,7 @@ class Choices:
         and then negates those choices; the result is a list of choice
         vectors such that any remaining choice will give a valid derivation.
 
-        ??? example "Example"
+        !!! example "Example"
 
             assume the paths leading to infinity are:
 

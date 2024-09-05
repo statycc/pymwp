@@ -1,8 +1,8 @@
 <!--start-->
 
-## List of Examples
+## List of Input Program Examples
 
-| Category                 | Program               | Description                                               |
+| Category                 | File name             | Description                                               |
 |--------------------------|-----------------------|-----------------------------------------------------------|
 | Basics                   | `assign_expression.c` | assign result of binary operation to variable             |
 |                          | `assign_variable.c`   | assign using variable                                     |

@@ -55,7 +55,7 @@ class Analysis:
             index, options, choices = 0, [0, 1, 2], []
             f_result: FuncResult = FuncResult(ast_ext.decl.name).on_start()
             function_name = f_result.name
-            logger.debug(f"Analyzing {function_name}")
+            logger.info(f"Analyzing {function_name}")
             function_body = ast_ext.body
             args = ast_ext.decl.type.args
             variables = Analysis.find_variables(function_body, args)
@@ -89,7 +89,7 @@ class Analysis:
             # of these conditions holds:
             infinite = delta_infty or (
                     relations.first.variables and index > 0 and
-                    evaluated and not choices.valid)
+                    evaluated and choices.infinite)
 
             # record and display results
             f_result.on_end()
@@ -301,7 +301,7 @@ class Analysis:
         """Analyze a constant assignment of form `x = c` where x is some
         variable and c is constant.
 
-        !!! quote "From A Flow Calculus of mwp-Bounds for Complexity Analysis"
+        !!! info "From \"A Flow Calculus of mwp-Bounds...\""
 
             To deal with constants, just replace the program’s constants by
             variables and regard the replaced constants as input to these
@@ -468,7 +468,7 @@ class Analysis:
     @staticmethod
     def while_(index: int, node: pr.While, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
-        """Analyze while loop.
+        """Analyze a while loop.
 
         Arguments:
             index: delta index
@@ -652,8 +652,8 @@ class Analysis:
     def unsupported(command: any):
         """Handle unsupported command."""
         warning, endc = '\033[93m', '\033[0m'
-        logger.warning(f'{warning}Unsupported syntax: {command}'
-                       f' -> not evaluated{endc}')
+        logger.warning(f'Unsupported syntax:\n'
+                       f'{warning}{command} => not evaluated{endc}')
 
     @staticmethod
     def func_call(index: int) -> Tuple[int, RelationList, bool]:
