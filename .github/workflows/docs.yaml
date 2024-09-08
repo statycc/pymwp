@@ -15,14 +15,12 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Install dependencies
-      run: python -m pip install -r requirements-dev.txt
-
-    - name: Lookup version
-      run: echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
-
-    - name: Update pages
+    - name: Docs setup
       run: |
+        python -m pip install -r requirements-dev.txt
         git config user.name 'Bot'
         git config user.email 'the-au-forml-lab@users.noreply.github.com'      
-        mike deploy --push --update-aliases ${{ env.VERSION }} latest
+        echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+
+    - name: Update pages
+      run: mike deploy --force --push --update-aliases ${{ env.VERSION }} latest
