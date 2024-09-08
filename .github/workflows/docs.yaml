@@ -23,4 +23,4 @@ jobs:
         echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
     - name: Update pages
-      run: mike deploy --force --push --update-aliases ${{ env.VERSION }} latest
+      run: mike deploy --push --update-aliases ${{ env.VERSION }} latest
