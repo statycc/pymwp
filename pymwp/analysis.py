@@ -206,7 +206,7 @@ class Analysis:
             if isinstance(node.rvalue, pr.FuncCall):
                 return Analysis.func_call(index)
         if isinstance(node, pr.UnaryOp):
-            return Analysis.unary_op(index, node)
+            return Analysis.unary_op(index, node, dg)
         if isinstance(node, pr.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, pr.While):
@@ -281,6 +281,10 @@ class Analysis:
         x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
         non_constants = tuple([v.name if hasattr(v, 'name') else None
                                for v in [x, y, z]])
+        if not ((isinstance(y, pr.Constant) or isinstance(y, pr.ID)) and
+                (isinstance(z, pr.Constant) or isinstance(z, pr.ID))):
+            Analysis.unsupported(f"n-ary op at index {index}")
+            return index, RelationList(), False
 
         # create a vector of polynomials based on operator type
         index, vector = Analysis.create_vector(
@@ -373,17 +377,22 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def unary_op(index: int, node: pr.UnaryOp) \
+    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) \
             -> Tuple[int, RelationList, bool]:
         """Analyze a standalone unary operation.
 
         Arguments:
             index: delta index
             node: unary operation AST node
+            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
         Returns:
             Updated index value, relation list, and an exit flag.
         """
+        if not (isinstance(node.expr, pr.Constant) or
+                isinstance(node.expr, pr.ID)):
+            return Analysis.compute_relation(index, node.expr, dg)
+
         op, exp = node.op, node.expr.name
         if op in ('p++', '++', 'p--', '--'):
             # expand unary incr/decr to a binary op
