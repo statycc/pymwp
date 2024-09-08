@@ -34,19 +34,6 @@ jobs:
           files: c_files/
           dest: examples.zip
 
-      - name: Docs setup
-        run: |
-          python -m pip install -r requirements-dev.txt
-          git config user.name 'Bot'
-          git config user.email 'the-au-forml-lab@users.noreply.github.com'   
-          git fetch origin gh-pages --depth=1
-          echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
-
-      - name: Update pages
-        run: |
-          mike set-default ${{ env.VERSION }}
-          mike deploy --push --update-aliases ${{ env.VERSION }} latest
-
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__
