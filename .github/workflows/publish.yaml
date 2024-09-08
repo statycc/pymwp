@@ -16,7 +16,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install build setuptools wheel twine
+        run: | 
+          pip install build setuptools wheel twine
+          python -m pip install -r requirements-dev.txt
+
+      - name: Lookup version
+        run: echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
       - name: Run tests
         run: make test
@@ -33,6 +38,9 @@ jobs:
         with:
           files: c_files/
           dest: examples.zip
+
+      - name: Publish docs
+        run: mike deploy --push --update-aliases ${{ env.VERSION }} latest
 
       - name: Build and publish
         env:

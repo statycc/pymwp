@@ -18,5 +18,8 @@ jobs:
     - name: Install dependencies
       run: python -m pip install -r requirements-dev.txt
 
+    - name: Lookup version
+      run: echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+
     - name: Update pages
-      run: mkdocs gh-deploy --force
+      run: mike deploy --push --update-aliases ${{ env.VERSION }} latest
