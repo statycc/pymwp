@@ -20,11 +20,11 @@ jobs:
         python -m pip install -r requirements-dev.txt
         git config user.name 'Bot'
         git config user.email 'the-au-forml-lab@users.noreply.github.com'   
-        git fetch origin gh-pages --depth=1
         echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
     - name: Update pages
       run: |
+        mkdocs gh-deploy --force
+        git fetch origin gh-pages --depth=2
         mike set-default ${{ env.VERSION }}
         mike deploy --push --update-aliases ${{ env.VERSION }} latest
-        mkdocs gh-deploy --force --dirty
