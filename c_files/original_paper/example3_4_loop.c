@@ -3,12 +3,8 @@
  * from the original paper "A Flow Calculus of 
  * mwp-Bounds for Complexity Analysis"
  */
-
 int foo(int X1, int X2, int X3, int X4, int X5){
-    /*
-     * The original analysis uses loop,
-     * which changes outcome of the analysis.
-     */
+
     for(int i = 0; i < X1; i++) {
         /*
          * The original example reads
