@@ -27,4 +27,4 @@ jobs:
       run: |
         mike set-default ${{ env.VERSION }}
         mike deploy --push --update-aliases ${{ env.VERSION }} latest
-        mike deploy --push --update-aliases --allow-empty
+        mkdocs gh-deploy --force --dirty
