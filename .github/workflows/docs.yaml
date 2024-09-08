@@ -25,7 +25,6 @@ jobs:
 
     - name: Update pages
       run: |
-         mkdocs gh-deploy --force
-#        mkdocs build
-#        mike deploy --push --update-aliases ${{ env.VERSION }} latest
-#        mike set-default ${{ env.VERSION }}
+        mkdocs build
+        mike deploy --push --update-aliases ${{ env.VERSION }} latest
+        mike set-default ${{ env.VERSION }}
