@@ -6,6 +6,7 @@ repo_url: https://github.com/statycc/pymwp
 repo_name: statycc/pymwp
 edit_uri: blob/main/docs/
 use_directory_urls: true
+site_url: 'https://statycc.github.io/pymwp/'  # Trailing slash is recommended
 
 nav:
 - Installation & Use: index.md
@@ -50,7 +51,6 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -113,6 +113,19 @@ plugins:
             show_root_toc_entry: false
             show_category_heading: false
             show_symbol_type_toc: true
+  - mike:
+      # These fields are all optional; the defaults are as below...
+      alias_type: symlink
+      redirect_template: null
+      deploy_prefix: ''
+      canonical_version: null
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+
+extra:
+  version:
+    provider: mike
 
 extra_css:
   - assets/styles.css
