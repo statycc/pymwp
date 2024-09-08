@@ -22,4 +22,7 @@ jobs:
       run: echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
     - name: Update pages
-      run: mike deploy --push --update-aliases ${{ env.VERSION }} latest
+      run: |
+      git config user.name 'Bot'
+      git config user.email 'the-au-forml-lab@users.noreply.github.com'      
+      mike deploy --push --update-aliases ${{ env.VERSION }} latest
