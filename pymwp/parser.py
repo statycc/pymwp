@@ -23,7 +23,7 @@ from logging import getLogger
 # noinspection PyPackageRequirements,PyProtectedMember
 from typing import Any, List
 
-from pycparser import c_ast, parse_file
+from pycparser import c_ast, parse_file, c_generator
 from pycparser_fake_libc import directory as fake_libc_dir
 
 logger = getLogger(__name__)
@@ -52,6 +52,10 @@ class ParserInterface:  # pragma: no cover
 
     def is_func(self, node: Any) -> bool:
         return False
+
+    def to_c(self, node: Any) -> str:
+        """Translate node back to C code."""
+        return ""
 
     @property
     def AST(self):
@@ -186,6 +190,11 @@ class PyCParser(ParserInterface):
     def is_func(self, node: Any) -> bool:
         return isinstance(node, self.FuncDef) and \
                hasattr(node, 'body') and node.body.block_items
+
+    def to_c(self, node: Any) -> str:
+        """Translate node back to C code."""
+        generator = c_generator.CGenerator()
+        return generator.visit(node)
 
     @staticmethod
     def __add_attr_x(text: str) -> str:

@@ -188,7 +188,6 @@ class Analysis:
         """
 
         logger.debug("in compute_relation")
-
         if isinstance(node, pr.Decl):
             return index, RelationList(), False
         if isinstance(node, pr.FuncCall):
@@ -218,7 +217,7 @@ class Analysis:
         if isinstance(node, pr.Break):  # => skip
             return index, RelationList(), False
 
-        Analysis.unsupported(type(node))
+        Analysis.unsupported(pr.to_c(node))
         return index, RelationList(), False
 
     @staticmethod
@@ -283,7 +282,7 @@ class Analysis:
                                for v in [x, y, z]])
         if not ((isinstance(y, pr.Constant) or isinstance(y, pr.ID)) and
                 (isinstance(z, pr.Constant) or isinstance(z, pr.ID))):
-            Analysis.unsupported(f"n-ary op at index {index}")
+            Analysis.unsupported(pr.to_c(node))
             return index, RelationList(), False
 
         # create a vector of polynomials based on operator type
@@ -662,8 +661,9 @@ class Analysis:
     def unsupported(command: any):
         """Handle unsupported command."""
         warning, endc = '\033[93m', '\033[0m'
-        logger.warning(f'Unsupported syntax:\n'
-                       f'{warning}{command} => not evaluated{endc}')
+        logger.warning(
+            f'Unsupported syntax not evaluated:\n'
+            f'{warning}{command}{endc}')
 
     @staticmethod
     def func_call(index: int) -> Tuple[int, RelationList, bool]:
