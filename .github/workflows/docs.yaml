@@ -26,5 +26,5 @@ jobs:
     - name: Update pages
       run: |
         mkdocs build
-        mike set-default ${{ env.VERSION }}
         mike deploy --push --update-aliases ${{ env.VERSION }} latest
+        mike set-default ${{ env.VERSION }}
