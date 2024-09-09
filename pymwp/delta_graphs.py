@@ -347,3 +347,7 @@ class DeltaGraph:
                             self.is_full(node, size, index):
                         self.remove_node(node, index)
                         self.insert_node(DeltaGraph.remove_index(node, index))
+
+    @property
+    def is_empty(self) -> bool:
+        return 0 in self.graph_dict and self.graph_dict[0] == {(): {}}
