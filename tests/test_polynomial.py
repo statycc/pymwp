@@ -1,5 +1,5 @@
-from pymwp.semiring import ZERO_MWP
 from pymwp import Polynomial, Monomial
+from pymwp.semiring import ZERO_MWP
 
 
 def test_polynomial_copy():

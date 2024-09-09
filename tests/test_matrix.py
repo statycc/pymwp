@@ -1,9 +1,9 @@
 import builtins
 
+from pymwp import Monomial, Polynomial
+from pymwp.matrix import ZERO as o, UNIT as m
 from pymwp.matrix import init_matrix, identity_matrix, encode, decode, \
     matrix_sum, matrix_prod, resize, equals, fixpoint, show
-from pymwp.matrix import ZERO as o, UNIT as m
-from pymwp import Monomial, Polynomial
 
 
 def test_init_matrix_creates_zero_matrix():

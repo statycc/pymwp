@@ -1,6 +1,6 @@
 from pymwp import Polynomial, Relation
-from pymwp.semiring import ZERO_MWP
 from pymwp.matrix import init_matrix
+from pymwp.semiring import ZERO_MWP
 
 
 def test_init_relation_creates_zero_matrix():
