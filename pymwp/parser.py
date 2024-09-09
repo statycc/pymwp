@@ -17,6 +17,7 @@
 # -----------------------------------------------------------------------------
 
 import os
+import re
 import tempfile
 from logging import getLogger
 
@@ -58,6 +59,14 @@ class ParserInterface:  # pragma: no cover
         return ""
 
     @property
+    def ArrayDecl(self):
+        return None
+
+    @property
+    def ArrayRef(self):
+        return None
+
+    @property
     def AST(self):
         return None
 
@@ -71,6 +80,10 @@ class ParserInterface:  # pragma: no cover
 
     @property
     def Break(self):
+        return None
+
+    @property
+    def Cast(self):
         return None
 
     @property
@@ -95,6 +108,10 @@ class ParserInterface:  # pragma: no cover
 
     @property
     def DoWhile(self):
+        return None
+
+    @property
+    def ExprList(self):
         return None
 
     @property
@@ -127,6 +144,22 @@ class ParserInterface:  # pragma: no cover
 
     @property
     def ParamList(self):
+        return None
+
+    @property
+    def Return(self):
+        return None
+
+    @property
+    def Switch(self):
+        return None
+
+    @property
+    def TernaryOp(self):
+        return None
+
+    @property
+    def TypeDecl(self):
         return None
 
     @property
@@ -191,10 +224,13 @@ class PyCParser(ParserInterface):
         return isinstance(node, self.FuncDef) and \
                hasattr(node, 'body') and node.body.block_items
 
-    def to_c(self, node: Any) -> str:
+    def to_c(self, node: Any, compact: bool = False) -> str:
         """Translate node back to C code."""
         generator = c_generator.CGenerator()
-        return generator.visit(node)
+        comm = generator.visit(node)
+        if compact:
+            comm = re.sub(r"[\n\t\s]+", " ", comm).strip()
+        return comm
 
     @staticmethod
     def __add_attr_x(text: str) -> str:
@@ -220,6 +256,14 @@ class PyCParser(ParserInterface):
         return text
 
     @property
+    def ArrayDecl(self):
+        return c_ast.ArrayDecl
+
+    @property
+    def ArrayRef(self):
+        return c_ast.ArrayRef
+
+    @property
     def AST(self):
         return c_ast
 
@@ -234,6 +278,10 @@ class PyCParser(ParserInterface):
     @property
     def Break(self):
         return c_ast.Break
+
+    @property
+    def Cast(self):
+        return c_ast.Cast
 
     @property
     def Compound(self):
@@ -258,6 +306,10 @@ class PyCParser(ParserInterface):
     @property
     def DoWhile(self):
         return c_ast.DoWhile
+
+    @property
+    def ExprList(self):
+        return c_ast.ExprList
 
     @property
     def For(self):
@@ -290,6 +342,22 @@ class PyCParser(ParserInterface):
     @property
     def ParamList(self):
         return c_ast.ParamList
+
+    @property
+    def Return(self):
+        return c_ast.Return
+
+    @property
+    def Switch(self):
+        return c_ast.Switch
+
+    @property
+    def TernaryOp(self):
+        return c_ast.TernaryOp
+
+    @property
+    def TypeDecl(self):
+        return c_ast.TypeDecl
 
     @property
     def UnaryOp(self):

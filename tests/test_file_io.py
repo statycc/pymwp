@@ -1,8 +1,8 @@
-import os
 import json
+import os
 
+from pymwp import Relation, Choices, Result
 from pymwp.file_io import default_file_out, save_result, load_result, loc
-from pymwp import Relation, Choices, Result, Bound
 from pymwp.result import FuncResult
 
 

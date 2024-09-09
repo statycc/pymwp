@@ -29,9 +29,10 @@ __version__ = "0.4.2"
 
 # flake8: noqa: F401
 from pymwp.parser import Parser
-from pymwp.delta_graphs import DeltaGraph
+from pymwp.syntax import Coverage, Variables
 from pymwp.choice import Choices
 from pymwp.monomial import Monomial
+from pymwp.delta_graphs import DeltaGraph
 from pymwp.polynomial import Polynomial
 from pymwp.relation_list import RelationList
 from pymwp.relation import Relation

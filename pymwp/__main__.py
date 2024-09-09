@@ -58,32 +58,26 @@ def main():
         sys.exit(1)
 
     # setup logger
-    log_level = logging.FATAL - (0 if args.silent else 30 if args.info else 40)
-    __setup_logger(log_level, args.logfile, args.no_time)
-
-    # capture results
-    result = Result()
+    level = 0 if args.silent else 30 if args.info else 40
+    __setup_logger(logging.FATAL - level, args.logfile, args.no_time)
 
     # get parser args then get AST
     parser_kwargs = {'use_cpp': not args.no_cpp}
-    # these options apply only when use_cpp is True
-    if not args.no_cpp:
+    if not args.no_cpp:  # only when use_cpp is True
         parser_kwargs['cpp_path'] = args.cpp_path
         parser_kwargs['cpp_args'] = args.cpp_args
     c_headers = args.headers.split(',') if args.headers else None
     ast = Parser.parse(args.input_file, c_headers, **(parser_kwargs or {}))
+
+    # setup arguments
+    result = Result()
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
+    file_out = args.out or default_file_out(args.input_file)
+    save, eval_ = not args.no_save, not args.no_eval
 
-    # run analysis
-    Analysis.run(
-        ast=ast,
-        res=result,
-        file_out=args.out or default_file_out(args.input_file),
-        no_save=args.no_save,
-        no_eval=args.no_eval,
-        fin=args.fin
-    )
+    Analysis.run(ast, result, file_out, save, eval_,
+                 args.fin, args.strict)
 
 
 def __parse_args(
@@ -146,6 +140,11 @@ def __parse_args(
         "--fin",
         action='store_true',
         help="ensure analysis completion in all cases"
+    )
+    parser.add_argument(
+        "--strict",
+        action='store_true',
+        help="require full syntax coverage to analyze"
     )
     parser.add_argument(
         "--logfile",

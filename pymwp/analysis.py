@@ -18,163 +18,146 @@
 
 # noinspection DuplicatedCode
 import logging
+from copy import deepcopy
 from typing import List, Tuple, Optional
 
+from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
+from pymwp import Coverage, Variables as Vara
+from pymwp.result import FuncResult
 from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
-from pymwp.result import FuncResult
 
 logger = logging.getLogger(__name__)
+
+ComRes = Tuple[int, RelationList, bool]
+"""Predicate is a function from seq R -> bool."""
 
 
 class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, **kwargs) -> Result:
+    def run(ast: pr.AST, res: Result = None, file_out: str = None,
+            save: bool = True, evaluate: bool = True, fin: bool = False,
+            strict: bool = False) \
+            -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
-            res: (optional) pre-initialized result object
+            res: pre-initialized result object
+            file_out: file to save result [default: None]
+            save: save result to file_out [default: True]
+            evaluate: do bound evaluation [default: True]
+            fin: always run to completion [default: False]
+            strict: require supported syntax [default: False]
 
         Returns:
             A [`Result`](result.md) object.
         """
-        file_out: str = kwargs['file_out'] if 'file_out' in kwargs else None
-        save: bool = 'no_save' not in kwargs or kwargs['no_save'] is False
-        stop_early: bool = 'fin' not in kwargs or kwargs['fin'] is False
-        skip_eval: bool = 'no_eval' in kwargs and kwargs['no_eval'] is True
         result: Result = res or Result()
-
         logger.debug("started analysis")
+
         result.on_start()
-        for ast_ext in [f for f in ast if pr.is_func(f)]:
-            index, options, choices = 0, [0, 1, 2], []
-            f_result: FuncResult = FuncResult(ast_ext.decl.name).on_start()
-            function_name = f_result.name
-            logger.info(f"Analyzing {function_name}")
-            function_body = ast_ext.body
-            args = ast_ext.decl.type.args
-            variables = Analysis.find_variables(function_body, args)
-            logger.debug(f"{function_name} variables: {', '.join(variables)}")
-            evaluated, bound = False, None
-
-            relations = RelationList.identity(variables=variables)
-            total = len(function_body.block_items)
-            delta_infty = False
-            dg = DeltaGraph()
-
-            for i, node in enumerate(function_body.block_items):
-                logger.debug(f'computing relation...{i} of {total}')
-                index, rel_list, delta_infty_ = Analysis \
-                    .compute_relation(index, node, dg)
-                delta_infty = delta_infty or delta_infty_  # cannot erase
-                if stop_early and delta_infty:
-                    break
-                logger.debug(f'computing composition...{i} of {total}')
-                relations.composition(rel_list)
-
-            # evaluate unless not enforcing finish and delta-infty
-            if not skip_eval and not delta_infty:
-                choices = relations.first.eval(options, index)
-                if not choices.infinite:
-                    bound = Bound().calculate(
-                        relations.first.apply_choice(*choices.first))
-                evaluated = True
-
-            # the evaluation is infinite when either
-            # of these conditions holds:
-            infinite = delta_infty or (
-                    relations.first.variables and index > 0 and
-                    evaluated and choices.infinite)
-
-            # record and display results
-            f_result.on_end()
-            f_result.vars = relations.first.variables
-            f_result.infinite = infinite
-            f_result.index = index
-            if not (infinite and stop_early):
-                f_result.relation = relations.first
-            if infinite and not stop_early:
-                var_choices = relations.first.var_eval(options, index)
-                def_infty = [v for v, c in var_choices.items() if c.infinite]
-                f_result.inf_flows = relations.first.infty_pairs(def_infty)
-            if not infinite:
-                f_result.bound = bound
-                f_result.choices = choices
-            result.add_relation(f_result)
-
+        for f_node in [f for f in ast if pr.is_func(f)]:
+            func_res = Analysis.func(f_node, not fin, evaluate, strict)
+            if func_res:
+                result.add_relation(func_res)
         result.on_end()
         result.log_result()
 
-        if save:
+        if save and file_out:
             save_result(file_out, res)
         return result
 
     @staticmethod
-    def find_variables(
-            function_body: pr.Compound, param_list: Optional[pr.ParamList]
-    ) -> List[str]:
-        """Finds all local variable declarations in function body and
-        parameter list.
-
-        This method scans recursively AST nodes looking for
-        variable declarations. For each declaration, the
-        name of the variable will be recorded. Method returns
-        a list of all discovered variable names.
+    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool)\
+            -> Optional[FuncResult]:
+        """Analyze a function.
 
         Arguments:
-            function_body: AST node with sub-nodes
-            param_list: AST function parameter list
+            node: parsed C source code function node
+            stop: terminate if no bound exists
+            evaluate: do not calculate choices and evaluate bound
+            strict: skip function if it contains unsupported syntax
 
         Returns:
-            List of all discovered variable names, or
-            empty list if no variables were found.
+              Analysis result for provided function. When running strict
+              mode, the result will be None if function is not analyzable.
         """
-        variables = []
+        assert pr.is_func(node)
+        name = node.decl.name
+        logger.info(f"Analyzing {name}")
+        result = FuncResult(name)
 
-        def recurse_nodes(node_):
-            if isinstance(node_, pr.DeclList):
-                for d in node_.decls:
-                    recurse_nodes(d)
-            if isinstance(node_, pr.Decl):
-                variables.append(node_.name)
-                recurse_nodes(node_.init)
-            if isinstance(node_, pr.ID):
-                variables.append(node_.name)
-            if hasattr(node_, 'expr'):
-                recurse_nodes(node_.expr)
-            if hasattr(node_, 'lvalue'):
-                recurse_nodes(node_.lvalue)
-            if hasattr(node_, 'rvalue'):
-                recurse_nodes(node_.rvalue)
-            if hasattr(node_, 'left'):
-                recurse_nodes(node_.left)
-            if hasattr(node_, 'right'):
-                recurse_nodes(node_.right)
-            if hasattr(node_, 'block_items'):
-                for sub_node in node_.block_items:
-                    recurse_nodes(sub_node)
+        # preliminary syntax check
+        node_cp = deepcopy(node)
+        cover = Coverage(node_cp).report()
+        if not cover.full and strict:
+            logger.info(f"{name} is not analyzable")
+            return None
+        if not cover.full:
+            node = cover.ast_mod().node
+            logger.warning(f"{name} syntax was modified")
+            if len(node.body.block_items) == 0:
+                logger.warning("nothing left to analyze")
+                return None
 
-        # search function body for local declarations
-        if hasattr(function_body, 'block_items'):
-            for node in function_body.block_items:
-                recurse_nodes(node)
-        elif function_body:
-            recurse_nodes(function_body)
+        # setup for function analysis
+        index, options, choices = 0, [0, 1, 2], []
+        evaluated, bound = False, None
+        delta_infty, dg = False, DeltaGraph()
+        variables = Vara(node).vars
+        total = len(node.body.block_items)
+        relations = RelationList.identity(variables=variables)
+        logger.debug(f"{name} variables: {', '.join(variables)}")
+        logger.debug(f"{total} top-level commands to analyze")
 
-        # process param list which is a list of declarations
-        if param_list and hasattr(param_list, 'params'):
-            for node in param_list.params:
-                recurse_nodes(node)
-        return sorted(list(set(variables)))
+        # analyze body commands
+        result.on_start()
+        for i, node in enumerate(node.body.block_items):
+            logger.debug(f'computing relation...{i} of {total}')
+            index, rel_list, delta_infty_ = Analysis \
+                .compute_relation(index, node, dg)
+            delta_infty = delta_infty or delta_infty_  # cannot erase
+            if stop and delta_infty:
+                logger.debug('delta_graphs: infinite -> Exit now')
+                break
+            logger.debug(f'computing composition...{i} of {total}')
+            relations.composition(rel_list)
+
+        # evaluate choices + calculate a bound
+        if evaluate and not delta_infty:
+            choices = relations.first.eval(options, index)
+            if not choices.infinite:
+                bound = Bound().calculate(
+                    relations.first.apply_choice(*choices.first))
+            evaluated = True
+
+        # infinite by delta graph or by choice
+        infinite = delta_infty or (
+                relations.first.variables and index > 0 and
+                evaluated and choices.infinite)
+
+        # record results
+        result.index = index
+        result.infinite = infinite
+        result.vars = relations.first.variables
+        if not (infinite and stop):
+            result.relation = relations.first
+        if infinite and not stop:
+            var_choices = relations.first.var_eval(options, index)
+            result.inf_flows = relations.first.infty_pairs(
+                [v for v, c in var_choices.items() if c.infinite])
+        if not infinite:
+            result.bound = bound
+            result.choices = choices
+        result.on_end()
+        return result
 
     @staticmethod
-    def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> ComRes:
         """Create a relation list corresponding for all possible matrices
         of an AST node.
 
@@ -190,8 +173,6 @@ class Analysis:
         logger.debug("in compute_relation")
         if isinstance(node, pr.Decl):
             return index, RelationList(), False
-        if isinstance(node, pr.FuncCall):
-            return Analysis.func_call(index)
         if isinstance(node, pr.Assignment) and \
                 isinstance(node.lvalue, pr.ID):
             if isinstance(node.rvalue, pr.BinaryOp):
@@ -202,27 +183,30 @@ class Analysis:
                 return Analysis.unary_asgn(index, node)
             if isinstance(node.rvalue, pr.ID):
                 return Analysis.id(index, node)
-            if isinstance(node.rvalue, pr.FuncCall):
-                return Analysis.func_call(index)
         if isinstance(node, pr.UnaryOp):
             return Analysis.unary_op(index, node, dg)
         if isinstance(node, pr.If):
             return Analysis.if_(index, node, dg)
         if isinstance(node, pr.While):
             return Analysis.while_(index, node, dg)
-        if isinstance(node, pr.For) and Analysis.loop_compat(node)[0]:
+        if isinstance(node, pr.DoWhile):
+            return Analysis.while_(index, node, dg)
+        if isinstance(node, pr.For):
             return Analysis.for_(index, node, dg)
         if isinstance(node, pr.Compound):
             return Analysis.compound_(index, node, dg)
         if isinstance(node, pr.Break):  # => skip
+            return index, RelationList(), False
+        if isinstance(node, pr.Continue):  # => skip
+            return index, RelationList(), False
+        if isinstance(node, pr.Return):  # => skip
             return index, RelationList(), False
 
         Analysis.unsupported(pr.to_c(node))
         return index, RelationList(), False
 
     @staticmethod
-    def id(index: int, node: pr.Assignment) \
-            -> Tuple[int, RelationList, bool]:
+    def id(index: int, node: pr.Assignment) -> ComRes:
         """Analyze x = y, where data flows between two variables.
 
         Arguments:
@@ -265,8 +249,7 @@ class Analysis:
         return index + 1, rel_list, False
 
     @staticmethod
-    def binary_op(index: int, node: pr.Assignment) \
-            -> Tuple[int, RelationList, bool]:
+    def binary_op(index: int, node: pr.Assignment) -> ComRes:
         """Analyze binary operation, e.g. `x = y + z`.
 
         Arguments:
@@ -300,8 +283,7 @@ class Analysis:
         return index, rel_list, False
 
     @staticmethod
-    def constant(index: int, variable_name: str) \
-            -> Tuple[int, RelationList, bool]:
+    def constant(index: int, variable_name: str) -> ComRes:
         """Analyze a constant assignment of form `x = c` where x is some
         variable and c is constant.
 
@@ -322,8 +304,7 @@ class Analysis:
         return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_asgn(index: int, node: pr.Assignment) \
-            -> Tuple[int, RelationList, bool]:
+    def unary_asgn(index: int, node: pr.Assignment) -> ComRes:
         """Assignment where right-hand-size is a unary op e.g. `x = y++`.
 
         Arguments:
@@ -339,7 +320,7 @@ class Analysis:
             return Analysis.constant(index, tgt.name)
         if isinstance(unary.expr, pr.ID):
             exp = unary.expr.name
-            if op in ('p++', '++', 'p--', '--'):
+            if op in Coverage.INC_DEC:
                 # expand unary incr/decr to a binary op
                 # this ignores the +1/-1 applied to exp, but this is ok since
                 # constants are irrelevant
@@ -376,8 +357,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) -> ComRes:
         """Analyze a standalone unary operation.
 
         Arguments:
@@ -393,7 +373,7 @@ class Analysis:
             return Analysis.compute_relation(index, node.expr, dg)
 
         op, exp = node.op, node.expr.name
-        if op in ('p++', '++', 'p--', '--'):
+        if op in Coverage.INC_DEC:
             # expand unary incr/decr to a binary op
             op_code = '+' if op in ('p++', '++') else '-'
             dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
@@ -404,8 +384,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def if_(index: int, node: pr.If, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def if_(index: int, node: pr.If, dg: DeltaGraph) -> ComRes:
         """Analyze an if statement.
 
         Arguments:
@@ -420,11 +399,11 @@ class Analysis:
         true_relation, false_relation = RelationList(), RelationList()
 
         index, exit_ = Analysis.if_branch(
-            node.iftrue, index, true_relation, dg)
+            index, node.iftrue, true_relation, dg)
         if exit_:
             return index, true_relation, True
         index, exit_ = Analysis.if_branch(
-            node.iffalse, index, false_relation, dg)
+            index, node.iffalse, false_relation, dg)
         if exit_:
             return index, false_relation, True
 
@@ -432,10 +411,8 @@ class Analysis:
         return index, relations, False
 
     @staticmethod
-    def if_branch(
-            node: pr.If, index: int, relation_list: RelationList,
-            dg: DeltaGraph
-    ) -> Tuple[int, bool]:
+    def if_branch(index: int, node: pr.If, relation_list: RelationList,
+                  dg: DeltaGraph) -> Tuple[int, bool]:
         """Analyze `if` or `else` branch of a conditional statement.
 
         This method will analyze the body of the statement and update
@@ -447,8 +424,8 @@ class Analysis:
         modification.
 
         Arguments:
-            node: AST if statement branch node
             index: current delta index value
+            node: AST if statement branch node
             relation_list: current relation list state
             dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
 
@@ -466,17 +443,7 @@ class Analysis:
         return index, False
 
     @staticmethod
-    def check_exit(dg: DeltaGraph) -> bool:
-        exit_ = False
-        if 0 in dg.graph_dict:
-            if dg.graph_dict[0] == {(): {}}:
-                logger.debug('delta_graphs: infinite -> Exit now')
-                exit_ = True
-        return exit_
-
-    @staticmethod
-    def while_(index: int, node: pr.While, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def while_(index: int, node: pr.While, dg: DeltaGraph) -> ComRes:
         """Analyze a while loop.
 
         Arguments:
@@ -503,45 +470,10 @@ class Analysis:
         relations.while_correction(dg)
         dg.fusion()
 
-        return index, relations, Analysis.check_exit(dg)
+        return index, relations, dg.is_empty
 
     @staticmethod
-    def loop_compat(node: pr.For) -> Tuple[bool, Optional[str]]:
-        """Check if C-language for loop is compatible with a "mwp-loop".
-
-        The mwp-loop has form loop X { C }. Try to identify C-language
-        for loops that have similar form ("repeat command X times").
-        The variable X is not allowed to occur in the body C of the
-        iteration loop X {C}.
-
-        Arguments:
-            node: AST node to inspect.
-
-        Returns:
-            A tuple containing (1) compatibility result -- true if for
-        loop is mwp-loop compatible, otherwise false -- and (2) name of
-        iteration variable `X`, possibly `None`.
-        """
-        # check loop control: iteration depends on single control
-        # variable, that does not occur in body
-        iter_vars = []
-        if isinstance(node.init, pr.DeclList) and \
-                hasattr(node.init, 'decls'):
-            for decl in node.init.decls:
-                if isinstance(decl, pr.Decl):
-                    iter_vars.append(decl.name)
-        ctrl_vars = set(Analysis.find_variables(node.init, None) +
-                        Analysis.find_variables(node.cond, None))
-        body_vars = Analysis.find_variables(node.stmt, None)
-        disjoint = ctrl_vars.intersection(set(body_vars)) == set()
-        loop_x = list(ctrl_vars - set(iter_vars))
-        compat = disjoint and len(loop_x) == 1
-        x_var = None if not compat else loop_x[0]
-        return compat, x_var
-
-    @staticmethod
-    def for_(index: int, node: pr.For, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def for_(index: int, node: pr.For, dg: DeltaGraph) -> ComRes:
         """Analyze for loop node.
 
         The mwp-loop has form loop X { C }. The method supports C-language
@@ -558,8 +490,9 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        comp, x_var = Analysis.loop_compat(node)
-        assert comp
+        comp, x_var = Coverage.loop_compat(node)
+        if not comp:
+            return index, RelationList(), False
         relations = RelationList(variables=[x_var])
         for child in node.stmt.block_items \
                 if hasattr(node, 'block_items') else [node.stmt]:
@@ -573,11 +506,10 @@ class Analysis:
         relations.fixpoint()
         relations.loop_correction(x_var, dg)
         dg.fusion()
-        return index, relations, Analysis.check_exit(dg)
+        return index, relations, dg.is_empty
 
     @staticmethod
-    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) \
-            -> Tuple[int, RelationList, bool]:
+    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) -> ComRes:
         """Compound AST node contains zero or more children and is
         created by braces in source code.
 
@@ -603,9 +535,8 @@ class Analysis:
         return index, relations, False
 
     @staticmethod
-    def create_vector(
-            index: int, operator: str, variables: Tuple[Optional[str], ...]
-    ) -> Tuple[int, List[Polynomial]]:
+    def create_vector(index: int, op: str, variables: Tuple[str, ...]) \
+            -> Tuple[int, List[Polynomial]]:
         """Build a polynomial vector based on operator and the operands
         of a binary operation statement that has form `x = y (operator) z`.
 
@@ -616,7 +547,7 @@ class Analysis:
 
         Arguments:
             index: delta index
-            operator: operator
+            op: operator
             variables: variables in this operation `x = y (op) z` in order,
                 where `y` or `z` is `None` if constant
 
@@ -625,11 +556,11 @@ class Analysis:
         """
 
         x, y, z = variables
-        supported_op = {"+", "-", "*"}
+        supported_op = Coverage.BIN_OPS
         vector = []
 
-        if operator not in supported_op:
-            Analysis.unsupported(f'{operator} operator')
+        if op not in supported_op:
+            Analysis.unsupported(f'{op} operator')
             return index, []
 
         # when left variable does not occur on right side of assignment
@@ -638,20 +569,20 @@ class Analysis:
         if x != y and x != z:
             vector.append(Polynomial('o'))
 
-        if operator in supported_op and (y is None or z is None):
+        if op in supported_op and (y is None or z is None):
             vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
 
-        elif operator == '*' and y == z:
+        elif op == '*' and y == z:
             vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
 
-        elif operator == '*' and y != z:
+        elif op == '*' and y != z:
             vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
             vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
 
-        elif operator in {'+', '-'} and y == z:
+        elif op in {'+', '-'} and y == z:
             vector.append(Polynomial.from_scalars(index, 'p', 'p', 'w'))
 
-        elif operator in {'+', '-'} and y != z:
+        elif op in {'+', '-'} and y != z:
             vector.append(Polynomial.from_scalars(index, 'm', 'p', 'w'))
             vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
 
@@ -661,12 +592,7 @@ class Analysis:
     def unsupported(command: any):
         """Handle unsupported command."""
         warning, endc = '\033[93m', '\033[0m'
-        logger.warning(
-            f'Unsupported syntax not evaluated:\n'
-            f'{warning}{command}{endc}')
-
-    @staticmethod
-    def func_call(index: int) -> Tuple[int, RelationList, bool]:
-        """Function call handler stub."""
-        Analysis.unsupported('function call')
-        return index, RelationList(), False
+        fmt_str = str(command or "").strip()
+        lb = '\n' if ('\n' in fmt_str or len(fmt_str) > 35) else ' '
+        logger.warning(f'{warning}Unsupported syntax{endc} '
+                       f'not evaluated:{lb}{fmt_str}')

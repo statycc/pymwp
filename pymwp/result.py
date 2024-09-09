@@ -221,13 +221,18 @@ class Result(Timeable):
         if not f.infinite and not f.bound:
             logger.info('Some bound exists')
             return
-        txt = f'time: {func_result.dur_ms} ms • '
-        txt += (('num-bounds: 0 (infinite)' + (
-            ('\nProblematic flows: ' + f.inf_flows)
-            if f.inf_flows else '')) if f.infinite else (
-                f'num-bounds: {f.n_bounds:,}\n' +
-                f'{Bound.show_poly(f.bound)}'))
-        Result.pretty_print_result(f'function: {f.name}\n{txt}')
+        txt = f'function: {f.name}'
+        txt += f' • time: {func_result.dur_ms:,} ms\n'
+        txt += f'variables: {len(f.vars)}'
+        txt += ' • num-bounds: '
+        if f.infinite:
+            txt += '0 (infinite)'
+            if f.inf_flows:
+                txt += f'\nProblematic flows: {f.inf_flows}'
+        else:
+            txt += f'{f.n_bounds:,}\n'
+            txt += f'{Bound.show_poly(f.bound)}'
+        Result.pretty_print_result(txt)
 
     @staticmethod
     def pretty_print_result(txt: str) -> None:
