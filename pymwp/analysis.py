@@ -101,7 +101,7 @@ class Analysis:
             node = cover.ast_mod().node
             logger.warning(f"{name} syntax was modified")
             if len(node.body.block_items) == 0:
-                logger.warning(f"nothing left to analyze")
+                logger.warning("nothing left to analyze")
                 return None
 
         # setup for function analysis
@@ -111,8 +111,7 @@ class Analysis:
         variables = Vara(node).vars
         total = len(node.body.block_items)
         relations = RelationList.identity(variables=variables)
-        jn_vars, n_vars = ', '.join(variables[:10]), len(variables)
-        logger.debug(f"{name} variables: {jn_vars}")
+        logger.debug(f"{name} variables: {', '.join(variables)}")
         logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
