@@ -18,6 +18,7 @@
 
 # noinspection DuplicatedCode
 import logging
+from copy import deepcopy
 from typing import List, Tuple, Optional
 
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -91,12 +92,13 @@ class Analysis:
         result = FuncResult(name)
 
         # preliminary syntax check
-        cover = Coverage(node).report()
+        node_cp = deepcopy(node)
+        cover = Coverage(node_cp).report()
         if not cover.full and strict:
             logger.info(f"{name} is not analyzable")
             return None
         if not cover.full:
-            cover.ast_mod()
+            node = cover.ast_mod().node
             logger.warning(f"{name} syntax was modified")
             if len(node.body.block_items) == 0:
                 logger.warning(f"nothing left to analyze")
