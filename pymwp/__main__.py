@@ -74,9 +74,10 @@ def main():
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
     file_out = args.out or default_file_out(args.input_file)
-    save, eval_, fin = not args.no_save, not args.no_eval, args.fin
+    save, eval_ = not args.no_save, not args.no_eval
 
-    Analysis.run(ast, result, file_out, save, eval_, fin)
+    Analysis.run(ast, result, file_out, save, eval_,
+                 args.fin, args.strict)
 
 
 def __parse_args(
@@ -139,6 +140,11 @@ def __parse_args(
         "--fin",
         action='store_true',
         help="ensure analysis completion in all cases"
+    )
+    parser.add_argument(
+        "--strict",
+        action='store_true',
+        help="require full syntax coverage to analyze"
     )
     parser.add_argument(
         "--logfile",

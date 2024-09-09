@@ -18,10 +18,10 @@
 
 # noinspection DuplicatedCode
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
-from pymwp import SyntaxCover, Variables as Vara
+from pymwp import Coverage, Variables as Vara
 from pymwp.result import FuncResult
 from .file_io import save_result
 # noinspection PyPep8Naming
@@ -38,7 +38,8 @@ class Analysis:
 
     @staticmethod
     def run(ast: pr.AST, res: Result = None, file_out: str = None,
-            save: bool = True, evaluate: bool = True, fin: bool = False) \
+            save: bool = True, evaluate: bool = True, fin: bool = False,
+            strict: bool = False) \
             -> Result:
         """Run MWP analysis on specified input file.
 
@@ -49,6 +50,7 @@ class Analysis:
             save: save result to file_out [default: True]
             evaluate: do bound evaluation [default: True]
             fin: always run to completion [default: False]
+            strict: require supported syntax [default: False]
 
         Returns:
             A [`Result`](result.md) object.
@@ -58,8 +60,9 @@ class Analysis:
 
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
-            result.add_relation(
-                Analysis.func(f_node, not fin, evaluate))
+            func_res = Analysis.func(f_node, not fin, evaluate, strict)
+            if func_res:
+                result.add_relation(func_res)
         result.on_end()
         result.log_result()
 
@@ -68,35 +71,50 @@ class Analysis:
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, evaluate: bool) -> FuncResult:
+    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool)\
+            -> Optional[FuncResult]:
         """Analyze a function.
 
         Arguments:
             node: parsed C source code function node
             stop: terminate if no bound exists
             evaluate: do not calculate choices and evaluate bound
+            strict: skip function if it contains unsupported syntax
 
         Returns:
-              Analysis result for provided function.
+              Analysis result for provided function. When running strict
+              mode, the result will be None if function is not analyzable.
         """
         assert pr.is_func(node)
         name = node.decl.name
-        result = FuncResult(name)
         logger.info(f"Analyzing {name}")
+        result = FuncResult(name)
 
-        result.on_start()
-        cover = SyntaxCover(node, True).is_full
-        logger.info(f"Full syntax cover: {cover}")
+        # preliminary syntax check
+        cover = Coverage(node).report()
+        if not cover.full and strict:
+            logger.info(f"{name} is not analyzable")
+            return None
+        if not cover.full:
+            cover.ast_mod()
+            logger.warning(f"{name} syntax was modified")
+            if len(node.body.block_items) == 0:
+                logger.warning(f"nothing left to analyze")
+                return None
 
+        # setup for function analysis
         index, options, choices = 0, [0, 1, 2], []
         evaluated, bound = False, None
         delta_infty, dg = False, DeltaGraph()
         variables = Vara(node).vars
         total = len(node.body.block_items)
         relations = RelationList.identity(variables=variables)
-        logger.debug(f"{name} variables: {', '.join(variables)}")
+        jn_vars, n_vars = ', '.join(variables[:10]), len(variables)
+        logger.debug(f"{name} variables: {jn_vars}")
+        logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
+        result.on_start()
         for i, node in enumerate(node.body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
             index, rel_list, delta_infty_ = Analysis \
@@ -301,7 +319,7 @@ class Analysis:
             return Analysis.constant(index, tgt.name)
         if isinstance(unary.expr, pr.ID):
             exp = unary.expr.name
-            if op in SyntaxCover.INC_DEC:
+            if op in Coverage.INC_DEC:
                 # expand unary incr/decr to a binary op
                 # this ignores the +1/-1 applied to exp, but this is ok since
                 # constants are irrelevant
@@ -354,7 +372,7 @@ class Analysis:
             return Analysis.compute_relation(index, node.expr, dg)
 
         op, exp = node.op, node.expr.name
-        if op in SyntaxCover.INC_DEC:
+        if op in Coverage.INC_DEC:
             # expand unary incr/decr to a binary op
             op_code = '+' if op in ('p++', '++') else '-'
             dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
@@ -471,7 +489,7 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        comp, x_var = SyntaxCover.loop_compat(node)
+        comp, x_var = Coverage.loop_compat(node)
         if not comp:
             return index, RelationList(), False
         relations = RelationList(variables=[x_var])
@@ -537,7 +555,7 @@ class Analysis:
         """
 
         x, y, z = variables
-        supported_op = SyntaxCover.BIN_OPS
+        supported_op = Coverage.BIN_OPS
         vector = []
 
         if op not in supported_op:

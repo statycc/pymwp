@@ -16,10 +16,12 @@
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-# noinspection DuplicatedCode
+from __future__ import annotations
+
 import logging
 from collections import Counter
 from copy import deepcopy
+from abc import ABC, abstractmethod
 from typing import List, Any, Callable, Tuple, Optional
 
 from .parser import Parser as pr
@@ -27,17 +29,19 @@ from .parser import Parser as pr
 logger = logging.getLogger(__name__)
 
 
-class BaseAnalysis:
+class BaseAnalysis(ABC):
     """Base implementation for AST analysis."""
 
     INC_DEC = {'p++', '++', 'p--', '--'}
     U_OPS = INC_DEC | {'+', '-', '!', 'sizeof'}
     BIN_OPS = {"+", "-", "*"}
 
-    def handler(self, node: Any, *args, **kwargs):
+    @abstractmethod
+    def handler(self, node: Any, *args, **kwargs) -> None:
         pass  # do something with node
 
-    def recurse(self, node: Any, *args, **kwargs):
+    def recurse(self, node: Any, *args, **kwargs) -> None:
+        """Traverse AST node."""
         if isinstance(node, pr.Constant):
             return self.constant(node, *args, **kwargs)
         if isinstance(node, pr.ID):
@@ -54,6 +58,8 @@ class BaseAnalysis:
             return self.binop(node, *args, **kwargs)
         if isinstance(node, pr.Compound):
             return self.compound(node, *args, **kwargs)
+        if isinstance(node, pr.ExprList):
+            return self.expr_list(node, *args, **kwargs)
         if isinstance(node, pr.If):
             return self.if_(node, *args, **kwargs)
         if isinstance(node, pr.While):
@@ -84,19 +90,39 @@ class BaseAnalysis:
             return self.param_list(node, *args, **kwargs)
         self.handler(node, *args, **kwargs)
 
-    def recurse_attr(self, node: Any, attr: str, *args, **kwargs):
-        """Analyze child at node.attribute."""
+    def recurse_attr(self, node: Any, attr: str, *args, **kwargs) -> None:
+        """Analyze child at node.attribute.
+
+        Arguments:
+            node: AST node
+            attr: node attribute to analyze
+        """
         if hasattr(node, attr) and getattr(node, attr):
             self.recurse(getattr(node, attr), *args, **kwargs)
 
-    def iter_attr(self, node: Any, attr: str, *args, **kwargs):
-        """Iteratively analyze children at node.attribute."""
+    def iter_attr(self, node: Any, attr: str, *args, **kwargs) -> None:
+        """Iteratively analyze children at `node.attribute`,
+        where the attribute is an iterable.
+
+        Arguments:
+            node: AST node
+            attr: node attribute to analyze.
+        """
         if hasattr(node, attr) and getattr(node, attr):
             for n in getattr(node, attr):
                 self.recurse(n, *args, **kwargs)
 
     @staticmethod
     def array_name(node: pr.ArrayRef) -> str:
+        """Find array name for array node. If multidimensional,
+        will iterate to find the nested node with name.
+
+        Arguments:
+            node: array AST node.
+
+        Returns:
+            Array name.
+        """
         name_node = node.name
         while not isinstance(name_node, pr.ID):
             name_node = name_node.name
@@ -118,7 +144,7 @@ class BaseAnalysis:
         self.handler(node, *args, **kwargs)
 
     def compound(self, node: pr.Compound, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
+        self.iter_attr(node, 'block_items', *args, **kwargs)
 
     def constant(self, node: pr.Constant, *args, **kwargs):
         self.handler(node, *args, **kwargs)
@@ -130,10 +156,13 @@ class BaseAnalysis:
         self.handler(node, *args, **kwargs)
 
     def decl_list(self, node: pr.DeclList, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
+        self.iter_attr(node, 'decls', *args, **kwargs)
 
     def do_while(self, node: pr.DoWhile, *args, **kwargs):
         self.handler(node, *args, **kwargs)
+
+    def expr_list(self, node: pr.ExprList, *args, **kwargs):
+        self.iter_attr(node, 'exprs', *args, **kwargs)
 
     def for_(self, node: pr.For, *args, **kwargs):
         self.handler(node, *args, **kwargs)
@@ -151,7 +180,7 @@ class BaseAnalysis:
         self.handler(node, *args, **kwargs)
 
     def param_list(self, node: pr.ParamList, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
+        self.iter_attr(node, 'params', *args, **kwargs)
 
     def return_(self, node: pr.Return, *args, **kwargs):
         self.handler(node, *args, **kwargs)
@@ -196,8 +225,8 @@ class Variables(BaseAnalysis):
     def break_(self, node: pr.Break, *args, **kwargs):
         return
 
-    def compound(self, node: pr.Compound, *args, **kwargs):
-        self.iter_attr(node, 'block_items', *args, **kwargs)
+    def cast(self, node: pr.Cast, *args, **kwargs):
+        self.recurse_attr(node, 'expr', *args, **kwargs)
 
     def constant(self, node: pr.Constant, *args, **kwargs):
         return
@@ -208,9 +237,6 @@ class Variables(BaseAnalysis):
     def decl(self, node: pr.Decl, *args, **kwargs):
         self.handler(node, *args, **kwargs)
         self.recurse_attr(node, 'init', *args, **kwargs)
-
-    def decl_list(self, node: pr.DeclList, *args, **kwargs):
-        self.iter_attr(node, 'decls', *args, **kwargs)
 
     def do_while(self, node: pr.DoWhile, *args, **kwargs):
         self.recurse_attr(node, 'cond', *args, **kwargs)
@@ -234,9 +260,6 @@ class Variables(BaseAnalysis):
         self.recurse_attr(node, 'iftrue', *args, **kwargs)
         self.recurse_attr(node, 'iffalse', *args, **kwargs)
 
-    def param_list(self, node: pr.ParamList, *args, **kwargs):
-        self.iter_attr(node, 'params', *args, **kwargs)
-
     def return_(self, node: pr.Return, *args, **kwargs):
         self.recurse_attr(node, 'expr', *args, **kwargs)
 
@@ -251,60 +274,88 @@ class Variables(BaseAnalysis):
         self.recurse_attr(node, 'stmt', *args, **kwargs)
 
     @staticmethod
-    def loop_control(node: pr.For):
-        it, dc, vl = [], [], []
-        if isinstance(node.init, pr.Assignment) and node.init.op == "=":
-            if isinstance(node.init.lvalue, pr.ID):
-                it += [node.init.lvalue.name]
-            if isinstance(node.init.rvalue, pr.ID):
-                vl += [node.init.rvalue.name]
-        elif isinstance(node.init, pr.DeclList):
-            for decl in node.init.decls:
-                if isinstance(decl, pr.Decl):
-                    dc += [decl.name]
-                    if isinstance(decl.init, pr.ID):
-                        vl += [decl.init.name]
-        elif isinstance(node.init, pr.ExprList):
-            for expr in node.init.exprs:
-                if isinstance(expr, pr.Assignment) and expr.op == "=":
-                    if isinstance(expr.lvalue, pr.ID):
-                        it += [expr.lvalue.name]
-                    if isinstance(expr.rvalue, pr.ID):
-                        vl += [expr.rvalue.name]
-        cv = Variables(node.cond).vars
+    def loop_control(node: pr.For) -> Tuple[List[str], List[str]]:
+        """Find variables in a for loop control block.
+
+        Arguments:
+            node: for-loop node
+
+        Returns:
+            Two lists of variables: <loop controls, body variables>.
+        """
+        iters, decls, srcs = [], [], []
+
+        def id_(node_, tgt):
+            if isinstance(node_, pr.ID):
+                tgt += [node_.name]
+
+        # init is an assignment (x=e; ...)
+        def asgn(node_, itrs, values):
+            if isinstance(node_, pr.Assignment) and node_.op == '=':
+                id_(node_.lvalue, itrs)
+                id_(node_.rvalue, values)
+                return True
+
+        if not asgn(node.init, iters, srcs):
+            # init is a declaration (int i=0; ...)
+            if isinstance(node.init, pr.DeclList):
+                for decl in node.init.decls:
+                    decls += [decl.name]
+                    id_(decl.init, srcs)
+            # init is a list (i=0, j=x; ...)
+            elif isinstance(node.init, pr.ExprList):
+                for expr in node.init.exprs:
+                    asgn(expr, iters, srcs)
+
+        conds = Variables(node.cond).vars
         body = Variables(node.stmt).vars
-        it = list(set(it) | set(Variables(node.next).vars))
-        # loop_x is (control expr U init vars) - decl - iterators
-        loop_x = list((set(cv) | set(vl)) - set(dc) - set(it))
-        logger.debug(f"loop iterators: {it}")
-        logger.debug(f"loop declarations: {dc}")
-        logger.debug(f"loop variables: {list(set(cv) | set(vl))}")
-        logger.debug(f"loop control: {loop_x}")
-        logger.debug(f"loop body: {body}")
+        nxt = Variables(node.next).vars
+        iters = list(set(iters) | set(nxt))
+
+        # control expr + source-vars from initialization
+        loop_vars = list(set(conds) | set(srcs))
+        # loop_vars - declarations - iterators
+        loop_x = list(set(loop_vars) - set(decls) - set(iters))
+
+        info = [('iters', iters), ('decl', decls), ('maybe', loop_vars),
+                ('control', loop_x), ('\n  body', body)]
+        info = [f"{lbl}: {', '.join(v) or '?'}" for lbl, v in info]
+        logger.debug(f"loop variables\n  {'; '.join(info)}")
         return loop_x, body
 
 
-class SyntaxCover(BaseAnalysis):
-    """Determine if C-lang AST is fully covered by analysis syntax.
+class Coverage(BaseAnalysis):
+    """Simple analysis of AST syntax."""
 
-    Optionally, remove unsupported AST nodes from the tree;
-    set `modify` to `True` to permit the modification.
-    """
-
-    def __init__(self, node: Any, modify: bool = False):
+    def __init__(self, node: Any):
+        self.node = node
         self.omit = []
         self.to_clear = []
-        self.recurse(node)
-        self.unsupported(self.omit)
-        self.apply_mod(self.to_clear, self.omit) if modify else None
+        self.recurse(self.node)
 
     @property
-    def is_full(self):
+    def full(self) -> bool:
         """True if entire syntax tree is covered by analysis."""
         return len(self.omit) == 0
 
+    def report(self) -> Coverage:
+        """Show syntax coverage for node."""
+        if len(self.omit):
+            self.unsupported(self.omit)
+        logger.info(f"Syntax fully analyzable: {self.full}")
+        return self
+
+    def ast_mod(self) -> Coverage:
+        """Remove unsupported AST nodes, in place."""
+        n = len(self.omit)
+        assert (n == len(self.to_clear))
+        [callable_() for callable_ in self.to_clear]
+        self.omit, self.to_clear = [], []
+        logger.warning(f"removed unsupported syntax: {n} node(s)")
+        return self
+
     @staticmethod
-    def fmt(idx: int, count: int, desc: str):
+    def fmt(idx: int, count: int, desc: str) -> str:
         """Formatter for displaying unsupported nodes.
 
         Arguments:
@@ -315,25 +366,31 @@ class SyntaxCover(BaseAnalysis):
         Returns:
               Formatted string expression for display.
         """
-        order = f"{str(idx) + '.':<4}"
-        times = f"{str(count) + 'x':<4}"
-        return f"{order} {times} {desc}"
+        order = f"{(str(idx) + '.'):<4}"
+        times = f" {(str(count) + 'x ')}" if count > 1 else ' '
+        return f"{order}{times}{desc}"
 
     @staticmethod
-    def unsupported(omits: List[str]):
-        """Display unsupported nodes as an ordered list."""
-        codes = sorted([
-            (cnt, code) for (code, cnt) in
-            Counter(omits).items()], key=lambda x: (-x[0], x[1]))
-        lines = '\n'.join([
-            SyntaxCover.fmt(i + 1, c, v) for i, (c, v)
-            in enumerate(codes)])
-        tot = len(omits)
-        if lines:
-            logger.warning(f'Unsupported syntax ({tot}x)\n{lines}')
+    def unsupported(omits: List[str]) -> None:
+        """Display unsupported nodes as an ordered list.
+
+        Arguments:
+            omits: list of unsupported AST nodes.
+        """
+        if len(omits) < 2:
+            if len(omits) == 1:
+                logger.debug(f'Unsupported syntax: {omits[0]}')
+            return
+
+        codes = [(cnt, code) for (code, cnt) in Counter(omits).items()]
+        codes = sorted(codes, key=lambda x: (-x[0], x[1]))
+        lines = [Coverage.fmt(i + 1, *cv) for i, cv in enumerate(codes)]
+        om, uq = len(omits), len(lines)
+        logger.debug(f'Unsupported syntax {om}x, {uq} unique')
+        [logger.debug(line) for line in lines]
 
     @staticmethod
-    def clearer(node: Any, attr: str, child: Any):
+    def clearer(node: Any, attr: str, child: Any) -> Callable:
         """Construct a callable function to clear a child node.
 
         Using a callable allows flagging tree nodes for removal, while
@@ -351,20 +408,8 @@ class SyntaxCover(BaseAnalysis):
             if child in getattr(node, attr) else None
 
     @staticmethod
-    def apply_mod(to_clear: list[Callable], omits: list[str]) -> None:
-        """Remove encountered, unsupported AST-nodes from tree, in place.
-
-        Arguments:
-            to_clear: list of callable functions that clear nodes.
-            omits: list of detected unsupported syntax
-        """
-        assert (len(omits) == len(to_clear))
-        [callable_() for callable_ in to_clear]
-        logger.info(f"Skipping unsupported syntax: {len(omits)} nodes")
-
-    @staticmethod
     def loop_compat(node: pr.For) -> Tuple[bool, Optional[str]]:
-        """Check if C-language for loop is compatible with a "mwp-loop".
+        """Check if C-language for loop is compatible with an "mwp-loop".
 
         The mwp-loop has form loop X { C }. Try to identify C-language
         for loops that have similar form ("repeat command X times").
@@ -381,22 +426,15 @@ class SyntaxCover(BaseAnalysis):
         """
         loop_x, body = Variables.loop_control(node)
         if len(loop_x) != 1:  # exactly one control variable
-            logger.warning(f"Too many loop control variables: "
-                           f"({', '.join(loop_x)})")
+            logger.debug(
+                f"Too many loop control variables: ({', '.join(loop_x)})"
+                if len(loop_x) > 1 else "Unknown loop control variable")
             return False, None
         x_var = loop_x[0]
         if x_var in body:
-            logger.warning(f"Control variable ({x_var}) cannot "
-                           f"occur in loop body")
+            logger.warning(f"Variable {x_var} occurs in loop body")
             return False, None
         return True, x_var
-
-    def iter_attr(self, node: Any, attr: str, *args, **kwargs):
-        """Iteratively analyze children at node.attribute."""
-        if hasattr(node, attr) and getattr(node, attr):
-            for n in getattr(node, attr):
-                self.recurse(n, *args, **{
-                    **kwargs, 'clear': SyntaxCover.clearer(node, attr, n)})
 
     def clear_stmt(self, node: Any, *args, **kwargs):
         """Remove statement attribute of an unhandled node."""
@@ -404,13 +442,24 @@ class SyntaxCover(BaseAnalysis):
         node_.stmt = None
         self.handler(node_, *args, **kwargs)
 
+    def iter_attr(self, node: Any, attr: str, *args, **kwargs):
+        """Iteratively analyze children at node.attribute."""
+        if hasattr(node, attr) and getattr(node, attr):
+            for n in getattr(node, attr):
+                cl = Coverage.clearer(node, attr, n)
+                self.recurse(n, *args, **{**kwargs, 'clear': cl})
+
     def handler(self, node: Any, *args, **kwargs):
         """Make a list of uncovered nodes."""
         self.omit.append(pr.to_c(node, compact=True))
         self.to_clear.append(kwargs['clear'])  # should always exist
 
+    def recurse(self, node: Any, *args, **kwargs):
+        skips = (pr.ID, pr.Constant, pr.Break, pr.Continue, pr.Return)
+        if next((s for s in skips if isinstance(node, s)), None) is None:
+            return super().recurse(node, *args, **kwargs)
+
     def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
-        """All arrays are out of scope."""
         node_ = deepcopy(node)
         node_.name = pr.ID(BaseAnalysis.array_name(node))
         node_.subscript = pr.Constant('String', '…')
@@ -431,17 +480,8 @@ class SyntaxCover(BaseAnalysis):
                  isinstance(node.right, pr.ID)))):
             self.handler(node, *args, **kwargs)
 
-    def break_(self, node: pr.Break, *args, **kwargs):
-        return
-
-    def compound(self, node: pr.Compound, *args, **kwargs):
-        self.iter_attr(node, 'block_items', *args, **kwargs)
-
-    def constant(self, node: pr.Constant, *args, **kwargs):
-        return
-
-    def continue_(self, node: pr.Continue, *args, **kwargs):
-        return
+    def cast(self, node: pr.Cast, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
 
     def decl(self, node: pr.Decl, *args, **kwargs):
         init = node.init if hasattr(node, 'init') else None
@@ -449,15 +489,13 @@ class SyntaxCover(BaseAnalysis):
         if not (isinstance(type_, pr.TypeDecl) and init is None):
             self.handler(node, *args, **kwargs)
 
-    def decl_list(self, node: pr.DeclList, *args, **kwargs):
-        self.iter_attr(node, 'decls', *args, **kwargs)
-
     def do_while(self, node: pr.DoWhile, *args, **kwargs):
         self.recurse_attr(node, 'stmt', *args, **kwargs)
 
     def for_(self, node: pr.For, *args, **kwargs):
         compat, _ = self.loop_compat(node)
-        self.clear_stmt(node, *args, **kwargs) if not compat else \
+        self.clear_stmt(node, *args, **kwargs) \
+            if not compat else \
             self.recurse_attr(node, 'stmt', *args, **kwargs)
 
     def func_call(self, node: pr.FuncCall, *args, **kwargs):
@@ -470,18 +508,9 @@ class SyntaxCover(BaseAnalysis):
         self.recurse(node.decl.type.args, *args, **kwargs)
         self.recurse(node.body, *args, **kwargs)
 
-    def id_(self, node: pr.ID, *args, **kwargs):
-        return
-
     def if_(self, node: pr.If, *args, **kwargs):
         self.recurse_attr(node, 'iftrue', *args, **kwargs)
         self.recurse_attr(node, 'iffalse', *args, **kwargs)
-
-    def param_list(self, node: pr.ParamList, *args, **kwargs):
-        self.iter_attr(node, 'params', *args, **kwargs)
-
-    def return_(self, node: pr.Return, *args, **kwargs):
-        return
 
     def switch_(self, node: pr.Switch, *args, **kwargs):
         self.clear_stmt(node, *args, **kwargs)
