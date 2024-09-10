@@ -36,6 +36,16 @@
         progressBar.setAttribute("visible", "visible") :
         progressBar.removeAttribute("visible");
 
+    const toggleInfty = _ => {
+        const infinities = document.getElementsByClassName("scalar-i");
+        const remove = infinities.length ? infinities[0].getAttribute("invisible") : false
+        for (let i = infinities.length - 1; i >= 0; --i) {
+            remove ?
+                infinities[i].removeAttribute("invisible") :
+                infinities[i].setAttribute("invisible", "invisible");
+        }
+    }
+
     const makeOption = (label, value, selected = false, disabled = false) => {
         const option = document.createElement('option');
         if (selected) option.setAttribute('selected', 'selected');
@@ -166,10 +176,10 @@
 
     const renderMatrixValue = ({list = []}) => {
         const td = document.createElement('td');
-        const code = document.createElement('code');
+        const code = document.createElement('div');
         code.innerHTML = list.map(({deltas, scalar}) => {
             const d = deltas.map(([i, j]) => `(${i},${j})`).join(',')
-            return `${scalar}` + (d ? `<span>(${d})</span>` : '');
+            return `<code class="scalar-${scalar}">${scalar}` + (d ? `<span>(${d})</span>` : '') + '</code>';
         }).join('\n');
         td.append(code)
         return td;
@@ -237,9 +247,12 @@
             if (bound)
                 div.append(partialResult(`Bound ${details.n_bounds === 1 ? '' : '(one example)'}`, '',
                     textBlock(bound), offset));
-            if (relation)
+            if (relation) {
                 div.append(partialResult('Matrix', '',
                     renderMatrix(relation), offset));
+                document.onkeyup = event => event.code === "MetaLeft"
+                    ? toggleInfty() : true;
+            }
         }
         return div;
     }
@@ -384,6 +397,11 @@
     #demo-output .table-wrapper table tr td code {
         background: transparent;
         white-space: pre-wrap;
+        display: block;
+    }
+
+    #demo-output .table-wrapper table tr td .scalar-i[invisible] {
+        display: none;
     }
 
     #progress-container {
