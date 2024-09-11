@@ -30,6 +30,9 @@ class HonestPoly:
         self.op = operator
         self.var_fmt = None
 
+    def __eq__(self, other: HonestPoly):
+        return self.variables == other.variables
+
     @property
     def empty(self) -> bool:
         return len(self.variables) == 0
@@ -62,7 +65,7 @@ class MaxVar(HonestPoly):
 class MwpBound:
     """Represents MWP bound."""
 
-    def __init__(self, triple=None):
+    def __init__(self, triple: str = None):
         x, y, z = self.parse_triple_str(triple)
         self.x = MaxVar(*x)
         self.y = HonestPoly('+', *y)
@@ -70,6 +73,11 @@ class MwpBound:
 
     def __str__(self):
         return self.bound_poly(self)
+
+    def __eq__(self, other: MwpBound):
+        return (self.x == other.x
+                and self.y == other.y
+                and self.z == other.z)
 
     @property
     def bound_triple(self) -> Tuple[Tuple[str], Tuple[str], Tuple[str]]:
@@ -150,6 +158,15 @@ class Bound:
             (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
             if bounds else {}
 
+    @property
+    def variables(self) -> list[str]:
+        return list(self.bound_dict.keys())
+
+    def __eq__(self, other: Bound):
+        return (self.variables == other.variables and
+                all(self.bound_dict[k] == other.bound_dict[k]
+                    for k in self.variables))
+
     def calculate(self, relation: SimpleRelation) -> Bound:
         """Calculate bound from a simple-valued matrix.
 
@@ -173,19 +190,22 @@ class Bound:
                      for k, v in self.bound_dict.items()])
 
     def show_poly(
-            self, compact: bool = False, significant: bool = False
+            self, compact: bool = False, significant: bool = False,
+            variables: List[str] = None
     ) -> str:
         """Format a nice display string of bounds.
 
         Arguments:
             compact: reduce whitespace in the output
             significant: omit bounds that depend only on self
+            variables: list of variables to display
 
         Returns:
             A formatted string of the bound.
         """
+        key_filter = variables or list(self.bound_dict.keys())
         return f' {Bound.LAND} '.join([
             f'{k}′{"≤" if compact else " ≤ "}'
             f'{MwpBound.bound_poly(v, compact=compact)}'
             for k, v in self.bound_dict.items()
-            if (not significant or str(k) != str(v))])
+            if (not significant or str(k) != str(v)) and k in key_filter])
