@@ -342,7 +342,6 @@ class Coverage(BaseAnalysis):
         """Show syntax coverage for node."""
         if len(self.omit):
             self.unsupported(self.omit)
-        logger.info(f"Syntax fully analyzable: {self.full}")
         return self
 
     def ast_mod(self) -> Coverage:
