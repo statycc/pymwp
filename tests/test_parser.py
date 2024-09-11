@@ -23,15 +23,19 @@ def __compare__(a, b):
 
 def test_ast_node_types():
     """Test for existence of different AST node types."""
+    assert hasattr(pycparser.c_ast, 'ArrayDecl')
+    assert hasattr(pycparser.c_ast, 'ArrayRef')
     assert hasattr(pycparser.c_ast, 'Assignment')
     assert hasattr(pycparser.c_ast, 'BinaryOp')
     assert hasattr(pycparser.c_ast, 'Break')
+    assert hasattr(pycparser.c_ast, 'Cast')
     assert hasattr(pycparser.c_ast, 'Compound')
     assert hasattr(pycparser.c_ast, 'Constant')
     assert hasattr(pycparser.c_ast, 'Continue')
     assert hasattr(pycparser.c_ast, 'Decl')
     assert hasattr(pycparser.c_ast, 'DeclList')
     assert hasattr(pycparser.c_ast, 'DoWhile')
+    assert hasattr(pycparser.c_ast, 'ExprList')
     assert hasattr(pycparser.c_ast, 'For')
     assert hasattr(pycparser.c_ast, 'FuncCall')
     assert hasattr(pycparser.c_ast, 'FuncDef')
@@ -40,6 +44,10 @@ def test_ast_node_types():
     assert hasattr(pycparser.c_ast, 'Node')
     assert hasattr(pycparser.c_ast, 'NodeVisitor')
     assert hasattr(pycparser.c_ast, 'ParamList')
+    assert hasattr(pycparser.c_ast, 'Return')
+    assert hasattr(pycparser.c_ast, 'Switch')
+    assert hasattr(pycparser.c_ast, 'TernaryOp')
+    assert hasattr(pycparser.c_ast, 'TypeDecl')
     assert hasattr(pycparser.c_ast, 'UnaryOp')
     assert hasattr(pycparser.c_ast, 'While')
 

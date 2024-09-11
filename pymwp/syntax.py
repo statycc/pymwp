@@ -81,6 +81,8 @@ class BaseAnalysis(ABC):
         if isinstance(node, pr.Continue):
             return self.continue_(node, *args, **kwargs)
         if isinstance(node, pr.FuncCall):
+            if isinstance(node.name, pr.ID) and node.name.name == 'assert':
+                return self.assert_(node, *args, **kwargs)
             return self.func_call(node, *args, **kwargs)
         if isinstance(node, pr.FuncDef):
             return self.func_def(node, *args, **kwargs)
@@ -129,6 +131,9 @@ class BaseAnalysis(ABC):
         return name_node.name
 
     def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
+
+    def assert_(self, node: pr.Assert, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
     def assign(self, node: pr.Assignment, *args, **kwargs):
@@ -214,6 +219,9 @@ class Variables(BaseAnalysis):
     def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
         self.recurse_attr(node, 'subscript', *args, **kwargs)
 
+    def assert_(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
     def assign(self, node: pr.Assignment, *args, **kwargs):
         self.recurse_attr(node, 'lvalue', *args, **kwargs)
         self.recurse_attr(node, 'rvalue', *args, **kwargs)
@@ -265,6 +273,11 @@ class Variables(BaseAnalysis):
 
     def switch_(self, node: pr.Switch, *args, **kwargs):
         return  # uncovered anyway
+
+    def ternary(self, node: pr.TernaryOp, *args, **kwargs):
+        self.recurse_attr(node, 'cond', *args, **kwargs)
+        self.recurse_attr(node, 'iftrue', *args, **kwargs)
+        self.recurse_attr(node, 'iffalse', *args, **kwargs)
 
     def unary(self, node: pr.UnaryOp, *args, **kwargs):
         self.recurse_attr(node, 'expr', *args, **kwargs)
@@ -464,6 +477,9 @@ class Coverage(BaseAnalysis):
         node_.subscript = pr.Constant('String', '…')
         self.handler(node_, *args, **kwargs)
 
+    def assert_(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
     def assign(self, node: pr.Assignment, *args, **kwargs):
         if node.op != "=":  # only = is an allowed operator
             return self.handler(node, *args, **kwargs)
@@ -513,6 +529,9 @@ class Coverage(BaseAnalysis):
 
     def switch_(self, node: pr.Switch, *args, **kwargs):
         self.clear_stmt(node, *args, **kwargs)
+
+    def ternary(self, node: pr.TernaryOp, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
 
     def unary(self, node: pr.UnaryOp, *args, **kwargs):
         self.handler(node, *args, **kwargs) \

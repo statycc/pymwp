@@ -28,7 +28,9 @@ logger = logging.getLogger(__name__)
 def loc(input_file: str) -> int:
     """Get number of lines is a file"""
     with open(input_file, 'r') as fp:
-        return len(fp.readlines())
+        lines = fp.readlines()
+    lines = [1 for line in lines if line and len(line.strip())]
+    return sum(lines)
 
 
 def default_file_out(input_file: str) -> str:
