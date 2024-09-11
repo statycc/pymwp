@@ -123,9 +123,9 @@ plugins:
       css_dir: ''
       javascript_dir: ''
 
-extra:
-  version:
-    provider: mike
+#extra:
+#  version:
+#    provider: mike
 
 extra_css:
   - assets/styles.css
