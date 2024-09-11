@@ -208,5 +208,4 @@ class Bound:
             f'{k}′{"≤" if compact else " ≤ "}'
             f'{MwpBound.bound_poly(v, compact=compact)}'
             for k, v in self.bound_dict.items()
-            if (not significant or str(k) != str(v))
-               and k in key_filter])
+            if (not significant or str(k) != str(v)) and k in key_filter])
