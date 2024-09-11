@@ -18,11 +18,10 @@
 
 # noinspection DuplicatedCode
 import logging
-from copy import deepcopy
 from typing import List, Tuple, Optional
 
 from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
-from pymwp import Coverage, Variables as Vara
+from pymwp import Coverage, Variables
 from pymwp.result import FuncResult
 from .file_io import save_result
 # noinspection PyPep8Naming
@@ -72,7 +71,7 @@ class Analysis:
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool)\
+    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool) \
             -> Optional[FuncResult]:
         """Analyze a function.
 
@@ -92,13 +91,12 @@ class Analysis:
         result = FuncResult(name)
 
         # preliminary syntax check
-        node_cp = deepcopy(node)
-        cover = Coverage(node_cp).report()
+        cover = Coverage(node).report()
         if not cover.full and strict:
             logger.info(f"{name} is not analyzable")
             return None
         if not cover.full:
-            node = cover.ast_mod().node
+            cover.ast_mod()
             logger.warning(f"{name} syntax was modified")
             if len(node.body.block_items) == 0:
                 logger.warning("nothing left to analyze")
@@ -108,7 +106,7 @@ class Analysis:
         index, options, choices = 0, [0, 1, 2], []
         evaluated, bound = False, None
         delta_infty, dg = False, DeltaGraph()
-        variables = Vara(node).vars
+        variables = Variables(node).vars
         total = len(node.body.block_items)
         relations = RelationList.identity(variables=variables)
         logger.debug(f"{name} variables: {', '.join(variables)}")
@@ -200,6 +198,10 @@ class Analysis:
         if isinstance(node, pr.Continue):  # => skip
             return index, RelationList(), False
         if isinstance(node, pr.Return):  # => skip
+            return index, RelationList(), False
+        if (isinstance(node, pr.FuncCall)
+                and isinstance(node.name, pr.ID)
+                and node.name.name == 'assert'):
             return index, RelationList(), False
 
         Analysis.unsupported(pr.to_c(node))
@@ -593,6 +595,5 @@ class Analysis:
         """Handle unsupported command."""
         warning, endc = '\033[93m', '\033[0m'
         fmt_str = str(command or "").strip()
-        lb = '\n' if ('\n' in fmt_str or len(fmt_str) > 35) else ' '
         logger.warning(f'{warning}Unsupported syntax{endc} '
-                       f'not evaluated:{lb}{fmt_str}')
+                       f'not evaluated: {fmt_str}')

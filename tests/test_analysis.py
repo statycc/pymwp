@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from pymwp import Analysis, Polynomial
 from pymwp.semiring import ZERO_MWP, UNIT_MWP
 from .mocks.ast_mocks import \
@@ -5,14 +7,12 @@ from .mocks.ast_mocks import \
     IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED, BRACES_ISSUES, \
     PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES, FOR_LOOP, FOR_SUBST
 
-o = ZERO_MWP
-m = UNIT_MWP
-w, p = 'w', 'p'
+o, m, w, p = ZERO_MWP, UNIT_MWP, 'w', 'p'
 
 
 def test_analyze_infinite2():
     """Check analysis result for infinite/infinite_2.c"""
-    foo = Analysis.run(INFINITE_2C, save=False).get_func()
+    foo = Analysis.run(INFINITE_2C, save=False, strict=True).get_func()
     relation, combinations = foo.relation, foo.choices
 
     assert foo.infinite  # result should be infinite
@@ -22,12 +22,13 @@ def test_analyze_infinite2():
 
 def test_analyze_infinite_8():
     """Check analysis result for infinite/infinite_8.c"""
-    assert Analysis.run(INFINITE_8C, save=False).get_func().infinite
+    assert Analysis.run(
+        INFINITE_8C, save=False, strict=True).get_func().infinite
 
 
 def test_analyze_non_infinite_2():
     """Check analysis result for not_infinite/notinfinite_2.c"""
-    foo = Analysis.run(NOT_INFINITE_2C, save=False).get_func()
+    foo = Analysis.run(NOT_INFINITE_2C, save=False, strict=True).get_func()
     relation, combinations = foo.relation, foo.choices
 
     assert not foo.infinite
@@ -55,7 +56,7 @@ def test_analyze_non_infinite_2():
 
 def test_analyze_non_infinite_3():
     """Check analysis result for not_infinite/notinfinite_3.c"""
-    foo = Analysis.run(NOT_INFINITE_3C, save=False).get_func()
+    foo = Analysis.run(NOT_INFINITE_3C, save=False, strict=True).get_func()
     assert not foo.infinite
     assert len(foo.choices.valid) == 1
     assert foo.choices.valid[0] == [[0, 1, 2], [0, 1, 2], [2]]
@@ -63,7 +64,7 @@ def test_analyze_non_infinite_3():
 
 def test_analyze_infinite_to_completion():
     """Check analysis completion for infinite program"""
-    relation = Analysis.run(INFINITE_2C, save=False, fin=True) \
+    relation = Analysis.run(INFINITE_2C, save=False, fin=True, strict=True) \
         .get_func().relation
     assert relation
     assert relation.matrix
@@ -73,9 +74,9 @@ def test_analyze_infinite_to_completion():
 def test_analyze_if_braces_do_not_matter():
     """If...else block with single-statement, with or without curly braces,
      should give the same analysis result."""
-    res1 = Analysis.run(IF_WITH_BRACES, save=False).get_func()
+    res1 = Analysis.run(IF_WITH_BRACES, save=False, strict=True).get_func()
     rel_with, choices_with = res1.relation, res1.choices
-    res2 = Analysis.run(IF_WO_BRACES, save=False).get_func()
+    res2 = Analysis.run(IF_WO_BRACES, save=False, strict=True).get_func()
     rel_wo, choices_wo = res2.relation, res2.choices
 
     all_valid_choices = [
@@ -97,7 +98,8 @@ def test_analyze_if_braces_do_not_matter():
 def test_analyze_variable_ignore():
     """Analysis picks up variable on left of assignment,
     see issue #11: https://github.com/statycc/pymwp/issues/11 """
-    result = Analysis.run(VARIABLE_IGNORED, save=False).get_func()
+    result = Analysis.run(
+        VARIABLE_IGNORED, save=False, strict=True).get_func()
     relation, combinations = result.relation, result.choices
     non_infinity_choices = [[0, 0], [0, 1], [0, 2],
                             [1, 0], [1, 1], [1, 2],
@@ -126,7 +128,8 @@ def test_analyze_variable_ignore():
 def test_extra_braces_are_ignored():
     """Analysis ignores superfluous braces in C program,
     see issue: #25: https://github.com/statycc/pymwp/issues/25"""
-    result = Analysis.run(BRACES_ISSUES, save=False).get_func()
+    result = Analysis.run(
+        BRACES_ISSUES, save=False, strict=True).get_func()
     relation = result.relation
     assert set(relation.variables) == {'x', 'y'}
     assert relation.matrix[0][0] == Polynomial(m)
@@ -139,7 +142,8 @@ def test_analysis_identifies_function_params():
     """Analysis will identify variables from function declaration
     issue #51: https://github.com/statycc/pymwp/issues/51
     """
-    relation = Analysis.run(PARAMS, save=False).get_func().relation
+    relation = Analysis.run(
+        PARAMS, save=False, strict=True).get_func().relation
     assert set(relation.variables) == {'x1', 'x2', 'x3'}
 
 
@@ -147,20 +151,21 @@ def test_analysis_returns_all_functions():
     """If input file contains multiple functions result contains
     evaluation of each function (example 5a)
     """
-    f = Analysis.run(FUNCTION_CALL, save=False).get_func('f')
-    foo = Analysis.run(FUNCTION_CALL, save=False).get_func('foo')
+    f = Analysis.run(deepcopy(FUNCTION_CALL), save=False).get_func('f')
+    foo = Analysis.run(deepcopy(FUNCTION_CALL), save=False).get_func('foo')
 
     assert not f.infinite
     assert set(foo.relation.variables) == {'X1', 'X2'}
 
 
 def test_analysis_handles_empty_program():
-    result = Analysis.run(EMPTY, save=False)
+    result = Analysis.run(EMPTY, strict=True, save=False)
     assert result.relations == {}
 
 
 def test_analysis_handles_empty_decision_body():
-    result = Analysis.run(IF_EMPTY_BRACES, save=False).get_func('foo')
+    result = Analysis.run(
+        IF_EMPTY_BRACES, save=False, strict=True).get_func('foo')
     assert not result.infinite
 
 
@@ -178,7 +183,7 @@ def test_analysis_loop():
     y | o | m | o |
     z | o | p | m |
     """
-    result = Analysis.run(FOR_LOOP, save=False).get_func('foo')
+    result = Analysis.run(FOR_LOOP, save=False, strict=True).get_func('foo')
     simple_mat = result.relation.apply_choice(*result.choices.first)
     assert result.choices.n_bounds == 1
     assert simple_mat.matrix[0][0] == \
@@ -196,7 +201,7 @@ def test_analysis_loop_subst():
     """If loop variable occurs in body, substitute.
        x_ = x; loop x { y = y + x_; }
     """
-    result = Analysis.run(FOR_SUBST, save=False).get_func('foo')
+    result = Analysis.run(FOR_SUBST, save=False, strict=True).get_func('foo')
     simple_mat = result.relation.apply_choice(*result.choices.first)
     assert result.relation.variables == ['x', 'x_', 'y']
     assert result.choices.n_bounds == 3
