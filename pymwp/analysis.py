@@ -234,10 +234,8 @@ class Analysis:
         #     x   y
         # x | o   o
         # y | m   m
-        vector = [
-            # because x != y
-            Polynomial('o'), Polynomial('m')
-        ]
+        vector = [  # because x != y
+            Polynomial('o'), Polynomial('m')]
 
         # build a list of unique variables
         variables = vars_list[0]
@@ -249,7 +247,7 @@ class Analysis:
         rel_list = RelationList.identity(variables)
         rel_list.replace_column(vector, x)
 
-        return index + 1, rel_list, False
+        return index, rel_list, False
 
     @staticmethod
     def binary_op(index: int, node: pr.Assignment) -> ComRes:

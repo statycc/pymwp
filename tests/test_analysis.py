@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from pymwp import Analysis, Polynomial
+from pymwp import Analysis, Polynomial, Bound
 from pymwp.semiring import ZERO_MWP, UNIT_MWP
 from .mocks.ast_mocks import \
     INFINITE_2C, INFINITE_8C, NOT_INFINITE_2C, NOT_INFINITE_3C, \
@@ -75,24 +75,19 @@ def test_analyze_if_braces_do_not_matter():
     """If...else block with single-statement, with or without curly braces,
      should give the same analysis result."""
     res1 = Analysis.run(IF_WITH_BRACES, save=False, strict=True).get_func()
-    rel_with, choices_with = res1.relation, res1.choices
+    rel_with = res1.relation
     res2 = Analysis.run(IF_WO_BRACES, save=False, strict=True).get_func()
-    rel_wo, choices_wo = res2.relation, res2.choices
-
-    all_valid_choices = [
-        [0, 0, 0], [0, 0, 1], [0, 0, 2], [0, 1, 0], [0, 1, 1],
-        [0, 1, 2], [0, 2, 0], [0, 2, 1], [0, 2, 2], [1, 0, 0],
-        [1, 0, 1], [1, 0, 2], [1, 1, 0], [1, 1, 1], [1, 1, 2],
-        [1, 2, 0], [1, 2, 1], [1, 2, 2], [2, 0, 0], [2, 0, 1],
-        [2, 0, 2], [2, 1, 0], [2, 1, 1], [2, 1, 2], [2, 2, 0],
-        [2, 2, 1], [2, 2, 2]]
+    rel_wo = res2.relation
 
     # match choices and variables
     assert set(rel_with.variables) == set(rel_wo.variables) == \
            {'x', 'x1', 'x2', 'x3', 'y'}
+
     # both results accept same & all choices
-    for choice in all_valid_choices:
-        assert choices_with.is_valid(*choice) and choices_wo.is_valid(*choice)
+    # there is no choice in these programs; 1st bound is only bound.
+    fst_choice = res1.choices.first
+    assert Bound().calculate(rel_with.apply_choice(*fst_choice)) == \
+           Bound().calculate(rel_wo.apply_choice(*fst_choice))
 
 
 def test_analyze_variable_ignore():
@@ -101,9 +96,7 @@ def test_analyze_variable_ignore():
     result = Analysis.run(
         VARIABLE_IGNORED, save=False, strict=True).get_func()
     relation, combinations = result.relation, result.choices
-    non_infinity_choices = [[0, 0], [0, 1], [0, 2],
-                            [1, 0], [1, 1], [1, 2],
-                            [2, 0], [2, 1], [2, 2]]
+    non_infinity_choices = [[0], [1], [2]]
 
     for choice in non_infinity_choices:
         assert combinations.is_valid(*choice)
@@ -204,12 +197,12 @@ def test_analysis_loop_subst():
     result = Analysis.run(FOR_SUBST, save=False, strict=True).get_func('foo')
     simple_mat = result.relation.apply_choice(*result.choices.first)
     assert result.relation.variables == ['x', 'x_', 'y']
-    assert result.choices.n_bounds == 3
+    assert result.choices.n_bounds == 1
     assert simple_mat.matrix[0][0] == m
-    assert simple_mat.matrix[1][0] == \
+    assert simple_mat.matrix[1][0] == o == \
            simple_mat.matrix[2][0] == o
     assert simple_mat.matrix[0][1] == m
-    assert simple_mat.matrix[1][1] == \
+    assert simple_mat.matrix[1][1] == o == \
            simple_mat.matrix[2][0] == o
     assert simple_mat.matrix[0][2] == p
     assert simple_mat.matrix[1][2] == o
