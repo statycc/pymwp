@@ -39,13 +39,15 @@ Analysis will bypass any unsupported statement and raises a warning.
 | **Repetition statements**                            |       |                                             |
 | while loop                                           |  🟩   | `while(x < 20) { ... }`                     |
 | for loop[^1][^3]                                     |  🟩   | `for (i = 0; i < 10; ++i) { ... }`          |
+| **Jump statements**[^1][^4] (excl. `goto`)           |  🟩   | `break`,`continue`,`return`                 |
 | **Functions**                                        |  🟧   |                                             |     
 | **Pointers**                                         |   ⬜   |                                             |     
 | **Arrays**                                           |   ⬜   |                                             |      
 | **Header Files Inclusion**                           |  🟩   |                                             |      
 | **Comments** (single-line, delimited)                |  🟩   | `// comment`, `/* comment */`               |
+| **Assert-macro**[^1][^4]                             |  🟩   | `assert (x == y)`                           |
 
 [^1]: Added in version > 0.4.2
 [^2]: Excludes unary `&` address-of operator.
 [^3]: Loop control block must be recognizable as "run X times", e.g. `for (i = 0; i < X; ++i)` and control variable `X` cannot occur in body.
-
+[^4]: Jump statements and asserts are treated as `skip`, or no-op, during analysis.
