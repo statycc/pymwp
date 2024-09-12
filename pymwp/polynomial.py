@@ -546,9 +546,9 @@ class Polynomial:
 
             ```Python
             Polynomial(
-                Monomial('m', [(0, 5), (1, 5), (2, 5)]),
-                Monomial('w', [(0, 5), (1, 5), (2, 5)]),
-                Monomial('p', [(0, 5), (1, 5), (2, 5)]))
+                Monomial('m', (0, 5)),
+                Monomial('w', (1, 5)),
+                Monomial('p', (2, 5)))
             ```
 
         Arguments:
@@ -559,6 +559,6 @@ class Polynomial:
              Generated polynomial
          """
 
-        monomials = [Monomial(scalar, [(number, index)])
+        monomials = [Monomial(scalar, (number, index))
                      for number, scalar in enumerate(scalars)]
         return Polynomial(*monomials)

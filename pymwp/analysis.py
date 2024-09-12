@@ -101,6 +101,7 @@ class Analysis:
             if len(node.body.block_items) == 0:
                 logger.warning("nothing left to analyze")
                 return None
+            result.func = pr.to_c(node, True)
 
         # setup for function analysis
         index, options, choices = 0, [0, 1, 2], []
