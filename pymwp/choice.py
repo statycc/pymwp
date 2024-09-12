@@ -22,7 +22,7 @@ import logging
 from collections import Counter
 from functools import reduce
 from itertools import product
-from typing import Tuple, List, Set, Union, Optional, Generator
+from typing import Tuple, List, Set, Union, Optional, Generator, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,8 @@ class Choices:
         while True:
             while Choices.reduce(choices, sequences):
                 continue
+            while Choices.reduce_end(choices, sequences):
+                continue
             len_before = len(sequences)
             sequences = Choices.unique_sequences(sequences)
             len_after = len(sequences)
@@ -171,25 +173,53 @@ class Choices:
                 return sequences
 
     @staticmethod
+    def __reduce(
+            choices: List[int], sequences: Set[SEQ],
+            sub_eq: Callable[[SEQ, SEQ], bool],
+            get_: Callable[[SEQ], int], keep_: Callable[[SEQ], SEQ]
+    ) -> bool:
+        """Implement sequence reduction from select direction.
+
+        Arguments:
+            choices: list of valid per index choices, e.g. [0,1,2].
+            sequences: set of delta sequences.
+            sub_eq: subsequence comparison function.
+            get_: choice value getter, e.g., first or last value of sequence.
+            keep_: getter for "sub-sequence to keep".
+
+         Returns:
+            True if a reduction occurred and False otherwise.
+        """
+        for s1 in [s for s in sequences if len(s) > 1]:
+            subs = [get_(s2) for s2 in sequences if sub_eq(s1, s2)]
+            # all paths must exist
+            if set(subs) == set(choices):
+                # keep rest of sequence
+                keep = keep_(s1)
+                # remove all sequences contained by the shorter path
+                Choices.remove_subset(keep, sequences)
+                # finally add the shorter sequence to the set
+                sequences.add(keep)
+                return True
+        return False
+
+    @staticmethod
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
         """Look for first reducible sequence, if exists, then replace it.
 
         !!! example "Example"
 
-            Consider the following sequences, where deltas differ only on
-            first value and never on index, and all possible choice values are
-            represented in the first delta:
+            We can reduce a sequences where deltas differ only on first value,
+            never on index, and all possible choice values are represented
+            in the first delta. Below, it does not matter which choice is
+            made at index 0. The 3 paths can be collapsed into a single,
+            shorter path: `(2,1)(1,4)`.
 
              ```
              (0,0) (2,1) (1,4)
              (1,0) (2,1) (1,4)
              (2,0) (2,1) (1,4)
              ```
-
-            Since all possible choices occur at 0th index, and are followed
-            by same subsequent deltas, it does not matter which choice is
-            made at index 0. The 3 paths can be collapsed into a single,
-            shorter path: `(2,1)(1,4)`.
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
@@ -200,18 +230,36 @@ class Choices:
             False is to say the operation is done and should not be repeated
             any further.
         """
-        for s1 in [s for s in sequences if len(s) > 1]:
-            subs = [s2[0][0] for s2 in sequences if Choices.sub_equal(s1, s2)]
-            # all paths must exist
-            if set(subs) == set(choices):
-                # keep rest of sequence
-                keep = s1[1:]
-                # remove all sequences contained by the shorter path
-                Choices.remove_subset(keep, sequences)
-                # finally add the shorter sequence to the set
-                sequences.add(keep)
-                return True
-        return False
+        return Choices.__reduce(
+            choices, sequences, Choices.sub_equal,
+            get_=lambda s2: s2[0][0], keep_=lambda s1: s1[1:])
+
+    @staticmethod
+    def reduce_end(choices: List[int], sequences: Set[SEQ]) -> bool:
+        """Like `reduce`, but from end of sequence.
+
+        !!! example "Example"
+
+            When deltas only differ at last index, and all choices
+            occur at last index, reduce choices to a shorter path.
+            E.g., Below, choice at index 5 is irrelevant; keep `(2,1) (1,4)`.
+
+             ```
+             (2,1) (1,4) (0,5)
+             (2,1) (1,4) (1,5)
+             (2,1) (1,4) (2,5)
+             ```
+
+        Arguments:
+            choices: list of valid per index choices, e.g. [0,1,2]
+            sequences: set of delta sequences
+
+        Returns:
+            True if a reduction occurred and False otherwise.
+        """
+        return Choices.__reduce(
+            choices, sequences, Choices.sub_end_equal,
+            get_=lambda s2: s2[-1][0], keep_=lambda s1: s1[:-1])
 
     @staticmethod
     def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
@@ -258,6 +306,22 @@ class Choices:
             and False otherwise.
         """
         return first[0][1] == second[0][1] and first[1:] == second[1:]
+
+    @staticmethod
+    def sub_end_equal(first: SEQ, second: SEQ) -> bool:
+        """Compare two delta sequences for equality, except their Nth value.
+        This is like `sub_equal`, but comparison is at the end of sequences.
+
+        Arguments:
+            first: first delta sequence
+            second: second delta sequence
+
+        Returns:
+            True if two delta sequences are equal excluding the Nth value,
+            and False otherwise.
+        """
+        return (len(first) == len(second) and
+                first[-1][1] == second[-1][1] and first[:-1] == second[:-1])
 
     @staticmethod
     def prod(values: list) -> int:
