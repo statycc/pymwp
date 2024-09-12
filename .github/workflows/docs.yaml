@@ -24,7 +24,4 @@ jobs:
         git fetch origin gh-pages --depth=1
 
     - name: Update pages
-      run: |
-        mkdocs build
-        mike deploy --push --update-aliases ${{ env.VERSION }} latest
-        mike set-default ${{ env.VERSION }}
+      run: mkdocs gh-deploy --force
