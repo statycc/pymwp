@@ -54,7 +54,7 @@ def test_load_relation(mocker):
             "n_lines": 8,
             "program_path": "c_files/example.c"
         },
-        "relations": [{
+        "relations": {"foo": {
             "name": "foo",
             "variables": ["x", "y"],
             "relation":
@@ -66,7 +66,7 @@ def test_load_relation(mocker):
             "choices": [[[0, 1], [0]]],
             "bound": {"x": "x;;", "y": "y;;x"},
             "infinity": False
-        }]
+        }}
     })
     mocker.patch('builtins.open')
 
@@ -102,14 +102,12 @@ def test_load_relation_infty(mocker):
             "n_lines": 6,
             "program_path": "example.c"
         },
-        "relations": [
-            {
+        "relations": {
+            "boohoo": {
                 "name": "boohoo",
                 "infinity": True,
                 "relation": None
-            }
-        ]
-    })
+            }}})
     mocker.patch('builtins.open')
 
     # load the relation

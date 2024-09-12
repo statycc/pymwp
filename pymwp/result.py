@@ -107,13 +107,16 @@ class FuncResult(Timeable):
     """Capture details of analysis result for one program (function in C)."""
 
     def __init__(
-            self, name: str, infinite: bool = False,
+            self,
+            name: str,
+            infinite: bool = False,
             variables: Optional[List[str]] = None,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
             bound: Optional[Bound] = None,
             inf_flows: Optional[str] = None,
-            index: int = 0):
+            index: int = 0,
+            func: str = None):
         """
         Create a function result.
 
@@ -125,6 +128,8 @@ class FuncResult(Timeable):
             choices: choice object [`Choice`](choice.md)
             bound: bound object [`Bound`](bound.md)
             inf_flows: description of problematic flows
+            index: inferred choice index
+            func: input program (if modified)
         """
         super().__init__()
         self.name = name
@@ -135,6 +140,7 @@ class FuncResult(Timeable):
         self.choices = choices
         self.bound = bound
         self.index = index
+        self.func = func
 
     @property
     def n_vars(self) -> int:
@@ -153,6 +159,7 @@ class FuncResult(Timeable):
             "infinity": self.infinite,
             "inf_flows": self.inf_flows,
             "index": self.index,
+            "func": self.func,
             "variables": self.vars,
             "start_time": self.start_time,
             "end_time": self.end_time,
@@ -176,6 +183,8 @@ class FuncResult(Timeable):
             func.inf_flows = kwargs['inf_flows']
         if 'index' in kwargs:
             func.index = kwargs['index']
+        if 'func' in kwargs:
+            func.func = kwargs['func']
         if kwargs['relation']:
             matrix = kwargs['relation']['matrix']
             if func.vars:
@@ -267,9 +276,8 @@ class Result(Timeable):
         parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
         logger.info(f'\n{color}{parts}{endc}')
 
-    def get_func(
-            self, name: Optional[str] = None
-    ) -> Union[FuncResult, Dict[str, FuncResult]]:
+    def get_func(self, name: Optional[str] = None) \
+            -> Union[FuncResult, Dict[str, FuncResult]]:
         """Returns analysis result for function(s).
 
         * If `name` argument is provided and key exists,
@@ -308,7 +316,8 @@ class Result(Timeable):
             'start_time': self.start_time,
             'end_time': self.end_time,
             'program': self.program.to_dict(),
-            'relations': [v.to_dict() for v in self.relations.values()]}
+            'relations': dict([(name, v.to_dict()) for (name, v)
+                               in self.relations.items()])}
 
     @staticmethod
     def deserialize(**kwargs) -> Result:
@@ -323,6 +332,6 @@ class Result(Timeable):
         if 'program' in kwargs:
             r.program = Program.from_dict(**kwargs['program'])
         if 'relations' in kwargs:
-            for value in kwargs['relations']:
+            for value in kwargs['relations'].values():
                 r.add_relation(FuncResult.from_dict(**value))
         return r
