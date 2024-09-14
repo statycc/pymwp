@@ -40,3 +40,16 @@
 .md-content article a {
     color: var(--md-accent-fg-color);
 }
+
+
+.doc-label { border-radius: 4px; padding: 1px 3px; font-weight: bold; font-size: .7rem; }
+.doc-label code { background: transparent;  color: #000d; }
+.doc-label-special { background-color: #673AB7; }
+.doc-label-private { background-color: #EC407A; }
+.doc-label-staticmethod { background-color: #00E676; }
+.doc-label-module-attribute { background-color: #00838F; }
+.doc-label-property { background-color: #FFA726; }
+.doc-label-read-only { background-color: #FFEB3B; }
+.doc-label-special code,
+.doc-label-private code,
+.doc-label-module-attribute code { color: white; }
