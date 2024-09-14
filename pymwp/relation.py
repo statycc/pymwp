@@ -427,12 +427,13 @@ class Relation:
         return Relation(extended_vars, matrix1), Relation(extended_vars,
                                                           matrix2)
 
-    def eval(self, choices: List[int], index: int) -> Choices:
+    def eval(self, choices: List[int], index: int, *scalars: str) -> Choices:
         """Evaluate program matrix for possible derivation choices.
 
         Arguments:
-            choices: list of choices at each index, [0,1,2]
+            choices: list of choices at each index, `[0,1,2]`.
             index: accumulated program counter.
+            scalars: exclude specified scalars.
 
         Returns:
             A choice object for the evaluated matrix.
@@ -442,16 +443,22 @@ class Relation:
         # get all choices leading to infinity
         for row in self.matrix:
             for poly in row:
-                infinity_deltas.update(poly.eval)
+                infinity_deltas.update(poly.eval(*scalars))
 
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
 
-    def var_eval(self, choices: List[int], index: int) -> Dict[str, Choices]:
+    def var_eval(self, choices: List[int], index: int, *scalars: str)\
+            -> Dict[str, Choices]:
         """Evaluate choices for each individual variable.
 
         This is same as `eval`, except it generates the choice-vectors
         column-wise.
+
+        Arguments:
+            choices: list of choices at each index, `[0,1,2]`
+            index: accumulated program counter.
+            scalars: exclude specified scalars.
 
         Returns:
             A dictionary where the key is a variable name,
@@ -461,7 +468,7 @@ class Relation:
         for col, v_name in enumerate(self.variables):
             d = set()
             for row in self.matrix:
-                d.update(row[col].eval)
+                d.update(row[col].eval(*scalars))
             result[v_name] = Choices.generate(choices, index, d)
         return result
 

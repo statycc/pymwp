@@ -104,11 +104,12 @@ class Polynomial:
     def __mul__(self, other):
         return self.times(other)
 
-    @property
-    def eval(self):
-        """List of monomial deltas whose scalar is infinity."""
+    def eval(self, *scalars: str) -> List[DELTAS]:
+        """List of monomial deltas with scalar in *scalars.
+        Scalars always includes $\\infty$, but can include other flows."""
+        match = scalars + (INFTY_MWP,)
         return [tuple(mono.deltas) for mono in
-                [m for m in self.list if m.scalar == 'i']]
+                [m for m in self.list if m.scalar in match]]
 
     @staticmethod
     def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
