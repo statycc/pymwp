@@ -149,12 +149,11 @@ class Choices:
         """Generate the most simplified, equivalent representation of
         the set of choices that cause infinity.
 
-        Reduce sequences of deltas, as explained in
-        [`reduce`](choice.md#pymwp.choice.Choices.reduce).
-        This operation will repeat until set of sequences cannot be reduced
+        Reduce sequences of deltas, until set of sequences cannot be reduced
         any further. Then remove all superset contained by some shorter
-        sequence. This process repeats until no more simplification can be
-        applied.
+        sequence. Lastly, remove deltas that would generate an invalid
+        choice vector. This process repeats until no more simplification
+        can be applied.
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
@@ -170,6 +169,7 @@ class Choices:
                 continue
             len_before = len(sequences)
             sequences = Choices.unique_sequences(sequences)
+            sequences = Choices.except_one(choices, sequences)
             len_after = len(sequences)
             if len_before == len_after or len_after == 0:
                 return sequences
@@ -260,6 +260,39 @@ class Choices:
         return Choices._reduce(
             choices, sequences, Choices.sub_end_equal,
             get_=lambda s2: s2[-1][0], keep_=lambda s1: s1[:-1])
+
+    @staticmethod
+    def except_one(choices: List[int], sequences: Set[SEQ]) -> Set[SEQ]:
+        """Look for deltas of length=1 where "all but one" choice are made
+        at same index. The remaining one choice can be eliminated from paths
+        that contain it, because it would yield an invalid choice vector.
+
+        Given sequence `((0,0),), ((1,0),), ((2,0),(2,1),(1,4),)` and
+        the goal to build a choice vector. Deltas `(0,0)` and `(1,0)` must be
+        chosen. For `((2,0),(2,1),(1,4),)` one of the deltas must be chosen.
+        But choosing `(0,0), (1,0), (2,0)` eliminates all choices at index 0.
+        It suffices to keep sequence `((0,0),), ((1,0),), ((2,1),(1,4),)`.
+
+        Arguments:
+            choices: list of valid per index choices, e.g. [0,1,2]
+            sequences: set of delta sequences
+
+        Returns:
+            A set of sequences after applying simplification.
+        """
+        l1 = [s[0] for s in sequences if len(s) == 1]
+        while l1:
+            (v, index) = l1.pop(0)
+            matches = [itm for itm in l1 if itm[1] == index]
+            values = [m[0] for m in matches]
+            find = [(c, index) for c in choices
+                    if c != v and c not in values]
+            if len(find) == 1:
+                for p in [s for s in sequences if find[0] in s]:
+                    sequences.add(tuple([x for x in p if x != find[0]]))
+                    sequences.remove(p)
+            map(l1.remove, matches)
+        return sequences
 
     @staticmethod
     def unique_sequences(infinities: Set[SEQ]) -> Set[SEQ]:
