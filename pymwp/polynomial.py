@@ -25,9 +25,9 @@ from typing import Optional, List, Tuple, Union
 from typing import TypeVar
 from functools import reduce
 
+from . import DELTA, Monomial
 from .constants import Comparison, SetInclusion
-from .monomial import Monomial, DELTA
-from .semiring import ZERO_MWP, sum_mwp
+from .semiring import ZERO_MWP, INFTY_MWP, sum_mwp
 
 logger = logging.getLogger(__name__)
 

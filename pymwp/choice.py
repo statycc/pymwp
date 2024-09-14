@@ -24,16 +24,9 @@ from functools import reduce
 from itertools import product
 from typing import Tuple, List, Set, Union, Optional, Generator, Callable
 
+from . import SEQ, VECT, CHOICES
+
 logger = logging.getLogger(__name__)
-
-SEQ = Tuple[Tuple[int, int], ...]
-"""Type hint to represent a sequence of deltas."""
-
-VECT = Tuple[Tuple[int, ...]]
-"""Intermediate vector is a tuple of `int`-tuples."""
-
-CHOICES = List[List[List[int]]]
-"""Type hint for representing a list of choice vectors."""
 
 
 class Choices:
@@ -353,8 +346,7 @@ class Choices:
             True if two delta sequences are equal excluding the Nth value,
             and False otherwise.
         """
-        return (len(first) == len(second) and
-                first[-1][1] == second[-1][1] and first[:-1] == second[:-1])
+        return first[-1][1] == second[-1][1] and first[:-1] == second[:-1]
 
     @staticmethod
     def prod(values: list) -> int:
