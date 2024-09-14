@@ -17,6 +17,16 @@ def test_choices_can_be_parameterized():
     assert [[0, 1, 2, 3], [1, 2, 3], [0, 1, 2]] in result.valid  # !(0,1) (3,2)
 
 
+def test_choices_docs_example():
+    index, choices = 3, [0, 1, 2]
+    deltas = {((0, 0), (2, 1)), ((1, 1),)}
+    result = Choices.generate(choices, index, deltas)
+
+    assert len(result.valid) == 2
+    assert [[1, 2], [0, 2], [0, 1, 2]] in result.valid
+    assert [[0, 1, 2], [0], [0, 1, 2]] in result.valid
+
+
 def test_infinite_eval():
     index, choices = 4, [0, 1, 2]
     infinite = {((0, 3),), ((1, 3),), ((2, 3),)}

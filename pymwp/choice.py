@@ -29,26 +29,31 @@ logger = logging.getLogger(__name__)
 SEQ = Tuple[Tuple[int, int], ...]
 """Type hint to represent a sequence of deltas."""
 
+VECT = Tuple[Tuple[int, ...]]
+"""Intermediate vector is a tuple of `int`-tuples."""
+
 CHOICES = List[List[List[int]]]
 """Type hint for representing a list of choice vectors."""
 
 
 class Choices:
     """
-    Generates a compact representation of derivation rule choices that do
-    not lead to infinity.
+    A compact representation of derivation choices.
+
+    Attributes:
+        valid (CHOICES):list of choice vectors.
     """
 
     def __init__(self, vectors: CHOICES = None):
-        """Initialize representation with precomputed vector.
+        """Initialize representation from a precomputed vector.
 
-        This initialization is primarily useful for restoring a result from
-        file. When first creating the choice representation, call
-        [`generate()`](choice.md#pymwp.choice.Choices.generate) method
+        This is primarily useful for restoring a result from file.
+        To create a choice representation, call
+        [`generate()`](choice.md#pymwp.choice.Choices.generate)
         instead.
 
         Arguments:
-            vectors: list of choice vectors
+            vectors: list of choice vectors.
         """
         self.valid = vectors or []
 
@@ -58,7 +63,7 @@ class Choices:
 
     @property
     def first(self) -> Optional[tuple[int]]:
-        """Gets the first valid derivation choice, if exists"""
+        """Gets the first valid derivation choice, if at least one exists."""
         # take first vector, then first choice at each index
         return tuple([choices[0] for choices in self.valid[0]]) \
             if not self.infinite else None
@@ -72,24 +77,22 @@ class Choices:
     @property
     def n_bounds(self) -> int:
         """Number of bounds that can be generated from a choice vector.
-        This can be calculated directly from the form of a choice vector.
-        Note: n-distinct bounds $<=$ n-bounds.
+        This is calculated directly from the vector form, as a product of
+        number of choices at each index, $\\prod_{c \\in v} |c|$.
 
-        !!! example
-
-            1. The vector `[[[0, 1, 2], [0, 1, 2], [0]]]` allows making
-                `[3, 3, 1]` choices/index.
-                Number of bounds is $3^2 * 1^1 = 9$.
+        Example:
+            1. Vector `[[0, 1, 2], [0, 1, 2], [0]]` allows making `[3, 3, 1]`
+               choices/index. It has $3 * 3 * 1 = 9$ total bounds.
 
             2. A vector with choices/index: `[3, 1, 2, 1, 3, 3]` has
                 $3^3 * 2^1 * 1^2 = 54$ possible bounds.
 
         Returns:
-            Number of (non-distinct) possible choices.
+            Number of possible choices (non-distinct).
         """
         return sum([
-            reduce(lambda total, n: total * (n[0] ** n[1]), lens.items(), 1)
-            for lens in [Counter([len(x) for x in v]) for v in self.valid]])
+            reduce(lambda total, n: total * n, lens, 1)
+            for lens in [[len(x) for x in v] for v in self.valid]])
 
     @staticmethod
     def generate(choices: List[int], index: int, inf: Set[SEQ]) -> Choices:
@@ -124,10 +127,9 @@ class Choices:
         """Checks if sequence of choices can be made without infinity.
 
         Example:
-
-            ```Python
-            choice_obj.is_valid(0,1,2,1,1,0)
-            ```
+           ```Python
+           choice_obj.is_valid(0,1,2,1,1,0)
+           ```
 
         Arguments:
             choices: sequences of delta values to check
@@ -173,7 +175,7 @@ class Choices:
                 return sequences
 
     @staticmethod
-    def __reduce(
+    def _reduce(
             choices: List[int], sequences: Set[SEQ],
             sub_eq: Callable[[SEQ, SEQ], bool],
             get_: Callable[[SEQ], int], keep_: Callable[[SEQ], SEQ]
@@ -207,19 +209,18 @@ class Choices:
     def reduce(choices: List[int], sequences: Set[SEQ]) -> bool:
         """Look for first reducible sequence, if exists, then replace it.
 
-        !!! example "Example"
+        Example:
+           We can reduce a sequences where deltas differ only on first value,
+           never on index, and all possible choice values are represented
+           in the first delta. Below, it does not matter which choice is
+           made at index 0. The 3 paths can be collapsed into a single,
+           shorter path: `(2,1)(1,4)`.
 
-            We can reduce a sequences where deltas differ only on first value,
-            never on index, and all possible choice values are represented
-            in the first delta. Below, it does not matter which choice is
-            made at index 0. The 3 paths can be collapsed into a single,
-            shorter path: `(2,1)(1,4)`.
-
-             ```
-             (0,0) (2,1) (1,4)
-             (1,0) (2,1) (1,4)
-             (2,0) (2,1) (1,4)
-             ```
+           ```
+           (0,0) (2,1) (1,4)
+           (1,0) (2,1) (1,4)
+           (2,0) (2,1) (1,4)
+           ```
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
@@ -230,7 +231,7 @@ class Choices:
             False is to say the operation is done and should not be repeated
             any further.
         """
-        return Choices.__reduce(
+        return Choices._reduce(
             choices, sequences, Choices.sub_equal,
             get_=lambda s2: s2[0][0], keep_=lambda s1: s1[1:])
 
@@ -238,17 +239,16 @@ class Choices:
     def reduce_end(choices: List[int], sequences: Set[SEQ]) -> bool:
         """Like `reduce`, but from end of sequence.
 
-        !!! example "Example"
+        Example:
+           When deltas only differ at last index, and all choices
+           occur at last index, reduce choices to a shorter path.
+           E.g., Below, choice at index 5 is irrelevant; keep `(2,1) (1,4)`.
 
-            When deltas only differ at last index, and all choices
-            occur at last index, reduce choices to a shorter path.
-            E.g., Below, choice at index 5 is irrelevant; keep `(2,1) (1,4)`.
-
-             ```
-             (2,1) (1,4) (0,5)
-             (2,1) (1,4) (1,5)
-             (2,1) (1,4) (2,5)
-             ```
+           ```
+           (2,1) (1,4) (0,5)
+           (2,1) (1,4) (1,5)
+           (2,1) (1,4) (2,5)
+           ```
 
         Arguments:
             choices: list of valid per index choices, e.g. [0,1,2]
@@ -257,7 +257,7 @@ class Choices:
         Returns:
             True if a reduction occurred and False otherwise.
         """
-        return Choices.__reduce(
+        return Choices._reduce(
             choices, sequences, Choices.sub_end_equal,
             get_=lambda s2: s2[-1][0], keep_=lambda s1: s1[:-1])
 
@@ -345,15 +345,11 @@ class Choices:
         and then negates those choices; the result is a list of choice
         vectors such that any remaining choice will give a valid derivation.
 
-        !!! example "Example"
-
-            assume the paths leading to infinity are:
-
-            `[(0,0)], [(1,0)], [(1,1)(0,3)]`
-
-            Then, the valid choices that do not lead to infinity are:
-
-            `[[ [2], [0,2], [0,1,2]]`  or  `[[2], [0,1,2], [1,2]]]`
+        Example:
+           * Assume the paths leading to infinity are:
+             `[(0,0)], [(1,0)], [(1,1)(0,3)]`.
+           * Then, the valid choices that do not lead to infinity are:
+             `[[ [2], [0,2], [0,1,2]]` or `[[2], [0,1,2], [1,2]]]`.
 
         Arguments:
             choices: list of valid choices for one index, e.g. [0,1,2]
@@ -425,22 +421,40 @@ class Choices:
         return [list([list(c) for c in v]) for v in vectors]
 
     @staticmethod
-    def vect_new(vectors: Set[Tuple[Tuple[int, ...]]],
-                 vector: Tuple[Tuple[int, ...]]) -> bool:
-        """Determines if a vector is distinct from all existing vectors."""
+    def vect_new(vectors: Set[VECT], vector: VECT) -> bool:
+        """Determines if a vector is distinct from all existing vectors.
+
+        Arguments:
+            vectors: a set of known vectors.
+            vector: vector to check.
+
+        Returns:
+            True if vector does not occur in vectors.
+        """
         return not next((Choices.vect_contains(v, vector)
                          for v in vectors), False)
 
     @staticmethod
-    def vect_rm(vectors: Set[Tuple[Tuple[int, ...]]],
-                vector: Tuple[Tuple[int, ...]]) -> None:
-        """Remove from vectors those that are contained by vector."""
+    def vect_rm(vectors: Set[VECT], vector: VECT) -> None:
+        """Remove from vectors those that are contained by vector.
+
+        Arguments:
+            vectors: a set of vectors.
+            vector: vector compare against.
+        """
         to_remove = [v for v in vectors if Choices.vect_contains(vector, v)]
         [vectors.remove(v) for v in to_remove]
 
     @staticmethod
-    def vect_contains(a: Tuple[Tuple[int, ...]],
-                      b: Tuple[Tuple[int, ...]]) -> bool:
-        """Check if A allows making all choices of B."""
+    def vect_contains(a: VECT, b: VECT) -> bool:
+        """Check if A allows making all choices of B.
+
+        Arguments:
+            a: first vector.
+            b: second vector.
+
+        Returns:
+            True if A contains B, and False otherwise.
+        """
         return all(all(ib in super_v for ib in sub)
                    for super_v, sub in zip(a, b))
