@@ -1,13 +1,13 @@
 from copy import deepcopy
 
 from pymwp import Analysis, Polynomial, Bound
-from pymwp.semiring import ZERO_MWP, UNIT_MWP
+from pymwp.semiring import KEYS
 from .mocks.ast_mocks import \
     INFINITE_2C, INFINITE_8C, NOT_INFINITE_2C, NOT_INFINITE_3C, \
     IF_WO_BRACES, IF_WITH_BRACES, VARIABLE_IGNORED, BRACES_ISSUES, \
     PARAMS, FUNCTION_CALL, EMPTY, IF_EMPTY_BRACES, FOR_LOOP, FOR_SUBST
 
-o, m, w, p = ZERO_MWP, UNIT_MWP, 'w', 'p'
+o, m, w, p = KEYS[:4]
 
 
 def test_analyze_infinite2():

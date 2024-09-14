@@ -226,9 +226,9 @@ class Analysis:
                 or node.lvalue.name == node.rvalue.name:
             return index, RelationList(), False
 
-        logger.debug('Computing Relation x = y')
-        x = node.lvalue.name
-        vars_list = [[x], [node.rvalue.name]]
+        x, y = node.lvalue.name, node.rvalue.name
+        vars_list = [[x], [y]]
+        logger.debug(f'Computing relation {x} = {y}')
 
         # create a vector of polynomials based on operator type
         #     x   y

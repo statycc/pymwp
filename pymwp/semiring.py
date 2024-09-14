@@ -21,14 +21,22 @@
 from typing import List
 
 ZERO_MWP: str = "o"
-"""Scalar that represents 0 in the analysis (`'o'`)."""
+"""Scalar that represents no dependency (0) in the analysis (`'o'`)."""
 
 UNIT_MWP: str = "m"
-"""Scalar that represents m in the analysis (`'m'`)."""
+"""Scalar that represents maximally linear flow in the analysis (`'m'`)."""
 
-KEYS: List[str] = ["o", "m", "w", "p", "i"]
-"""Different scalar values: `"o", "m", "w", "p", "i"` where `o` = 0 and `i` 
-= $\\infty$."""
+WEAK_MWP: str = "w"
+"""Scalar that represents weak polynomial flow in the analysis (`'w'`)."""
+
+POLY_MWP: str = "p"
+"""Scalar that represents a polynomial flow in the analysis (`'p'`)."""
+
+INFTY_MWP: str = "i"
+"""Scalar that represents failure in the analysis (`'i'`)."""
+
+KEYS: List[str] = [ZERO_MWP, UNIT_MWP, WEAK_MWP, POLY_MWP, INFTY_MWP]
+"""Different scalar values: `"o", "m", "w", "p", "i"`"""
 
 __DICT_PROD: dict = {
     "o": {"o": "o", "m": "o", "w": "o", "p": "o", "i": "i"},
@@ -38,6 +46,18 @@ __DICT_PROD: dict = {
     "w": {"o": "o", "m": "w", "w": "w", "p": "p", "i": "i"},
 
     "p": {"o": "o", "m": "p", "w": "p", "p": "p", "i": "i"},
+
+    "i": {"o": "i", "m": "i", "w": "i", "p": "i", "i": "i"}
+}
+
+__DICT_SUM: dict = {
+    "o": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
+
+    "m": {"o": "m", "m": "m", "w": "w", "p": "p", "i": "i"},
+
+    "w": {"o": "w", "m": "w", "w": "w", "p": "p", "i": "i"},
+
+    "p": {"o": "p", "m": "p", "w": "p", "p": "p", "i": "i"},
 
     "i": {"o": "i", "m": "i", "w": "i", "p": "i", "i": "i"}
 }
@@ -74,19 +94,6 @@ def prod_mwp(scalar1: str, scalar2: str) -> str:
     else:
         raise Exception(
             f"trying to use {scalar1} and {scalar2} as keys for prod…")
-
-
-__DICT_SUM: dict = {
-    "o": {"o": "o", "m": "m", "w": "w", "p": "p", "i": "i"},
-
-    "m": {"o": "m", "m": "m", "w": "w", "p": "p", "i": "i"},
-
-    "w": {"o": "w", "m": "w", "w": "w", "p": "p", "i": "i"},
-
-    "p": {"o": "p", "m": "p", "w": "p", "p": "p", "i": "i"},
-
-    "i": {"o": "i", "m": "i", "w": "i", "p": "i", "i": "i"}
-}
 
 
 def sum_mwp(scalar1: str, scalar2: str) -> str:

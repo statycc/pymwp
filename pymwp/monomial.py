@@ -21,11 +21,9 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple, Union
 
+from . import DELTA
 from .constants import SetInclusion
 from .semiring import ZERO_MWP, UNIT_MWP, prod_mwp, sum_mwp
-
-DELTA = Tuple[int, int]
-"""delta type is tuple of two int values."""
 
 
 class Monomial:
@@ -45,6 +43,10 @@ class Monomial:
 
     We will make the assumption that the deltas of delta is sorted
     and no two deltas can have the same index.
+
+    Attributes:
+        deltas (List[DELTA]): list of deltas
+        scalar (str): monomial scalar.
     """
 
     def __init__(self, scalar: str = UNIT_MWP,
@@ -53,25 +55,23 @@ class Monomial:
         """Create a monomial.
 
         Example:
+            Create a monomial.
 
+            ```python
+            mono = Monomial()
+            ```
 
-        Create a monomial
+            Create monomial with scalar $m$ explicitly.
 
-        ```python
-        mono = Monomial()
-        ```
+            ```python
+            mono = Monomial('m')
+            ```
 
-        Create monomial with scalar $m$ explicitly.
+            Create monomial with scalar $w$ and two deltas.
 
-        ```python
-        mono = Monomial('m')
-        ```
-
-        Create monomial with scalar $w$ and two deltas
-
-        ```python
-        mono = Monomial('w', (0, 0), (1, 1))
-        ```
+            ```python
+            mono = Monomial('w', (0, 0), (1, 1))
+            ```
 
         Arguments:
             scalar: monomial scalar

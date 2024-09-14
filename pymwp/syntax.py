@@ -19,9 +19,9 @@
 from __future__ import annotations
 
 import logging
+from abc import ABC, abstractmethod
 from collections import Counter
 from copy import deepcopy
-from abc import ABC, abstractmethod
 from typing import List, Any, Callable, Tuple, Optional
 
 from .parser import Parser as pr
