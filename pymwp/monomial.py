@@ -19,6 +19,7 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
 from typing import List, Optional, Tuple, Union
 
 from . import DELTA

@@ -20,7 +20,7 @@ import json
 import logging
 import os
 
-from pymwp import Result
+from . import Result
 
 logger = logging.getLogger(__name__)
 

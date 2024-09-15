@@ -17,6 +17,22 @@
 # ------------------------------------------------------------------------------
 
 from enum import IntEnum
+from typing import Tuple, List, TypeVar
+
+DELTA = Tuple[int, int]
+"""Delta is a tuple of two integers: <choice, index>."""
+
+DELTAS = TypeVar('DELTAS', bound=DELTA)
+"""A TypeVar for deltas."""
+
+SEQ = NODE = Tuple[DELTA, ...]
+"""A tuple of deltas."""
+
+VECT = Tuple[Tuple[int, ...], ...]
+"""A vector is a tuple of integer-tuples."""
+
+CHOICES = List[List[List[int]]]
+"""A list of choice vectors."""
 
 
 class Comparison(IntEnum):

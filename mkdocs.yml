@@ -107,7 +107,7 @@ plugins:
               - "^__init__$"
             docstring_style: google
             docstring_section_style: table
-            show_source: true
+            show_source: false
             show_root_heading: false
             show_root_toc_entry: false
             show_category_heading: false

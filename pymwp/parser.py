@@ -20,7 +20,6 @@ import os
 import re
 import tempfile
 from logging import getLogger
-
 # noinspection PyPackageRequirements,PyProtectedMember
 from typing import Any, List
 

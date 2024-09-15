@@ -27,29 +27,16 @@ __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "GPL-3.0-or-later"
 __version__ = "0.4.2"
 
-from typing import Tuple, List
-
-DELTA = Tuple[int, int]
-"""delta type is tuple of two int values."""
-
-SEQ = Tuple[DELTA, ...]
-"""Type hint to represent a sequence of deltas."""
-
-VECT = Tuple[Tuple[int, ...]]
-"""Intermediate vector is a tuple of `int`-tuples."""
-
-CHOICES = List[List[List[int]]]
-"""Type hint for representing a list of choice vectors."""
-
 # flake8: noqa: F401
+from pymwp.constants import DELTA, DELTAS, CHOICES, VECT, SEQ, NODE
 from pymwp.parser import Parser
 from pymwp.choice import Choices
 from pymwp.syntax import Coverage, Variables
 from pymwp.monomial import Monomial
 from pymwp.delta_graphs import DeltaGraph
 from pymwp.polynomial import Polynomial
-from pymwp.relation_list import RelationList
 from pymwp.relation import Relation
+from pymwp.relation_list import RelationList
 from pymwp.bound import Bound
 from pymwp.result import Result
 from pymwp.analysis import Analysis

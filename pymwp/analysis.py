@@ -20,17 +20,17 @@
 import logging
 from typing import List, Tuple, Optional
 
-from pymwp import DeltaGraph, Polynomial, RelationList, Result, Bound
-from pymwp import Coverage, Variables
-from pymwp.result import FuncResult
+from . import Coverage, Variables
+from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
+from .result import FuncResult
 
 logger = logging.getLogger(__name__)
 
-ComRes = Tuple[int, RelationList, bool]
-"""Predicate is a function from seq R -> bool."""
+COM_RES = Tuple[int, RelationList, bool]
+"""Command analysis type."""
 
 
 class Analysis:
@@ -156,7 +156,7 @@ class Analysis:
         return result
 
     @staticmethod
-    def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> ComRes:
+    def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
         """Create a relation list corresponding for all possible matrices
         of an AST node.
 
@@ -209,7 +209,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def id(index: int, node: pr.Assignment) -> ComRes:
+    def id(index: int, node: pr.Assignment) -> COM_RES:
         """Analyze x = y, where data flows between two variables.
 
         Arguments:
@@ -250,7 +250,7 @@ class Analysis:
         return index, rel_list, False
 
     @staticmethod
-    def binary_op(index: int, node: pr.Assignment) -> ComRes:
+    def binary_op(index: int, node: pr.Assignment) -> COM_RES:
         """Analyze binary operation, e.g. `x = y + z`.
 
         Arguments:
@@ -284,7 +284,7 @@ class Analysis:
         return index, rel_list, False
 
     @staticmethod
-    def constant(index: int, variable_name: str) -> ComRes:
+    def constant(index: int, variable_name: str) -> COM_RES:
         """Analyze a constant assignment of form `x = c` where x is some
         variable and c is constant.
 
@@ -305,7 +305,7 @@ class Analysis:
         return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_asgn(index: int, node: pr.Assignment) -> ComRes:
+    def unary_asgn(index: int, node: pr.Assignment) -> COM_RES:
         """Assignment where right-hand-size is a unary op e.g. `x = y++`.
 
         Arguments:
@@ -358,7 +358,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) -> ComRes:
+    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) -> COM_RES:
         """Analyze a standalone unary operation.
 
         Arguments:
@@ -385,7 +385,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def if_(index: int, node: pr.If, dg: DeltaGraph) -> ComRes:
+    def if_(index: int, node: pr.If, dg: DeltaGraph) -> COM_RES:
         """Analyze an if statement.
 
         Arguments:
@@ -444,7 +444,7 @@ class Analysis:
         return index, False
 
     @staticmethod
-    def while_(index: int, node: pr.While, dg: DeltaGraph) -> ComRes:
+    def while_(index: int, node: pr.While, dg: DeltaGraph) -> COM_RES:
         """Analyze a while loop.
 
         Arguments:
@@ -474,7 +474,7 @@ class Analysis:
         return index, relations, dg.is_empty
 
     @staticmethod
-    def for_(index: int, node: pr.For, dg: DeltaGraph) -> ComRes:
+    def for_(index: int, node: pr.For, dg: DeltaGraph) -> COM_RES:
         """Analyze for loop node.
 
         The mwp-loop has form loop X { C }. The method supports C-language
@@ -510,7 +510,7 @@ class Analysis:
         return index, relations, dg.is_empty
 
     @staticmethod
-    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) -> ComRes:
+    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) -> COM_RES:
         """Compound AST node contains zero or more children and is
         created by braces in source code.
 

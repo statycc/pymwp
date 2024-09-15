@@ -23,9 +23,9 @@ from __future__ import annotations
 import logging
 from typing import Optional, Tuple, List, Dict
 
-from pymwp import Choices, DeltaGraph, Polynomial
-from pymwp.semiring import UNIT_MWP, ZERO_MWP
+from . import Choices, DeltaGraph, Polynomial
 from . import matrix as matrix_utils
+from .semiring import UNIT_MWP, ZERO_MWP
 
 logger = logging.getLogger(__name__)
 

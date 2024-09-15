@@ -33,7 +33,7 @@ POLY_MWP: str = "p"
 """Scalar that represents a polynomial flow in the analysis (`'p'`)."""
 
 INFTY_MWP: str = "i"
-"""Scalar that represents failure in the analysis (`'i'`)."""
+"""Scalar that represents failure in the analysis (`'i'`), $\\infty$."""
 
 KEYS: List[str] = [ZERO_MWP, UNIT_MWP, WEAK_MWP, POLY_MWP, INFTY_MWP]
 """Different scalar values: `"o", "m", "w", "p", "i"`"""

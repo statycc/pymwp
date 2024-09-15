@@ -89,3 +89,17 @@ def test_choice_counter():
 
     assert choice1.n_bounds == 9
     assert choice2.n_bounds == 108
+
+
+def test_intersection():
+    vect1 = ((0, 1), (0, 2))
+    vect2 = ((1,), (1, 2))
+    vect3 = ((1,), (1,))
+    assert Choices.vect_intersection(vect1, vect2) == ((1,), (2,))
+    assert Choices.vect_intersection(vect2, vect3) == ((1,), (1,))
+
+
+def test_intersection_empty():
+    vect1 = ((0, 1), (0, 2))
+    vect2 = ((1,), (1,))
+    assert Choices.vect_intersection(vect1, vect2) is None

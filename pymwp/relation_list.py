@@ -19,10 +19,10 @@
 # flake8: noqa: W605
 
 from __future__ import annotations
+
 from typing import List, Optional
 
-from .delta_graphs import DeltaGraph
-from .relation import Relation
+from . import DeltaGraph, Relation
 
 
 class RelationList:

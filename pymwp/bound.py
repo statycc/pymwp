@@ -17,9 +17,10 @@
 # -----------------------------------------------------------------------------
 
 from __future__ import annotations
+
 from typing import List, Tuple, Union
 
-from pymwp.relation import SimpleRelation
+from .relation import SimpleRelation
 
 
 class HonestPoly:

@@ -53,3 +53,5 @@
 .doc-label-special code,
 .doc-label-private code,
 .doc-label-module-attribute code { color: white; }
+
+.highlight.no-copy .md-clipboard { display: none; }

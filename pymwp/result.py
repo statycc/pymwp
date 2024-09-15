@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional, Dict, Union, List
 from pathlib import Path
+from typing import Optional, Dict, Union, List
 
 from pymwp import Relation, Bound, Choices
 from .matrix import decode
@@ -190,7 +190,7 @@ class FuncResult(Timeable):
             if func.vars:
                 func.relation = Relation(func.vars, decode(matrix))
         if 'choices' in kwargs:
-            func.choices = Choices(kwargs['choices'])
+            func.choices = Choices(kwargs['choices'], func.index)
         if 'bound' in kwargs and func.choices and func.relation:
             func.bound = Bound(kwargs['bound'])
         return func
