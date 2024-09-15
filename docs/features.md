@@ -30,24 +30,24 @@ Analysis will bypass any unsupported statement and raises a warning.
 | **Arithmetic operations**                            |       |                                             |
 | Unary operations ($+, -, ++,--,!$, `sizeof`)[^1][^2] |  🟩   | `++x`, `x--`, `sizeof(x)`                   |
 | Binary operations ($+, \times, -$)                   |  🟩   | `x = y + z`                                 |
-| $n$-ary operation                                    |  🟧   | `x = y + z * w`                             |
+| N-ary operation                                      |  🟧   | `x = y + z * w`                             |
 | Compound assignment operators                        |   ⬜   | `x += 1`                                    |
 | **Conditional statements**                           |       |                                             |
 | if statement                                         |  🟩   | `if(x > 0) { ... }`                         |
 | if-else statement                                    |  🟩   | `if(x > 0) { ... } else { ... }`            |
-| nested conditional                                   |  🟩   | `if(x > 0) { if (y > 0) { ... } }`          |
+| Nested conditional                                   |  🟩   | `if(x > 0) { if (y > 0) { ... } }`          |
 | **Repetition statements**                            |       |                                             |
 | while loop                                           |  🟩   | `while(x < 20) { ... }`                     |
-| for loop[^1][^3]                                     |  🟩   | `for (i = 0; i < 10; ++i) { ... }`          |
-| **Jump statements**[^1][^4] (excl. `goto`)           |  🟩   | `break`,`continue`,`return`                 |
+| for loop[^1][^3]                                     |  🟩   | `for (i = 0; i < x; ++i) { ... }`           |
+| **Jump statements**[^1][^4]                          |  🟩   | `break`, `continue`, `return x`             |
 | **Functions**                                        |  🟧   |                                             |     
 | **Pointers**                                         |   ⬜   |                                             |     
 | **Arrays**                                           |   ⬜   |                                             |      
-| **Header Files Inclusion**                           |  🟩   |                                             |      
+| **Header files inclusion**                           |  🟩   |                                             |      
 | **Comments** (single-line, delimited)                |  🟩   | `// comment`, `/* comment */`               |
-| **Assert-macro**[^1][^4]                             |  🟩   | `assert (x == y)`                           |
+| **Assert-macro**[^1]                                 |  🟩   | `assert (x == y)`                           |
 
 [^1]: Added in version > 0.4.2
 [^2]: Excludes unary `&` address-of operator.
-[^3]: Loop control block must be recognizable as "run X times", e.g. `for (i = 0; i < X; ++i)` and control variable `X` cannot occur in body.
-[^4]: Jump statements and asserts are treated as `skip`, or no-op, during analysis.
+[^3]: Loop must be recognizable as "run `X` times" and guard variable `X` cannot occur in body.
+[^4]: Excludes `goto` statement. 

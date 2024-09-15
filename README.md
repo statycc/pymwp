@@ -102,40 +102,40 @@ If you want to use the latest stable version—possibly ahead of the latest rele
 
 2. **Set up Python runtime environment of preference**
 
-    * :a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
+    <br/>:a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
    
-        Create and activate a virtual environment (POSIX bash/zsh):
+    Create and activate a virtual environment (POSIX bash/zsh):
      
-        ```shell
-        python3 -m venv venv
-        source venv/bin/activate
-        ```
+    ```shell
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
      
-        Install required packages:
+    Install required packages:
      
-        ```shell
-        python -m pip install -r requirements.txt
-        ``` 
+    ```shell
+    python -m pip install -r requirements.txt
+    ``` 
      
-        For development, install dev-dependencies instead:
+    For development, install dev-dependencies instead:
      
-        ```shell
-        python -m pip install -r requirements-dev.txt
-        ```
-      
-    * :b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
+    ```shell
+    python -m pip install -r requirements-dev.txt
+    ```
 
-        Build a container -- also installs dev-dependencies:
+    <br/>:b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
+
+    Build a container -- also installs dev-dependencies:
     
-        ```shell
-        docker build . -t pymwp
-        ```
+    ```shell
+    docker build . -t pymwp
+    ```
        
-        Run the container:
+    Run the container:
     
-        ```shell
-        docker run --rm -v "$(pwd):$(pwd)" pymwp
-        ```
+    ```shell
+    docker run --rm -v "$(pwd):$(pwd)" pymwp
+    ```
  
 
 3. **Run the analysis**
