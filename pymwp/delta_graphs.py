@@ -37,63 +37,63 @@ class DeltaGraph:
 
     We use tuple because we want them to be hashable (as key in dictionary).
 
-
     Example:
+        ```
+                              ↓
+        n1 = ((0,1), (0,2), (0,3), (0,4))
+        n2 = ((0,1), (0,2), (1,3), (0,4))
+        ```
 
-    ```
-                             ↓
-    n1 = ( (0,1) , (0,2) , (0,3), (0,4) )
-    n2 = ( (0,1) , (0,2) , (1,3), (0,4) )
-    ```
+        in our graph will have:
 
-    in our graph will have:
+        ```
+        n1 <---- 3 ----> n2
+        ```
 
-    ```
-    n1 <---- 3 ----> n2
-    ```
+        or
 
-    or
+        ```python
+        size = 4   ↓
+        graph_dict[4][n1][n2] = 3
+        ```
 
-    ```python
-    size = 4   ↓
+        The graph is symmetric:
 
-    graph_dict[4][n1][n2] = 3
-    ```
-
-    The graph is symmetric:
-
-    ```python
-    graph_dict[4][n2][n1] = 3
-    ```
+        ```python
+        graph_dict[4][n2][n1] = 3
+        ```
 
     This representation will help us simplify the evaluation by
     removing redundant/irrelevant choices/paths.
+
+    Attributes:
+        graph_dict (dict): Dictionary of nodes.
+        degree (int): Graph degree.
     """
 
     def __init__(
-            self, *init_nodes: Optional[Union[Monomial, NODE]], degree: int = 3
+            self,
+            *init_nodes: Optional[Union[Monomial, NODE]],
+            degree: int = 3
     ):
-        """Creates a Delta Graph.
-
-        Fills a dictionary with nodes of all given initial nodes.
-
-        Example:
-
-        Create an empty delta graph
-
-        ```python
-        dg = DeltaGraph()
-        ```
-
-        Create delta graph with some initial nodes from monomials.
-
-        ```python
-        dg = DeltaGraph(mono1, mono2)
-        ```
+        """Create a Delta Graph.
 
         Arguments:
-            init_nodes: initial list of monomials or nodes (optional).
-            degree: degree of a full node [default: 3].
+            *init_nodes: Initial list of monomials or nodes.
+            degree: Degree of a full node.
+
+        Example:
+            Create an empty delta graph
+
+            ```python
+            dg = DeltaGraph()
+            ```
+
+            Create delta graph with some initial nodes from monomials.
+
+            ```python
+            dg = DeltaGraph(mono1, mono2)
+            ```
         """
         self.degree = degree
         self.graph_dict = {}
@@ -178,11 +178,10 @@ class DeltaGraph:
         """Remove delta with given index.
 
         Example:
-
-        ```
-        remove index 4:
-        ((0, 2), (1, 3), (2, 4))  ->  ((0, 2), (1, 3))
-        ```
+            ```
+            remove index 4:
+            ((0, 2), (1, 3), (2, 4))  ->  ((0, 2), (1, 3))
+            ```
 
         Arguments:
             node: monomial list
@@ -274,35 +273,33 @@ class DeltaGraph:
         """Check for cliques of same label.
 
         Example:
+            ```Python
+            n3 = ((0, 1), (2, 2), (0, 3))
+            n4 = ((0, 1), (2, 2), (1, 3))
+            n5 = ((0, 1), (2, 2), (2, 3))
 
-        ```Python
-        n3 = ((0, 1), (2, 2), (0, 3))
-        n4 = ((0, 1), (2, 2), (1, 3))
-        n5 = ((0, 1), (2, 2), (2, 3))
+            node = n4
+            size = 3
+            index = 3
+            degree = 3
 
-        node = n4
-        size = 3
-        index = 3
-        degree = 3
+            n3 -- 3 -- n4
+             ⟍         |
+                3       3
+                  ⟍    |
+                    ⟍  |
+                      n5
 
-        '''
-        n3 -- 3 -- n4
-         ⟍         |
-            3       3
-              ⟍    |
-                ⟍  |
-                  n5
-        '''
-        return True
-        ```
+            return True
+            ```
 
         Arguments:
-            node: check for clique around that graph node
-            size: size of nodes or graph "level"
-            index: index where to find clique
+            node: check for clique around that graph node.
+            size: size of nodes or graph "level".
+            index: index where to find clique.
 
         Returns:
-            True if there is a clique
+            True if there is a clique.
         """
         src = self.graph_dict[size][node]
         adjacent = sum([1 for n2 in src if src[n2] == index])
@@ -312,28 +309,26 @@ class DeltaGraph:
         """Eliminates cliques of same label in a delta graph.
 
         Example:
+            ```python
+            m1 = ((0, 1), (0, 2))
+            m2 = ((0, 1), (1, 2))
+            m3 = ((0, 1), (2, 2), (0, 3))
+            m4 = ((0, 1), (2, 2), (1, 3))
+            m5 = ((0, 1), (2, 2), (2, 3))
 
-        ```python
-        m1 = ((0, 1), (0, 2))
-        m2 = ((0, 1), (1, 2))
-        m3 = ((0, 1), (2, 2), (0, 3))
-        m4 = ((0, 1), (2, 2), (1, 3))
-        m5 = ((0, 1), (2, 2), (2, 3))
+            Delta graph:
 
-        '''
-          delta graph:
-          m1 -- 2 -- m2
-          m3 -- 3 -- m4
-           ⟍         |
-              3      3
-                ⟍    |
-                  ⟍  |
-                    m5
+              m1 -- 2 -- m2
+              m3 -- 3 -- m4
+               ⟍         |
+                  3      3
+                    ⟍    |
+                      ⟍  |
+                        m5
 
-        Looks for cliques (size default 3) at each index.
-        => Graph will simplify to: ((0,1)).
-        '''
-        ```
+            Looks for cliques (size default 3) at each index.
+            => Graph will simplify to: ((0,1)).
+            ```
         """
         # Start from the longest node to the shortest
         for size in sorted(self.graph_dict, reverse=True):

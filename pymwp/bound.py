@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Callable, Optional
+from typing import Union, Callable, Optional, Tuple, List
 
 from . import B_TRIPLE
 from .relation import SimpleRelation
@@ -35,6 +35,12 @@ class HonestPoly:
     """
 
     def __init__(self, operator: str, *init_vars: str):
+        """Creates a honest polynomial.
+
+        Arguments:
+            operator (str): Operator.
+            *init_vars (str): Arbitrary variables.
+        """
         self.variables = set(init_vars)
         self.var_fmt: Optional[Callable[[str], str]] = None
         self.op = operator
@@ -71,21 +77,26 @@ class HonestPoly:
 class MaxVar(HonestPoly):
     """Representation for m-variables."""
 
-    def __init__(self, *init_vars):
+    def __init__(self, *init_vars: str):
         super().__init__(',', *init_vars)
 
 
 class MwpBound:
-    """Represents MWP bound.
+    """Represents a mwp-bound.
 
     Attributes:
-        x (List[str]): List of m-variables.
-        y (List[str]): List of w-variables.
-        z (List[str]): List of p-variables.
+        x (Tuple[str]): List of m-variables.
+        y (Tuple[str]): List of w-variables.
+        z (Tuple[str]): List of p-variables.
     """
 
     def __init__(self, triple: str = None):
-        x, y, z = self.parse_triple_str(triple)
+        """Create mwp-bound.
+
+        Arguments:
+            triple (str): Bound expression as bound_str.
+        """
+        x, y, z = self.parse(triple)
         self.x = MaxVar(*x)
         self.y = HonestPoly('+', *y)
         self.z = HonestPoly('*', *z)
@@ -110,11 +121,11 @@ class MwpBound:
         return tuple(self.x.vars), tuple(self.y.vars), tuple(self.z.vars)
 
     @property
-    def bound_triple_str(self) -> str:
+    def bound_str(self) -> str:
         """Alternative bounds representation, as a `;`-separated string.
 
         Returns:
-            Current bound as `m;w;p` where the first section contains
+            Current bound as $m;w;p$ where the first section contains
                 list of variables in m, second contains variables in w,
                 and last in p (if any). Multiple elements in the lists
                 are separated by commas.
@@ -122,8 +133,8 @@ class MwpBound:
         return f'{";".join([",".join(v) for v in self.bound_triple])}'
 
     @staticmethod
-    def parse_triple_str(value: str = None) -> B_TRIPLE:
-        """Restore a bound from triple format."""
+    def parse(value: str = None) -> B_TRIPLE:
+        """Restore a bound from string-triple format."""
         return tuple([tuple(v.split(',')) if v else []
                       for v in value.split(";")]) if value \
             else (tuple(), tuple(), tuple())
@@ -157,10 +168,8 @@ class MwpBound:
 
 
 class Bound:
-    """Represents an MWP-bound for a relation.
-
-    If derivation succeeds, there is one mwp-bound expression for each
-    input variable.
+    """Represents a mwp-bound for a relation. If derivation succeeds,
+    there is one mwp-bound expression for each input variable.
 
     Attributes:
         bound_dict (Dict[str, MwpBound]): Variable bounds.
@@ -168,7 +177,13 @@ class Bound:
 
     LAND = '∧'
 
-    def __init__(self, bounds: dict = None):
+    def __init__(self, bounds: dict[str, str] = None):
+        """Create a bound.
+
+        Arguments:
+            bounds (dict[str, str]): Dictionary of mwp-bounds.
+        """
+
         self.bound_dict = dict([
             (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
             if bounds else {}
@@ -179,15 +194,15 @@ class Bound:
                     for k in self.variables))
 
     @property
-    def variables(self) -> list[str]:
+    def variables(self) -> List[str]:
         """List of variables."""
         return list(self.bound_dict.keys())
 
     def calculate(self, relation: SimpleRelation) -> Bound:
         """Calculate bound from a simple-valued matrix.
 
-        Arguments
-            relation: a simple-valued relation.
+        Arguments:
+            relation: A simple-valued relation.
 
         Returns:
             The bound for the relation.
@@ -201,15 +216,15 @@ class Bound:
         return self
 
     def to_dict(self) -> dict:
-        """Get serializable dictionary representation of a bound."""
-        return dict([(k, v.bound_triple_str)
+        """A dictionary representation of a bound."""
+        return dict([(k, v.bound_str)
                      for k, v in self.bound_dict.items()])
 
-    def show_poly(
+    def show(
             self, compact: bool = False, significant: bool = False,
-            variables: List[str] = None
+            variables: Tuple[str] = None
     ) -> str:
-        """Format a nice display string of bounds.
+        """Formatted display-string of a bound.
 
         Arguments:
             compact: reduce whitespace in the output

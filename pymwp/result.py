@@ -280,7 +280,7 @@ class Result(Timeable, Serializable):
                 txt += f'\nProblematic flows: {f.inf_flows}'
         else:
             txt += f'{f.n_bounds:,}\n'
-            txt += f'{Bound.show_poly(f.bound)}'
+            txt += f'{Bound.show(f.bound)}'
         Result.pretty_print_result(txt)
 
     @staticmethod

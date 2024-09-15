@@ -43,11 +43,11 @@ class Analysis:
         Arguments:
             ast: parsed C source code AST
             res: pre-initialized result object
-            file_out: file to save result [default: None]
-            save: save result to file_out [default: True]
-            evaluate: do bound evaluation [default: True]
-            fin: always run to completion [default: False]
-            strict: require supported syntax [default: False]
+            file_out: file to save result
+            save: save result to file_out
+            evaluate: do bound evaluation
+            fin: always run to completion
+            strict: require supported syntax
 
         Returns:
             A [`Result`](result.md) object.
@@ -182,15 +182,15 @@ class Analysis:
         if isinstance(node, pr.UnaryOp):
             return Analysis.unary_op(index, node, dg)
         if isinstance(node, pr.If):
-            return Analysis.if_(index, node, dg)
+            return Analysis.if_stmt(index, node, dg)
         if isinstance(node, pr.While):
-            return Analysis.while_(index, node, dg)
+            return Analysis.while_loop(index, node, dg)
         if isinstance(node, pr.DoWhile):
-            return Analysis.while_(index, node, dg)
+            return Analysis.while_loop(index, node, dg)
         if isinstance(node, pr.For):
-            return Analysis.for_(index, node, dg)
+            return Analysis.for_loop(index, node, dg)
         if isinstance(node, pr.Compound):
-            return Analysis.compound_(index, node, dg)
+            return Analysis.compound(index, node, dg)
         if isinstance(node, pr.Break):  # => skip
             return index, RelationList(), False
         if isinstance(node, pr.Continue):  # => skip
@@ -202,7 +202,7 @@ class Analysis:
                 and node.name.name == 'assert'):
             return index, RelationList(), False
 
-        Analysis.unsupported(pr.to_c(node))
+        Analysis._unsupported(pr.to_c(node))
         return index, RelationList(), False
 
     @staticmethod
@@ -263,7 +263,7 @@ class Analysis:
                                for v in [x, y, z]])
         if not ((isinstance(y, pr.Constant) or isinstance(y, pr.ID)) and
                 (isinstance(z, pr.Constant) or isinstance(z, pr.ID))):
-            Analysis.unsupported(pr.to_c(node))
+            Analysis._unsupported(pr.to_c(node))
             return index, RelationList(), False
 
         # create a vector of polynomials based on operator type
@@ -351,7 +351,7 @@ class Analysis:
 
         # unary address of "&" will fall through
         # expr not in {ID, Constant} will fall through
-        Analysis.unsupported(type(node))
+        Analysis._unsupported(type(node))
         return index, RelationList(), False
 
     @staticmethod
@@ -382,7 +382,7 @@ class Analysis:
         return index, RelationList(), False
 
     @staticmethod
-    def if_(index: int, node: pr.If, dg: DeltaGraph) -> COM_RES:
+    def if_stmt(index: int, node: pr.If, dg: DeltaGraph) -> COM_RES:
         """Analyze an if statement.
 
         Arguments:
@@ -441,7 +441,7 @@ class Analysis:
         return index, False
 
     @staticmethod
-    def while_(index: int, node: pr.While, dg: DeltaGraph) -> COM_RES:
+    def while_loop(index: int, node: pr.While, dg: DeltaGraph) -> COM_RES:
         """Analyze a while loop.
 
         Arguments:
@@ -471,14 +471,8 @@ class Analysis:
         return index, relations, dg.is_empty
 
     @staticmethod
-    def for_(index: int, node: pr.For, dg: DeltaGraph) -> COM_RES:
+    def for_loop(index: int, node: pr.For, dg: DeltaGraph) -> COM_RES:
         """Analyze for loop node.
-
-        The mwp-loop has form loop X { C }. The method supports C-language
-        for loops that have similar form ("repeat command X times").
-        The variable X is not allowed to occur in the body C of the
-        iteration loop X {C}. If it is not possible to infer similar loop
-        control format, analysis skips the loop.
 
         Arguments:
             index: delta index
@@ -507,7 +501,7 @@ class Analysis:
         return index, relations, dg.is_empty
 
     @staticmethod
-    def compound_(index: int, node: pr.Compound, dg: DeltaGraph) -> COM_RES:
+    def compound(index: int, node: pr.Compound, dg: DeltaGraph) -> COM_RES:
         """Compound AST node contains zero or more children and is
         created by braces in source code.
 
@@ -558,7 +552,7 @@ class Analysis:
         vector = []
 
         if op not in supported_op:
-            Analysis.unsupported(f'{op} operator')
+            Analysis._unsupported(f'{op} operator')
             return index, []
 
         # when left variable does not occur on right side of assignment
@@ -587,7 +581,7 @@ class Analysis:
         return index + 1, vector
 
     @staticmethod
-    def unsupported(command: any):
+    def _unsupported(command: any):
         """Handle unsupported command."""
         warning, endc = '\033[93m', '\033[0m'
         fmt_str = str(command or "").strip()

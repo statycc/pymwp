@@ -137,7 +137,7 @@ class Plot:
 
         bound_dict = [
             (i + 1, (Plot.texify_bound(f.bound), p))
-            for i, f, p in [(i, f, f.bound.show_poly(True, True)
+            for i, f, p in [(i, f, f.bound.show(True, True)
             if f.bound else None) for (i, (_, f)) in enumerate(inputs)]
             if f.n_bounds > 0 and len(p) > 0]
 

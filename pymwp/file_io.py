@@ -26,7 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 def loc(input_file: str) -> int:
-    """Get number of lines is a file"""
+    """Get number of lines is a file.
+
+    Arguments:
+        input_file: Path to input file.
+
+    Returns:
+        Number of non-empty lines in input file.
+    """
     with open(input_file, 'r') as fp:
         lines = fp.readlines()
     lines = [1 for line in lines if line and len(line.strip())]
@@ -37,7 +44,7 @@ def default_file_out(input_file: str) -> str:
     """Generates default output file.
 
     Arguments:
-        input_file: input filename (with or without path)
+        input_file: input filename (with or without path).
 
     Returns:
         Generated output filename with path.
@@ -57,8 +64,8 @@ def save_result(file_name: str, analysis_result: Result) -> None:
     - if output file exists it will be overwritten
 
     Arguments:
-        file_name: filename where to write
-        analysis_result: A [`Result`](result.md) object.
+        file_name: Filename where to write.
+        analysis_result: Result object.
     """
     # JSON serializable object
     file_content = analysis_result.to_dict()
@@ -83,13 +90,13 @@ def load_result(file_name: str) -> Result:
     and assumes the input matches the output of that method.
 
     Arguments:
-        file_name: file to read
+        file_name: File to read.
 
     Raises:
-          Exception: if `file_name` does not exist or cannot be read.
+        Exception: if `file_name` does not exist or cannot be read.
 
     Returns:
-        Parsed result from file
+        Parsed result from file.
     """
     # read the file
     with open(file_name) as file_object:

@@ -208,7 +208,7 @@ class PyCParser(ParserInterface):
             c_prog = cfile.read()
 
         # apply preprocessing steps
-        preprocessed = PyCParser.__add_attr_x(c_prog)
+        preprocessed = PyCParser.add_attr_x(c_prog)
         # convert to byte string
         prog_bytes = str.encode(preprocessed)
 
@@ -234,8 +234,8 @@ class PyCParser(ParserInterface):
         return comm
 
     @staticmethod
-    def __add_attr_x(text: str) -> str:
-        """Conditionally add #define __attribute__(x) to C file
+    def add_attr_x(text: str) -> str:
+        """Conditionally add `#define __attribute__(x)` to C file
         for pycparser.
 
         See: <https://github.com/eliben/pycparser/wiki/FAQ#what-do-i-do
@@ -245,7 +245,7 @@ class PyCParser(ParserInterface):
             text: C program file content as a string
 
         Returns:
-            contents of C file, with attribute(x) included.
+            contents of C file, with `#define __attribute__(x)` included.
         """
         attr_x = '#define __attribute__(x)'
         lines = text.split('\n')
