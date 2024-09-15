@@ -19,8 +19,8 @@
 import os
 import re
 import tempfile
+from abc import ABC, abstractmethod
 from logging import getLogger
-
 # noinspection PyPackageRequirements,PyProtectedMember
 from typing import Any, List
 
@@ -43,10 +43,11 @@ such upgrades do not break pymwp.
 
 
 # noinspection PyPep8Naming
-class ParserInterface:  # pragma: no cover
+class ParserInterface(ABC):  # pragma: no cover
     """Interface for C code parser."""
 
     @staticmethod
+    @abstractmethod
     def parse(full_file_name: str, **kwargs) -> dict:
         """Extract text from the currently loaded file."""
         pass

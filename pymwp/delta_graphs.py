@@ -17,12 +17,10 @@
 # ------------------------------------------------------------------------------
 
 from __future__ import annotations
+
 from typing import Optional, Tuple, Union
 
-from .monomial import Monomial, DELTA
-
-NODE = Tuple[DELTA, ...]
-"""Graph node type is a variable-length tuple of deltas."""
+from . import Monomial, NODE
 
 
 class DeltaGraph:

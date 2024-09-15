@@ -96,8 +96,8 @@ class BaseAnalysis(ABC):
         """Analyze child at node.attribute.
 
         Arguments:
-            node: AST node
-            attr: node attribute to analyze
+            node: AST node.
+            attr: node attribute to analyze.
         """
         if hasattr(node, attr) and getattr(node, attr):
             self.recurse(getattr(node, attr), *args, **kwargs)
@@ -107,7 +107,7 @@ class BaseAnalysis(ABC):
         where the attribute is an iterable.
 
         Arguments:
-            node: AST node
+            node: AST node.
             attr: node attribute to analyze.
         """
         if hasattr(node, attr) and getattr(node, attr):
@@ -291,7 +291,7 @@ class Variables(BaseAnalysis):
         """Find variables in a for loop control block.
 
         Arguments:
-            node: for-loop node
+            node: for-loop node.
 
         Returns:
             Two lists of variables: <loop controls, body variables>.
@@ -371,9 +371,9 @@ class Coverage(BaseAnalysis):
         """Formatter for displaying unsupported nodes.
 
         Arguments:
-            idx: ranked order (1., 2., 3....)
-            count: number of occurrences
-            desc: node description
+            idx: ranked order (1., 2., 3....).
+            count: number of occurrences.
+            desc: node description.
 
         Returns:
               Formatted string expression for display.
@@ -409,9 +409,9 @@ class Coverage(BaseAnalysis):
         iterating a tree, then applying the removals afterward.
 
         Arguments:
-            node: parent node
-            attr: parent's attribute name that contains child, e.g., stmt
-            child: child node
+            node: parent node.
+            attr: parent's attribute name that contains child, e.g., stmt.
+            child: child node.
 
         Returns:
             A callable function.
@@ -433,8 +433,8 @@ class Coverage(BaseAnalysis):
 
         Returns:
             A tuple containing (1) compatibility result -- true if for
-        loop is mwp-loop compatible, otherwise false -- and (2) name of
-        iteration variable `X`, possibly `None`.
+                loop is mwp-loop compatible, otherwise false -- and (2) name
+                of iteration variable `X`, possibly `None`.
         """
         loop_x, body = Variables.loop_control(node)
         if len(loop_x) != 1:  # exactly one control variable

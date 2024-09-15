@@ -15,8 +15,30 @@
 # You should have received a copy of the GNU General Public License along with
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------------
-
 from enum import IntEnum
+from typing import Tuple, List, TypeVar
+
+DELTA = Tuple[int, int]
+"""Delta is a tuple of two integers: <choice, index>."""
+
+DELTAS = TypeVar('DELTAS', bound=DELTA)
+"""A TypeVar for deltas."""
+
+SEQ = NODE = Tuple[DELTA, ...]
+"""A tuple of deltas."""
+
+VECT = Tuple[Tuple[int, ...], ...]
+"""A vector is a tuple of integer-tuples."""
+
+CHOICES = List[List[List[int]]]
+"""A list of choice vectors."""
+
+# flake8: noqa: F821
+COM_RES = Tuple[int, 'RelationList', bool]
+"""Command analysis type."""
+
+B_TRIPLE = Tuple[Tuple[str], Tuple[str], Tuple[str]]
+"""mwp-bound triple of variable lists."""
 
 
 class Comparison(IntEnum):

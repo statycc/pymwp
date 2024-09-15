@@ -22,8 +22,7 @@ import logging
 from functools import reduce
 from typing import Any, Optional, List
 
-from .polynomial import Polynomial
-from .monomial import Monomial
+from . import Monomial, Polynomial
 from .semiring import ZERO_MWP, UNIT_MWP
 
 ZERO = Polynomial(ZERO_MWP)

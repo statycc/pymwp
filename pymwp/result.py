@@ -20,8 +20,9 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Optional, Dict, Union, List
 from pathlib import Path
+from abc import ABC, abstractmethod
+from typing import Optional, Dict, Union, List, Any
 
 from pymwp import Relation, Bound, Choices
 from .matrix import decode
@@ -30,7 +31,12 @@ logger = logging.getLogger(__name__)
 
 
 class Timeable:
-    """Represents an entity whose runtime can be measured."""
+    """Represents an entity whose runtime can be measured.
+
+    Attributes:
+        start_time (int): recorded start time.
+        end_time (int): recorded end time.
+    """
 
     def __init__(self):
         self.start_time = 0
@@ -62,28 +68,70 @@ class Timeable:
         return self
 
 
-class Program(object):
-    """Details about analyzed C file."""
+class Serializable(ABC):
+    """General utilities for converting results to JSON-writable
+    objects and vice versa."""
+
+    @property
+    @abstractmethod
+    def attrs(self) -> List[str]:
+        """List of relevant attribute names."""
+        pass
+
+    @staticmethod
+    def try_set(target: object, attr: str, *keys: str, **kwargs) -> None:
+        """Try set target.attr from kwargs matching keys."""
+        keys_ = (attr,) if not keys else keys
+        ob = Serializable.try_get(*keys_, **kwargs)
+        setattr(target, attr, ob) if ob else None
+
+    @staticmethod
+    def try_get(*keys: str, **kwargs) -> Any:
+        """Try to get a kwargs value that matches keys."""
+        ob = kwargs
+        for i, key in enumerate(keys):
+            ob = ob[key] if (ob and key in ob) else None
+        return ob
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert an object to a dictionary.
+
+        Returns:
+            Dictionary version of implementing class.
+        """
+        values = map(self.__getattribute__, self.attrs)
+        return dict(zip(self.attrs, values))
+
+    @staticmethod
+    def _from_dict(obj: Serializable, **kwargs) -> None:
+        """Initialize Serializable object from kwargs.
+
+        Arguments:
+            obj: initialized object.
+        """
+        [obj.try_set(obj, key, **kwargs) for key in obj.attrs]
+
+
+class Program(Serializable):
+    """Details about analyzed C-language input file.
+
+    Attributes:
+        n_lines (int): Lines of code in input program.
+        program_path (str): Path to program file.
+    """
 
     def __init__(self, n_lines: int = -1, program_path: str = None):
-        """Create program object.
-
-        Attributes:
-            n_lines (int): number of lines.
-            program_path (str): path to program file.
-        """
         self.n_lines: int = n_lines
-        self.program_path: Optional[str] = program_path
+        self.program_path: str = program_path
 
-    def to_dict(self) -> Dict[str, Union[int, str]]:
-        """Convert Program object to a dictionary."""
-        return {
-            'n_lines': self.n_lines,
-            'program_path': self.program_path}
+    @property
+    def attrs(self) -> List[str]:
+        """List of attributes."""
+        return ['n_lines', 'program_path']
 
     @property
     def name(self) -> Optional[str]:
-        """Get name of program, without path and extension.
+        """Get name of program, from file name, without path and extension.
 
         Returns:
             Program name or `None` if not set.
@@ -95,52 +143,54 @@ class Program(object):
         """Initialize Program object from kwargs.
 
         Returns:
-            Program: initialized program object.
-
-        Raises:
-            KeyError: if all Program attributes are not included as kwargs.
+            Program: initialized Program object.
         """
-        return Program(kwargs['n_lines'], kwargs['program_path'])
+        prog = Program()
+        Serializable._from_dict(prog, **kwargs)
+        return prog
 
 
-class FuncResult(Timeable):
-    """Capture details of analysis result for one program (function in C)."""
+# noinspection PyShadowingBuiltins
+class FuncResult(Timeable, Serializable):
+    """Analysis results for one function of the input program.
+
+    Attributes:
+        name (str): Function name.
+        infinite (bool): (optional) True if no valid derivation exists.
+        vars (List[str]): (optional) List of program variables.
+        relation (Relation): (optional) Relation object; does not
+        choices (Choices): (optional) a choice vector-object; does not
+            exist if analysis terminated early or no choice exists.
+        bound (Bound): (optional) mwp-bounds; does not
+            exist if analysis terminated early or no choice exists.
+        inf_flows (str): (optional) Description of problematic flows.
+            exist if analysis terminated early.
+        index (int): (optional) Degree of derivation choice [default: 0].
+        func_code (str): (optional) Function source code, if the AST required
+            modification.
+    """
 
     def __init__(
             self,
             name: str,
             infinite: bool = False,
-            variables: Optional[List[str]] = None,
+            vars: Optional[List[str]] = None,
             relation: Optional[Relation] = None,
             choices: Optional[Choices] = None,
             bound: Optional[Bound] = None,
             inf_flows: Optional[str] = None,
             index: int = 0,
-            func: str = None):
-        """
-        Create a function result.
-
-        Attributes:
-            name: function name
-            infinite: True if result is infinite.
-            variables: list of variables.
-            relation: corresponding [`Relation`](relation.md)
-            choices: choice object [`Choice`](choice.md)
-            bound: bound object [`Bound`](bound.md)
-            inf_flows: description of problematic flows
-            index: inferred choice index
-            func: input program (if modified)
-        """
+            func_code: str = None):
         super().__init__()
-        self.name = name
-        self.vars = variables or []
-        self.infinite = infinite
-        self.inf_flows = inf_flows
-        self.relation = relation
-        self.choices = choices
-        self.bound = bound
-        self.index = index
-        self.func = func
+        self.name: str = name
+        self.infinite: bool = infinite
+        self.vars: List[str] = vars or []
+        self.relation: Relation = relation
+        self.choices: Choices = choices
+        self.bound: Bound = bound
+        self.inf_flows: str = inf_flows
+        self.index: int = index
+        self.func_code: str = func_code
 
     @property
     def n_vars(self) -> int:
@@ -152,62 +202,47 @@ class FuncResult(Timeable):
         """Number of bounds."""
         return self.choices.n_bounds if self.choices else 0
 
+    @property
+    def attrs(self) -> List[str]:
+        """List of attribute names."""
+        return 'name,infinite,start_time,end_time,vars,' \
+               'inf_flows,index,func_code'.split(',')
+
     def to_dict(self) -> dict:
-        """Serialize function result."""
-        return {
-            "name": self.name,
-            "infinity": self.infinite,
-            "inf_flows": self.inf_flows,
-            "index": self.index,
-            "func": self.func,
-            "variables": self.vars,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "relation": self.relation.to_dict() if self.relation else None,
-            **({"choices": self.choices.valid if self.choices else None,
-                "bound": self.bound.to_dict() if self.bound else None}
-               if not self.infinite else
-               {"infty_vars": self.relation.infty_vars()}
-               if self.relation else {})}
+        """Serialize a function result."""
+        result = super().to_dict()
+        if self.relation:
+            result['relation'] = self.relation.to_dict()
+        if self.choices:
+            result['choices'] = self.choices.valid
+        if self.bound:
+            result['bound'] = self.bound.to_dict()
+        return result
 
     @staticmethod
-    def from_dict(**kwargs):
-        """Deserialize function result."""
-        st, et = 'start_time', 'end_time'
-        func = FuncResult(kwargs['name'], kwargs['infinity'])
-        func.start_time = int(kwargs[st]) if st in kwargs else 0
-        func.end_time = int(kwargs[et]) if et in kwargs else 0
-        if 'variables' in kwargs:
-            func.vars = kwargs['variables']
-        if 'inf_flows' in kwargs:
-            func.inf_flows = kwargs['inf_flows']
-        if 'index' in kwargs:
-            func.index = kwargs['index']
-        if 'func' in kwargs:
-            func.func = kwargs['func']
-        if kwargs['relation']:
-            matrix = kwargs['relation']['matrix']
-            if func.vars:
-                func.relation = Relation(func.vars, decode(matrix))
-        if 'choices' in kwargs:
-            func.choices = Choices(kwargs['choices'])
-        if 'bound' in kwargs and func.choices and func.relation:
-            func.bound = Bound(kwargs['bound'])
+    def from_dict(name: str = None, infinite: bool = False, **kwargs) \
+            -> FuncResult:
+        """Deserialize a function result."""
+        func = FuncResult(name, infinite)
+        Serializable._from_dict(func, **kwargs)
+        matrix = FuncResult.try_get('relation', 'matrix', **kwargs)
+        if matrix:
+            func.relation = Relation(func.vars, decode(matrix))
+        choices = FuncResult.try_get('choices', **kwargs)
+        if choices:
+            func.choices = Choices(choices, func.index)
+        bound = FuncResult.try_get('bound', **kwargs)
+        if bound:
+            func.bound = Bound(bound)
         return func
 
 
-class Result(Timeable):
-    """Captures analysis result and details about the process.
+class Result(Timeable, Serializable):
+    """Captures analysis result and details about the analysis process.
 
-    This result contains
-
-    - program: information about analyzed C File:
-        type [`Program`](result.md#pymwp.result.Program)
-    - relations: dictionary of function results:
-        type [`FuncResult`](result.md#pymwp.result.FuncResult)
-    - analysis time: measured from before any function
-        has been analyzed, until all functions have been analyzed.
-        It excludes time to write result to file.
+    Attributes:
+        program (Program): Information about analyzed C File.
+        relations (Dict[str, FuncResult]): Dictionary of function results.
     """
 
     def __init__(self):
@@ -219,6 +254,11 @@ class Result(Timeable):
     def n_functions(self) -> int:
         """Number of functions in analyzed program."""
         return len(self.relations.keys())
+
+    @property
+    def attrs(self) -> List[str]:
+        """List of attribute names."""
+        return ['start_time', 'end_time']
 
     def add_relation(self, func_result: FuncResult) -> None:
         """Appends function analysis outcome to result.
@@ -280,15 +320,15 @@ class Result(Timeable):
             -> Union[FuncResult, Dict[str, FuncResult]]:
         """Returns analysis result for function(s).
 
-        * If `name` argument is provided and key exists,
-          returns function result for exact value match.
-        * If program contained exactly 1 function,
-          returns result for that function.
-        * Otherwise, returns a dictionary of results for each
-          analyzed function, as in: `<function_name, analysis_result>`
+        * If `name` argument is provided and key exists, returns function
+          result for exact value match.
+        * If program contained exactly 1 function, returns result for that
+          function.
+        * Otherwise, returns a dictionary of results for each analyzed
+          function, as in: `<function_name, analysis_result>`
 
         Arguments:
-            name: name of function
+            name: name of function,
 
         Returns:
             Function analysis result, or dictionary of results.
@@ -306,32 +346,31 @@ class Result(Timeable):
             logger.warning("Input C file contained no analyzable functions!")
         logger.info(f'Total time: {self.dur_s} s ({self.dur_ms} ms)')
 
-    def serialize(self) -> dict:
+    def to_dict(self) -> dict:
         """JSON serialize a result object.
 
         Returns:
             dict: dictionary representation.
         """
-        return {
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'program': self.program.to_dict(),
-            'relations': dict([(name, v.to_dict()) for (name, v)
-                               in self.relations.items()])}
+        result = super().to_dict()
+        rels = [(name, v.to_dict()) for (name, v) in self.relations.items()]
+        rest = {'program': self.program.to_dict(), 'relations': dict(rels)}
+        return {**result, **rest}
 
     @staticmethod
-    def deserialize(**kwargs) -> Result:
+    def from_dict(**kwargs) -> Result:
         """Reverse of serialize.
 
         Returns:
             Result: Initialized Result object.
         """
-        st, et, r = 'start_time', 'end_time', Result()
-        r.start_time = int(kwargs[st]) if st in kwargs else 0
-        r.end_time = int(kwargs[et]) if et in kwargs else 0
-        if 'program' in kwargs:
-            r.program = Program.from_dict(**kwargs['program'])
-        if 'relations' in kwargs:
-            for value in kwargs['relations'].values():
+        r = Result()
+        Serializable._from_dict(r, **kwargs)
+        program = Result.try_get('program', **kwargs)
+        if program:
+            r.program = Program.from_dict(**program)
+        relations = Result.try_get('relations', **kwargs)
+        if relations:
+            for value in relations.values():
                 r.add_relation(FuncResult.from_dict(**value))
         return r

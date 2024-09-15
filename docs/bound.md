@@ -4,4 +4,4 @@
 from pymwp import Bound
 ```
 
-::: pymwp.bound 
+::: pymwp.bound

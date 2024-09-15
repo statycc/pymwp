@@ -17,37 +17,50 @@
 # -----------------------------------------------------------------------------
 
 from __future__ import annotations
-from typing import List, Tuple, Union
 
-from pymwp.relation import SimpleRelation
+from typing import List, Union, Callable, Optional
+
+from . import B_TRIPLE
+from .relation import SimpleRelation
+from .semiring import UNIT_MWP, WEAK_MWP, POLY_MWP
 
 
 class HonestPoly:
-    """Models an honest polynomial."""
+    """Models an honest polynomial.
+
+    Attributes:
+        variables (set[str]): List of variables.
+        var_fmt(Callable): Variable formatter.
+        op (str): Operator.
+    """
 
     def __init__(self, operator: str, *init_vars: str):
         self.variables = set(init_vars)
+        self.var_fmt: Optional[Callable[[str], str]] = None
         self.op = operator
-        self.var_fmt = None
 
     def __eq__(self, other: HonestPoly):
         return self.variables == other.variables
 
     @property
     def empty(self) -> bool:
+        """True if honest polynomial is empty."""
         return len(self.variables) == 0
 
     @property
     def vars(self) -> List[str]:
+        """Sorted list of variables."""
         var_list = [self.var_fmt(v) for v in self.variables] \
             if self.var_fmt else self.variables
         return sorted(list(var_list))
 
     @property
     def value(self) -> Union[int, str]:
+        """String representation of HP value."""
         return 0 if self.empty else self.op.join(self.vars)
 
     def add(self, *identifier: str):
+        """Add variables to HP."""
         for i in identifier:
             self.variables.add(i)
 
@@ -56,14 +69,20 @@ class HonestPoly:
 
 
 class MaxVar(HonestPoly):
-    """m-variables"""
+    """Representation for m-variables."""
 
     def __init__(self, *init_vars):
         super().__init__(',', *init_vars)
 
 
 class MwpBound:
-    """Represents MWP bound."""
+    """Represents MWP bound.
+
+    Attributes:
+        x (List[str]): List of m-variables.
+        y (List[str]): List of w-variables.
+        z (List[str]): List of p-variables.
+    """
 
     def __init__(self, triple: str = None):
         x, y, z = self.parse_triple_str(triple)
@@ -80,13 +99,8 @@ class MwpBound:
                 and self.z == other.z)
 
     @property
-    def bound_triple(self) -> Tuple[Tuple[str], Tuple[str], Tuple[str]]:
-        """Alternative bounds representation.
-
-        Example:
-            ```
-            (X1,) (,) (X4, X5)
-            ```
+    def bound_triple(self) -> B_TRIPLE:
+        """Alternative bounds representation, as three tuples.
 
         Returns:
             Current bound as $(m_1,...m_n), (w_1,...w_n), (p_1,...p_n)$
@@ -97,25 +111,22 @@ class MwpBound:
 
     @property
     def bound_triple_str(self) -> str:
-        """Alternative bounds representation.
-
-        Example:
-            ```
-            X1;;X4,X5
-            ```
+        """Alternative bounds representation, as a `;`-separated string.
 
         Returns:
             Current bound as `m;w;p` where the first section contains
                 list of variables in m, second contains variables in w,
-                and last in p (if any).
+                and last in p (if any). Multiple elements in the lists
+                are separated by commas.
         """
         return f'{";".join([",".join(v) for v in self.bound_triple])}'
 
     @staticmethod
-    def parse_triple_str(value: str = None):
-        """Restore bound from triple format"""
-        return [v.split(',') if v else [] for v in value.split(";")] \
-            if value else ([], [], [])
+    def parse_triple_str(value: str = None) -> B_TRIPLE:
+        """Restore a bound from triple format."""
+        return tuple([tuple(v.split(',')) if v else []
+                      for v in value.split(";")]) if value \
+            else (tuple(), tuple(), tuple())
 
     @staticmethod
     def bound_poly(mwp: MwpBound, compact=False):
@@ -137,18 +148,22 @@ class MwpBound:
 
     def append(self, scalar: str, var_name: str):
         """Append variable dependency in the right list by scalar."""
-        if scalar == 'm':
+        if scalar == UNIT_MWP:
             self.x.add(var_name)
-        if scalar == 'w':
+        if scalar == WEAK_MWP:
             self.y.add(var_name)
-        if scalar == 'p':
+        if scalar == POLY_MWP:
             self.z.add(var_name)
 
 
 class Bound:
-    """Represents an MWP bound for a relation.
+    """Represents an MWP-bound for a relation.
 
-    There is one mwp-bound expression for each input variable.
+    If derivation succeeds, there is one mwp-bound expression for each
+    input variable.
+
+    Attributes:
+        bound_dict (Dict[str, MwpBound]): Variable bounds.
     """
 
     LAND = '∧'
@@ -158,14 +173,15 @@ class Bound:
             (k, MwpBound(triple=v)) for k, v in bounds.items()]) \
             if bounds else {}
 
-    @property
-    def variables(self) -> list[str]:
-        return list(self.bound_dict.keys())
-
     def __eq__(self, other: Bound):
         return (self.variables == other.variables and
                 all(self.bound_dict[k] == other.bound_dict[k]
                     for k in self.variables))
+
+    @property
+    def variables(self) -> list[str]:
+        """List of variables."""
+        return list(self.bound_dict.keys())
 
     def calculate(self, relation: SimpleRelation) -> Bound:
         """Calculate bound from a simple-valued matrix.

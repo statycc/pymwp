@@ -33,7 +33,7 @@ POLY_MWP: str = "p"
 """Scalar that represents a polynomial flow in the analysis (`'p'`)."""
 
 INFTY_MWP: str = "i"
-"""Scalar that represents failure in the analysis (`'i'`)."""
+"""Scalar that represents failure in the analysis (`'i'`), $\\infty$."""
 
 KEYS: List[str] = [ZERO_MWP, UNIT_MWP, WEAK_MWP, POLY_MWP, INFTY_MWP]
 """Different scalar values: `"o", "m", "w", "p", "i"`"""
@@ -64,30 +64,30 @@ __DICT_SUM: dict = {
 
 
 def mwp_sort(scalars: List[str]):
-    """Ascending sort of scalars (o < m < w < p < i)"""
+    """Ascending sort of scalars (o < m < w < p < $\\infty$)."""
     return sorted(scalars, key=lambda x: KEYS.index(x))
 
 
 def prod_mwp(scalar1: str, scalar2: str) -> str:
     """Compute product of two scalars.
 
-    | $\\times$  | $0$ | $m$       | $w$        | $p$       | $\\infty$ |
-    | ---        | --- | ---       | ---        | ---       | --- |
-    | $0$        | $0$ | $0$       | $0$        | $0$       | $\\infty$ |
-    | $m$        | $0$ | $m$       | $w$        | $p$       | $\\infty$ |
-    | $w$        | $0$ | $w$       | $w$        | $p$       | $\\infty$ |
-    | $p$        | $0$ | $p$       | $p$        | $p$       | $\\infty$ |
+    | $\\times$  | $0$       | $m$       | $w$        | $p$       | $\\infty$ |
+    | ---        | ---       | ---       | ---        | ---       | --- |
+    | $0$        | $0$       | $0$       | $0$        | $0$       | $\\infty$ |
+    | $m$        | $0$       | $m$       | $w$        | $p$       | $\\infty$ |
+    | $w$        | $0$       | $w$       | $w$        | $p$       | $\\infty$ |
+    | $p$        | $0$       | $p$       | $p$        | $p$       | $\\infty$ |
     | $\\infty$  | $\\infty$ | $\\infty$ | $\\infty$  | $\\infty$ | $\\infty$ |
 
     Arguments:
-        scalar1: scalar value
-        scalar2: scalar value
+        scalar1: scalar value.
+        scalar2: scalar value.
 
     Raises:
-          Exception: if `scalar1` or `scalar2` is not in KEYS
+        Exception: if `scalar1` or `scalar2` is not in KEYS.
 
     Returns:
-        product of scalar1 * scalar2
+        Product of scalar1 * scalar2.
     """
     if scalar1 in KEYS and scalar2 in KEYS:
         return __DICT_PROD[scalar1][scalar2]
@@ -108,14 +108,14 @@ def sum_mwp(scalar1: str, scalar2: str) -> str:
     | $\\infty$  | $\\infty$ | $\\infty$ | $\\infty$  | $\\infty$ | $\\infty$ |
 
     Arguments:
-        scalar1: scalar value
-        scalar2: scalar value
+        scalar1: scalar value.
+        scalar2: scalar value.
 
     Raises:
-          Exception: if `scalar1` or `scalar2` is not in KEYS
+        Exception: if `scalar1` or `scalar2` is not in KEYS.
 
     Returns:
-        sum of scalar1 + scalar2
+        Sum of scalar1 + scalar2.
     """
     if scalar1 in KEYS and scalar2 in KEYS:
         return __DICT_SUM[scalar1][scalar2]

@@ -56,7 +56,7 @@ def test_load_relation(mocker):
         },
         "relations": {"foo": {
             "name": "foo",
-            "variables": ["x", "y"],
+            "vars": ["x", "y"],
             "relation":
                 {"matrix": [
                     [[{"scalar": "m", "deltas": [(0, 0)]}],
@@ -65,7 +65,7 @@ def test_load_relation(mocker):
                      [{"scalar": "m", "deltas": []}]]]},
             "choices": [[[0, 1], [0]]],
             "bound": {"x": "x;;", "y": "y;;x"},
-            "infinity": False
+            "infinite": False
         }}
     })
     mocker.patch('builtins.open')
@@ -105,7 +105,7 @@ def test_load_relation_infty(mocker):
         "relations": {
             "boohoo": {
                 "name": "boohoo",
-                "infinity": True,
+                "infinite": True,
                 "relation": None
             }}})
     mocker.patch('builtins.open')

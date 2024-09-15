@@ -100,14 +100,15 @@ plugins:
             show_labels: true
             show_bases: true
             docstring_section_style: table
+            merge_init_into_class: true
           selection:
             new_path_syntax: yes
             filters:
               - "!^_"
-              - "^__init__$"
+#              - "^__init__$"
             docstring_style: google
             docstring_section_style: table
-            show_source: true
+            show_source: false
             show_root_heading: false
             show_root_toc_entry: false
             show_category_heading: false

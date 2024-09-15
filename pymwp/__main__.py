@@ -39,10 +39,10 @@ output can be muted by specifying command line argument `--silent`.
 import argparse
 import logging
 import sys
-from typing import List, Optional
 from argparse import RawTextHelpFormatter
+from typing import List, Optional
 
-from pymwp import Parser, Result, Analysis, __version__, __title__ as pymwp
+from . import Parser, Result, Analysis, __version__, __title__ as pymwp
 from .file_io import default_file_out, loc
 
 

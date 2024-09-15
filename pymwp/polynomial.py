@@ -21,22 +21,18 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List, Tuple, Union
-from typing import TypeVar
 from functools import reduce
+from typing import Optional, List, Tuple, Union
 
-from . import DELTA, Monomial
+from . import DELTAS, Monomial
 from .constants import Comparison, SetInclusion
 from .semiring import ZERO_MWP, INFTY_MWP, sum_mwp
 
 logger = logging.getLogger(__name__)
 
-DELTAS = TypeVar('DELTAS', bound=DELTA)
-
 
 class Polynomial:
-    """
-    A polynomial is an ordered list of ordered [`Monomials`](monomial.md).
+    """A polynomial is an ordered list of ordered Monomials.
 
     For polynomials, I introduce a total order on the monomials. This
     eases the computation of the sum: if we want to add a monomial to an
@@ -51,42 +47,40 @@ class Polynomial:
     This is extended to products (which we consider ordered!) by
     letting $\\prod_k\\delta(i_k,j_k) < \\prod_l\\delta(m_l,n_l)$
     iff $\\delta(i_1,j_1) < \\delta(m_1,n_1)$.
+
+    Attributes:
+         list (List[Monomial]): List of monomials.
     """
 
     def __init__(
-            self, *monomials:
-            Optional[Union[str, Monomial, Tuple[str, DELTAS]]]
+            self,
+            *monomials: Optional[Union[str, Monomial, Tuple[str, DELTAS]]]
     ):
         """Create a polynomial.
 
         Example:
+            Create polynomial with 0-monomial:
 
-        Create polynomial with 0-monomial
+            ```python
+            zero = Polynomial()
+            ```
 
-        ```python
-        zero = Polynomial()
-        ```
+            Create polynomial with one monomial with specific scalar, 
+            no deltas:
 
-        Create polynomial with one monomial with specific scalar, no deltas
+            ```python
+            poly = Polynomial('w')               # shorthand
+            poly = Polynomial(Monomial('w'))     # longer, equivalent
+            ```
 
-        ```python
-        poly = Polynomial('w')               # shorthand
+            Create polynomial with two monomials and lists of deltas:
 
-        poly = Polynomial(Monomial('w'))     # longer, equivalent
-        ```
-
-        Create polynomial with two monomials and lists of deltas
-
-        ```python
-        # shorthand:
-        poly = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1))) 
-
-        # equivalent:
-        poly = Polynomial(Monomial('m', (0, 1)), Monomial('w', (0, 0), (1, 1)))
-        ```
+            ```python
+            poly = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1))) 
+            ```
 
         Arguments:
-            monomials: arbitrary number of monomials
+            monomials: arbitrary monomials.
         """
         m_list = [Monomial.format(v) for v in monomials]
         self.list = m_list if len(m_list) > 0 else [Monomial(ZERO_MWP)]
@@ -122,13 +116,13 @@ class Polynomial:
         (regarding Monomial.inclusion def).
 
         Arguments:
-            list_monom: a list of monomials
-            mono: a monomial we want to add
-            i: the position index where to add mono
+            list_monom: a list of monomials.
+            mono: a monomial we want to add.
+            i: the position index where to add mono.
 
         Returns:
             False if mono already in list_monom and shifted index where to
-            insert mono, return True if mono not in list_monom
+                insert mono, return True if mono not in list_monom.
         """
         j = 0
         while j < len(list_monom):
@@ -160,11 +154,10 @@ class Polynomial:
         and return a new polynomial of sorted monomials.
 
         Arguments:
-            polynomial: Polynomial to add to self
+            polynomial: Polynomial to add to self.
 
         Returns:
-            New, sorted polynomial that is a sum of the
-            two input polynomials
+            New, sorted polynomial that is a sum of the two input polynomials.
         """
         # check for empty lists
         if not self.list and not polynomial.list:
@@ -261,11 +254,11 @@ class Polynomial:
            tail of the corresponding list to the result.
 
         Arguments:
-            polynomial: polynomial to multiply with self
+            polynomial: polynomial to multiply with self.
 
         Returns:
-            a new polynomial that is the sorted product
-            of the two input polynomials
+            A new polynomial that is the sorted product of the two input
+                polynomials.
         """
 
         # 1: compute table of products
@@ -328,7 +321,7 @@ class Polynomial:
         another polynomial provided as argument. Result of
         true means both polynomials have an equal number of
         monomials, and element-wise each monomial has the same
-        list of deltas. Otherwise the result is false.
+        list of deltas. Otherwise, the result is false.
 
         This method is alias of `==` operator.
 
@@ -373,8 +366,8 @@ class Polynomial:
         """For given sequence of choices, determine corresponding scalar.
 
         Arguments:
-            choices: tuple of choices
-            least_scalar: typically zero, but can be m on the diagonal
+            choices: tuple of choices.
+            least_scalar: typically zero, but can be m on the diagonal.
 
         Returns:
             Scalar value matching choices or None.
@@ -400,16 +393,16 @@ class Polynomial:
         list to the second one. `Smaller` means either
 
         - delta values of first list are smaller -or-
-        - deltas are equal but first list is shorter in length.
+        - deltas are equal but first list is shorter.
 
         Larger is the opposite case.
 
         Arguments:
-            delta_list1: first monomial list to compare
-            delta_list2: second monomial list to compare
+            delta_list1: first monomial list to compare.
+            delta_list2: second monomial list to compare.
 
         Returns:
-            result of comparison
+            Result of comparison.
         """
         # element wise comparison up to length of shorter list
         list_diff = [(a == b) for a, b in zip(delta_list1, delta_list2)]
@@ -459,10 +452,10 @@ class Polynomial:
         this is not sort in place.
 
         Arguments:
-            monomials: list of monomials to sort
+            monomials: list of monomials to sort.
 
         Returns:
-            list of sorted monomials
+            list of sorted monomials.
         """
         list_len = len(monomials)
 
@@ -537,27 +530,20 @@ class Polynomial:
         """Build a polynomial of multiple monomials with deltas.
 
         Example:
-
-            arguments:
-
-                - index: 5
-                - scalars: m, w, p
-
-            result:
+            For arguments `index=5` and `scalars= m, w, p`,
+            the result is:
 
             ```Python
-            Polynomial(
-                Monomial('m', (0, 5)),
-                Monomial('w', (1, 5)),
-                Monomial('p', (2, 5)))
+            Polynomial(Monomial('m', (0, 5)), Monomial('w', (1, 5)),
+                       Monomial('p', (2, 5)))
             ```
 
         Arguments:
-            index: delta index
-            scalars: scalar values
+            index: delta index.
+            scalars: scalar values.
 
         Returns:
-             Generated polynomial
+             Generated polynomial.
          """
 
         monomials = [Monomial(scalar, (number, index))
