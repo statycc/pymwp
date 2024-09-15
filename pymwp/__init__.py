@@ -28,7 +28,7 @@ __license__ = "GPL-3.0-or-later"
 __version__ = "0.4.2"
 
 # flake8: noqa: F401
-from pymwp.constants import DELTA, DELTAS, CHOICES, VECT, SEQ, NODE
+from pymwp.constants import *  # import all types
 from pymwp.parser import Parser
 from pymwp.choice import Choices
 from pymwp.syntax import Coverage, Variables

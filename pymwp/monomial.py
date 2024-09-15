@@ -46,8 +46,8 @@ class Monomial:
     and no two deltas can have the same index.
 
     Attributes:
-        deltas (List[DELTA]): list of deltas
-        scalar (str): monomial scalar.
+        scalar (str): Monomial scalar.
+        deltas (List[DELTA]): List of deltas.
     """
 
     def __init__(self, scalar: str = UNIT_MWP,
@@ -75,9 +75,9 @@ class Monomial:
             ```
 
         Arguments:
-            scalar: monomial scalar
-            deltas: list of deltas - either a syntactic list,
-                or sequence of tuples that represent deltas.
+            scalar: Monomial scalar.
+            deltas: A delta or a list of deltas.
+            args: Arbitrary number of subsequent deltas.
         """
         self.deltas = []
         self.scalar = scalar
@@ -90,8 +90,7 @@ class Monomial:
                 Monomial.insert_deltas(self, delta_list)
 
     def __str__(self) -> str:
-        deltas = [".delta({0},{1})".format(*delta)
-                  for delta in self.deltas]
+        deltas = [".delta({0},{1})".format(*delta) for delta in self.deltas]
         return self.scalar + ''.join(deltas)
 
     def __mul__(self, other) -> Monomial:
@@ -107,14 +106,13 @@ class Monomial:
             return Monomial(*value)
 
     def contains(self, m: Monomial) -> bool:
-        """check if all deltas of m are in deltas of self
+        """Check if all deltas of m are in deltas of self.
 
         Arguments:
-            m: a monomial to search for intersection
+            m: A monomial to search for intersection.
 
         Returns:
-            False if one delta of m not in self
-            True otherwise
+            False if one delta of m not in self, True otherwise.
         """
         for b in m.deltas:
             if b not in self.deltas:
@@ -122,15 +120,14 @@ class Monomial:
         return True
 
     def inclusion(self, monomial: Monomial) -> SetInclusion:
-        """gives info about inclusion of self monomial with monomial
+        """Gives info about inclusion of self monomial with monomial.
 
         Arguments:
-            monomial: a monomial to see inclusion
+            monomial: A monomial to see inclusion.
 
         Returns:
-            CONTAINS if self contains monomial
-            INCLUDED if self is included in monomial
-            EMPTY none of them
+            CONTAINS if self contains monomial, INCLUDED if self is included
+                in monomial, and EMPTY none of them.
         """
         # self contains monomial ?
         contains: bool = self.contains(monomial)
@@ -148,23 +145,19 @@ class Monomial:
                 return SetInclusion.EMPTY
 
     def prod(self, monomial: Monomial) -> Monomial:
-        """
-        prod operation combines two monomials where
-        one is this monomial (self) and the second is
-        provided as an argument.
+        """Prod combines two monomials where one is this monomial (self)
+        and the second is an argument.
 
-        The attributes of the resulting monomial are
-        determined as follows:
+        The attributes of the resulting monomial are determined as follows:
 
         - output scalar is a product of the input scalars
-        - two lists of deltas are merged according
-          to rules of insert_delta
+        - two lists of deltas are merged according to rules of insert_delta
 
         Arguments:
-            monomial: the second monomial
+            monomial: The second monomial.
 
         Returns:
-            a new Monomial that is a product of two monomials
+            A new Monomial that is a product of two monomials.
         """
         # make a copy of self
         mono_product = self.copy()
@@ -190,7 +183,7 @@ class Monomial:
         """Determine if given sequence of choices matches monomial.
 
         Arguments:
-            choices: tuple of choices
+            choices: Tuple of choices.
 
         Returns:
             Monomial's scalar if structure matches choices and None otherwise.
@@ -220,11 +213,9 @@ class Monomial:
         """Insert new deltas into monomial list of deltas.
 
         Arguments:
-
-            monomial: the monomial into whose list of
-                deltas values will be inserted
-
-            deltas: list of deltas to insert into monomial
+            monomial: The monomial into whose list of deltas values will
+                be inserted.
+            deltas: List of deltas to insert into monomial.
         """
 
         # Deltas are inserted one after the other so that
@@ -252,11 +243,12 @@ class Monomial:
         - agree on the value expected, returns the original deltas
 
         If they don't:
-         add the new delta in the deltas "at the right position".
+
+        - add the new delta in the deltas "at the right position".
 
         Arguments:
-            sorted_deltas: list of deltas where to perform insert
-            delta: the delta value to be inserted
+            sorted_deltas: List of deltas where to perform insert.
+            delta: The delta value to be inserted.
 
         Returns:
             updated list of deltas.

@@ -20,7 +20,7 @@
 import logging
 from typing import List, Tuple, Optional
 
-from . import Coverage, Variables
+from . import Coverage, Variables, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 from .file_io import save_result
 # noinspection PyPep8Naming
@@ -28,9 +28,6 @@ from .parser import Parser as pr
 from .result import FuncResult
 
 logger = logging.getLogger(__name__)
-
-COM_RES = Tuple[int, RelationList, bool]
-"""Command analysis type."""
 
 
 class Analysis:
@@ -101,7 +98,7 @@ class Analysis:
             if len(node.body.block_items) == 0:
                 logger.warning("nothing left to analyze")
                 return None
-            result.func = pr.to_c(node, True)
+            result.func_code = pr.to_c(node, True)
 
         # setup for function analysis
         index, options, choices = 0, [0, 1, 2], []

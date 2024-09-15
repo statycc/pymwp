@@ -38,17 +38,14 @@ class Choices:
         index (int): degree of choice.
     """
 
-    def __init__(self, vectors: CHOICES = None, index: int = 0):
+    def __init__(self, valid: CHOICES = None, index: int = 0):
         """Initialize representation from a precomputed vector.
 
         This is primarily useful for restoring a result from file.
         To create a choice representation, call
         [`generate()`](choice.md#pymwp.choice.Choices.generate) instead.
-
-        Arguments:
-            vectors: list of choice vectors.
         """
-        self.valid = vectors or []
+        self.valid = valid or []
         self.index = index
 
     @property
@@ -113,8 +110,8 @@ class Choices:
             in series, so it is possible to step through the choices one at a
             time. Use with caution/only call if necessary.
 
-        Returns:
-            Generator for valid derivation choices.
+        Yields:
+            The next valid choice.
         """
         for choices in self.valid:
             for p in product(*choices):

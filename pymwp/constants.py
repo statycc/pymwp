@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License along with
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------------
-
 from enum import IntEnum
 from typing import Tuple, List, TypeVar
 
@@ -33,6 +32,12 @@ VECT = Tuple[Tuple[int, ...], ...]
 
 CHOICES = List[List[List[int]]]
 """A list of choice vectors."""
+
+COM_RES = Tuple[int, 'RelationList', bool]
+"""Command analysis type."""
+
+B_TRIPLE = Tuple[Tuple[str], Tuple[str], Tuple[str]]
+"""mwp-bound triple of variable lists."""
 
 
 class Comparison(IntEnum):

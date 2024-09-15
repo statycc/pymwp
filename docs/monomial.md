@@ -4,4 +4,4 @@
 from pymwp import Monomial
 ```
 
-::: pymwp.monomial 
+::: pymwp.monomial

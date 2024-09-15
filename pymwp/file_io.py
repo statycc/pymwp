@@ -61,7 +61,7 @@ def save_result(file_name: str, analysis_result: Result) -> None:
         analysis_result: A [`Result`](result.md) object.
     """
     # JSON serializable object
-    file_content = analysis_result.serialize()
+    file_content = analysis_result.to_dict()
 
     # ensure directory path exists
     dir_path, _ = os.path.split(file_name)
@@ -95,4 +95,4 @@ def load_result(file_name: str) -> Result:
     with open(file_name) as file_object:
         data = json.load(file_object)
 
-    return Result.deserialize(**data)
+    return Result.from_dict(**data)
