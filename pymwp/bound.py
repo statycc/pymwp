@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple, Union, Callable, Optional
+from typing import List, Union, Callable, Optional
 
 from . import B_TRIPLE
 from .relation import SimpleRelation

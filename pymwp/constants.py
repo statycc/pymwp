@@ -33,6 +33,7 @@ VECT = Tuple[Tuple[int, ...], ...]
 CHOICES = List[List[List[int]]]
 """A list of choice vectors."""
 
+# flake8: noqa: F821
 COM_RES = Tuple[int, 'RelationList', bool]
 """Command analysis type."""
 
