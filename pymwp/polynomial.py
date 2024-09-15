@@ -108,17 +108,17 @@ class Polynomial:
     @staticmethod
     def inclusion(list_monom: list, mono: Monomial, i: int = 0) \
             -> Tuple[bool, int]:
-        """filter list_monom regarding mono inclusion and return info.
+        """Filter list_monom regarding mono inclusion and return info.
 
         Remove all monomials of list_monom that are included in mono.
 
-        return CONTAINS if one of monomials of list_monom contains mono
+        Return CONTAINS if one of monomials of list_monom contains mono
         (regarding Monomial.inclusion def).
 
         Arguments:
-            list_monom: a list of monomials.
-            mono: a monomial we want to add.
-            i: the position index where to add mono.
+            list_monom: A list of monomials.
+            mono: A monomial we want to add.
+            i: The position index where to add mono.
 
         Returns:
             False if mono already in list_monom and shifted index where to
@@ -144,14 +144,14 @@ class Polynomial:
         return True, i
 
     def add(self, polynomial: Polynomial) -> Polynomial:
-        """Add two polynomials
+        """Add two polynomials.
 
         - If both lists are empty the result is empty.
         - If one list is empty, the result will be the other list
         of polynomials.
 
-        Otherwise, the operation will zip the two lists together
-        and return a new polynomial of sorted monomials.
+        Otherwise, the operation will zip the two lists together and
+        return a new polynomial of sorted monomials.
 
         Arguments:
             polynomial: Polynomial to add to self.
@@ -531,16 +531,19 @@ class Polynomial:
 
         Example:
             For arguments `index=5` and `scalars= m, w, p`,
-            the result is:
+            the method returns a Polynomial equal to:
 
             ```Python
-            Polynomial(Monomial('m', (0, 5)), Monomial('w', (1, 5)),
-                       Monomial('p', (2, 5)))
+            m1 = Monomial('m', (0, 5))
+            m2 = Monomial('w', (1, 5))
+            m3 = Monomial('p', (2, 5))
+
+            Polynomial(m1, m2, m3)
             ```
 
         Arguments:
-            index: delta index.
-            scalars: scalar values.
+            index: Delta index.
+            scalars: Scalar values.
 
         Returns:
              Generated polynomial.

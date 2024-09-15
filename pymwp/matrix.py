@@ -22,7 +22,7 @@ import logging
 from functools import reduce
 from typing import Any, Optional, List
 
-from . import Monomial, Polynomial
+from . import Monomial, Polynomial, MATRIX
 from .semiring import ZERO_MWP, UNIT_MWP
 
 ZERO = Polynomial(ZERO_MWP)
@@ -36,23 +36,24 @@ def init_matrix(size: int, init_value: Optional[Any] = None) -> List[list]:
     """Create empty matrix of specified size.
 
     Example:
+        Generate 5 x 5 size zero-matrix.
 
-    Generate 5 x 5 size zero-matrix
+        ```python
+        init_matrix(5)
+        ```
 
-    ```python
-    init_matrix(5)
+        Generates:
 
-    # generates:
-    #
-    # [[+o, +o, +o, +o, +o],
-    #  [+o, +o, +o, +o, +o],
-    #  [+o, +o, +o, +o, +o],
-    #  [+o, +o, +o, +o, +o],
-    #  [+o, +o, +o, +o, +o]]
-    ```
+        ```python
+        [[o, o, o, o, o],
+         [o, o, o, o, o],
+         [o, o, o, o, o],
+         [o, o, o, o, o],
+         [o, o, o, o, o]]
+        ```
 
     Arguments:
-        size: matrix size
+        size: matrix size.
         init_value: value to place at each index. If not provided,
             will default to 0-polynomial.
 
@@ -67,20 +68,21 @@ def identity_matrix(size: int) -> List[list]:
     """Create identity matrix of specified size.
 
     Example:
+        Generate 5 x 5 size identity matrix:
 
-    Generate 5 x 5 size identity matrix:
+        ```python
+        identity_matrix(5)
+        ```
 
-    ```python
-    identity_matrix(5)
+        Generates:
 
-    # generates:
-    #
-    # [[+m, +o, +o, +o, +o],
-    #  [+o, +m, +o, +o, +o],
-    #  [+o, +o, +m, +o, +o],
-    #  [+o, +o, +o, +m, +o],
-    #  [+o, +o, +o, +o, +m]]
-    ```
+        ```python
+        [[m, o, o, o, o],
+         [o, m, o, o, o],
+         [o, o, m, o, o],
+         [o, o, o, m, o],
+         [o, o, o, o, m]]
+        ```
 
     Arguments:
         size: matrix size
@@ -92,7 +94,7 @@ def identity_matrix(size: int) -> List[list]:
              for j in range(size)] for i in range(size)]
 
 
-def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
+def encode(matrix: MATRIX) -> List[List[List[dict]]]:
     """Converts a matrix of polynomials to a matrix of dictionaries.
 
     This function is useful when preparing to write a matrix of polynomials to
@@ -114,7 +116,7 @@ def encode(matrix: List[List[Polynomial]]) -> List[List[List[dict]]]:
         for (i, row) in enumerate(matrix)]
 
 
-def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
+def decode(matrix: List[List[List[dict]]]) -> MATRIX:
     """Converts matrix of dictionaries to a matrix of polynomials.
 
     Primary use case of this function is for restoring a matrix of
@@ -141,16 +143,12 @@ def decode(matrix: List[List[List[dict]]]) -> List[List[Polynomial]]:
         for (i, row) in enumerate(matrix)]
 
 
-def matrix_sum(
-        matrix1: List[List[Polynomial]], matrix2: List[List[Polynomial]]
-) -> List[List[Polynomial]]:
-    """Compute the sum of two matrices.
-
-    Matrix elements type must define a relation on +-operator.
+def matrix_sum(matrix1: MATRIX, matrix2: MATRIX) -> MATRIX:
+    """Compute the sum of two polynomial matrices.
 
     Arguments:
-        matrix1: first matrix.
-        matrix2: second matrix.
+        matrix1: First polynomial matrix.
+        matrix2: Second polynomial matrix.
 
     Returns:
         A new matrix that represents the sum of the two inputs.
@@ -161,31 +159,26 @@ def matrix_sum(
             for i in range(len(matrix1))]
 
 
-def matrix_prod(
-        matrix1: List[List[Polynomial]], matrix2: List[List[Polynomial]]
-) -> List[List[Polynomial]]:
+def matrix_prod(matrix1: MATRIX, matrix2: MATRIX) -> MATRIX:
     """Compute the product of two polynomial matrices.
 
     Arguments:
-        matrix1: first polynomial matrix.
-        matrix2: second polynomial matrix.
+        matrix1: First polynomial matrix.
+        matrix2: Second polynomial matrix.
 
     Returns:
-        new matrix that represents the product of the two inputs.
+        A new matrix that represents the product of the two inputs.
     """
 
     return [[
-
         reduce(lambda total, k:
                total + (matrix1[i][k] * matrix2[k][j]),
                range(len(matrix1)), ZERO)
-
         for j in range(len(matrix2))]
         for i in range(len(matrix1))]
 
 
-def resize(matrix: List[List[Polynomial]], new_size: int) \
-        -> List[List[Polynomial]]:
+def resize(matrix: MATRIX, new_size: int) -> MATRIX:
     """Create a new matrix of polynomials of specified size.
 
     The resized matrix is initialized as an identity matrix
@@ -199,73 +192,71 @@ def resize(matrix: List[List[Polynomial]], new_size: int) \
         New matrix of specified size, filled with values from
             the original matrix.
     """
-
     res = identity_matrix(new_size)
     bound = min(new_size, len(matrix))
-
     for i in range(bound):
         for j in range(bound):
             res[i][j] = matrix[i][j]
     return res
 
 
-def show(matrix: List[List[Any]], **kwargs) -> None:
+def show(matrix: MATRIX, prefix: str = None, postfix: str = None) -> None:
     """Pretty print a matrix at the screen.
 
-    Using the keyword arguments it is possible display additional text
-    before or after the matrix.
+    Using the keyword arguments to display additional text before or
+    after the matrix.
 
     Example:
+        === "Matrix only"
 
-    Display matrix only:
+            ```python
+            my_matrix = identity_matrix(3)
+            show(my_matrix)
+            ```
 
-    ```python
-    my_matrix = identity_matrix(3)
-    show(my_matrix)
+            Displays:
 
-    # displays:
-    #
-    # ['  +m', '  +o', '  +o']
-    # ['  +o', '  +m', '  +o']
-    # ['  +o', '  +o', '  +m']
-    ```
+            ```
+            ['  +m', '  +o', '  +o']
+            ['  +o', '  +m', '  +o']
+            ['  +o', '  +o', '  +m']
+            ```
 
-    Display matrix and some extra text before it
+        === "Matrix with text"
 
-    ```python
-    my_matrix = identity_matrix(3)
-    header = '|   x1   |   x2  |  x3 |'
-    show(my_matrix, prefix=header)
+            ```python
+            my_matrix = identity_matrix(3)
+            header = '|   x1   |   x2  |  x3 |'
+            show(my_matrix, prefix=header)
+            ```
 
-    # displays:
-    #
-    # |   x1   |   x2  |  x3 |
-    # ['  +m', '  +o', '  +o']
-    # ['  +o', '  +m', '  +o']
-    # ['  +o', '  +o', '  +m']
-    ```
+            Displays:
+
+            ```
+            |   x1   |   x2  |  x3 |
+            ['  +m', '  +o', '  +o']
+            ['  +o', '  +m', '  +o']
+            ['  +o', '  +o', '  +m']
+            ```
 
     Arguments:
-        matrix: the matrix to display.
-
-    Kwargs:
-
-    - `prefix` (`str`): display some text before displaying matrix
-    - `postfix` (`str`): display some text after displaying matrix
+        matrix: The matrix to display.
+        prefix: display some text before displaying matrix
+        postfix: display some text after displaying matrix
 
     Raises:
         TypeError: If the matrix is not iterable (type list of lists)
     """
-    if 'prefix' in kwargs:
-        print(kwargs['prefix'])
+    if prefix:
+        print(prefix)
     for row in matrix:
         print([str(r) for r in row])
-    if 'postfix' in kwargs:
-        print(kwargs['postfix'])
+    if postfix:
+        print(postfix)
     print(' ')
 
 
-def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
+def equals(matrix1: MATRIX, matrix2: MATRIX) -> bool:
     """Determine if two matrices are equal.
 
     This function performs element-wise equality comparisons on values of
@@ -276,11 +267,11 @@ def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
     operator.
 
     Arguments:
-        matrix1: first matrix.
-        matrix2: second matrix.
+        matrix1: First matrix.
+        matrix2: Second matrix.
 
     Raises:
-        TypeError: If the matrix value is not iterable
+        TypeError: If the matrix value is not iterable.
 
     Returns:
         `True` if matrices are equal element-wise and `False` otherwise.
@@ -294,17 +285,16 @@ def equals(matrix1: List[List[Any]], matrix2: List[List[Any]]) -> bool:
         for col_index, value in enumerate(column):
             if matrix2[row_index][col_index] != value:
                 return False
-
     return True
 
 
-def fixpoint(matrix: List[List[Any]]) -> List[List[Any]]:
+def fixpoint(matrix: MATRIX) -> MATRIX:
     """Computes the star operation $1 + M + M^2 + M^3 + …$
 
     This function assumes provided input is a square matrix.
 
     Arguments:
-        matrix: for which to compute fixpoint
+        matrix: Matrix for which to compute fixpoint.
 
     Returns:
         $M^*$

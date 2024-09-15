@@ -28,74 +28,72 @@ from . import DeltaGraph, Relation
 class RelationList:
     """
     Relation list holds a list of [`Relations`](relation.md).
-
     It provides methods for performing operations collectively on all
     relations in the list.
+
+    Attributes:
+        relations (List[Relation]): List of relations.
     """
 
     def __init__(self, variables: Optional[List[str]] = None,
                  relation_list: Optional[List[Relation]] = None):
-        """Create relation list.
-
-        When creating a relations list, specify either `variables` or
+        """To create a relations list, specify either `variables` or
         `relation_list`.
 
-        Specifying a `relation_list` argument, whose value is a list of
-        `Relations`, will initialize a `RelationList` containing the provided
-        relations.
+        Arguments:
+            variables: List of variables used to initialize a relation on
+                relation list.
+            relation_list: List of relations for initializing relation list.
 
+        Specifying a `relation_list` argument of a list of `Relations`,
+        initializes a `RelationList` containing the provided relations.
         If no `relation_list` argument is provided, the constructor will
-        create a relation list with 1 relation, using the provided `variables`
-        to initialize that relation.
+        create a relation list with one relation, using the provided
+        `variables` to initialize that relation.
 
-        See [`RelationList.identity()`](relation_list.md#pymwp.relation_list
-        .RelationList.identity) for creating a relation list containing an
-        identity relation.
+        Also see [`RelationList.identity()`](
+        relation_list.md#pymwp.relation_list .RelationList.identity) for
+        creating a relation list containing an identity relation.
 
         Example:
+            Create relation list using specific variables
 
-        Create relation list using specific variables
+            ```python
+            rel_list = RelationList(['X0', 'X1', 'X2'])
+            ```
 
-        ```python
-        rel_list = RelationList(['X0', 'X1', 'X2'])
+            Generates a list with 1 relation:
 
-        # Generates a list with 1 relation:
-        #
-        # 1:      X0 |  +o  +o  +o
-        #         X1 |  +o  +o  +o
-        #         X2 |  +o  +o  +o
-        ```
+            ```
+            X0 |  +o  +o  +o
+            X1 |  +o  +o  +o
+            X2 |  +o  +o  +o
+            ```
 
-        Create relation list by providing relations
+            Create relation list by providing relations
 
-        ```python
-        rel_list = RelationList(relation_list = [Relation(['X0', 'X1']),
-        Relation(['X0'])])
+            ```python
+            relations = [Relation(['X0', 'X1']), Relation(['X0'])]
+            rel_list = RelationList(relation_list=relations)
+            ```
 
-        # Generates a list with 2 relations:
-        #
-        # 1:      X0  |  +o  +o
-        #         X1  |  +o  +o
-        #
-        # 2:      X0  |  +o
-        ```
+            Generates a list with 2 relations:
 
-        If no arguments are provided, the result is a relation list with an
-        empty relation.
+            ```
+            1:      X0  |  +o  +o
+                    X1  |  +o  +o
 
-        ```python
-        rel_list = RelationList()
+            2:      X0  |  +o
+            ```
 
-        # Generates a list with 1 empty relation:
-        #
-        # 1:       ε
-        ```
+            If no arguments are provided, the result is a relation list with an
+            empty relation.
 
+            ```python
+            rel_list = RelationList()
+            ```
 
-        Arguments:
-            variables: list of variables used to initialize a relation on
-                relation list.
-            relation_list: list of relations for initializing relation list
+            Generates a list with 1 empty relation.
         """
         self.relations = relation_list or [Relation(variables)]
 
@@ -107,21 +105,22 @@ class RelationList:
         This is an alternative way to construct a relation list.
 
         Example:
+            Create relation list containing an identity relation
 
-        Create relation list containing an identity relation
+            ```python
+            rel_list = RelationList.identity(['X0', 'X1', 'X2'])
+            ```
 
-        ```python
-        rel_list = RelationList.identity(['X0', 'X1', 'X2'])
+            Generates a list with 1 identity relation:
 
-        # Generates a list with 1 identity relation:
-        #
-        # 1:      X0 |  +m  +o  +o
-        #         X1 |  +o  +m  +o
-        #         X2 |  +o  +o  +m
-        ```
+            ```
+            X0 |  +m  +o  +o
+            X1 |  +o  +m  +o
+            X2 |  +o  +o  +m
+            ```
 
         Arguments:
-            variables: list of variables
+            variables: A list of variables.
 
         Returns:
             RelationList that contains identity relation generated using the
@@ -140,7 +139,7 @@ class RelationList:
             for r2 in other.relations])
 
     @property
-    def first(self):
+    def first(self) -> Relation:
         """Gets the first relation in relation list."""
         return self.relations[0]
 

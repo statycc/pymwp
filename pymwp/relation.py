@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 from typing import Optional, Tuple, List, Dict
 
-from . import Choices, DeltaGraph, Polynomial
+from . import Choices, DeltaGraph, Polynomial, MATRIX
 from . import matrix as matrix_utils
 from .semiring import UNIT_MWP, ZERO_MWP
 
@@ -40,14 +40,15 @@ class Relation:
     - Matrix holds [`Polynomials`](polynomial.md#pymwp.polynomial)
     and represents the current state of the analysis.
 
+    Attributes:
+        variables (List[str]): List of variables.
+        matrix (MATRIX): Matrix.
     """
     INFTY_BAR = '‖'
 
     def __init__(self, variables: Optional[List[str]] = None,
-                 matrix: Optional[List[List[Polynomial]]] = None):
-        """Create a relation.
-
-        When constructing a relation, provide a list of variables
+                 matrix: Optional[MATRIX] = None):
+        """To construct a relation, provide a list of variables
         and an initial matrix.
 
         If matrix is not provided, the relation matrix will be initialized to
@@ -58,22 +59,23 @@ class Relation:
         identity matrix.
 
         Example:
+            Create a new relation from a list of variables:
 
-        Create a new relation from a list of variables:
+            ```python
+            r = Relation(['X0', 'X1', 'X2'])
+            ```
 
-        ```python
-        r = Relation(['X0', 'X1', 'X2'])
+            Creates relation with 0-matrix with and specified variables:
 
-        # Creates relation with 0-matrix with and specified variables:
-        #
-        #  X0  |  0  0  0
-        #  X1  |  0  0  0
-        #  X2  |  0  0  0
-        ```
+            ```
+            X0  |  0  0  0
+            X1  |  0  0  0
+            X2  |  0  0  0
+            ```
 
         Arguments:
-            variables: program variables
-            matrix: relation matrix
+            variables: Program variables.
+            matrix: Relation matrix.
         """
         self.variables = [str(v) for v in (variables or []) if v]
         self.matrix = matrix or matrix_utils \
@@ -89,22 +91,23 @@ class Relation:
         This is an alternative way to construct a relation.
 
         Example:
+            Create a new identity relation from a list of variables:
 
-        Create a new identity relation from a list of variables:
+            ```python
+            r = Relation.identity(['X0', 'X1', 'X2', 'X3'])
+            ```
 
-        ```python
-        r = Relation.identity(['X0', 'X1', 'X2', 'X3'])
+            Creates relation with identity matrix with and variables:
 
-        # Creates relation with identity matrix with and specified variables:
-        #
-        #  X0  |  m  0  0  0
-        #  X1  |  0  m  0  0
-        #  X2  |  0  0  m  0
-        #  X3  |  0  0  0  m
-        ```
+            ```
+            X0  |  m  0  0  0
+            X1  |  0  m  0  0
+            X2  |  0  0  m  0
+            X3  |  0  0  0  m
+            ```
 
         Arguments:
-            variables: list of variables
+            variables: A list of variables.
 
         Returns:
              Generated relation of given variables and an identity matrix.
@@ -130,7 +133,7 @@ class Relation:
         return self.composition(other)
 
     @staticmethod
-    def relation_str(variables: List[str], matrix: List[List[any]]):
+    def relation_str(variables: List[str], matrix: MATRIX):
         """Formatted string of variables and matrix."""
         right_pad = len(max(variables, key=len)) if variables else 0
         return '\n'.join(
@@ -171,24 +174,21 @@ class Relation:
         - scalar $w$ at the diagonal becomes $\\infty$
 
         Example:
+            ```text
+               Before:                After:
 
-        ```text
-           Before:                After:
-
-           | m  o  o  o  o |      | m  o  o  o  o |
-           | o  w  o  p  o |      | o  i  o  i  o |
-           | o  o  m  o  o |      | o  o  m  o  o |
-           | w  o  o  m  o |      | w  o  o  m  o |
-           | o  o  o  o  p |      | o  o  o  o  i |
-        ```
-
-        This method is where $\\infty$ is introduced in a matrix.
+               | m  o  o  o  o |      | m  o  o  o  o |
+               | o  w  o  p  o |      | o  i  o  i  o |
+               | o  o  m  o  o |      | o  o  m  o  o |
+               | w  o  o  m  o |      | w  o  o  m  o |
+               | o  o  o  o  p |      | o  o  o  o  i |
+            ```
 
         Related discussion: [issue #14](
         https://github.com/statycc/pymwp/issues/14).
 
         Arguments:
-            dg: DeltaGraph instance
+            dg: DeltaGraph instance.
         """
         for i, vector in enumerate(self.matrix):
             for j, poly in enumerate(vector):
@@ -208,8 +208,8 @@ class Relation:
         https://github.com/statycc/pymwp/issues/5).
 
         Arguments:
-            x_var: loop control variable
-            dg: DeltaGraph instance
+            x_var: Loop control variable.
+            dg: DeltaGraph instance.
         """
         ell = self.variables.index(x_var)
         for i, vector in enumerate(self.matrix):
@@ -254,7 +254,6 @@ class Relation:
         Returns:
            a new relation that is a product of inputs.
         """
-
         logger.debug("starting composition...")
         er1, er2 = Relation.homogenisation(self, other)
         logger.debug("composing matrix product...")
@@ -297,8 +296,7 @@ class Relation:
         return True
 
     def fixpoint(self) -> Relation:
-        """
-        Compute sum of compositions until no changes occur.
+        """Compute sum of compositions until no changes occur.
 
         Returns:
             resulting relation.
@@ -308,7 +306,6 @@ class Relation:
         fix = Relation(fix_vars, matrix)
         prev_fix = Relation(fix_vars, matrix)
         current = Relation(fix_vars, matrix)
-
         logger.debug(f"computing fixpoint for variables {fix_vars}")
 
         while True:
@@ -323,7 +320,7 @@ class Relation:
         """Get the matrix corresponding to provided sequence of choices.
 
         Arguments:
-            choices: tuple of choices
+            choices: Tuple of choices.
 
         Returns:
             New relation with simple-values matrix of scalars.
@@ -376,11 +373,11 @@ class Relation:
         This operation will internally resize matrices as needed.
 
         Arguments:
-            r1: first relation to homogenise
-            r2: second relation to homogenise
+            r1: First relation to homogenise.
+            r2: Second relation to homogenise.
 
         Returns:
-            Homogenised versions of the 2 inputs relations
+            Homogenised versions of the 2 inputs relations.
         """
 
         # check equality
@@ -431,9 +428,9 @@ class Relation:
         """Evaluate program matrix for possible derivation choices.
 
         Arguments:
-            choices: list of choices at each index, `[0,1,2]`.
-            index: accumulated program counter.
-            scalars: exclude specified scalars.
+            choices: List of choices at each index, `[0,1,2]`.
+            index: Accumulated program counter.
+            scalars: Exclude specified scalars.
 
         Returns:
             A choice object for the evaluated matrix.
@@ -456,9 +453,9 @@ class Relation:
         column-wise.
 
         Arguments:
-            choices: list of choices at each index, `[0,1,2]`
-            index: accumulated program counter.
-            scalars: exclude specified scalars.
+            choices: List of choices at each index, `[0,1,2]`
+            index: Accumulated program counter.
+            scalars: Exclude specified scalars.
 
         Returns:
             A dictionary where the key is a variable name,

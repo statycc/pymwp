@@ -77,7 +77,7 @@ class Monomial:
         Arguments:
             scalar: Monomial scalar.
             deltas: A delta or a list of deltas.
-            args: Arbitrary number of subsequent deltas.
+            *args: Arbitrary number of subsequent deltas.
         """
         self.deltas = []
         self.scalar = scalar

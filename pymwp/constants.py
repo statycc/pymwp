@@ -19,7 +19,7 @@ from enum import IntEnum
 from typing import Tuple, List, TypeVar
 
 DELTA = Tuple[int, int]
-"""Delta is a tuple of two integers: <choice, index>."""
+"""Delta is a tuple of two integers: (choice, index)."""
 
 DELTAS = TypeVar('DELTAS', bound=DELTA)
 """A TypeVar for deltas."""
@@ -38,7 +38,11 @@ COM_RES = Tuple[int, 'RelationList', bool]
 """Command analysis type."""
 
 B_TRIPLE = Tuple[Tuple[str], Tuple[str], Tuple[str]]
-"""mwp-bound triple of variable lists."""
+"""mwp-bound triple with three variable lists."""
+
+# flake8: noqa: F821
+MATRIX = List[List['Polynomial']]
+"""mwp-matrix type."""
 
 
 class Comparison(IntEnum):

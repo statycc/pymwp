@@ -2,7 +2,7 @@
 
 Helper methods for performing disk I/O operation on analysis results.
 
-To generate file name for storing results
+To generate file name for storing results:
 
 ```python
 from pymwp.file_io import default_file_out

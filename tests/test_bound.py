@@ -39,7 +39,7 @@ def test_bound_str_format():
     mwp.x.add('X0', 'X1')
     mwp.z.add('X3', 'X4', 'X2')
 
-    assert mwp.bound_triple_str == "X0,X1;;X2,X3,X4"
+    assert mwp.bound_str == "X0,X1;;X2,X3,X4"
 
 
 def test_bound_load():
