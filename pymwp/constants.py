@@ -37,7 +37,7 @@ CHOICES = List[List[List[int]]]
 COM_RES = Tuple[int, 'RelationList', bool]
 """Command analysis type."""
 
-B_TRIPLE = Tuple[Tuple[str], Tuple[str], Tuple[str]]
+B_TRIPLE = Tuple[Tuple[str, ...], Tuple[str, ...], Tuple[str, ...]]
 """mwp-bound triple with three variable lists."""
 
 # flake8: noqa: F821

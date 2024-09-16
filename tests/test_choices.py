@@ -99,6 +99,12 @@ def test_intersection():
     assert Choices.vect_intersection(vect2, vect3) == ((1,), (1,))
 
 
+def test_intersection_2():
+    v1 = ((0, 1, 2), (2,), (0, 1, 2))
+    v2 = ((0, 1, 2), (0, 1, 2), (0,))
+    assert Choices.vect_intersection(v1, v2) == ((0, 1, 2), (2,), (0,))
+
+
 def test_intersection_empty():
     vect1 = ((0, 1), (0, 2))
     vect2 = ((1,), (1,))
