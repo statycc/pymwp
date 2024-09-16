@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-This is a utility script that reads and parses a C file, then generates an AST.
+This is a utility script that reads and parses a C file, or a directory of
+C files, then generates an AST.
 It uses gcc and pycparser, then writes the AST to a file.
 This script is mainly useful for generating/updating test cases for unit
 testing, and for inspecting AST structure and nodes.
-The parser options are hard-coded. We assume C file has no custom headers,
-and that gcc is a valid C compiler.
+The parser options are hard-coded, and assumes C files have no custom headers,
+and that gcc is an existing system C compiler.
 
 <h4>Usage:</h4>
 

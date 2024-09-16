@@ -44,7 +44,7 @@ However, program
 
 pymwp is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
 Try our online [demo](https://statycc.github.io/pymwp/demo/) to see it action.
-For more details on usage and behavior, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
+For more details, see pymwp [documentation](https://statycc.github.io/pymwp/), particularly [supported C language features](https://statycc.github.io/pymwp/features/).
 
 ## Documentation and Demo
 
@@ -69,7 +69,7 @@ pip install pymwp
 
 ## How to Use
 
-<h4>Command-Line Use</h4>
+**Command-Line Use**
 
 To analyze a C file, run in terminal:
 
@@ -83,7 +83,7 @@ For a list of available command options and help, run:
 pymwp
 ```
 
-<h4>Use in Python Scripts</h4>
+**Use in Python Scripts**
 
 You can also use pymwp by importing it in a Python script.
 See [modules documentation](https://statycc.github.io/pymwp/modules/) for details and examples.

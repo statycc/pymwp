@@ -5,7 +5,7 @@
 Profiling reveals how many times different functions are called during
 analysis. Profiling is based on Python cProfile [^1].
 
-# Single file profile
+## Single file profile
 
 Single-file profiling works on both pymwp installed from package registry or
 when running pymwp from source, because it requires only the standard Python
@@ -27,13 +27,13 @@ module cProfile.
 
 Arguments:
     INPUT_FILE (str): Path to input C file.
-    --silent (): Mute pymwp analysis output [^2].
-    -s (str): Specifies cProfile output sort order.
+    --silent (): Mute pymwp analysis output.
+    -s (str): Specifies cProfile output sort order [^2].
 
 
 Additional arguments of cProfile or pymwp can be added similarly.
 
-# Multi-file profile
+## Multi-file profile
 
 Profiler utility module is a wrapper for cProfile. It enables profiling
 directories of C files. The results of each execution are stored in
@@ -52,13 +52,13 @@ One outputs is displayed for each profiled file:
 
 Profile all repository examples:
 
-```shell
+```
 make profile
 ```
 
 Run with custom arguments:
 
-```shell
+```
 python utilities/profiler.py --in IN --out OUT --sort SORT --timeout SEC
        --lines LINES --skip SKIP --only ONLY --extern --callers --save --help
 ```
@@ -69,11 +69,11 @@ Arguments:
         [default: `output/profile`].
     --sort (str): Property to sort by [default: `calls`].
     --timeout (int): Max. timeout in seconds for one execution [default: 10].
-    --lines (int): Number lines of profiler stats to collect,
+    --lines (int): Number lines of profiler stats to collect
         <br/>e.g. to profile top 10 methods, use `--lines 10`.
-    --skip (str): Space-separated list of files to exclude,
+    --skip (str): Space-separated list of files to exclude
         <br/>e.g., `--skip dense infinite_2` will not profile matching files.
-    --only (str): Space-separated list of files to include,
+    --only (str): Space-separated list of files to include
         <br/>e.g., `--only dense empty` will profile only matching files.
     --extern (): Exclude package external methods from cProfile results
     --callers (): Include function caller statistics.
