@@ -3,11 +3,9 @@
 # noinspection PyUnresolvedReferences
 """
 Profiling reveals how many times different functions are called during
-analysis. Profiling is based on Python cProfile.
+analysis. Profiling is based on Python cProfile [^1].
 
-cProfile: https://docs.python.org/3/library/profile.html
-
-## Profiling a single file
+# Single file profile
 
 Single-file profiling works on both pymwp installed from package registry or
 when running pymwp from source, because it requires only the standard Python
@@ -15,7 +13,7 @@ module cProfile.
 
 <h4>Usage:</h4>
 
-=== "Distributed version"
+=== "Release version"
 
     ```
     python -m cProfile pymwp --silent -s ncalls INPUT_FILE
@@ -29,16 +27,13 @@ module cProfile.
 
 Arguments:
     INPUT_FILE (str): Path to input C file.
+    --silent (): Mute pymwp analysis output [^2].
+    -s (str): Specifies cProfile output sort order.
 
-Note:
-    * Argument `--silent` mutes pymwp analysis output.
-    * Argument `-s` specifies cProfile output sort order.
-    * Additional arguments of cProfile or pymwp can be appended similarly.
 
-cProfile output sort orders:
-https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats
+Additional arguments of cProfile or pymwp can be added similarly.
 
-## Multi-file profile
+# Multi-file profile
 
 Profiler utility module is a wrapper for cProfile. It enables profiling
 directories of C files. The results of each execution are stored in
@@ -57,13 +52,13 @@ One outputs is displayed for each profiled file:
 
 Profile all repository examples:
 
-```
+```shell
 make profile
 ```
 
 Run with custom arguments:
 
-```
+```shell
 python utilities/profiler.py --in IN --out OUT --sort SORT --timeout SEC
        --lines LINES --skip SKIP --only ONLY --extern --callers --save --help
 ```
@@ -84,6 +79,10 @@ Arguments:
     --callers (): Include function caller statistics.
     --save (): Save pymwp analysis results [default: False].
     --help (): Command help.
+
+
+[^1]: https://docs.python.org/3/library/profile.html
+[^2]: https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats.
 """
 
 import argparse

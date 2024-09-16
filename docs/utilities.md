@@ -7,7 +7,6 @@ These tools are not shipped with the distributed version of pymwp, but are avail
 <div class="grid cards" markdown>
 
 - :material-file-tree: &nbsp; [**AST Generator**](#ast-generator) <br/>Convert C files to ASTs using pycparser.
-- :octicons-clock-16: &nbsp; [**Benchmarks**](#benchmarks)  <br/>Run benchmarks on all examples.
 - :fontawesome-solid-computer: &nbsp; [**Machine Details**](#machine-details) <br/>Captures host machine details at runtime.
 - :material-chart-box-outline: &nbsp; [**Plot Results**](#plot-results) <br/>Make table plots of pymwp results.
 - :fontawesome-solid-flask-vial: &nbsp; [**Profiling**](#profiling) <br/>Inspect functions runtime execution details.
@@ -22,25 +21,12 @@ These tools are not shipped with the distributed version of pymwp, but are avail
     python -m pip install -r requirements-test.txt
     ```
 
-
 ## AST Generator
 
 ::: utilities.ast_util
     options:
       show_docstring_modules: true
       members: false
-
-## Benchmarks
-
-Run pymwp on all [examples](examples.md), capture the executing machine details, and plot the results.
-This is "just" a simplified command to execute pymwp repeatedly followed by utilities.
-
-**Usage**
-
-```
-make bench
-```
-
 
 ## Machine Details
 
