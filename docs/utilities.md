@@ -18,7 +18,6 @@ These tools are not shipped with the distributed version of pymwp, but are avail
 
     : :material-chart-box-outline: &nbsp; **Results Plotter** (`plot.py`)<br/>Make table plots of analyzer results for a specified directory.
 
-
 ## Getting started
 
 First install required dependencies for using utilities:
@@ -126,15 +125,9 @@ One outputs is displayed for each profiled execution (3 possibilities):
 
 ## Machine Details
 
-Captures software and hardware details for executing machine.
-
-**Usage**
-
-```
-python3 utilities/runtime.py [output_dir]
-```
-
-Where `output_dir` specifies a directory where to write the machine details. 
+::: utilities.runtime
+    options:
+      show_docstring_modules: true
 
 ---
 
