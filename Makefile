@@ -50,7 +50,7 @@ lint-only:
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
-	python3 utilities/profiler.py --lines=100 --no-external --out profile
+	python3 utilities/profiler.py --lines=100 --extern --out profile
 
 bench-only:
 	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \
@@ -58,7 +58,7 @@ bench-only:
  		python3 utilities/runtime.py output
 
 plot:
-	python3 utilities/plot.py -r output -f tex
+	python3 utilities/plot.py -i output -f tex
 
 ast:
 	rm -rf test/mocks/*.txt

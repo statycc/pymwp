@@ -51,10 +51,6 @@ class RelationList:
         create a relation list with one relation, using the provided
         `variables` to initialize that relation.
 
-        Also see [`RelationList.identity()`](
-        relation_list.md#pymwp.relation_list .RelationList.identity) for
-        creating a relation list containing an identity relation.
-
         Example:
             Create relation list using specific variables
 

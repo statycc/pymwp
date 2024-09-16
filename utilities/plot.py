@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 
+# noinspection PyUnresolvedReferences
 """
 Makes a table plot of analysis results.
 
-# Usage
+<h4>Usage:</h4>
 
-python3 utilities/plot.py [ARGS]
+```
+python3 utilities/plot.py  --in IN --out OUT --fmt FORMAT
+```
 
-Run python3 utilities/plot.py --help for assistance
+Arguments:
+    --in (str): Directory of analysis results.
+    --out (str): Directory where to save generated plot.
+    --fmt (str): Plot format: `tex` or `plain`.
+    --help (): Command help.
 """
 
 import argparse
@@ -19,7 +26,6 @@ from typing import Dict, Union, List
 
 # noinspection PyPackageRequirements
 from pytablewriter import SpaceAlignedTableWriter
-
 # noinspection PyProtectedMember,PyPackageRequirements
 from pytablewriter.writer.text._latex import LatexWriter
 
@@ -27,20 +33,48 @@ from pytablewriter.writer.text._latex import LatexWriter
 cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
+# flake8: noqa: E402
 from pymwp import Result
 from pymwp.bound import MwpBound
 from pymwp.file_io import load_result
 
 
+def cmd_args(parser):
+    """Define available arguments."""
+    parser.add_argument(
+        "-i", "--in",
+        dest="in_dir",
+        metavar="IN",
+        default=join(cwd, 'output'),
+        help='Path to analysis results directory (default: output)',
+    )
+    parser.add_argument(
+        "-o", "--out",
+        action='store',
+        default=join(cwd, 'output'),
+        help="Directory to save generated plot (default: output)"
+    )
+    parser.add_argument(
+        "-f", '--fmt',
+        action="store",
+        default="plain",
+        metavar="FORMAT",
+        help='output format: {tex, plain} (default: plain)'
+    )
+    return parser.parse_args()
+
+
 class MyLatexTableWriter(LatexWriter):
-    @property
-    def format_name(self) -> str:
-        return "latex_table"
+    """Custom LaTeX table writer."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
         self.char_right_side_row = r" \\"
+
+    @property
+    def format_name(self) -> str:
+        return "latex_table"
 
     def _get_opening_row_items(self) -> List[str]:
         return ["".join([
@@ -49,8 +83,8 @@ class MyLatexTableWriter(LatexWriter):
             r"}", ])]
 
     @staticmethod
-    def _str_escape(str):
-        return str.replace('_', '\_').replace('#', '\#')
+    def _str_escape(txt):
+        return txt.replace('_', r'\_').replace('#', r'\#')
 
     def _to_header_item(self, col_dp, value_dp) -> str:
         return MyLatexTableWriter._str_escape(
@@ -71,6 +105,7 @@ class MyLatexTableWriter(LatexWriter):
 
 
 class Plot:
+    """Main plotting routine."""
 
     def __init__(self, src_path: str, out_dir: str, table_format: str):
         self.src = src_path
@@ -113,20 +148,25 @@ class Plot:
                 .replace('max', r'\text{max}')
 
         # construct formatted bounds expressions for each variable
-        var_bounds = [f"{var_format(k)}' \leq {bound_format(v)}"
+        leq = r'\leq'
+        var_bounds = [f"{var_format(k)}' {leq} {bound_format(v)}"
                       for k, v in bound.bound_dict.items()
                       if str(k) != str(v)]  # only keep "significant"
 
         # separator between bound expressions
         # separate the "and" to allow easier line breaks
-        bound_exp = ('$ $\land$ $'.join(var_bounds))
-
+        bound_exp = (r'$ $\land$ $'.join(var_bounds))
         return f'${bound_exp}$'  # in math mode
 
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
         return ['#', 'Benchmark', 'loc', 'time', 'vars', 'bounds']
+
+    @staticmethod
+    def text_fmt(bound, pad, wrap_at):
+        return bound if len(bound) < wrap_at else \
+            bound.replace('∧', f'\n{" " * pad}∧')
 
     def build_matrix(self):
         """Construct table data."""
@@ -145,11 +185,6 @@ class Plot:
                          if ex.n_functions > 1 else ex.program.name),
                  ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
                 for i, (ex, fun) in enumerate(inputs)], dict(bound_dict)
-
-    @staticmethod
-    def text_fmt(bound, pad, wrap_at):
-        return bound if len(bound) < wrap_at else \
-            bound.replace('∧', f'\n{" " * pad}∧')
 
     def generate(self) -> None:
         """Generate a table plot, then show it, and save it to file."""
@@ -182,33 +217,9 @@ class Plot:
         print(f'Wrote tables to: {fn}\nand to: {mn}')
 
 
-def cmd_args(parser):
-    """Define available arguments."""
-    parser.add_argument(
-        '-r', '--in',
-        action='store',
-        dest="in_",
-        default=join(cwd, 'output'),
-        help='path to analysis results directory (default: output)',
-    )
-    parser.add_argument(
-        "-o", "--out",
-        action='store',
-        default=join(cwd, 'output'),
-        help="directory to save generated plot (default: output)"
-    )
-    parser.add_argument(
-        "-f", '--fmt',
-        action="store",
-        default="plain",
-        help='output format: {tex, plain} (default: plain)'
-    )
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
     args = cmd_args(argparse.ArgumentParser())
-    if not isdir(args.in_):
-        print(f"Non-existent directory {args.in_}")
+    if not isdir(args.in_dir):
+        print(f"Non-existent directory {args.in_dir}")
     else:
-        Plot(args.in_, args.out, args.fmt).generate()
+        Plot(args.in_dir, args.out, args.fmt).generate()

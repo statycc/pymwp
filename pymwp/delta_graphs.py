@@ -26,9 +26,9 @@ from . import Monomial, NODE
 class DeltaGraph:
     """
     Delta Graph is a dictionary representing a weighted graph of tuples of
-    deltas (also referenced here as a _monomial_list_, a
-    [`Monomials`](monomial.md) without its scalar). We will often refer to
-    tuple of deltas as simple node, but a node with length!
+    deltas (also referenced here as a _monomial_list_, a list of Monomials
+    without its scalar). We will often refer to tuple of deltas as simple
+    node, but a node with length!
 
     Nodes are "sorted" by this length in order to be compared by chunks of
     same size.

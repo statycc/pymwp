@@ -1,14 +1,17 @@
+#!/usr/bin/env python3
+
+# noinspection PyUnresolvedReferences
 """
 Capture details of the current machine and runtime.
 
-### Usage:
+<h4>Usage:</h4>
 
 ```
-python3 utilities/runtime.py output_dir
+python3 utilities/runtime.py OUTPUT_DIR
 ```
 
 Arguments:
-    output_dir (str): Directory where to write the output.
+    OUTPUT_DIR (str): Directory where to write the output.
 """
 
 import platform
@@ -107,7 +110,7 @@ def _gcc_version():
     return ', '.join(version)
 
 
-def _machine_info() -> str:
+def machine_info() -> str:
     """String representations of current machine."""
     md = _machine_details()
     values = map(lambda x: str(x).replace('\n', ' ').strip(), md.values())
@@ -126,6 +129,6 @@ def write_file(content, output_dir: str):
 if __name__ == '__main__':
     """By default write the info."""
     if len(sys.argv) >= 2:
-        write_file(_machine_info(), sys.argv[1])
+        write_file(machine_info(), sys.argv[1])
     else:
         print('Output directory is required')

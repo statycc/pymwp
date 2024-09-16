@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-
 """
 This is a utility script that reads and parses a C file, then generates an AST.
 It uses gcc and pycparser, then writes the AST to a file.
-
 This script is mainly useful for generating/updating test cases for unit
-testing, or inspecting AST structure and nodes.
-
-# Usage
-
-python3 utilities/ast_util.py [ARG1] [ARG2]
-
-Required positional arguments:
-1. input path -- give a C file, or path to a directory of C files
-2. output directory -- where to save AST
-
+testing, and for inspecting AST structure and nodes.
 The parser options are hard-coded. We assume C file has no custom headers,
 and that gcc is a valid C compiler.
+
+<h4>Usage:</h4>
+
+```
+python3 utilities/ast_util.py IN_PATH OUT_DIR
+```
+
+Arguments:
+    IN_PATH (str): A C file or path to a directory of C files.
+    OUT_DIR (str): Directory where to save AST.
 """
 
 import os.path
