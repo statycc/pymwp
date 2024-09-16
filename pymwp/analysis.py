@@ -33,7 +33,7 @@ class Analysis:
 
     @staticmethod
     def run(ast: pr.AST, res: Result = None, evaluate: bool = True,
-            fin: bool = False, strict: bool = False) -> Result:
+            fin: bool = False, strict: bool = False, **kwargs) -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
@@ -577,3 +577,42 @@ class Analysis:
         fmt_str = str(command or "").strip()
         logger.warning(f'{warning}Unsupported syntax{endc} '
                        f'not evaluated: {fmt_str}')
+
+
+class LoopAnalysis(Analysis):
+    """Specialized loop analysis."""
+
+    @staticmethod
+    def run(ast: pr.AST, res: Result = None, strict: bool = False, **kwargs):
+        """Loop invariant analysis."""
+        result = Result()
+        logger.debug("Starting loop analysis")
+        result.on_start()
+        # todo: Analysis steps/notes
+        #   1. find functions, then find loops
+        #   2. analyze loop-only, otherwise same analysis steps
+        #      If nested, start with loop nest, then work up.
+        #   3. Always run to completion even if infinity
+        #   4. record a "LoopResult" (new type)
+        # todo: Evaluation steps
+        #   1. evaluate each analyzed loop as whole-matrix => bound exists?
+        #   2. By-variable eval: find upto w-bounds/variable.
+        #   3. Record all <= w bounds;
+        #      * if whole-matrix passes, safe to take any.
+        #      * otherwise make sure variable does not interfere with a
+        #        "bad" variable (0 in matrix).
+
+        # Find top-level loops.
+        for f_node in [f for f in ast if pr.is_func(f)]:
+            # noinspection PyUnboundLocalVariable
+            # All the preprocessing steps here....
+            # LoopAnalysis.loop(loop)
+            pass
+        result.on_end()
+        result.log_result()
+        return result
+
+    @staticmethod
+    def loop(node: pr.Node):
+        """Analyze the loop (possibly nested)."""
+        print("loop!", pr.to_c(node))

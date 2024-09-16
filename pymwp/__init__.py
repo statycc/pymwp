@@ -39,4 +39,4 @@ from pymwp.relation import Relation
 from pymwp.relation_list import RelationList
 from pymwp.bound import Bound
 from pymwp.result import Result
-from pymwp.analysis import Analysis
+from pymwp.analysis import Analysis, LoopAnalysis

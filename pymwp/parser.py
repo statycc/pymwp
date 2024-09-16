@@ -53,6 +53,11 @@ class ParserInterface(ABC):  # pragma: no cover
         pass
 
     def is_func(self, node: Any) -> bool:
+        """True if node is a function implementation."""
+        return False
+
+    def is_loop(self, node: Any) -> bool:
+        """True is node is a loop/repetition statement."""
         return False
 
     def to_c(self, node: Any) -> str:
@@ -223,7 +228,12 @@ class PyCParser(ParserInterface):
 
     def is_func(self, node: Any) -> bool:
         return isinstance(node, self.FuncDef) and \
-               hasattr(node, 'body') and node.body.block_items
+            hasattr(node, 'body') and node.body.block_items
+
+    def is_loop(self, node: Any) -> bool:
+        return (isinstance(node, self.While) or
+                isinstance(node, self.For) or
+                isinstance(node, self.DoWhile))
 
     def to_c(self, node: Any, compact: bool = False) -> str:
         """Translate node back to C code."""

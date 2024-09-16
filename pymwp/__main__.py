@@ -40,9 +40,10 @@ import argparse
 import logging
 import sys
 from argparse import RawTextHelpFormatter
-from typing import List, Optional
+from typing import List, Optional, Type, Union
 
-from . import Parser, Result, Analysis, __version__, __title__ as pymwp
+from . import __version__, __title__ as pymwp
+from . import Parser, Result, Analysis, LoopAnalysis
 from .file_io import default_file_out, loc, save_result
 
 
@@ -73,9 +74,12 @@ def main():
     result = Result()
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
-    eval_ = not args.no_eval
 
-    result = Analysis.run(ast, result, eval_, args.fin, args.strict)
+    analyzer: Type[Union[Analysis, LoopAnalysis]] = \
+        LoopAnalysis if args.loop else Analysis
+    result = analyzer.run(ast, result, eval=not args.no_eval,
+                          fin=args.fin, silent=args.strict)
+
     if not args.no_save:
         file_out = args.out or default_file_out(args.input_file)
         save_result(file_out, result)
@@ -141,6 +145,11 @@ def __parse_args(
         "--fin",
         action='store_true',
         help="ensure analysis completion in all cases"
+    )
+    parser.add_argument(
+        "--loop",
+        action='store_true',
+        help="run loop analysis"
     )
     parser.add_argument(
         "--strict",
