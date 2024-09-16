@@ -1,9 +1,88 @@
 #!/usr/bin/env python3
 
+# noinspection PyUnresolvedReferences
 """
-This is a utility script for running cProfile on a bunch of C files.
+Profiling reveals how many times different functions are called during
+analysis. Profiling is based on Python cProfile [^1].
 
-USAGE: see docs/utilities.md
+# Single file profile
+
+Single-file profiling works on both pymwp installed from package registry or
+when running pymwp from source, because it requires only the standard Python
+module cProfile.
+
+<h4>Usage:</h4>
+
+=== "Release version"
+
+    ```
+    python -m cProfile pymwp --silent -s ncalls INPUT_FILE
+    ```
+
+=== "Running from source"
+
+    ```
+    python -m cProfile -m pymwp --silent -s ncalls INPUT_FILE
+    ```
+
+Arguments:
+    INPUT_FILE (str): Path to input C file.
+    --silent (): Mute pymwp analysis output [^2].
+    -s (str): Specifies cProfile output sort order.
+
+
+Additional arguments of cProfile or pymwp can be added similarly.
+
+# Multi-file profile
+
+Profiler utility module is a wrapper for cProfile. It enables profiling
+directories of C files. The results of each execution are stored in
+corresponding output files.
+
+One outputs is displayed for each profiled file:
+
+: _**done-ok**_ profiling subprocess terminated without error, note: even if
+    pymwp analysis ends with non-0 exit code, it falls into this category
+    if it does not crash the subprocess.
+: _**error**_ profiling subprocess terminated in error.
+: _**timeout**_ profiling subprocess did not terminate within time limit and
+    was forced to quit.
+
+<h4>Usage:</h4>
+
+Profile all repository examples:
+
+```shell
+make profile
+```
+
+Run with custom arguments:
+
+```shell
+python utilities/profiler.py --in IN --out OUT --sort SORT --timeout SEC
+       --lines LINES --skip SKIP --only ONLY --extern --callers --save --help
+```
+
+Arguments:
+    --in (str): Directory path to C-files [default: c_files].
+    --out (str): Directory path for storing results
+        [default: `output/profile`].
+    --sort (str): Property to sort by [default: `calls`].
+    --timeout (int): Max. timeout in seconds for one execution [default: 10].
+    --lines (int): Number lines of profiler stats to collect,
+        <br/>e.g. to profile top 10 methods, use `--lines 10`.
+    --skip (str): Space-separated list of files to exclude,
+        <br/>e.g., `--skip dense infinite_2` will not profile matching files.
+    --only (str): Space-separated list of files to include,
+        <br/>e.g., `--only dense empty` will profile only matching files.
+    --extern (): Exclude package external methods from cProfile results
+    --callers (): Include function caller statistics.
+    --save (): Save pymwp analysis results [default: False].
+    --help (): Command help.
+
+
+[^1]: https://docs.python.org/3/library/profile.html
+[^2]: https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats.
 """
 
 import argparse
@@ -13,13 +92,82 @@ import pstats
 import signal
 import subprocess
 import time
-
+from argparse import RawTextHelpFormatter
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
-from runtime import write_info
+from runtime import write_file, machine_info
 
 cwd = abspath(join(dirname(__file__), '../'))  # repository root
+
+
+def parse_args(parser):
+    """Define available arguments."""
+    parser.add_argument(
+        '--in',
+        action='store',
+        dest="in_",
+        metavar="IN",
+        default=join(cwd, 'c_files'),
+        help='Directory path to C-files.',
+    )
+    parser.add_argument(
+        "--out",
+        action="store",
+        default=join(cwd, 'output', 'profile'),
+        help="Directory path for storing results.",
+    )
+    parser.add_argument(
+        "--sort",
+        action="store",
+        default='calls',
+        help="Property to sort by.",
+    )
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        default=10,
+        metavar="SEC",
+        help='Max. timeout in seconds for one execution.')
+    parser.add_argument(
+        '--lines',
+        type=int,
+        default=-1,
+        help='Number of lines of profiler stats to collect\n' +
+             'e.g. to profile top 10 methods use --lines 10')
+    parser.add_argument(
+        '--skip',
+        nargs='+',
+        default=[],
+        metavar="FL",
+        help='Space-separated list of files to exclude\n' +
+             'e.g. `--skip if dense` skips matching files.'
+    )
+    parser.add_argument(
+        '--only',
+        nargs='+',
+        default=[],
+        metavar="FL",
+        help='Space-separated list of files to include\n' +
+             'e.g. `--only dense empty` profiles only matching files.'
+    )
+    parser.add_argument(
+        "--extern",
+        dest="no_external",
+        action='store_true',
+        help="Exclude package-external methods from cProfile."
+    )
+    parser.add_argument(
+        "--callers",
+        action='store_true',
+        help="Include caller stats in profile."
+    )
+    parser.add_argument(
+        "--save",
+        action='store_true',
+        help="Save pymwp analysis results to file."
+    )
+    return parser.parse_args()
 
 
 class Profiler:
@@ -139,7 +287,7 @@ class Profiler:
             asyncio.run(self.profile_file(file))
         self.end_time = time.monotonic()
         self.clear_temp_files()
-        write_info(self.output)
+        write_file(machine_info(), self.output)
         self.post_log()
 
     async def profile_file(self, c_file):
@@ -194,71 +342,8 @@ class Profiler:
         print(f'\n{divider}\n{msg}\n{divider}')
 
 
-def parse_args(parser):
-    """Define available arguments."""
-    parser.add_argument(
-        '--in',
-        action='store',
-        dest="in_",
-        default=join(cwd, 'c_files'),
-        help='directory path to C-files (default: c_files)',
-    )
-    parser.add_argument(
-        "--out",
-        action="store",
-        default=join(cwd, 'output', 'profile'),
-        help="directory path for storing results (default: output/profile)",
-    )
-    parser.add_argument(
-        "--sort",
-        action="store",
-        default='calls',
-        help="property to sort by (default: calls)",
-    )
-    parser.add_argument(
-        '--timeout',
-        type=int,
-        default=10,
-        help='max. timeout in seconds for one execution (default: 10)')
-    parser.add_argument(
-        '--lines',
-        type=int,
-        default=-1,
-        help='how many lines of profiler stats to collect ' +
-             'e.g. to profile top 10 methods, set this value to 10.')
-    parser.add_argument(
-        '--skip',
-        nargs='+',
-        default=[],
-        help='space separated list of files to exclude ' +
-             '(e.g. --skip dense infinite_2) will not profile matching files'
-    )
-    parser.add_argument(
-        '--only',
-        nargs='+',
-        default=[],
-        help='space separated list of files to include ' +
-             '(e.g. --only dense empty) will profile only matching files'
-    )
-    parser.add_argument(
-        "--no-external",
-        action='store_true',
-        help="exclude package external methods from cProfile results"
-    )
-    parser.add_argument(
-        "--callers",
-        action='store_true',
-        help="include caller stats"
-    )
-    parser.add_argument(
-        "--save",
-        action='store_true',
-        help="save analysis result"
-    )
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
     """Run profiler using provided args."""
-    args = parse_args(argparse.ArgumentParser())
+    args = parse_args(argparse.ArgumentParser(
+        formatter_class=RawTextHelpFormatter))
     Profiler(args.in_, args.out, args).run()

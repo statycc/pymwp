@@ -35,10 +35,9 @@ class Relation:
     A relation is made of a list of variables and a 2D-matrix:
 
     - Variables of a relation represent the variables of the input
-    program under analysis, for example: $X_0, X_1, X_2$.
-
-    - Matrix holds [`Polynomials`](polynomial.md#pymwp.polynomial)
-    and represents the current state of the analysis.
+      program under analysis, for example: $X_0, X_1, X_2$.
+    - Matrix holds Polynomials and represents the current state of
+      the analysis.
 
     Attributes:
         variables (List[str]): List of variables.
@@ -53,10 +52,6 @@ class Relation:
 
         If matrix is not provided, the relation matrix will be initialized to
         zero matrix of size matching the number of variables.
-
-        Also see: [`Relation.identity()`](relation.md#pymwp.relation
-        .Relation.identity) for creating a relation whose matrix is an
-        identity matrix.
 
         Example:
             Create a new relation from a list of variables:
@@ -268,10 +263,6 @@ class Relation:
 
         1. the same variables (independent of order), and
         2. matrix polynomials must be equal element-wise.
-
-        See [`polynomial#equal`](
-        polynomial.md#pymwp.polynomial.Polynomial.equal)
-        for details on how to determine equality of two polynomials.
 
         Arguments:
             other: relation to compare

@@ -88,7 +88,6 @@ pymwp
 You can also use pymwp by importing it in a Python script.
 See [modules documentation](https://statycc.github.io/pymwp/modules/) for details and examples.
 
-
 ## Running from source
 
 If you want to use the latest stable version—possibly ahead of the latest release, and with special [evaluation utilities](https://statycc.github.io/pymwp/utilities/) and [input examples](https://statycc.github.io/pymwp/examples/)—use pymwp directly from source.
@@ -102,7 +101,7 @@ If you want to use the latest stable version—possibly ahead of the latest rele
 
 2. **Set up Python runtime environment of preference**
 
-    <br/>:a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
+    :a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
    
     Create and activate a virtual environment (POSIX bash/zsh):
      
@@ -123,7 +122,7 @@ If you want to use the latest stable version—possibly ahead of the latest rele
     python -m pip install -r requirements-dev.txt
     ```
 
-    <br/>:b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
+    :b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
 
     Build a container -- also installs dev-dependencies:
     
@@ -159,3 +158,14 @@ If you want to use the latest stable version—possibly ahead of the latest rele
     ```
 
 <!--include-end--> 
+
+
+## Evaluation
+
+These options are available when running from source.
+
+```
+make bench       # run benchmarks on all examples
+make test        # run all unit tests on pymwp source code
+make profile     # run cProfile on all examples  
+```

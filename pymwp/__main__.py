@@ -43,7 +43,7 @@ from argparse import RawTextHelpFormatter
 from typing import List, Optional
 
 from . import Parser, Result, Analysis, __version__, __title__ as pymwp
-from .file_io import default_file_out, loc
+from .file_io import default_file_out, loc, save_result
 
 
 def main():
@@ -73,16 +73,17 @@ def main():
     result = Result()
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
-    file_out = args.out or default_file_out(args.input_file)
-    save, eval_ = not args.no_save, not args.no_eval
+    eval_ = not args.no_eval
 
-    Analysis.run(ast, result, file_out, save, eval_,
-                 args.fin, args.strict)
+    result = Analysis.run(ast, result, eval_, args.fin, args.strict)
+    if not args.no_save:
+        file_out = args.out or default_file_out(args.input_file)
+        save_result(file_out, result)
 
 
 def __parse_args(
-        parser: argparse.ArgumentParser,
-        args: Optional[List] = None) -> argparse.Namespace:
+        parser: argparse.ArgumentParser, args: Optional[List] = None
+) -> argparse.Namespace:
     """Setup available program arguments."""
     parser.add_argument(
         'input_file',

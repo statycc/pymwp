@@ -16,13 +16,11 @@
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-# noinspection DuplicatedCode
 import logging
 from typing import List, Tuple, Optional
 
 from . import Coverage, Variables, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
-from .file_io import save_result
 # noinspection PyPep8Naming
 from .parser import Parser as pr
 from .result import FuncResult
@@ -34,27 +32,22 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, file_out: str = None,
-            save: bool = True, evaluate: bool = True, fin: bool = False,
-            strict: bool = False) \
-            -> Result:
+    def run(ast: pr.AST, res: Result = None, evaluate: bool = True,
+            fin: bool = False, strict: bool = False) -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
             res: pre-initialized result object
-            file_out: file to save result
-            save: save result to file_out
             evaluate: do bound evaluation
             fin: always run to completion
             strict: require supported syntax
 
         Returns:
-            A [`Result`](result.md) object.
+            A `Result` object.
         """
-        result: Result = res or Result()
+        result = res or Result()
         logger.debug("started analysis")
-
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
             func_res = Analysis.func(f_node, not fin, evaluate, strict)
@@ -62,9 +55,6 @@ class Analysis:
                 result.add_relation(func_res)
         result.on_end()
         result.log_result()
-
-        if save and file_out:
-            save_result(file_out, res)
         return result
 
     @staticmethod
@@ -158,9 +148,9 @@ class Analysis:
         of an AST node.
 
         Arguments:
-            index: delta index
-            node: AST node to analyze
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.Node): AST node to analyze.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -359,9 +349,9 @@ class Analysis:
         """Analyze a standalone unary operation.
 
         Arguments:
-            index: delta index
-            node: unary operation AST node
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.UnaryOp): AST node to analyze.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -386,9 +376,9 @@ class Analysis:
         """Analyze an if statement.
 
         Arguments:
-            index: delta index
-            node: if-statement AST node
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.If): if-statement AST node.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -422,10 +412,10 @@ class Analysis:
         modification.
 
         Arguments:
-            index: current delta index value
-            node: AST if statement branch node
-            relation_list: current relation list state
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Current delta index value.
+            node (pr.If): AST if statement branch node.
+            relation_list (RelationList): Current relation list state.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -445,9 +435,9 @@ class Analysis:
         """Analyze a while loop.
 
         Arguments:
-            index: delta index
-            node: while loop node
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.while): While loop node.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -475,9 +465,9 @@ class Analysis:
         """Analyze for loop node.
 
         Arguments:
-            index: delta index
-            node: for loop node
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.For): for loop node.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
@@ -508,9 +498,9 @@ class Analysis:
         We analyze such compound node by recursively analysing its children.
 
         Arguments:
-            index: delta index
-            node: compound AST node
-            dg: [DeltaGraph instance](delta_graphs.md#pymwp.delta_graphs)
+            index (int): Delta index.
+            node (pr.Compound): Compound AST node.
+            dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
