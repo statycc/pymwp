@@ -32,14 +32,13 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, evaluate: bool = True,
-            fin: bool = False, strict: bool = False) -> Result:
+    def run(ast: pr.AST, res: Result = None, fin: bool = False,
+            strict: bool = False) -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
             ast: parsed C source code AST
             res: pre-initialized result object
-            evaluate: do bound evaluation
             fin: always run to completion
             strict: require supported syntax
 
@@ -50,7 +49,7 @@ class Analysis:
         logger.debug("started analysis")
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
-            func_res = Analysis.func(f_node, not fin, evaluate, strict)
+            func_res = Analysis.func(f_node, not fin, strict)
             if func_res:
                 result.add_relation(func_res)
         result.on_end()
@@ -58,14 +57,13 @@ class Analysis:
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool) \
+    def func(node: pr.FuncDef, stop: bool, strict: bool) \
             -> Optional[FuncResult]:
         """Analyze a function.
 
         Arguments:
             node: parsed C source code function node
             stop: terminate if no bound exists
-            evaluate: do not calculate choices and evaluate bound
             strict: skip function if it contains unsupported syntax
 
         Returns:
@@ -114,7 +112,7 @@ class Analysis:
             relations.composition(rel_list)
 
         # evaluate choices + calculate a bound
-        if evaluate and not delta_infty:
+        if not delta_infty:
             choices = relations.first.eval(options, index)
             if not choices.infinite:
                 bound = Bound().calculate(
