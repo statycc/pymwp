@@ -456,6 +456,12 @@ class Choices:
 
         # change the remaining choices at each index to lists (not sets)
         # so the vectors can be saved to file
+        return Choices.to_choices(list(vectors))
+
+    @staticmethod
+    def to_choices(vectors: List[VECT]) -> CHOICES:
+        """Convert a list of vectors to CHOICES type.
+        This is a simple type conversion over the inner collection-types."""
         return [list([list(c) for c in v]) for v in vectors]
 
     @staticmethod
@@ -524,3 +530,23 @@ class Choices:
                      for av, bv in zip(a, b)])
         empty = next((True for x in tmp if len(x) == 0), False)
         return None if empty else tmp
+
+    @staticmethod
+    def intersection(c1: Choices, c2: Choices) -> Choices:
+        """Intersection of two choice vectors.
+
+        Intersection is a cross-product of non-empty vector intersections.
+        If the none of the vectors intersect, the resulting Choice is empty.
+
+        Arguments:
+            c1: First Choice vector.
+            c2: Second Choice vector.
+
+        Returns:
+              New Choices representing the intersection of the two arguments.
+        """
+        assert c1.index == c2.index
+        choices = Choices.to_choices([j for sub in [
+            [Choices.vect_intersection(v1, v2)
+             for v2 in c2.valid] for v1 in c1.valid] for j in sub if j])
+        return Choices(valid=choices, index=c1.index)
