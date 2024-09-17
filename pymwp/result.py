@@ -237,18 +237,30 @@ class FuncResult(Timeable, Serializable):
         return func
 
 
+class LoopResult(Timeable, Serializable):
+    def __init__(self, name: str):
+        super().__init__()
+        self.name: str = name
+
+    @property
+    def attrs(self) -> List[str]:
+        return ['name']
+
+
 class Result(Timeable, Serializable):
     """Captures analysis result and details about the analysis process.
 
     Attributes:
         program (Program): Information about analyzed C File.
         relations (Dict[str, FuncResult]): Dictionary of function results.
+        loops ([LoopResult]: List of analyzed loops.
     """
 
     def __init__(self):
         super().__init__()
         self.program: Program = Program()
         self.relations: Dict[str, FuncResult] = {}
+        self.loops = []
 
     @property
     def n_functions(self) -> int:
@@ -282,6 +294,9 @@ class Result(Timeable, Serializable):
             txt += f'{f.n_bounds:,}\n'
             txt += f'{Bound.show(f.bound)}'
         Result.pretty_print_result(txt)
+
+    def add_loop(self, loop_result: LoopResult):
+        self.loops.append(loop_result)
 
     @staticmethod
     def pretty_print_result(txt: str) -> None:
@@ -340,11 +355,12 @@ class Result(Timeable, Serializable):
             return self.relations[key]
         return self.relations
 
-    def log_result(self) -> None:
+    def log_result(self) -> Result:
         """Display here all interesting stats."""
         if self.n_functions == 0:
             logger.warning("Input C file contained no analyzable functions!")
         logger.info(f'Total time: {self.dur_s} s ({self.dur_ms} ms)')
+        return self
 
     def to_dict(self) -> dict:
         """JSON serialize a result object.
@@ -353,9 +369,12 @@ class Result(Timeable, Serializable):
             dict: dictionary representation.
         """
         result = super().to_dict()
-        rels = [(name, v.to_dict()) for (name, v) in self.relations.items()]
-        rest = {'program': self.program.to_dict(), 'relations': dict(rels)}
-        return {**result, **rest}
+        prog = {'program': self.program.to_dict()}
+        loop = {'loops': self.loops} if self.loops else {}
+        rest = {'relations': dict([
+            (name, v.to_dict()) for (name, v) in
+            self.relations.items()])} if self.relations else {}
+        return {**result, **prog, **loop, **rest}
 
     @staticmethod
     def from_dict(**kwargs) -> Result:
@@ -369,6 +388,9 @@ class Result(Timeable, Serializable):
         program = Result.try_get('program', **kwargs)
         if program:
             r.program = Program.from_dict(**program)
+        loops = Result.try_get('loops', **kwargs)
+        if loops:
+            r.loops = Program.from_dict(**loops)
         relations = Result.try_get('relations', **kwargs)
         if relations:
             for value in relations.values():

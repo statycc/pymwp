@@ -37,71 +37,56 @@ class Analysis:
         """Run MWP analysis on specified input file.
 
         Arguments:
-            ast: parsed C source code AST
-            res: pre-initialized result object
-            evaluate: do bound evaluation
-            fin: always run to completion
-            strict: require supported syntax
+            ast (pr.AST): parsed C source code AST
+            res (Result): pre-initialized result object
+            evaluate (bool): do bound evaluation
+            fin (bool): always run to completion
+            strict (bool): require supported syntax
 
         Returns:
             A `Result` object.
         """
-        result = res or Result()
+        result: Result = res or Result()
         logger.debug("started analysis")
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
-            func_res = Analysis.func(f_node, not fin, evaluate, strict)
-            if func_res:
-                result.add_relation(func_res)
-        result.on_end()
-        result.log_result()
+            if Analysis.syntax_check(f_node, strict):
+                func_res = Analysis.func(f_node, not fin, evaluate)
+                if func_res:
+                    func_res.func_code = pr.to_c(f_node, True)
+                    result.add_relation(func_res)
+        result.on_end().log_result()
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, evaluate: bool, strict: bool) \
-            -> Optional[FuncResult]:
+    def func(node: pr.FuncDef, stop: bool, evaluate: bool) -> FuncResult:
         """Analyze a function.
 
         Arguments:
-            node: parsed C source code function node
-            stop: terminate if no bound exists
-            evaluate: do not calculate choices and evaluate bound
-            strict: skip function if it contains unsupported syntax
+            node: Parsed C source code function node.
+            stop: Terminate if no bound exists.
+            evaluate: Do not calculate choices and evaluate bound.
 
         Returns:
-              Analysis result for provided function. When running strict
-              mode, the result will be None if function is not analyzable.
+              Analysis result for provided function.
         """
         assert pr.is_func(node)
         name = node.decl.name
         logger.info(f"Analyzing {name}")
-        result = FuncResult(name)
-
-        # preliminary syntax check
-        cover = Coverage(node).report()
-        if not cover.full and strict:
-            logger.info(f"{name} is not analyzable")
-            return None
-        if not cover.full:
-            cover.ast_mod()
-            logger.warning(f"{name} syntax was modified")
-            if len(node.body.block_items) == 0:
-                logger.warning("nothing left to analyze")
-                return None
-            result.func_code = pr.to_c(node, True)
+        result = FuncResult(name).on_start()
 
         # setup for function analysis
         index, options, choices = 0, [0, 1, 2], []
         evaluated, bound = False, None
         delta_infty, dg = False, DeltaGraph()
         variables = Variables(node).vars
-        total = len(node.body.block_items)
+        total, num_v = len(node.body.block_items), len(variables)
         relations = RelationList.identity(variables=variables)
-        logger.debug(f"{name} variables: {', '.join(variables)}")
+        show_vars = ', '.join(variables) if num_v <= 5 else num_v
+        logger.debug(f"{name} variables: {show_vars}")
         logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
-        result.on_start()
         for i, node in enumerate(node.body.block_items):
             logger.debug(f'computing relation...{i} of {total}')
             index, rel_list, delta_infty_ = Analysis \
@@ -141,6 +126,30 @@ class Analysis:
             result.choices = choices
         result.on_end()
         return result
+
+    @staticmethod
+    def syntax_check(node: pr.FuncDef, strict: bool) -> bool:
+        """Analyze function syntax and conditionally modify.
+
+        Arguments:
+            node (pr.FuncDef): AST node of a function.
+            strict (bool): When true, AST will not be modified.
+
+        Returns:
+            True if analysis can be performed and False otherwise.
+        """
+        name = node.decl.name
+        cover = Coverage(node).report()
+        if not cover.full and strict:
+            logger.info(f"{name} is not analyzable")
+            return False
+        if not cover.full:
+            cover.ast_mod()
+            logger.warning(f"{name} syntax was modified")
+            if len(node.body.block_items) == 0:
+                logger.warning("nothing left to analyze")
+                return False
+        return True
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
@@ -588,26 +597,24 @@ class LoopAnalysis(Analysis):
         result = Result()
         logger.debug("Starting loop analysis")
         result.on_start()
-        # todo: Analysis steps/notes
-        #   1. find functions, then find loops
-        #   2. analyze loop-only, otherwise same analysis steps
-        #      If nested, start with loop nest, then work up.
-        #   3. Always run to completion even if infinity
-        #   4. record a "LoopResult" (new type)
-        # todo: Evaluation steps
-        #   1. evaluate each analyzed loop as whole-matrix => bound exists?
-        #   2. By-variable eval: find upto w-bounds/variable.
-        #   3. Record all <= w bounds;
-        #      * if whole-matrix passes, safe to take any.
-        #      * otherwise make sure variable does not interfere with a
-        #        "bad" variable (0 in matrix).
+        for node in [f for f in ast if pr.is_func(f)]:
+            if Analysis.syntax_check(node, strict):
 
-        # Find top-level loops.
-        for f_node in [f for f in ast if pr.is_func(f)]:
-            # noinspection PyUnboundLocalVariable
-            # All the preprocessing steps here....
-            # LoopAnalysis.loop(loop)
-            pass
+                # todo: Analysis steps/notes
+                #   1. find loops
+                #   2. analyze loop-only, otherwise same analysis steps
+                #      If nested, start with loop nest, then work up.
+                #   3. Always run to completion even if infinity
+                #   4. record a "LoopResult" (new type)
+                # todo: Evaluation steps
+                #   1. evaluate whole-matrix => bound exists?
+                #   2. By-variable eval: find upto w-bounds/variable.
+                #   3. Record all <= w bounds;
+                #      * if whole-matrix passes, safe to take any.
+                #      * otherwise make sure variable does not interfere with a
+                #        "bad" variable (0 in matrix).
+
+                pass
         result.on_end()
         result.log_result()
         return result
