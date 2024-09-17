@@ -491,7 +491,6 @@ class Coverage(BaseAnalysis):
 
     def handler(self, node: Any, *args, **kwargs):
         """Make a list of uncovered nodes."""
-        print(node)
         self.omit.append(pr.to_c(node, compact=True))
         self.to_clear.append(kwargs['clear'])  # should always exist
 
@@ -582,7 +581,8 @@ class FindLoops(BaseAnalysis):
         self.loops: List[Union[pr.While, pr.DoWhile, pr.For]] = []
         self.recurse(node)
 
-    def handler(self, node: Any, *args, **kwargs) -> None:
+    def handler(self, node: Union[pr.While, pr.DoWhile, pr.For],
+                *args, **kwargs) -> None:
         """Handle AST nodes that meets some (abstract) criteria."""
         self.loops.append(node)
 

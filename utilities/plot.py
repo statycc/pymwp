@@ -198,6 +198,9 @@ class Plot:
 
         f1_writer.headers = t1_writer.headers = self.headers()
         f1_writer.value_matrix, _ = t1_values, bounds = self.build_matrix()
+        if not bounds:
+            print('Nothing to plot')
+            return
         f1_writer.dump(fn)  # write to file
 
         f2_writer.headers = ['#', 'bound']

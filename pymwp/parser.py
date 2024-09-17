@@ -22,7 +22,7 @@ import tempfile
 from abc import ABC, abstractmethod
 from logging import getLogger
 # noinspection PyPackageRequirements,PyProtectedMember
-from typing import Any, List
+from typing import Any, List, Type
 
 from pycparser import c_ast, parse_file, c_generator
 from pycparser_fake_libc import directory as fake_libc_dir
@@ -63,6 +63,11 @@ class ParserInterface(ABC):  # pragma: no cover
     def to_c(self, node: Any) -> str:
         """Translate node back to C code."""
         return ""
+
+    @property
+    def Node(self):
+        """Base type for an AST node."""
+        return None
 
     @property
     def ArrayDecl(self):
@@ -150,10 +155,6 @@ class ParserInterface(ABC):  # pragma: no cover
 
     @property
     def If(self):
-        return None
-
-    @property
-    def Node(self):
         return None
 
     @property
@@ -254,6 +255,10 @@ class PyCParser(ParserInterface):
         if compact:
             comm = re.sub(r"[\n\t\s]+", " ", comm).strip()
         return comm
+
+    @property
+    def Node(self):
+        return Type[c_ast.Node]
 
     @staticmethod
     def add_attr_x(text: str) -> str:
@@ -365,10 +370,6 @@ class PyCParser(ParserInterface):
     @property
     def If(self):
         return c_ast.If
-
-    @property
-    def Node(self):
-        return c_ast.Node
 
     @property
     def NodeVisitor(self):

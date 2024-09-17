@@ -248,7 +248,7 @@ class LoopResult(Timeable, Serializable):
 
     def __init__(
             self, func_name: str = None,
-            vars: Optional[List[str]] = None, ):
+            vars: Optional[List[str]] = None):
         super().__init__()
         self.func_name: str = func_name
         self.vars: List[str] = vars or []
@@ -414,7 +414,7 @@ class Result(Timeable, Serializable):
             r.program = Program.from_dict(**program)
         loops = Result.try_get('loops', **kwargs)
         if loops:
-            r.loops = Program.from_dict(**loops)
+            r.loops = [LoopResult.from_dict(**loop) for loop in loops]
         relations = Result.try_get('relations', **kwargs)
         if relations:
             for value in relations.values():

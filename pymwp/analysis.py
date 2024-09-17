@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple, Any
+from typing import List, Tuple, Union
 
 from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -32,19 +32,21 @@ logger = logging.getLogger(__name__)
 class Analysis:
     """MWP analysis implementation."""
 
+    CHOICE_DOMAIN = [0, 1, 2]
+
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, fin: bool = False,
+    def run(ast: pr.Node, res: Result = None, fin: bool = False,
             strict: bool = False, **kwargs) -> Result:
-        """Run MWP analysis on specified input file.
+        """Run MWP analysis on AST.
 
         Arguments:
-            ast: parsed C source code AST
-            res: pre-initialized result object
-            fin: always run to completion
-            strict: require supported syntax
+            ast (pr.Node): Parsed C source code AST Node.
+            res (Result): Pre-initialized result object.
+            fin (bool): Always run to completion.
+            strict (bool): Require supported syntax.
 
         Returns:
-            A `Result` object.
+            Analysis Result object.
         """
         result: Result = res or Result()
         logger.debug("started analysis")
@@ -74,40 +76,26 @@ class Analysis:
         result = FuncResult(name).on_start()
 
         # setup for function analysis
-        index, options, choices = 0, [0, 1, 2], []
-        evaluated, bound = False, None
-        delta_infty, dg = False, DeltaGraph()
-        variables = Variables(node).vars
-        total, num_v = len(node.body.block_items), len(variables)
+        variables, body = Variables(node).vars, node.body.block_items
         relations = RelationList.identity(variables=variables)
+        total, num_v = len(body), len(variables)
         show_vars = ', '.join(variables) if num_v <= 5 else num_v
         logger.debug(f"{name} variables: {show_vars}")
         logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
-        for i, node in enumerate(node.body.block_items):
-            logger.debug(f'computing relation...{i} of {total}')
-            index, rel_list, delta_infty_ = Analysis \
-                .compute_relation(index, node, dg)
-            delta_infty = delta_infty or delta_infty_  # cannot erase
-            if stop and delta_infty:
-                logger.debug('delta_graphs: infinite -> Exit now')
-                break
-            logger.debug(f'computing composition...{i} of {total}')
-            relations.composition(rel_list)
+        delta_infty, index = Analysis.body(relations, 0, body, stop)
 
         # evaluate choices + calculate a bound
+        evaluated, choices, bound = False, None, None
         if not delta_infty:
-            choices = relations.first.eval(options, index)
+            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
             if not choices.infinite:
                 bound = Bound().calculate(
                     relations.first.apply_choice(*choices.first))
             evaluated = True
-
         # infinite by delta graph or by choice
-        infinite = delta_infty or (
-                relations.first.variables and index > 0 and
-                evaluated and choices.infinite)
+        infinite = delta_infty or (evaluated and choices.infinite)
 
         # record results
         result.index = index
@@ -116,7 +104,8 @@ class Analysis:
         if not (infinite and stop):
             result.relation = relations.first
         if infinite and not stop:
-            var_choices = relations.first.var_eval(options, index)
+            var_choices = relations.first.var_eval(
+                Analysis.CHOICE_DOMAIN, index)
             result.inf_flows = relations.first.infty_pairs(
                 [v for v, c in var_choices.items() if c.infinite])
         if not infinite:
@@ -126,11 +115,39 @@ class Analysis:
         return result
 
     @staticmethod
-    def syntax_check(node: Any, strict: bool) -> bool:
+    def body(relations: RelationList, index: int, nodes: list[pr.Node],
+             stop: bool = True) -> Tuple[bool, int]:
+        """Analyze body commands.
+
+        Arguments:
+            relations (RelationList): initialized relation list
+            index (int): derivation index
+            nodes (list[pr.Node]): List of AST nodes to analyze
+            stop (bool): terminate early
+
+        Returns:
+            True if nodes lead to infinity by delta graph.
+        """
+        delta_infty, total = False, len(nodes)
+        dg = DeltaGraph()
+        for i, node in enumerate(nodes):
+            logger.debug(f'computing relation...{i} of {total}')
+            index, rel_list, delta_infty_ = Analysis \
+                .compute_relation(index, node, dg)
+            delta_infty = delta_infty or delta_infty_  # cannot erase
+            if stop and delta_infty:
+                logger.debug('delta_graphs: infinite -> Exit now')
+                break
+            logger.debug(f'computing composition...{i} of {total}')
+            relations.composition(rel_list)
+        return delta_infty, index
+
+    @staticmethod
+    def syntax_check(node: pr.Node, strict: bool) -> bool:
         """Analyze function syntax and conditionally modify.
 
         Arguments:
-            node (pr.FuncDef): AST node of a function.
+            node (pr.Node): An AST node.
             strict (bool): When true, AST will not be modified.
 
         Returns:
@@ -142,7 +159,7 @@ class Analysis:
             logger.info(f"{name} is not analyzable")
             return False
         if not cover.full:
-            cover.ast_mod()
+            cover.ast_mod()  # removes unsupported commands
             logger.warning(f"{name} syntax was modified")
         return True
 
@@ -590,55 +607,67 @@ class LoopAnalysis(Analysis):
 
     @staticmethod
     def run(ast: pr.AST, res: Result = None, strict: bool = False, **kwargs):
-        """Loop invariant analysis."""
-        result = Result()
-        logger.debug("Starting loop analysis")
+        """Run loop-invariant analysis.
+
+        Arguments:
+            ast (pr.Node): Parsed C source code AST Node.
+            res (Result): Pre-initialized result object.
+            strict (bool): Require supported syntax.
+
+        Returns:
+            Analysis Result object.
+        """
+        result = res or Result()
         result.on_start()
-        for node in [f for f in ast if pr.is_func(f)]:
-            # 1. find loops, nested loops are duplicated+lifted
-            func_loops = FindLoops(node).loops
-            logger.debug(f"Total analyzable loops: {len(func_loops)}")
-            for loop in func_loops:
-                # 2. check loop body statement syntax
+        logger.debug("Starting loop analysis")
+        for func in [f for f in ast if pr.is_func(f)]:
+            # 1. find loops: nested loops are duplicated+lifted
+            loops = FindLoops(func).loops
+            logger.debug(f"Total analyzable loops: {len(loops)}")
+            # todo: all of this can be done in parallel
+            for loop in loops:
+                # 2. check/fix loop body syntax
                 if Analysis.syntax_check(loop.stmt, strict):
                     # 3. analyze and record result
-                    result.add_loop(LoopAnalysis.loop(loop))
+                    loop_res = LoopAnalysis.loop(loop)
+                    loop_res.func_name = func.decl.name
+                    result.add_loop(loop_res)
         result.on_end()
         result.log_result()
         return result
 
     @staticmethod
-    def loop(node: pr.Node) -> LoopResult:
-        """Analyze the loop (possibly nested)."""
+    def loop(node: Union[pr.While, pr.DoWhile, pr.For]) -> LoopResult:
+        """Analyze the loop (possibly nested).
+
+        Arguments:
+            node: A loop AST node (for, while, or do...while).
+
+        Returns:
+            Loop analysis result.
+        """
+        assert pr.is_loop(node)
+        result = LoopResult().on_start()
 
         # setup for loop analysis
-        index, options, choices = 0, [0, 1, 2], []
         variables = Variables(node).vars
         relations = RelationList.identity(variables=variables)
-        delta_infty, dg = False, DeltaGraph()
-        evaluated = False
 
-        # loop body is a compound or standalone node
-        body = node.stmt.block_items if isinstance(
-            node.stmt, pr.Compound) else [node.stmt]
 
-        # Analysis steps
-        # analyze body commands, same steps as functions
-        # always run to completion even if infinity
-        for i, stmt in enumerate(body):
-            index, rel_list, delta_infty_ = \
-                LoopAnalysis.compute_relation(index, stmt, dg)
-            delta_infty = delta_infty or delta_infty_
-            relations.composition(rel_list)
+        # analyze body commands + always run to completion
+        infty, index = LoopAnalysis.body(relations, 0, [node], stop=False)
 
         # Evaluation steps
         # 1. Bound exists? => evaluate whole-matrix
-        if not delta_infty:
-            choices = relations.first.eval(options, index)
-            evaluated = True
-
+        choices = None
+        if not infty:
+            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
         # 2. By-variable eval: find upto w-bounds/variable.
-        by_var = relations.first.var_eval(options, index, POLY_MWP).items()
+        var_choice = relations.first.var_eval(
+            Analysis.CHOICE_DOMAIN, index, POLY_MWP).items()
+
+        print(infty, choices.valid if choices else 'No choice!')
+        print(var_choice)
 
         # todo: Evaluation steps
         #   3. Record all <= w bounds;
@@ -646,8 +675,7 @@ class LoopAnalysis(Analysis):
         #      * otherwise make sure variable does not interfere with a
         #        "bad" variable (0 in matrix).
 
-        print(delta_infty, choices.valid)
-        print(by_var, evaluated)
-
         # todo: Save results
-        return LoopResult()
+        result.vars = relations.first.variables
+        result.on_end()
+        return result
