@@ -89,6 +89,10 @@ class ParserInterface(ABC):  # pragma: no cover
         return None
 
     @property
+    def Case(self):
+        return None
+
+    @property
     def Cast(self):
         return None
 
@@ -113,7 +117,15 @@ class ParserInterface(ABC):  # pragma: no cover
         return None
 
     @property
+    def Default(self):
+        return None
+
+    @property
     def DoWhile(self):
+        return None
+
+    @property
+    def EmptyStatement(self):
         return None
 
     @property
@@ -228,7 +240,7 @@ class PyCParser(ParserInterface):
 
     def is_func(self, node: Any) -> bool:
         return isinstance(node, self.FuncDef) and \
-            hasattr(node, 'body') and node.body.block_items
+               hasattr(node, 'body') and node.body.block_items
 
     def is_loop(self, node: Any) -> bool:
         return (isinstance(node, self.While) or
@@ -291,6 +303,10 @@ class PyCParser(ParserInterface):
         return c_ast.Break
 
     @property
+    def Case(self):
+        return c_ast.Case
+
+    @property
     def Cast(self):
         return c_ast.Cast
 
@@ -315,12 +331,20 @@ class PyCParser(ParserInterface):
         return c_ast.DeclList
 
     @property
+    def Default(self):
+        return c_ast.Default
+
+    @property
     def DoWhile(self):
         return c_ast.DoWhile
 
     @property
     def ExprList(self):
         return c_ast.ExprList
+
+    @property
+    def EmptyStatement(self):
+        return c_ast.EmptyStatement
 
     @property
     def For(self):

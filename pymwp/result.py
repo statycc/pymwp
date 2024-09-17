@@ -237,14 +237,32 @@ class FuncResult(Timeable, Serializable):
         return func
 
 
+# noinspection PyShadowingBuiltins
 class LoopResult(Timeable, Serializable):
-    def __init__(self, name: str):
+    """Analysis result for loop.
+
+    Attributes:
+        func_name (str): Containing function name.
+        vars (List[str]): (optional) List of variables.
+    """
+
+    def __init__(
+            self, func_name: str = None,
+            vars: Optional[List[str]] = None, ):
         super().__init__()
-        self.name: str = name
+        self.func_name: str = func_name
+        self.vars: List[str] = vars or []
 
     @property
     def attrs(self) -> List[str]:
-        return ['name']
+        return ['func_name', 'vars']
+
+    @staticmethod
+    def from_dict(**kwargs) -> LoopResult:
+        """Deserialize a function result."""
+        result = LoopResult()
+        Serializable._from_dict(result, **kwargs)
+        return result
 
 
 class Result(Timeable, Serializable):
@@ -266,6 +284,11 @@ class Result(Timeable, Serializable):
     def n_functions(self) -> int:
         """Number of functions in analyzed program."""
         return len(self.relations.keys())
+
+    @property
+    def n_loops(self) -> int:
+        """Number of loops in analyzed program."""
+        return len(self.loops)
 
     @property
     def attrs(self) -> List[str]:
@@ -357,8 +380,8 @@ class Result(Timeable, Serializable):
 
     def log_result(self) -> Result:
         """Display here all interesting stats."""
-        if self.n_functions == 0:
-            logger.warning("Input C file contained no analyzable functions!")
+        if self.n_functions == 0 and self.n_loops == 0:
+            logger.warning("Nothing was analyzed")
         logger.info(f'Total time: {self.dur_s} s ({self.dur_ms} ms)')
         return self
 

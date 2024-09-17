@@ -17,9 +17,9 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
-from . import Coverage, Variables, COM_RES
+from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 # noinspection PyPep8Naming
 from .parser import Parser as pr
@@ -126,7 +126,7 @@ class Analysis:
         return result
 
     @staticmethod
-    def syntax_check(node: pr.FuncDef, strict: bool) -> bool:
+    def syntax_check(node: Any, strict: bool) -> bool:
         """Analyze function syntax and conditionally modify.
 
         Arguments:
@@ -136,7 +136,7 @@ class Analysis:
         Returns:
             True if analysis can be performed and False otherwise.
         """
-        name = node.decl.name
+        name = node.decl.name if pr.is_func(node) else 'node'
         cover = Coverage(node).report()
         if not cover.full and strict:
             logger.info(f"{name} is not analyzable")
@@ -144,9 +144,6 @@ class Analysis:
         if not cover.full:
             cover.ast_mod()
             logger.warning(f"{name} syntax was modified")
-            if len(node.body.block_items) == 0:
-                logger.warning("nothing left to analyze")
-                return False
         return True
 
     @staticmethod
@@ -596,23 +593,26 @@ class LoopAnalysis(Analysis):
         logger.debug("Starting loop analysis")
         result.on_start()
         for node in [f for f in ast if pr.is_func(f)]:
-            if Analysis.syntax_check(node, strict):
+            func_loops = FindLoops(node).loops
+            logger.debug(f"Total analyzable loops: {len(func_loops)}")
+            for loop in func_loops:
+                if Analysis.syntax_check(loop.stmt, strict):
+                    print(pr.to_c(loop))
 
-                # todo: Analysis steps/notes
-                #   1. find loops
-                #   2. analyze loop-only, otherwise same analysis steps
-                #      If nested, start with loop nest, then work up.
-                #   3. Always run to completion even if infinity
-                #   4. record a "LoopResult" (new type)
-                # todo: Evaluation steps
-                #   1. evaluate whole-matrix => bound exists?
-                #   2. By-variable eval: find upto w-bounds/variable.
-                #   3. Record all <= w bounds;
-                #      * if whole-matrix passes, safe to take any.
-                #      * otherwise make sure variable does not interfere with a
-                #        "bad" variable (0 in matrix).
+            # todo: Analysis steps/notes
+            #   1. find loops
+            #   2. analyze loop-only, otherwise same analysis steps
+            #      If nested, start with loop nest, then work up.
+            #   3. Always run to completion even if infinity
+            #   4. record a "LoopResult" (new type)
+            # todo: Evaluation steps
+            #   1. evaluate whole-matrix => bound exists?
+            #   2. By-variable eval: find upto w-bounds/variable.
+            #   3. Record all <= w bounds;
+            #      * if whole-matrix passes, safe to take any.
+            #      * otherwise make sure variable does not interfere with a
+            #        "bad" variable (0 in matrix).
 
-                pass
         result.on_end()
         result.log_result()
         return result

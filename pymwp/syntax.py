@@ -22,7 +22,7 @@ import logging
 from abc import ABC, abstractmethod
 from collections import Counter
 from copy import deepcopy
-from typing import List, Any, Callable, Tuple, Optional
+from typing import List, Any, Callable, Tuple, Optional, Union
 
 from .parser import Parser as pr
 
@@ -71,8 +71,12 @@ class BaseAnalysis(ABC):
             return self.for_(node, *args, **kwargs)
         if isinstance(node, pr.ArrayRef):
             return self.array_ref(node, *args, **kwargs)
+        if isinstance(node, pr.Case):
+            return self.case(node, *args, **kwargs)
         if isinstance(node, pr.Cast):
             return self.cast(node, *args, **kwargs)
+        if isinstance(node, pr.Default):
+            return self.default_(node, *args, **kwargs)
         if isinstance(node, pr.TernaryOp):
             return self.ternary(node, *args, **kwargs)
         if isinstance(node, pr.Return):
@@ -91,6 +95,8 @@ class BaseAnalysis(ABC):
             return self.switch_(node, *args, **kwargs)
         if isinstance(node, pr.ParamList):
             return self.param_list(node, *args, **kwargs)
+        if isinstance(node, pr.EmptyStatement):
+            return self.empty(node, *args, **kwargs)
         self.handler(node, *args, **kwargs)
 
     def _recurse_attr(self, node: Any, attr: str, *args, **kwargs) -> None:
@@ -146,6 +152,9 @@ class BaseAnalysis(ABC):
     def break_(self, node: pr.Break, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
+    def case(self, node: pr.Case, *args, **kwargs):
+        self._iter_attr(node, 'stmts', *args, **kwargs)
+
     def cast(self, node: pr.Cast, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
@@ -164,8 +173,14 @@ class BaseAnalysis(ABC):
     def decl_list(self, node: pr.DeclList, *args, **kwargs):
         self._iter_attr(node, 'decls', *args, **kwargs)
 
+    def default_(self, node: pr.Default, *args, **kwargs):
+        self._iter_attr(node, 'stmts', *args, **kwargs)
+
     def do_while(self, node: pr.DoWhile, *args, **kwargs):
         self.handler(node, *args, **kwargs)
+
+    def empty(self, node: pr.EmptyStatement, *args, **kwargs):
+        return
 
     def expr_list(self, node: pr.ExprList, *args, **kwargs):
         self._iter_attr(node, 'exprs', *args, **kwargs)
@@ -277,7 +292,8 @@ class Variables(BaseAnalysis):
         self._recurse_attr(node, 'expr', *args, **kwargs)
 
     def switch_(self, node: pr.Switch, *args, **kwargs):
-        return  # uncovered anyway
+        self._recurse_attr(node, 'cond', *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def ternary(self, node: pr.TernaryOp, *args, **kwargs):
         self._recurse_attr(node, 'cond', *args, **kwargs)
@@ -349,8 +365,7 @@ class Coverage(BaseAnalysis):
     Attributes:
         node(Any): AST node.
         omit(List[str]): List of _unsupported commands.
-        to_clear(List[Callable]): Anonymous functions to remove
-            _unsupported commands.
+        to_clear(List[Callable]): Functions to clear unsupported syntax.
     """
 
     def __init__(self, node: Any):
@@ -476,6 +491,7 @@ class Coverage(BaseAnalysis):
 
     def handler(self, node: Any, *args, **kwargs):
         """Make a list of uncovered nodes."""
+        print(node)
         self.omit.append(pr.to_c(node, compact=True))
         self.to_clear.append(kwargs['clear'])  # should always exist
 
@@ -552,4 +568,101 @@ class Coverage(BaseAnalysis):
             else self._recurse_attr(node, 'expr', *args, **kwargs)
 
     def while_(self, node: pr.While, *args, **kwargs):
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+
+class FindLoops(BaseAnalysis):
+    """Finds all loop nodes in an AST.
+
+    Attributes:
+        loops (List[Union[pr.While, pr.DoWhile, pr.For]]): Loop nodes.
+    """
+
+    def __init__(self, node: Any):
+        self.loops: List[Union[pr.While, pr.DoWhile, pr.For]] = []
+        self.recurse(node)
+
+    def handler(self, node: Any, *args, **kwargs) -> None:
+        """Handle AST nodes that meets some (abstract) criteria."""
+        self.loops.append(node)
+
+    def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
+        return
+
+    def assert_(self, node: pr.Assert, *args, **kwargs):
+        return
+
+    def assign(self, node: pr.Assignment, *args, **kwargs):
+        return
+
+    def binop(self, node: pr.BinaryOp, *args, **kwargs):
+        return
+
+    def break_(self, node: pr.Break, *args, **kwargs):
+        return
+
+    def cast(self, node: pr.Cast, *args, **kwargs):
+        return
+
+    def constant(self, node: pr.Constant, *args, **kwargs):
+        return
+
+    def continue_(self, node: pr.Continue, *args, **kwargs):
+        return
+
+    def decl(self, node: pr.Decl, *args, **kwargs):
+        return
+
+    def decl_list(self, node: pr.DeclList, *args, **kwargs):
+        return
+
+    def do_while(self, node: pr.DoWhile, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def expr_list(self, node: pr.ExprList, *args, **kwargs):
+        return
+
+    def for_(self, node: pr.For, *args, **kwargs):
+        ok_form, _ = Coverage.loop_compat(node)
+        if not ok_form:
+            node_ = deepcopy(node)
+            node_.stmt = None
+            desc = pr.to_c(node_).strip()
+            desc = desc if len(desc) < 35 else desc[:35] + '…'
+            logger.debug(f'Unsupported form: {desc}')
+        else:
+            self.handler(node, *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def func_call(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
+    def func_def(self, node: pr.FuncDef, *args, **kwargs):
+        self._recurse_attr(node, 'body', *args, **kwargs)
+
+    def id_(self, node: pr.ID, *args, **kwargs):
+        return
+
+    def if_(self, node: pr.If, *args, **kwargs):
+        self._recurse_attr(node, 'iftrue', *args, **kwargs)
+        self._recurse_attr(node, 'iffalse', *args, **kwargs)
+
+    def param_list(self, node: pr.ParamList, *args, **kwargs):
+        return
+
+    def return_(self, node: pr.Return, *args, **kwargs):
+        return
+
+    def switch_(self, node: pr.Switch, *args, **kwargs):
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def ternary(self, node: pr.TernaryOp, *args, **kwargs):
+        return
+
+    def unary(self, node: pr.UnaryOp, *args, **kwargs):
+        return
+
+    def while_(self, node: pr.While, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
