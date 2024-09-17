@@ -354,7 +354,7 @@ class Variables(BaseAnalysis):
         info = [('maybe', loop_vars), ('iter', iters), ('decl', decls),
                 ('guard', loop_x), ('body', body)]
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
-        logger.debug(f"loop variables\n  {', '.join(info)}")
+        logger.debug(f"for-loop variables\n  {', '.join(info)}")
         return loop_x, body
 
 

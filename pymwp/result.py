@@ -393,7 +393,8 @@ class Result(Timeable, Serializable):
         """
         result = super().to_dict()
         prog = {'program': self.program.to_dict()}
-        loop = {'loops': self.loops} if self.loops else {}
+        loop = {'loops': [lp.to_dict() for lp in self.loops]} \
+            if self.loops else {}
         rest = {'relations': dict([
             (name, v.to_dict()) for (name, v) in
             self.relations.items()])} if self.relations else {}

@@ -23,7 +23,8 @@ from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 # noinspection PyPep8Naming
 from .parser import Parser as pr
-from .result import FuncResult
+from .result import FuncResult, LoopResult
+from .semiring import POLY_MWP
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +52,8 @@ class Analysis:
         for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
                 func_res = Analysis.func(f_node, not fin)
-                if func_res:
-                    func_res.func_code = pr.to_c(f_node, True)
-                    result.add_relation(func_res)
+                func_res.func_code = pr.to_c(f_node, True)
+                result.add_relation(func_res)
         result.on_end().log_result()
         return result
 
@@ -194,6 +194,8 @@ class Analysis:
         if (isinstance(node, pr.FuncCall)
                 and isinstance(node.name, pr.ID)
                 and node.name.name == 'assert'):
+            return index, RelationList(), False
+        if isinstance(node, pr.EmptyStatement):
             return index, RelationList(), False
 
         Analysis._unsupported(pr.to_c(node))
@@ -593,31 +595,59 @@ class LoopAnalysis(Analysis):
         logger.debug("Starting loop analysis")
         result.on_start()
         for node in [f for f in ast if pr.is_func(f)]:
+            # 1. find loops, nested loops are duplicated+lifted
             func_loops = FindLoops(node).loops
             logger.debug(f"Total analyzable loops: {len(func_loops)}")
             for loop in func_loops:
+                # 2. check loop body statement syntax
                 if Analysis.syntax_check(loop.stmt, strict):
-                    print(pr.to_c(loop))
-
-            # todo: Analysis steps/notes
-            #   1. find loops
-            #   2. analyze loop-only, otherwise same analysis steps
-            #      If nested, start with loop nest, then work up.
-            #   3. Always run to completion even if infinity
-            #   4. record a "LoopResult" (new type)
-            # todo: Evaluation steps
-            #   1. evaluate whole-matrix => bound exists?
-            #   2. By-variable eval: find upto w-bounds/variable.
-            #   3. Record all <= w bounds;
-            #      * if whole-matrix passes, safe to take any.
-            #      * otherwise make sure variable does not interfere with a
-            #        "bad" variable (0 in matrix).
-
+                    # 3. analyze and record result
+                    result.add_loop(LoopAnalysis.loop(loop))
         result.on_end()
         result.log_result()
         return result
 
     @staticmethod
-    def loop(node: pr.Node):
+    def loop(node: pr.Node) -> LoopResult:
         """Analyze the loop (possibly nested)."""
-        print("loop!", pr.to_c(node))
+
+        # setup for loop analysis
+        index, options, choices = 0, [0, 1, 2], []
+        variables = Variables(node).vars
+        relations = RelationList.identity(variables=variables)
+        delta_infty, dg = False, DeltaGraph()
+        evaluated = False
+
+        # loop body is a compound or standalone node
+        body = node.stmt.block_items if isinstance(
+            node.stmt, pr.Compound) else [node.stmt]
+
+        # Analysis steps
+        # analyze body commands, same steps as functions
+        # always run to completion even if infinity
+        for i, stmt in enumerate(body):
+            index, rel_list, delta_infty_ = \
+                LoopAnalysis.compute_relation(index, stmt, dg)
+            delta_infty = delta_infty or delta_infty_
+            relations.composition(rel_list)
+
+        # Evaluation steps
+        # 1. Bound exists? => evaluate whole-matrix
+        if not delta_infty:
+            choices = relations.first.eval(options, index)
+            evaluated = True
+
+        # 2. By-variable eval: find upto w-bounds/variable.
+        by_var = relations.first.var_eval(options, index, POLY_MWP).items()
+
+        # todo: Evaluation steps
+        #   3. Record all <= w bounds;
+        #      * if whole-matrix passes, safe to take any.
+        #      * otherwise make sure variable does not interfere with a
+        #        "bad" variable (0 in matrix).
+
+        print(delta_infty, choices.valid)
+        print(by_var, evaluated)
+
+        # todo: Save results
+        return LoopResult()
