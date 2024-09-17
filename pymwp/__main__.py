@@ -77,8 +77,7 @@ def main():
 
     analyzer: Type[Union[Analysis, LoopAnalysis]] = \
         LoopAnalysis if args.loop else Analysis
-    result = analyzer.run(ast, result, eval=not args.no_eval,
-                          fin=args.fin, silent=args.strict)
+    result = analyzer.run(ast, result, args.fin, args.strict)
 
     if not args.no_save:
         file_out = args.out or default_file_out(args.input_file)
@@ -130,11 +129,6 @@ def __parse_args(
         "--no_save",
         action='store_true',
         help="do not write analysis result to a file"
-    )
-    parser.add_argument(
-        "--no_eval",
-        action='store_true',
-        help="skip evaluation"
     )
     parser.add_argument(
         "--no_time",

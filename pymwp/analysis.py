@@ -32,16 +32,15 @@ class Analysis:
     """MWP analysis implementation."""
 
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, evaluate: bool = True,
-            fin: bool = False, strict: bool = False, **kwargs) -> Result:
+    def run(ast: pr.AST, res: Result = None, fin: bool = False,
+            strict: bool = False, **kwargs) -> Result:
         """Run MWP analysis on specified input file.
 
         Arguments:
-            ast (pr.AST): parsed C source code AST
-            res (Result): pre-initialized result object
-            evaluate (bool): do bound evaluation
-            fin (bool): always run to completion
-            strict (bool): require supported syntax
+            ast: parsed C source code AST
+            res: pre-initialized result object
+            fin: always run to completion
+            strict: require supported syntax
 
         Returns:
             A `Result` object.
@@ -51,7 +50,7 @@ class Analysis:
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
-                func_res = Analysis.func(f_node, not fin, evaluate)
+                func_res = Analysis.func(f_node, not fin)
                 if func_res:
                     func_res.func_code = pr.to_c(f_node, True)
                     result.add_relation(func_res)
@@ -59,13 +58,12 @@ class Analysis:
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, evaluate: bool) -> FuncResult:
+    def func(node: pr.FuncDef, stop: bool) -> FuncResult:
         """Analyze a function.
 
         Arguments:
-            node: Parsed C source code function node.
-            stop: Terminate if no bound exists.
-            evaluate: Do not calculate choices and evaluate bound.
+            node: parsed C source code function node
+            stop: terminate if no bound exists
 
         Returns:
               Analysis result for provided function.
@@ -99,7 +97,7 @@ class Analysis:
             relations.composition(rel_list)
 
         # evaluate choices + calculate a bound
-        if evaluate and not delta_infty:
+        if not delta_infty:
             choices = relations.first.eval(options, index)
             if not choices.infinite:
                 bound = Bound().calculate(
