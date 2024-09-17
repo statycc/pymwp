@@ -244,18 +244,21 @@ class LoopResult(Timeable, Serializable):
     Attributes:
         func_name (str): Containing function name.
         vars (List[str]): (optional) List of variables.
+        loop_code (str): the analyzed loop.
     """
 
     def __init__(
             self, func_name: str = None,
-            vars: Optional[List[str]] = None):
+            vars: Optional[List[str]] = None,
+            loop_code: str = None):
         super().__init__()
         self.func_name: str = func_name
         self.vars: List[str] = vars or []
+        self.loop_code: str = loop_code
 
     @property
     def attrs(self) -> List[str]:
-        return ['func_name', 'vars']
+        return ['func_name', 'vars', 'loop_code']
 
     @staticmethod
     def from_dict(**kwargs) -> LoopResult:

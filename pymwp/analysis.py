@@ -84,7 +84,7 @@ class Analysis:
         logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
-        delta_infty, index = Analysis.body(relations, 0, body, stop)
+        delta_infty, index = Analysis.cmds(relations, 0, body, stop)
 
         # evaluate choices + calculate a bound
         evaluated, choices, bound = False, None, None
@@ -115,21 +115,20 @@ class Analysis:
         return result
 
     @staticmethod
-    def body(relations: RelationList, index: int, nodes: list[pr.Node],
+    def cmds(relations: RelationList, index: int, nodes: list[pr.Node],
              stop: bool = True) -> Tuple[bool, int]:
-        """Analyze body commands.
+        """Analyze some list of commands, typically body block statements.
 
         Arguments:
-            relations (RelationList): initialized relation list
-            index (int): derivation index
-            nodes (list[pr.Node]): List of AST nodes to analyze
-            stop (bool): terminate early
+            relations (RelationList): Initialized relation list.
+            index (int): Derivation index.
+            nodes (list[pr.Node]): List of AST nodes to analyze.
+            stop (bool): Set True to terminate early.
 
         Returns:
             True if nodes lead to infinity by delta graph.
         """
-        delta_infty, total = False, len(nodes)
-        dg = DeltaGraph()
+        delta_infty, total, dg = False, len(nodes), DeltaGraph()
         for i, node in enumerate(nodes):
             logger.debug(f'computing relation...{i} of {total}')
             index, rel_list, delta_infty_ = Analysis \
@@ -652,30 +651,32 @@ class LoopAnalysis(Analysis):
         # setup for loop analysis
         variables = Variables(node).vars
         relations = RelationList.identity(variables=variables)
+        # analyze body commands, always run to completion
+        infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
-
-        # analyze body commands + always run to completion
-        infty, index = LoopAnalysis.body(relations, 0, [node], stop=False)
-
-        # Evaluation steps
+        # Evaluation
         # 1. Bound exists? => evaluate whole-matrix
-        choices = None
-        if not infty:
-            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
+        choices = None if infty else \
+            relations.first.eval(Analysis.CHOICE_DOMAIN, index)
         # 2. By-variable eval: find upto w-bounds/variable.
         var_choice = relations.first.var_eval(
             Analysis.CHOICE_DOMAIN, index, POLY_MWP).items()
 
-        print(infty, choices.valid if choices else 'No choice!')
-        print(var_choice)
+        fst_ok = next((c for _, c in var_choice if not c.infinite), None)
+        if fst_ok:
+            print(relations.first.apply_choice(*fst_ok.first))
 
-        # todo: Evaluation steps
-        #   3. Record all <= w bounds;
+        print(infty, choices.valid if choices else 'No choice!')
+        print('\n'.join([f'{k}, {v.valid} {v.infinite}'
+                         for k, v in var_choice]))
+
+        #   todo: 3. Record all <= w bounds;
         #      * if whole-matrix passes, safe to take any.
         #      * otherwise make sure variable does not interfere with a
         #        "bad" variable (0 in matrix).
 
         # todo: Save results
         result.vars = relations.first.variables
+        result.loop_code = pr.to_c(node)
         result.on_end()
         return result
