@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 from . import Coverage, Variables, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -589,7 +589,7 @@ class Analysis:
 
 
 class LoopAnalysis(Analysis):
-    """Specialized loop analysis."""
+    """MWP analysis for loops."""
 
     @staticmethod
     def run(ast: pr.AST, res: Result = None, strict: bool = False, **kwargs):

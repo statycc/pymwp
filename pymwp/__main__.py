@@ -142,19 +142,19 @@ def __parse_args(
         help="display log without timestamps"
     )
     parser.add_argument(
-        "--fin",
-        action='store_true',
-        help="ensure analysis completion in all cases"
-    )
-    parser.add_argument(
         "--loop",
         action='store_true',
         help="run loop analysis"
     )
     parser.add_argument(
+        "--fin",
+        action='store_true',
+        help="ensure analysis completion in all cases"
+    )
+    parser.add_argument(
         "--strict",
         action='store_true',
-        help="require full syntax coverage to analyze"
+        help="require full syntax compliance to analyze"
     )
     parser.add_argument(
         "--logfile",

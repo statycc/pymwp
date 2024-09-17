@@ -292,14 +292,14 @@ class Variables(BaseAnalysis):
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     @staticmethod
-    def loop_control(node: pr.For) -> Tuple[List[str], List[str]]:
+    def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
         """Find variables in a for loop control block.
 
         Arguments:
             node: for-loop node.
 
         Returns:
-            Two lists of variables: (loop controls, body variables).
+            Two lists of variables: (loop guard, body variables).
         """
         iters, decls, srcs = [], [], []
 
@@ -330,15 +330,15 @@ class Variables(BaseAnalysis):
         nxt = Variables(node.next).vars
         iters = list(set(iters) | set(nxt))
 
-        # control expr + source-vars from initialization
+        # conditional expr + source-vars from init
         loop_vars = list(set(conds) | set(srcs))
         # loop_vars - declarations - iterators
         loop_x = list(set(loop_vars) - set(decls) - set(iters))
 
-        info = [('iters', iters), ('decl', decls), ('maybe', loop_vars),
-                ('control', loop_x), ('\n  body', body)]
-        info = [f"{lbl}: {', '.join(v) or '?'}" for lbl, v in info]
-        logger.debug(f"loop variables\n  {'; '.join(info)}")
+        info = [('maybe', loop_vars), ('iter', iters), ('decl', decls),
+                ('guard', loop_x), ('body', body)]
+        info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
+        logger.debug(f"loop variables\n  {', '.join(info)}")
         return loop_x, body
 
 
@@ -462,11 +462,11 @@ class Coverage(BaseAnalysis):
                 False. The second is the name of iteration variable `X`,
                 possibly `None`.
         """
-        loop_x, body = Variables.loop_control(node)
-        if len(loop_x) != 1:  # exactly one control variable
+        loop_x, body = Variables.loop_guard(node)
+        if len(loop_x) != 1:  # exactly one guard variable
             logger.debug(
-                f"Too many loop control variables: ({', '.join(loop_x)})"
-                if len(loop_x) > 1 else "Unknown loop control variable")
+                f"Too many loop guard variables: ({', '.join(loop_x)})"
+                if len(loop_x) > 1 else "Unknown loop guard variable")
             return False, None
         x_var = loop_x[0]
         if x_var in body:
