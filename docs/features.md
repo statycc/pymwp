@@ -45,7 +45,7 @@ Analysis will bypass any unsupported statement and raises a warning.
 | **Arrays**                                           |   ⬜   |                                             |      
 | **Header files inclusion**                           |  🟩   |                                             |      
 | **Comments** (single-line, delimited)                |  🟩   | `// comment`, `/* comment */`               |
-| **Assert-macro**[^1]                                 |  🟩   | `assert (x == y)`                           |
+| **Assume and Assert-macros**[^1]                     |  🟩   | `assert (x == y)`                           |
 
 [^1]: Added in version > 0.4.2
 [^2]: Excludes unary `&` address-of operator.

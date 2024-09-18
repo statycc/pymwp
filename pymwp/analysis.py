@@ -208,7 +208,8 @@ class Analysis:
             return index, RelationList(), False
         if (isinstance(node, pr.FuncCall)
                 and isinstance(node.name, pr.ID)
-                and node.name.name == 'assert'):
+                and (node.name.name == 'assert' or
+                     node.name.name == 'assume')):
             return index, RelationList(), False
         if isinstance(node, pr.EmptyStatement):
             return index, RelationList(), False

@@ -88,6 +88,8 @@ class BaseAnalysis(ABC):
         if isinstance(node, pr.FuncCall):
             if isinstance(node.name, pr.ID) and node.name.name == 'assert':
                 return self.assert_(node, *args, **kwargs)
+            if isinstance(node.name, pr.ID) and node.name.name == 'assume':
+                return self.assume_(node, *args, **kwargs)
             return self.func_call(node, *args, **kwargs)
         if isinstance(node, pr.FuncDef):
             return self.func_def(node, *args, **kwargs)
@@ -140,7 +142,10 @@ class BaseAnalysis(ABC):
     def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
-    def assert_(self, node: pr.Assert, *args, **kwargs):
+    def assert_(self, node: pr.FuncCall, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
+
+    def assume_(self, node: pr.FuncCall, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
     def assign(self, node: pr.Assignment, *args, **kwargs):
@@ -240,6 +245,9 @@ class Variables(BaseAnalysis):
         self._recurse_attr(node, 'subscript', *args, **kwargs)
 
     def assert_(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
+    def assume_(self, node: pr.FuncCall, *args, **kwargs):
         return
 
     def assign(self, node: pr.Assignment, *args, **kwargs):
@@ -518,6 +526,9 @@ class Coverage(BaseAnalysis):
     def assert_(self, node: pr.FuncCall, *args, **kwargs):
         return
 
+    def assume_(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
     def assign(self, node: pr.Assignment, *args, **kwargs):
         if node.op != "=":  # only = is an allowed operator
             return self.handler(node, *args, **kwargs)
@@ -604,7 +615,10 @@ class FindLoops(BaseAnalysis):
     def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
         return
 
-    def assert_(self, node: pr.Assert, *args, **kwargs):
+    def assert_(self, node: pr.FuncCall, *args, **kwargs):
+        return
+
+    def assume_(self, node: pr.FuncCall, *args, **kwargs):
         return
 
     def assign(self, node: pr.Assignment, *args, **kwargs):
