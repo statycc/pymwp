@@ -633,7 +633,6 @@ class LoopAnalysis(Analysis):
                      LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
             for loop in loops:
-                # analyze and record result
                 loop_res = LoopAnalysis.loop(loop)
                 loop_res.func_name = f_name
                 result.add_loop(loop_res)
@@ -668,7 +667,7 @@ class LoopAnalysis(Analysis):
                     relations.first, index, v), variables)))
         else:
             result.variables = LoopAnalysis.maybe_result(
-                relations.first, index, variables)
+                relations.first, index)
 
         # Save results
         result.loop_code = pr.to_c(node)
@@ -691,11 +690,22 @@ class LoopAnalysis(Analysis):
 
     @staticmethod
     def get_result(relation: Relation, index: int, v_name: str) -> VResult:
-        """Find variable bounds when known to exist."""
+        """Find variable bounds when known to exist.
+
+        Arguments:
+            relation (Relation): Relation object.
+            index (int): Degree of analysis choice.
+            v_name (str): Name of variable to evaluate.
+
+        Returns:
+            Evaluation result for identified variable.
+        """
         result = VResult(v_name)
         options = (('is_m', (WEAK_MWP, POLY_MWP)),
                    ('is_w', (POLY_MWP,)),
                    ('is_p', ()))
+        # take the "least bound-choice"
+        # e.g., choice that produces only 0/m < some w < some p
         for attr, scalars in options:
             choices = relation.var_eval(
                 Analysis.DOMAIN, index, v_name, *scalars)
@@ -709,9 +719,17 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def maybe_result(relation: Relation, index: int, variables: List[str]) \
-            -> dict[str, VResult]:
-        """Analyze variable bounds when something is known to fail."""
+    def maybe_result(relation: Relation, index: int) -> dict[str, VResult]:
+        """Evaluate variables when some variables are known to fail.
+
+         Arguments:
+            relation (Relation): Relation object.
+            index (int): Degree of analysis choice.
+
+        Returns:
+            Dictionary of results, for each variable in relation.
+        """
+        variables = relation.variables
         p_bounds = dict(zip(variables, map(lambda v: relation.var_eval(
             Analysis.DOMAIN, index, v), variables)))
         fail = [v for v, c in p_bounds.items() if c.infinite]
