@@ -22,7 +22,7 @@ import logging
 import time
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Union, List, Any
+from typing import Optional, Dict, Union, List, Any, Callable
 
 from pymwp import Relation, Bound, MwpBound, Choices
 from .matrix import decode
@@ -192,6 +192,22 @@ class FuncResult(Timeable, Serializable):
         self.index: int = index
         self.func_code: str = func_code
 
+    def __str__(self):
+        if not self.infinite and not self.bound:
+            return 'Some bound exists'
+        txt = f'function: {self.name}'
+        txt += f' • time: {self.dur_ms:,} ms\n'
+        txt += f'variables: {len(self.vars)}'
+        txt += ' • num-bounds: '
+        if self.infinite:
+            txt += '0 (infinite)'
+            if self.inf_flows:
+                txt += f'\nProblematic flows: {self.inf_flows}'
+        else:
+            txt += f'{self.n_bounds:,}\n'
+            txt += f'{Bound.show(self.bound)}'
+        return txt
+
     @property
     def n_vars(self) -> int:
         """Number of variables."""
@@ -254,9 +270,49 @@ class LoopResult(Timeable, Serializable):
         self.loop_code: str = loop_code
         self.variables: Dict[str, VResult] = {}
 
+    def __str__(self):
+        bounds = f' {Bound.LAND} '.join(
+            [res.bound.poly(v) for v, res in
+             self.variables.items() if res.bound])
+        txt = f'loop: {self.loop_desc}'
+        txt += f'\nvariables: {len(self.variables)}'
+        txt += f' • time: {self.dur_ms:,} ms'
+        txt += f'\nlinear: {self.linear}'
+        txt += f'\nindependent: {self.weak}'
+        txt += f'\npolynomial: {self.poly}'
+        txt += f'\nother: {self.exp}'
+        txt += f'\n{bounds}'
+        return txt
+
     @property
     def attrs(self) -> List[str]:
         return 'func_name,start_time,end_time,loop_code'.split(',')
+
+    @property
+    def loop_desc(self):
+        header = self.loop_code.split('\n')[:1][0].strip()
+        return (header[:40] if len(header) > 40 else header) + '…'
+
+    def _v_list(self, cond: Callable[[VResult], bool]):
+        """Make a list of variables satisfying condition."""
+        items = [v for v, r in self.variables.items() if cond(r)]
+        return ", ".join(items) if items else '—'
+
+    @property
+    def linear(self):
+        return self._v_list(lambda r: r.is_m)
+
+    @property
+    def weak(self):
+        return self._v_list(lambda r: r.is_w and not r.is_m)
+
+    @property
+    def poly(self):
+        return self._v_list(lambda r: r.is_p and not r.is_w)
+
+    @property
+    def exp(self):
+        return self._v_list(lambda r: r.exponential)
 
     def to_dict(self) -> dict:
         """Serialize a function result."""
@@ -287,7 +343,7 @@ class VResult(Serializable):
         is_m (bool): Has maximal linear bound.
         is_w (bool): Has weak polynomial bound.
         is_p (bool): Has polynomial bound.
-        bound (Optional[Bound]): A bound (if exists).
+        bound (Optional[MwpBound]): A bound (if exists).
         choices (Optional[Choice]): Choice for bound.
     """
 
@@ -403,30 +459,14 @@ class Result(Timeable, Serializable):
         return ['start_time', 'end_time']
 
     def add_relation(self, func_result: FuncResult) -> None:
-        """Appends function analysis outcome to result.
+        """Appends function analysis to result."""
+        self.relations[func_result.name] = func_result
+        Result.pretty_print_result(str(func_result))
 
-        Attributes:
-            func_result: function analysis to append to Result.
-        """
-        self.relations[func_result.name] = f = func_result
-        if not f.infinite and not f.bound:
-            logger.info('Some bound exists')
-            return
-        txt = f'function: {f.name}'
-        txt += f' • time: {func_result.dur_ms:,} ms\n'
-        txt += f'variables: {len(f.vars)}'
-        txt += ' • num-bounds: '
-        if f.infinite:
-            txt += '0 (infinite)'
-            if f.inf_flows:
-                txt += f'\nProblematic flows: {f.inf_flows}'
-        else:
-            txt += f'{f.n_bounds:,}\n'
-            txt += f'{Bound.show(f.bound)}'
-        Result.pretty_print_result(txt)
-
-    def add_loop(self, loop_result: LoopResult):
+    def add_loop(self, loop_result: LoopResult) -> None:
+        """Append loop analysis to result."""
         self.loops.append(loop_result)
+        Result.pretty_print_result(str(loop_result))
 
     @staticmethod
     def pretty_print_result(txt: str) -> None:
