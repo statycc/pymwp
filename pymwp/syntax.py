@@ -558,8 +558,8 @@ class Coverage(BaseAnalysis):
         self.handler(node_, *args, **kwargs)
 
     def func_def(self, node: pr.FuncDef, *args, **kwargs):
-        self.recurse(node.decl.type.args, *args, **kwargs)
-        self.recurse(node.body, *args, **kwargs)
+        self._recurse_attr(node.decl.type, 'args', *args, **kwargs)
+        self._recurse_attr(node, 'body', *args, **kwargs)
 
     def if_(self, node: pr.If, *args, **kwargs):
         self._recurse_attr(node, 'iftrue', *args, **kwargs)

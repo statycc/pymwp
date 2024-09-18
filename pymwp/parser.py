@@ -241,8 +241,9 @@ class PyCParser(ParserInterface):
         return ast
 
     def is_func(self, node: PyCParser.Node) -> bool:
-        return isinstance(node, self.FuncDef) and \
-               hasattr(node, 'body') and node.body.block_items
+        return (isinstance(node, self.FuncDef) and
+                hasattr(node, 'body') and
+                hasattr(node.body, 'block_items'))
 
     def is_loop(self, node: PyCParser.Node) -> bool:
         return (isinstance(node, self.While) or

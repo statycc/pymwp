@@ -280,7 +280,7 @@ class LoopResult(Timeable, Serializable):
         txt += f'\nlinear: {self.linear}'
         txt += f'\nindependent: {self.weak}'
         txt += f'\npolynomial: {self.poly}'
-        txt += f'\nother: {self.exp}'
+        txt += f'\ninfinity: {self.exp}'
         txt += f'\n{bounds}'
         return txt
 
