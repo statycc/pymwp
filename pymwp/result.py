@@ -289,6 +289,19 @@ class LoopResult(Timeable, Serializable):
         return 'func_name,start_time,end_time,loop_code'.split(',')
 
     @property
+    def n_vars(self) -> int:
+        return len(self.variables)
+
+    @property
+    def n_bounded(self) -> int:
+        return self.n_vars - len(list(filter(
+            lambda x: not x.is_p, self.variables.values())))
+
+    @property
+    def n_lines(self) -> int:
+        return self.loop_code.count('\n')
+
+    @property
     def loop_desc(self):
         header = self.loop_code.split('\n')[:1][0].strip()
         return (header[:40] if len(header) > 40 else header) + '…'

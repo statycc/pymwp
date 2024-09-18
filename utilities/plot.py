@@ -168,9 +168,8 @@ class Plot:
         return bound if len(bound) < wrap_at else \
             bound.replace('∧', f'\n{" " * pad}∧')
 
-    def build_matrix(self):
+    def build_data_table(self):
         """Construct table data."""
-
         inputs = [e for sublist in [[
             (ex, ex.get_func(f_name)) for f_name in ex.relations.keys()]
             for (_, ex) in sorted(self.results.items())] for e in sublist]
@@ -181,10 +180,21 @@ class Plot:
             if f.bound else None) for (i, (_, f)) in enumerate(inputs)]
             if f.n_bounds > 0 and len(p) > 0]
 
-        return [(i + 1, (f'{ex.program.name}: {fun.name}'
-                         if ex.n_functions > 1 else ex.program.name),
-                 ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
-                for i, (ex, fun) in enumerate(inputs)], dict(bound_dict)
+        relation_data = [
+            (i + 1, (f'{ex.program.name}: {fun.name}'
+                     if ex.n_functions > 1 else ex.program.name),
+             ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
+            for i, (ex, fun) in enumerate(inputs)]
+
+        for ex in self.results.values():
+            for n, loop in enumerate(ex.loops):
+                i = len(relation_data)
+                name = f'{ex.program.name} ({loop.func_name}): loop-{n + 1}'
+                table = (i + 1, name, loop.n_lines, loop.dur_ms,
+                         loop.n_vars, loop.n_bounded)
+                relation_data.append(table)
+
+        return relation_data, dict(bound_dict)
 
     def generate(self) -> None:
         """Generate a table plot, then show it, and save it to file."""
@@ -197,9 +207,9 @@ class Plot:
         f1_writer, f2_writer = self.writer(), self.writer()
 
         f1_writer.headers = t1_writer.headers = self.headers()
-        f1_writer.value_matrix, _ = t1_values, bounds = self.build_matrix()
-        if not bounds:
-            print('Nothing to plot')
+        f1_writer.value_matrix, _ = t1_values, bounds = self.build_data_table()
+        if not t1_values:
+            print('Nothing table entries to plot')
             return
         f1_writer.dump(fn)  # write to file
 
@@ -210,13 +220,14 @@ class Plot:
         f2_writer.dump(mn)
 
         # display text tables
-        pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
         t1_writer.value_matrix = t1_values
         t1_writer.write_table()
         print()
-        [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
-         for k, (_, v) in bounds.items()]
-        print()
+        if bounds:
+            pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
+            [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
+             for k, (_, v) in bounds.items()]
+            print()
         print(f'Wrote tables to: {fn}\nand to: {mn}')
 
 
