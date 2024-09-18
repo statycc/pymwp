@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
@@ -656,20 +656,19 @@ class LoopAnalysis(Analysis):
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
         # Evaluation
-        if not infty:  # Bound exists for all variables
+        if not infty:  # <= p-bound for all variables
             choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
-
-            m_choice = relations.first.var_eval(
-                Analysis.CHOICE_DOMAIN, index, WEAK_MWP, POLY_MWP)
-
-            w_choice = relations.first.var_eval(
-                Analysis.CHOICE_DOMAIN, index, POLY_MWP)
-
             for v in variables:
-                print(v, bool(m_choice[v].valid), bool(w_choice[v].valid),
-                      True)  # always p if not infty
-            print('poly', choices.valid)
+                mc = relations.first.var_eval(
+                    Analysis.CHOICE_DOMAIN, index, v, WEAK_MWP, POLY_MWP)
+                wc = mc or relations.first.var_eval(
+                    Analysis.CHOICE_DOMAIN, index, v, POLY_MWP)
+                pc = wc or choices
+                bound = Bound().calculate(
+                    relations.first.apply_choice(*pc.first))
 
+                print(v, bool(mc), bool(wc), bool(pc),
+                      bound.show(variables=v), pc.valid)
         else:
             print('todo infty case')
             # vn, fst_ok = next(((v, c) for v, c in var_choice

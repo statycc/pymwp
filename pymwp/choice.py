@@ -48,6 +48,9 @@ class Choices:
         self.valid = valid or []
         self.index = index
 
+    def __bool__(self):
+        return not self.infinite
+
     @property
     def infinite(self):
         """True if no valid choice exists."""
