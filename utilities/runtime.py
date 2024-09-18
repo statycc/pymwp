@@ -20,6 +20,7 @@ import sys
 from datetime import datetime
 from os import makedirs
 from os.path import join, exists
+from types import SimpleNamespace
 from typing import Any
 
 # noinspection PyPackageRequirements
@@ -31,7 +32,11 @@ def _machine_details() -> dict[str, Any]:
     result = {}
     uname = platform.uname()
     mem = psutil.virtual_memory()
-    cpufreq = psutil.cpu_freq()
+    cpufreq = SimpleNamespace(**{'min': '?', 'max': '?', 'current': '?'})
+    try:
+        cpufreq = psutil.cpu_freq()
+    except FileNotFoundError:
+        pass
     result["operating_system"] = uname.system
     result["operating_system_release"] = uname.release
     result["operating_system_version"] = uname.version
