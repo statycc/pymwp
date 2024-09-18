@@ -436,7 +436,7 @@ class Relation:
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
 
-    def var_eval(self, choices: List[int], index: int, *scalars: str)\
+    def var_eval(self, choices: List[int], index: int, *scalars: str) \
             -> Dict[str, Choices]:
         """Evaluate choices for each individual variable.
 

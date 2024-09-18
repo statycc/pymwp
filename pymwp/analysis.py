@@ -22,9 +22,9 @@ from typing import List, Tuple, Union
 from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 # noinspection PyPep8Naming
-from .parser import Parser as pr
+from .parser import Parser as pr, LOOP_T
 from .result import FuncResult, LoopResult
-from .semiring import POLY_MWP
+from .semiring import POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ class Analysis:
 
     @staticmethod
     def syntax_check(node: pr.Node, strict: bool) -> bool:
-        """Analyze function syntax and conditionally modify.
+        """Analyze function syntax and conditionally modify the AST.
 
         Arguments:
             node (pr.Node): An AST node.
@@ -605,11 +605,11 @@ class LoopAnalysis(Analysis):
     """MWP analysis for loops."""
 
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, strict: bool = False, **kwargs):
+    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs):
         """Run loop-invariant analysis.
 
         Arguments:
-            ast (pr.Node): Parsed C source code AST Node.
+            ast (pr.Node): Parsed C source code as an AST.
             res (Result): Pre-initialized result object.
             strict (bool): Require supported syntax.
 
@@ -620,27 +620,28 @@ class LoopAnalysis(Analysis):
         result.on_start()
         logger.debug("Starting loop analysis")
         for func in [f for f in ast if pr.is_func(f)]:
+            f_name = func.decl.name
+            logger.info(f"Analyzing {f_name}")
             # 1. find loops: nested loops are duplicated+lifted
-            loops = FindLoops(func).loops
+            # 2. check/fix loop body syntax
+            loops = [loop for loop in FindLoops(func).loops if
+                     LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
-            # todo: all of this can be done in parallel
             for loop in loops:
-                # 2. check/fix loop body syntax
-                if Analysis.syntax_check(loop.stmt, strict):
-                    # 3. analyze and record result
-                    loop_res = LoopAnalysis.loop(loop)
-                    loop_res.func_name = func.decl.name
-                    result.add_loop(loop_res)
+                # 3. analyze and record result
+                loop_res = LoopAnalysis.loop(loop)
+                loop_res.func_name = f_name
+                result.add_loop(loop_res)
         result.on_end()
         result.log_result()
         return result
 
     @staticmethod
-    def loop(node: Union[pr.While, pr.DoWhile, pr.For]) -> LoopResult:
-        """Analyze the loop (possibly nested).
+    def loop(node: LOOP_T) -> LoopResult:
+        """Analyze a loop.
 
         Arguments:
-            node: A loop AST node (for, while, or do...while).
+            node (LOOP_T): A loop node.
 
         Returns:
             Loop analysis result.
@@ -655,28 +656,54 @@ class LoopAnalysis(Analysis):
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
         # Evaluation
-        # 1. Bound exists? => evaluate whole-matrix
-        choices = None if infty else \
-            relations.first.eval(Analysis.CHOICE_DOMAIN, index)
-        # 2. By-variable eval: find upto w-bounds/variable.
-        var_choice = relations.first.var_eval(
-            Analysis.CHOICE_DOMAIN, index, POLY_MWP).items()
+        if not infty:  # Bound exists for all variables
+            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
 
-        fst_ok = next((c for _, c in var_choice if not c.infinite), None)
-        if fst_ok:
-            print(relations.first.apply_choice(*fst_ok.first))
+            m_choice = relations.first.var_eval(
+                Analysis.CHOICE_DOMAIN, index, WEAK_MWP, POLY_MWP)
 
-        print(infty, choices.valid if choices else 'No choice!')
-        print('\n'.join([f'{k}, {v.valid} {v.infinite}'
-                         for k, v in var_choice]))
+            w_choice = relations.first.var_eval(
+                Analysis.CHOICE_DOMAIN, index, POLY_MWP)
 
-        #   todo: 3. Record all <= w bounds;
-        #      * if whole-matrix passes, safe to take any.
-        #      * otherwise make sure variable does not interfere with a
-        #        "bad" variable (0 in matrix).
+            for v in variables:
+                print(v, bool(m_choice[v].valid), bool(w_choice[v].valid),
+                      True)  # always p if not infty
+            print('poly', choices.valid)
+
+        else:
+            print('todo infty case')
+            # vn, fst_ok = next(((v, c) for v, c in var_choice
+            #                    if not c.infinite), (None, None))
+            # if fst_ok:
+            #     for k, v in var_choice:
+            #         if k != vn:
+            #             inter = Choices.intersection(fst_ok, v)
+            #             if inter.valid:
+            #                 fst_ok = inter
+            #
+            # print('\n'.join([f'{k}, {v.valid} {v.infinite}'
+            #                  for k, v in var_choice]))
+            # print('prog infty: ', infty, choices.valid if choices else '--')
+            # if fst_ok:
+            #     print(fst_ok.valid)
+            #     print(relations.first.apply_choice(*fst_ok.first))
 
         # todo: Save results
         result.vars = relations.first.variables
         result.loop_code = pr.to_c(node)
         result.on_end()
         return result
+
+    @staticmethod
+    def syntax_check(node: LOOP_T, strict: bool) -> bool:
+        """Analyze function syntax and conditionally modify the AST.
+
+        Arguments:
+            node (LOOP_T): An AST loop node.
+            strict (bool): When true, AST will not be modified.
+
+        Returns:
+            True if analysis can be performed and False otherwise.
+        """
+        base = Analysis.syntax_check(node, strict)
+        return base and FindLoops.not_empty(node)

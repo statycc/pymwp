@@ -22,9 +22,9 @@ import logging
 from abc import ABC, abstractmethod
 from collections import Counter
 from copy import deepcopy
-from typing import List, Any, Callable, Tuple, Optional, Union
+from typing import List, Callable, Tuple, Optional, Union
 
-from .parser import Parser as pr
+from .parser import Parser as pr, LOOP_T
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +37,11 @@ class BaseAnalysis(ABC):
     BIN_OPS = {"+", "-", "*"}
 
     @abstractmethod
-    def handler(self, node: Any, *args, **kwargs) -> None:
+    def handler(self, node: pr.Node, *args, **kwargs) -> None:
         """Handle AST nodes that meets some (abstract) criteria."""
         pass
 
-    def recurse(self, node: Any, *args, **kwargs) -> None:
+    def recurse(self, node: pr.Node, *args, **kwargs) -> None:
         """Recursively traverse AST nodes."""
         if isinstance(node, pr.Constant):
             return self.constant(node, *args, **kwargs)
@@ -99,7 +99,7 @@ class BaseAnalysis(ABC):
             return self.empty(node, *args, **kwargs)
         self.handler(node, *args, **kwargs)
 
-    def _recurse_attr(self, node: Any, attr: str, *args, **kwargs) -> None:
+    def _recurse_attr(self, node: pr.Node, attr: str, *args, **kwargs) -> None:
         """Analyze child at node.attribute.
 
         Arguments:
@@ -109,7 +109,7 @@ class BaseAnalysis(ABC):
         if hasattr(node, attr) and getattr(node, attr):
             self.recurse(getattr(node, attr), *args, **kwargs)
 
-    def _iter_attr(self, node: Any, attr: str, *args, **kwargs) -> None:
+    def _iter_attr(self, node: pr.Node, attr: str, *args, **kwargs) -> None:
         """Iteratively analyze children at `node.attribute`,
         where the attribute is an iterable.
 
@@ -226,12 +226,12 @@ class Variables(BaseAnalysis):
         vars (List[str]): List of variables.
     """
 
-    def __init__(self, *nodes: Any):
+    def __init__(self, *nodes: pr.Node):
         self.vars = []
         [self.recurse(node) for node in nodes]
         self.vars = sorted(self.vars)
 
-    def handler(self, node: Any, *args, **kwargs):
+    def handler(self, node: pr.Node, *args, **kwargs):
         if hasattr(node, 'name') and node.name:
             if node.name not in self.vars:
                 self.vars.append(node.name)
@@ -363,12 +363,12 @@ class Coverage(BaseAnalysis):
     only supported language features.
 
     Attributes:
-        node(Any): AST node.
-        omit(List[str]): List of _unsupported commands.
+        node(pr.Node): AST node.
+        omit(List[str]): List of unsupported commands.
         to_clear(List[Callable]): Functions to clear unsupported syntax.
     """
 
-    def __init__(self, node: Any):
+    def __init__(self, node: pr.Node):
         self.node = node
         self.omit = []
         self.to_clear = []
@@ -391,12 +391,12 @@ class Coverage(BaseAnalysis):
         assert (n == len(self.to_clear))
         [callable_() for callable_ in self.to_clear]
         self.omit, self.to_clear = [], []
-        logger.warning(f"removed _unsupported syntax: {n} node(s)")
+        logger.debug(f"removed unsupported syntax: {n} node(s)")
         return self
 
     @staticmethod
     def _fmt(idx: int, count: int, desc: str) -> str:
-        """Formatter for displaying _unsupported nodes.
+        """Formatter for displaying unsupported nodes.
 
         Arguments:
             idx: ranked order (1., 2., 3....).
@@ -412,10 +412,10 @@ class Coverage(BaseAnalysis):
 
     @staticmethod
     def _unsupported(omits: List[str]) -> None:
-        """Display _unsupported nodes as an ordered list.
+        """Display unsupported nodes as an ordered list.
 
         Arguments:
-            omits: list of _unsupported AST nodes.
+            omits: list of unsupported AST nodes.
         """
         if len(omits) < 2:
             if len(omits) == 1:
@@ -430,7 +430,7 @@ class Coverage(BaseAnalysis):
         [logger.debug(line) for line in lines]
 
     @staticmethod
-    def _clearer(node: Any, attr: str, child: Any) -> Callable:
+    def _clearer(node: pr.Node, attr: str, child: pr.Node) -> Callable:
         """Construct a callable function to clear a child node.
 
         Using a callable allows flagging tree nodes for removal, while
@@ -447,18 +447,28 @@ class Coverage(BaseAnalysis):
         return lambda: getattr(node, attr).remove(child) \
             if child in getattr(node, attr) else None
 
-    def _clear_stmt(self, node: Any, *args, **kwargs):
+    @staticmethod
+    def _clear_attr(node: pr.Node, attr: str):
+        return lambda: setattr(node, attr, pr.EmptyStatement())
+
+    def _clear_stmt(self, node: pr.Node, *args, **kwargs):
         """Remove statement attribute of an unhandled node."""
         node_ = deepcopy(node)
         node_.stmt = None
         self.handler(node_, *args, **kwargs)
 
-    def _iter_attr(self, node: Any, attr: str, *args, **kwargs):
+    def _iter_attr(self, node: pr.Node, attr: str, *args, **kwargs):
         """Iteratively analyze children at node.attribute."""
         if hasattr(node, attr) and getattr(node, attr):
             for n in getattr(node, attr):
                 cl = Coverage._clearer(node, attr, n)
                 self.recurse(n, *args, **{**kwargs, 'clear': cl})
+
+    def _recurse_attr(self, node: pr.Node, attr: str, *args, **kwargs) -> None:
+        if hasattr(node, attr) and getattr(node, attr):
+            cl = Coverage._clear_attr(node, attr)
+            self.recurse(getattr(node, attr), *args,
+                         **{**kwargs, 'clear': cl})
 
     @staticmethod
     def loop_compat(node: pr.For) -> Tuple[bool, Optional[str]]:
@@ -489,12 +499,12 @@ class Coverage(BaseAnalysis):
             return False, None
         return True, x_var
 
-    def handler(self, node: Any, *args, **kwargs):
+    def handler(self, node: pr.Node, *args, **kwargs):
         """Make a list of uncovered nodes."""
         self.omit.append(pr.to_c(node, compact=True))
         self.to_clear.append(kwargs['clear'])  # should always exist
 
-    def recurse(self, node: Any, *args, **kwargs):
+    def recurse(self, node: pr.Node, *args, **kwargs):
         skips = (pr.ID, pr.Constant, pr.Break, pr.Continue, pr.Return)
         if next((s for s in skips if isinstance(node, s)), None) is None:
             return super().recurse(node, *args, **kwargs)
@@ -577,12 +587,17 @@ class FindLoops(BaseAnalysis):
         loops (List[Union[pr.While, pr.DoWhile, pr.For]]): Loop nodes.
     """
 
-    def __init__(self, node: Any):
+    def __init__(self, node: pr.Node):
         self.loops: List[Union[pr.While, pr.DoWhile, pr.For]] = []
         self.recurse(node)
 
-    def handler(self, node: Union[pr.While, pr.DoWhile, pr.For],
-                *args, **kwargs) -> None:
+    @staticmethod
+    def not_empty(node: LOOP_T) -> bool:
+        """Check that loop contains body statements."""
+        return (node and hasattr(node, 'stmt')
+                and not isinstance(node.stmt, pr.EmptyStatement))
+
+    def handler(self, node: LOOP_T, *args, **kwargs) -> None:
         """Handle AST nodes that meets some (abstract) criteria."""
         self.loops.append(node)
 

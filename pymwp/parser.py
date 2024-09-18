@@ -16,13 +16,14 @@
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
+from __future__ import annotations
 import os
 import re
 import tempfile
 from abc import ABC, abstractmethod
 from logging import getLogger
 # noinspection PyPackageRequirements,PyProtectedMember
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from pycparser import c_ast, parse_file, c_generator
 from pycparser_fake_libc import directory as fake_libc_dir
@@ -239,11 +240,11 @@ class PyCParser(ParserInterface):
         fp.close()
         return ast
 
-    def is_func(self, node: Any) -> bool:
+    def is_func(self, node: PyCParser.Node) -> bool:
         return isinstance(node, self.FuncDef) and \
                hasattr(node, 'body') and node.body.block_items
 
-    def is_loop(self, node: Any) -> bool:
+    def is_loop(self, node: PyCParser.Node) -> bool:
         return (isinstance(node, self.While) or
                 isinstance(node, self.For) or
                 isinstance(node, self.DoWhile))
@@ -406,3 +407,6 @@ class PyCParser(ParserInterface):
 
 # Parser is an instance of the preferred parser implementation
 Parser = PyCParser()
+
+LOOP_T = Type[Union[Parser.While, Parser.DoWhile, Parser.For]]
+"""AST node is a loop type (for, while, do...while)."""
