@@ -101,7 +101,7 @@ If you want to use the latest stable version—possibly ahead of the latest rele
 
 2. **Set up Python runtime environment of preference**
 
-    :a: Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
+    :a: &nbsp; Using [Python venv&nearr;](https://docs.python.org/3/library/venv.html)
    
     Create and activate a virtual environment (POSIX bash/zsh):
      
@@ -122,7 +122,7 @@ If you want to use the latest stable version—possibly ahead of the latest rele
     python -m pip install -r requirements-dev.txt
     ```
 
-    :b: Using [Docker&nearr;](https://docs.docker.com/engine/install/)
+    :b: &nbsp; Using [Docker&nearr;](https://docs.docker.com/engine/install/)
 
     Build a container -- also installs dev-dependencies:
     
