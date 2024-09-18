@@ -1,7 +1,7 @@
 # Evaluation Utilities
 
 There are several make commands and utility scripts in the repository's `utilities` directory. 
-They mainly help to inspect, test, and measure and report of performance of pymwp in different ways. 
+They help inspect, test, measure and report of performance of pymwp. 
 These tools are not shipped with the distributed version of pymwp, but are available from the source code repository.
 
 <div class="grid cards" markdown>
