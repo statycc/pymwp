@@ -556,3 +556,12 @@ class Choices:
             [Choices.vect_intersection(v1, v2)
              for v2 in c2.valid] for v1 in c1.valid] for j in sub if j])
         return Choices(valid=choices, index=c1.index)
+
+    @staticmethod
+    def choice_reduce(*c: Choices) -> Choices:
+        if len(c) == 0:
+            return Choices()
+        result = c[0]
+        for n in range(1, len(c)):
+            result = Choices.intersection(result, c[n])
+        return result

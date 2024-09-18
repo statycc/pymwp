@@ -20,11 +20,11 @@ import logging
 from typing import List, Tuple
 
 from . import Coverage, Variables, FindLoops, COM_RES
-from . import DeltaGraph, Polynomial, RelationList, Relation, Bound
+from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
 # noinspection PyPep8Naming
 from .parser import Parser as pr, LOOP_T
 from .result import Result, FuncResult, LoopResult, VResult
-from .semiring import POLY_MWP, WEAK_MWP
+from .semiring import ZERO_MWP, UNIT_MWP, POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
 
@@ -570,34 +570,40 @@ class Analysis:
         # x = … (if x not in …), i.e. when left side variable does not
         # occur on the right side of assignment, we prepend 0 to vector
         if x != y and x != z:
-            vector.append(Polynomial('o'))
+            vector.append(Polynomial(ZERO_MWP))
 
         if op in supported_op and (y is None or z is None):
-            vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
+            vector.append(Polynomial.from_scalars(
+                index, UNIT_MWP, UNIT_MWP, UNIT_MWP))
 
         elif op == '*' and y == z:
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
 
         elif op == '*' and y != z:
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
 
         elif op in {'+', '-'} and y == z:
-            vector.append(Polynomial.from_scalars(index, 'p', 'p', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, POLY_MWP, POLY_MWP, WEAK_MWP))
 
         elif op in {'+', '-'} and y != z:
-            vector.append(Polynomial.from_scalars(index, 'm', 'p', 'w'))
-            vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, UNIT_MWP, POLY_MWP, WEAK_MWP))
+            vector.append(Polynomial.from_scalars(
+                index, POLY_MWP, UNIT_MWP, WEAK_MWP))
 
         return index + 1, vector
 
     @staticmethod
     def _unsupported(command: any):
-        """Handle unsupported command."""
+        """Keep for debugging extending parser+syntax support."""
         warning, endc = '\033[93m', '\033[0m'
         fmt_str = str(command or "").strip()
-        logger.warning(f'{warning}Unsupported syntax{endc} '
-                       f'not evaluated: {fmt_str}')
+        logger.warning(f'{warning}Unsupported syntax {fmt_str}{endc}')
 
 
 class LoopAnalysis(Analysis):
@@ -656,12 +662,15 @@ class LoopAnalysis(Analysis):
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
         # evaluate at variables
-        efunc = (LoopAnalysis.get_result if not infty
-                 else LoopAnalysis.maybe_result)
-        values = map(lambda v: efunc(relations.first, index, v), variables)
+        if not infty:
+            result.variables = dict(zip(variables, map(
+                lambda v: LoopAnalysis.get_result(
+                    relations.first, index, v), variables)))
+        else:
+            result.variables = LoopAnalysis.maybe_result(
+                relations.first, index, variables)
 
         # Save results
-        result.variables = dict(zip(variables, values))
         result.loop_code = pr.to_c(node)
         result.on_end()
         return result
@@ -700,5 +709,23 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def maybe_result(relation: Relation, index: int, v_name: str) -> VResult:
-        return VResult(v_name)
+    def maybe_result(relation: Relation, index: int, variables: List[str]) \
+            -> dict[str, VResult]:
+        """Analyze variable bounds when something is known to fail."""
+        p_bounds = dict(zip(variables, map(lambda v: relation.var_eval(
+            Analysis.DOMAIN, index, v), variables)))
+        fail = [v for v, c in p_bounds.items() if c.infinite]
+        rest = dict([(v, p_bounds[v]) for v in (set(variables) - set(fail))])
+        result = dict([(v, VResult(v)) for v in fail])
+        fail_idx = [relation.variables.index(v) for v in fail]
+        if rest:  # maybe some well-behaving variables?
+            red = Choices.choice_reduce(*rest.values())
+            assert not red.infinite  # should always give a choice?
+            simple_mat = relation.apply_choice(*red.first)
+            for v in rest.keys():
+                idx = relation.variables.index(v)
+                # assumption: if dep is 0, it is 0 in all derivations?
+                deps = set([simple_mat.matrix[fi][idx] for fi in fail_idx])
+                result[v] = (LoopAnalysis.get_result(relation, index, v)
+                             if deps == {ZERO_MWP} else VResult(v))
+        return result

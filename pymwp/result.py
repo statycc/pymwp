@@ -295,11 +295,18 @@ class VResult(Serializable):
                  is_w: bool = False, is_p: bool = False,
                  bound: MwpBound = None, choices: Choices = None):
         self.name = name
-        self._is_m = is_m
-        self._is_w = is_w
-        self._is_p = is_p
+        self._is_m = False
+        self._is_w = False
+        self._is_p = False
         self.bound = bound
         self.choices = choices
+        self.is_m = is_m
+        self.is_w = is_w
+        self.is_p = is_p
+
+    @property
+    def exponential(self):
+        return self.is_p is False
 
     @property
     def is_m(self) -> bool:
