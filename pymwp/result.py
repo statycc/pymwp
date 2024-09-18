@@ -237,7 +237,6 @@ class FuncResult(Timeable, Serializable):
         return func
 
 
-# noinspection PyShadowingBuiltins
 class LoopResult(Timeable, Serializable):
     """Analysis result for loop.
 
@@ -296,11 +295,44 @@ class VResult(Serializable):
                  is_w: bool = False, is_p: bool = False,
                  bound: MwpBound = None, choices: Choices = None):
         self.name = name
-        self.is_m = is_m
-        self.is_w = is_w
-        self.is_p = is_p
+        self._is_m = is_m
+        self._is_w = is_w
+        self._is_p = is_p
         self.bound = bound
         self.choices = choices
+
+    @property
+    def is_m(self) -> bool:
+        return self._is_m
+
+    @is_m.setter
+    def is_m(self, value: bool):
+        if value:
+            self._is_m = self._is_w = self._is_p = True
+        else:
+            self._is_m = False
+
+    @property
+    def is_w(self) -> bool:
+        return self._is_w
+
+    @is_w.setter
+    def is_w(self, value: bool):
+        if value:
+            self._is_w = self._is_p = True
+        else:
+            self._is_m = self._is_w = False
+
+    @property
+    def is_p(self) -> bool:
+        return self._is_p
+
+    @is_p.setter
+    def is_p(self, value: bool):
+        if value:
+            self._is_p = True
+        else:
+            self._is_m = self._is_w = self._is_p = False
 
     @property
     def attrs(self) -> List[str]:

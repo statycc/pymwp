@@ -20,10 +20,10 @@ import logging
 from typing import List, Tuple
 
 from . import Coverage, Variables, FindLoops, COM_RES
-from . import DeltaGraph, Polynomial, RelationList, Result, Bound
+from . import DeltaGraph, Polynomial, RelationList, Relation, Bound
 # noinspection PyPep8Naming
 from .parser import Parser as pr, LOOP_T
-from .result import FuncResult, LoopResult, VResult
+from .result import Result, FuncResult, LoopResult, VResult
 from .semiring import POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class Analysis:
     """MWP analysis implementation."""
 
-    CHOICE_DOMAIN = [0, 1, 2]
+    DOMAIN = [0, 1, 2]
 
     @staticmethod
     def run(ast: pr.Node, res: Result = None, fin: bool = False,
@@ -89,7 +89,7 @@ class Analysis:
         # evaluate choices + calculate a bound
         evaluated, choices, bound = False, None, None
         if not delta_infty:
-            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
+            choices = relations.first.eval(Analysis.DOMAIN, index)
             if not choices.infinite:
                 bound = Bound().calculate(
                     relations.first.apply_choice(*choices.first))
@@ -104,8 +104,7 @@ class Analysis:
         if not (infinite and stop):
             result.relation = relations.first
         if infinite and not stop:
-            var_choices = relations.first.var_eval(
-                Analysis.CHOICE_DOMAIN, index)
+            var_choices = relations.first.var_eval(Analysis.DOMAIN, index)
             result.inf_flows = relations.first.infty_pairs(
                 [v for v, c in var_choices.items() if c.infinite])
         if not infinite:
@@ -622,13 +621,13 @@ class LoopAnalysis(Analysis):
         for func in [f for f in ast if pr.is_func(f)]:
             f_name = func.decl.name
             logger.info(f"Analyzing {f_name}")
-            # 1. find loops: nested loops are duplicated+lifted
-            # 2. check/fix loop body syntax
+            # find loops and check/fix loop body syntax
+            # nested loops are duplicated+lifted
             loops = [loop for loop in FindLoops(func).loops if
                      LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
             for loop in loops:
-                # 3. analyze and record result
+                # analyze and record result
                 loop_res = LoopAnalysis.loop(loop)
                 loop_res.func_name = f_name
                 result.add_loop(loop_res)
@@ -652,48 +651,18 @@ class LoopAnalysis(Analysis):
         # setup for loop analysis
         variables = Variables(node).vars
         relations = RelationList.identity(variables=variables)
+
         # analyze body commands, always run to completion
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
-        var_results = []
 
-        # Evaluation
-        if not infty:  # <= p-bound for all variables
-            choices = relations.first.eval(Analysis.CHOICE_DOMAIN, index)
-            for v in variables:
-                mc = relations.first.var_eval(
-                    Analysis.CHOICE_DOMAIN, index, v, WEAK_MWP, POLY_MWP)
-                wc = mc or relations.first.var_eval(
-                    Analysis.CHOICE_DOMAIN, index, v, POLY_MWP)
-                pc = var_choices = wc or choices
-                bound = Bound().calculate(
-                    relations.first.apply_choice(*pc.first)).bound_dict[v]
-                var_results.append((v, VResult(
-                    v, bool(mc), bool(wc), bool(pc), bound, var_choices)))
-                from pymwp import MwpBound
-                print(v, bool(mc), bool(wc), bool(pc),
-                      MwpBound.bound_poly(bound, True), var_choices.valid)
-        else:
-            print('todo infty case')
-            # vn, fst_ok = next(((v, c) for v, c in var_choice
-            #                    if not c.infinite), (None, None))
-            # if fst_ok:
-            #     for k, v in var_choice:
-            #         if k != vn:
-            #             inter = Choices.intersection(fst_ok, v)
-            #             if inter.valid:
-            #                 fst_ok = inter
-            #
-            # print('\n'.join([f'{k}, {v.valid} {v.infinite}'
-            #                  for k, v in var_choice]))
-            # print('prog infty: ', infty, choices.valid if choices else '--')
-            # if fst_ok:
-            #     print(fst_ok.valid)
-            #     print(relations.first.apply_choice(*fst_ok.first))
+        # evaluate at variables
+        efunc = (LoopAnalysis.get_result if not infty
+                 else LoopAnalysis.maybe_result)
+        values = map(lambda v: efunc(relations.first, index, v), variables)
 
-        # todo: Save results
-        result.vars = relations.first.variables
+        # Save results
+        result.variables = dict(zip(variables, values))
         result.loop_code = pr.to_c(node)
-        result.variables = dict(var_results)
         result.on_end()
         return result
 
@@ -710,3 +679,26 @@ class LoopAnalysis(Analysis):
         """
         base = Analysis.syntax_check(node, strict)
         return base and FindLoops.not_empty(node)
+
+    @staticmethod
+    def get_result(relation: Relation, index: int, v_name: str) -> VResult:
+        """Find variable bounds when known to exist."""
+        result = VResult(v_name)
+        options = (('is_m', (WEAK_MWP, POLY_MWP)),
+                   ('is_w', (POLY_MWP,)),
+                   ('is_p', ()))
+        for attr, scalars in options:
+            choices = relation.var_eval(
+                Analysis.DOMAIN, index, v_name, *scalars)
+            if not choices.infinite:
+                setattr(result, attr, True)
+                result.choices = choices
+                break
+        assert result.choices
+        simple_mat = relation.apply_choice(*result.choices.first)
+        result.bound = Bound().calculate(simple_mat).bound_dict[v_name]
+        return result
+
+    @staticmethod
+    def maybe_result(relation: Relation, index: int, v_name: str) -> VResult:
+        return VResult(v_name)
