@@ -455,7 +455,7 @@ class Relation:
             and value is a choice object for the evaluated variable.
         """
         result = {}
-        one_var = isinstance(variables, str) and variables
+        one_var = isinstance(variables, str) and len(variables)
         eval_set = [variables] if one_var else (variables or self.variables)
         for v_name in eval_set:
             d, col = set(), self.variables.index(v_name)

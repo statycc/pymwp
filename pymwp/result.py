@@ -24,7 +24,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Union, List, Any
 
-from pymwp import Relation, Bound, Choices
+from pymwp import Relation, Bound, MwpBound, Choices
 from .matrix import decode
 
 logger = logging.getLogger(__name__)
@@ -243,29 +243,94 @@ class LoopResult(Timeable, Serializable):
 
     Attributes:
         func_name (str): Containing function name.
-        loop_code (str): the analyzed loop.
-        vars (List[str]): (optional) List of variables.
+        loop_code (str): The analyzed loop.
+        variables (Dict[str, VResult]): Results by variable.
     """
 
     def __init__(
             self, func_name: str = None,
-            vars: Optional[List[str]] = None,
             loop_code: str = None):
         super().__init__()
         self.func_name: str = func_name
         self.loop_code: str = loop_code
-        self.vars: List[str] = vars or []
+        self.variables: Dict[str, VResult] = {}
 
     @property
     def attrs(self) -> List[str]:
-        return ['func_name', 'loop_code', 'vars']
+        return 'func_name,start_time,end_time,loop_code'.split(',')
+
+    def to_dict(self) -> dict:
+        """Serialize a function result."""
+        result = super().to_dict()
+        variables = {'variables': dict([
+            (name, v.to_dict()) for (name, v) in
+            self.variables.items()])} if self.variables else {}
+        return {**result, **variables}
 
     @staticmethod
     def from_dict(**kwargs) -> LoopResult:
         """Deserialize a function result."""
         result = LoopResult()
         Serializable._from_dict(result, **kwargs)
+        variables = LoopResult.try_get('variables', **kwargs)
+        if variables:
+            result.variables = dict([
+                (name, VResult.from_dict(**value))
+                for name, value in variables.items()])
         return result
+
+
+class VResult(Serializable):
+    """Bounds result for a variable.
+
+    Attributes:
+        name (str): Variable name.
+        is_m (bool): Has maximal linear bound.
+        is_w (bool): Has weak polynomial bound.
+        is_p (bool): Has polynomial bound.
+        bound (Optional[Bound]): A bound (if exists).
+        choices (Optional[Choice]): Choice for bound.
+    """
+
+    def __init__(self, name: str = None, is_m: bool = False,
+                 is_w: bool = False, is_p: bool = False,
+                 bound: MwpBound = None, choices: Choices = None):
+        self.name = name
+        self.is_m = is_m
+        self.is_w = is_w
+        self.is_p = is_p
+        self.bound = bound
+        self.choices = choices
+
+    @property
+    def attrs(self) -> List[str]:
+        return 'name,is_m,is_w,is_p'.split(',')
+
+    def to_dict(self) -> dict:
+        """Serialize a function result."""
+        result = super().to_dict()
+        if self.choices:
+            result['choices'] = self.choices.valid
+        if self.bound:
+            result['bound'] = self.bound.bound_str
+        return result
+
+    @staticmethod
+    def from_dict(**kwargs) -> VResult:
+        """Reverse of serialize.
+
+        Returns:
+            Result: Initialized Result object.
+        """
+        r = VResult()
+        Serializable._from_dict(r, **kwargs)
+        choices = VResult.try_get('choices', **kwargs)
+        if choices:
+            r.choices = Choices(choices)
+        bound = VResult.try_get('bound', **kwargs)
+        if bound:
+            r.bound = MwpBound(bound)
+        return r
 
 
 class Result(Timeable, Serializable):

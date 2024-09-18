@@ -23,7 +23,7 @@ from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Result, Bound
 # noinspection PyPep8Naming
 from .parser import Parser as pr, LOOP_T
-from .result import FuncResult, LoopResult
+from .result import FuncResult, LoopResult, VResult
 from .semiring import POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
@@ -654,6 +654,7 @@ class LoopAnalysis(Analysis):
         relations = RelationList.identity(variables=variables)
         # analyze body commands, always run to completion
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
+        var_results = []
 
         # Evaluation
         if not infty:  # <= p-bound for all variables
@@ -663,12 +664,14 @@ class LoopAnalysis(Analysis):
                     Analysis.CHOICE_DOMAIN, index, v, WEAK_MWP, POLY_MWP)
                 wc = mc or relations.first.var_eval(
                     Analysis.CHOICE_DOMAIN, index, v, POLY_MWP)
-                pc = wc or choices
+                pc = var_choices = wc or choices
                 bound = Bound().calculate(
-                    relations.first.apply_choice(*pc.first))
-
+                    relations.first.apply_choice(*pc.first)).bound_dict[v]
+                var_results.append((v, VResult(
+                    v, bool(mc), bool(wc), bool(pc), bound, var_choices)))
+                from pymwp import MwpBound
                 print(v, bool(mc), bool(wc), bool(pc),
-                      bound.show(variables=v), pc.valid)
+                      MwpBound.bound_poly(bound, True), var_choices.valid)
         else:
             print('todo infty case')
             # vn, fst_ok = next(((v, c) for v, c in var_choice
@@ -690,6 +693,7 @@ class LoopAnalysis(Analysis):
         # todo: Save results
         result.vars = relations.first.variables
         result.loop_code = pr.to_c(node)
+        result.variables = dict(var_results)
         result.on_end()
         return result
 

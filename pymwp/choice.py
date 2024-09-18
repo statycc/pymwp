@@ -38,7 +38,7 @@ class Choices:
         index (int): degree of choice.
     """
 
-    def __init__(self, valid: CHOICES = None, index: int = 0):
+    def __init__(self, valid: CHOICES = None, index: int = -1):
         """Initialize representation from a precomputed vector.
 
         This is primarily useful for restoring a result from file.
@@ -46,7 +46,10 @@ class Choices:
         [`generate()`](choice.md#pymwp.choice.Choices.generate) instead.
         """
         self.valid = valid or []
-        self.index = index
+        if index < 0 and valid and len(valid):
+            self.index = len(valid[0])
+        else:
+            self.index = index
 
     def __bool__(self):
         return not self.infinite
