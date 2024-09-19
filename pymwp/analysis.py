@@ -608,7 +608,7 @@ class LoopAnalysis(Analysis):
 
     @staticmethod
     def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs):
-        """Run loop-invariant analysis.
+        """Run loop analysis.
 
         Arguments:
             ast (pr.Node): Parsed C source code as an AST.
@@ -718,7 +718,7 @@ class LoopAnalysis(Analysis):
     def maybe_result(relation: Relation, index: int) -> Dict[str, VResult]:
         """Evaluate variables when some variables are known to fail.
 
-         Arguments:
+        Arguments:
             relation (Relation): Relation object.
             index (int): Degree of analysis choice.
 

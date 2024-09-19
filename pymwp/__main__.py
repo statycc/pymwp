@@ -76,7 +76,7 @@ def main():
     result.program.n_lines = loc(args.input_file)
 
     analyzer: Type[Union[Analysis, LoopAnalysis]] = \
-        LoopAnalysis if args.loop else Analysis
+        LoopAnalysis if args.mode == 'L' else Analysis
     result = analyzer.run(ast, result, fin=args.fin, strict=args.strict)
 
     if not args.no_save:
@@ -94,58 +94,45 @@ def __parse_args(
         nargs="?"
     )
     parser.add_argument(
+        '-v', "--version",
+        action="version",
+        version="%(prog)s " + __version__,
+    )
+
+    analysis = parser.add_argument_group('Analysis options')
+    analysis.add_argument(
+        "--mode", '-m',
+        action='store',
+        dest='mode',
+        default='F',
+        type=str.upper,
+        metavar="M",
+        choices=['F', 'L'],
+        help="analyze functions (F) or loops (L) [default: F]"
+    )
+    analysis.add_argument(
         '--out', '-o',
         action="store",
         dest="out",
         metavar="FILE",
         help="file where to store analysis result",
     )
-    parser.add_argument(
-        "--logfile",
-        action="store",
-        metavar="FILE",
-        help="write console output to a file",
-    )
-    parser.add_argument(
-        "--fin",
-        action='store_true',
-        help="ensure analysis completion in all cases"
-    )
-    parser.add_argument(
-        '--info',
-        action='store_true',
-        help="set logging level to info"
-    )
-    parser.add_argument(
-        "--loop",
-        action='store_true',
-        help="run loop analysis"
-    )
-    parser.add_argument(
+    analysis.add_argument(
         "--no_save",
         action='store_true',
         help="do not write analysis result to a file"
     )
-    parser.add_argument(
-        "--no_time",
+    analysis.add_argument(
+        "--fin",
         action='store_true',
-        help="display log without timestamps"
+        help="ensure analysis always runs to completion"
     )
-    parser.add_argument(
-        "--silent",
-        action='store_true',
-        help="disable all terminal output"
-    )
-    parser.add_argument(
+    analysis.add_argument(
         "--strict",
         action='store_true',
-        help="require full syntax compliance to analyze"
+        help="enforce input file must be syntax-compliant"
     )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="%(prog)s " + __version__,
-    )
+
     compiler = parser.add_argument_group('C compiler options')
     compiler.add_argument(
         '--cpp_path',
@@ -171,6 +158,29 @@ def __parse_args(
         "--no_cpp",
         action='store_true',
         help="disable pre-processor"
+    )
+
+    log_group = parser.add_argument_group('Terminal log options')
+    log_group.add_argument(
+        "--logfile",
+        action="store",
+        metavar="FILE",
+        help="write console output to a file",
+    )
+    log_group.add_argument(
+        "--no_time",
+        action='store_true',
+        help="omits timestamps from log output"
+    )
+    log_group.add_argument(
+        '--info',
+        action='store_true',
+        help="set logging level to info"
+    )
+    log_group.add_argument(
+        "--silent",
+        action='store_true',
+        help="disable all terminal output"
     )
 
     return parser.parse_args(args)
