@@ -206,7 +206,23 @@ def test_empty_function_body_does_not_fail():
     assert result.n_vars == 0
 
 
-def test_typedefs():
-    """Should be able to parse and process this input successfully."""
+def test_typedef_and_structs():
+    """Should be able to process this input successfully."""
     result = Analysis.run(deepcopy(TYPEDEFS), strict=False).get_func('foo')
     assert result is not None
+
+
+def test_analysis_skips_unsupported_when_strict():
+    result = Analysis.run(FUNCTION_CALL, strict=True)
+    # result for foo does not get recorded
+    # => only one function result, f, should exist
+    assert 'foo' not in result.relations
+    assert list(result.relations.keys()) == ['f']
+
+
+def test_unary_ops():
+    """Should be able to process this input successfully."""
+    result = Analysis.run(deepcopy(UNARY_OPS), strict=False).get_func()
+    assert result.n_vars == 2
+    assert result.n_bounds == 27
+    # TODO: this test omits some unary cases -- fix

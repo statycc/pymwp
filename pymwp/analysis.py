@@ -156,7 +156,7 @@ class Analysis:
         name = node.decl.name if pr.is_func(node) else 'node'
         cover = Coverage(node).report()
         if not cover.full and strict:
-            logger.info(f"{name} is not analyzable")
+            logger.warning(f"{name} syntax is not fully analyzable")
             return False
         if not cover.full:
             cover.ast_mod()  # removes unsupported commands
@@ -317,7 +317,7 @@ class Analysis:
 
     @staticmethod
     def unary_asgn(index: int, node: pr.Assignment) -> COM_RES:
-        """Assignment where right-hand-size is a unary op e.g. `x = y++`.
+        """Assignment where right-hand-size is a unary op e.g. `x = y++;`.
 
         Arguments:
             index: delta index
@@ -362,10 +362,9 @@ class Analysis:
                 logger.debug(f'{op}{exp} converted to -1*{exp}')
                 return Analysis.binary_op(
                     index, pr.Assignment('=', tgt, r_node))
-
         # unary address of "&" will fall through
         # expr not in {ID, Constant} will fall through
-        Analysis._unsupported(type(node))
+        Analysis._unsupported(pr.to_c(node))
         return index, RelationList(), False
 
     @staticmethod
@@ -560,14 +559,9 @@ class Analysis:
         Returns:
              Updated index, list of Polynomial vectors
         """
-
+        assert op in Coverage.BIN_OPS
         x, y, z = variables
-        supported_op = Coverage.BIN_OPS
         vector = []
-
-        if op not in supported_op:
-            Analysis._unsupported(f'{op} operator')
-            return index, []
 
         # when left variable does not occur on right side of assignment
         # x = … (if x not in …), i.e. when left side variable does not
@@ -575,7 +569,7 @@ class Analysis:
         if x != y and x != z:
             vector.append(Polynomial(ZERO_MWP))
 
-        if op in supported_op and (y is None or z is None):
+        if y is None or z is None:
             vector.append(Polynomial.from_scalars(
                 index, UNIT_MWP, UNIT_MWP, UNIT_MWP))
 

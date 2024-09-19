@@ -541,7 +541,8 @@ class Coverage(BaseAnalysis):
                 (isinstance(node.left, pr.Constant) or
                  isinstance(node.left, pr.ID)) and
                 (isinstance(node.right, pr.Constant) or
-                 isinstance(node.right, pr.ID)))):
+                 isinstance(node.right, pr.ID) or
+                 isinstance(node.right, pr.UnaryOp)))):
             self.handler(node, *args, **kwargs)
 
     def cast(self, node: pr.Cast, *args, **kwargs):
