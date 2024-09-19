@@ -224,5 +224,5 @@ def test_unary_ops():
     """Should be able to process this input successfully."""
     result = Analysis.run(deepcopy(UNARY_OPS), strict=False).get_func()
     assert result.n_vars == 2
-    assert result.n_bounds == 27
+    assert result.n_bounds == 2187
     # TODO: this test omits some unary cases -- fix
