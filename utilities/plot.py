@@ -70,7 +70,6 @@ class MyLatexTableWriter(LatexWriter):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-
         self.char_right_side_row = r" \\"
 
     @property

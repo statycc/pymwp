@@ -3,7 +3,9 @@
 # noinspection PyUnresolvedReferences
 """
 Profiling reveals how many times different functions are called during
-analysis. Profiling is based on Python cProfile [^1].
+analysis. Profiling is based on Python cProfile.
+
+See: <https://docs.python.org/3/library/profile.html>
 
 ## Single file profile
 
@@ -28,8 +30,9 @@ module cProfile.
 Arguments:
     INPUT_FILE (str): Path to input C file.
     --silent (): Mute pymwp analysis output.
-    -s (str): Specifies cProfile output sort order [^2].
+    -s (str): Specifies cProfile output sort order.
 
+See: <https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats>
 
 Additional arguments of cProfile or pymwp can be added similarly.
 
@@ -79,10 +82,6 @@ Arguments:
     --callers (): Include function caller statistics.
     --save (): Save pymwp analysis results [default: False].
     --help (): Command help.
-
-
-[^1]: https://docs.python.org/3/library/profile.html
-[^2]: https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats.
 """
 
 import argparse

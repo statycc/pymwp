@@ -607,7 +607,8 @@ class LoopAnalysis(Analysis):
     """MWP analysis for loops."""
 
     @staticmethod
-    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs):
+    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs)\
+            -> Result:
         """Run loop analysis.
 
         Arguments:

@@ -287,7 +287,9 @@ class FuncResult(Timeable, Serializable):
 
 
 class FuncLoops(Timeable, Serializable):
-    """Analysis result for loop.
+    """Analysis result for a function with loops, when running
+    loop analysis mode. `FuncLoops` captures the results for all loops
+    inside their parent function.
 
     Attributes:
         name (str): Containing function name.
@@ -548,15 +550,15 @@ class Result(Timeable, Serializable):
     def add_relation(self, result: FuncResult) -> None:
         """Appends function analysis to result."""
         self.relations[result.name] = result
-        Result.pretty_print_result(str(result))
+        Result._pretty_print_result(str(result))
 
     def add_loop(self, result: FuncLoops) -> None:
         """Append loop analysis to result."""
         self.loops[result.name] = result
-        Result.pretty_print_result(str(result))
+        Result._pretty_print_result(str(result))
 
     @staticmethod
-    def pretty_print_result(txt: str) -> None:
+    def _pretty_print_result(txt: str) -> None:
         """Draws a colored box around text before display.
 
         Arguments:

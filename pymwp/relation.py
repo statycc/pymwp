@@ -467,7 +467,11 @@ class Relation:
 
 class SimpleRelation(Relation):
     """Specialized instance of relation, where matrix contains only
-       scalar values, no polynomials."""
+       scalar values, no polynomials.
+
+    A relation converts to a SimpleRelation by applying a
+    derivation choice, see: `Relation.apply_choice`.
+    """
 
     def __init__(self, variables: Optional[List[str]] = None,
                  matrix: Optional[List[List[str]]] = None):
