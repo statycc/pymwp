@@ -354,7 +354,7 @@ class Variables(BaseAnalysis):
         nxt = Variables(node.next).vars
         iters = list(set(iters) | set(nxt))
 
-        # conditional expr + source-vars from init
+        # conditional expr + source-variables from init
         loop_vars = list(set(conds) | set(srcs))
         # loop_vars - declarations - iterators
         loop_x = list(set(loop_vars) - set(decls) - set(iters))

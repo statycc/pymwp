@@ -9,7 +9,7 @@ o, m, w, p = KEYS[:4]
 
 def test_analyze_infinite2():
     """Check analysis result for infinite/infinite_2.c"""
-    foo = Analysis.run(INFINITE_2C, strict=True).get_func()
+    foo = Analysis.run(INFINITE_2, strict=True).get_func()
     relation, combinations = foo.relation, foo.choices
 
     assert foo.infinite  # result should be infinite
@@ -19,12 +19,12 @@ def test_analyze_infinite2():
 
 def test_analyze_infinite_8():
     """Check analysis result for infinite/infinite_8.c"""
-    assert Analysis.run(INFINITE_8C, strict=True).get_func().infinite
+    assert Analysis.run(INFINITE_8, strict=True).get_func().infinite
 
 
 def test_analyze_non_infinite_2():
     """Check analysis result for not_infinite/notinfinite_2.c"""
-    foo = Analysis.run(NOT_INFINITE_2C, strict=True).get_func()
+    foo = Analysis.run(NOT_INFINITE_2, strict=True).get_func()
     relation, combinations = foo.relation, foo.choices
 
     assert not foo.infinite
@@ -52,7 +52,7 @@ def test_analyze_non_infinite_2():
 
 def test_analyze_non_infinite_3():
     """Check analysis result for not_infinite/notinfinite_3.c"""
-    foo = Analysis.run(NOT_INFINITE_3C, strict=True).get_func()
+    foo = Analysis.run(NOT_INFINITE_3, strict=True).get_func()
     assert not foo.infinite
     assert len(foo.choices.valid) == 1
     assert foo.choices.valid[0] == [[0, 1, 2], [0, 1, 2], [2]]
@@ -60,7 +60,7 @@ def test_analyze_non_infinite_3():
 
 def test_analyze_infinite_to_completion():
     """Check analysis completion for infinite program"""
-    relation = Analysis.run(INFINITE_2C, fin=True, strict=True) \
+    relation = Analysis.run(INFINITE_2, fin=True, strict=True) \
         .get_func().relation
     assert relation
     assert relation.matrix
@@ -198,3 +198,15 @@ def test_analysis_loop_subst():
     assert simple_mat.matrix[0][2] == p
     assert simple_mat.matrix[1][2] == o
     assert simple_mat.matrix[2][2] == m
+
+
+def test_empty_function_body_does_not_fail():
+    result = Analysis.run(EMPTY_FUNCTION, strict=True).get_func('foo')
+    assert result is not None
+    assert result.n_vars == 0
+
+
+def test_typedefs():
+    """Should be able to parse and process this input successfully."""
+    result = Analysis.run(deepcopy(TYPEDEFS), strict=False).get_func('foo')
+    assert result is not None

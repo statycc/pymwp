@@ -199,7 +199,7 @@ class FuncResult(Timeable, Serializable):
     Attributes:
         name (str): Function name.
         infinite (bool): True if no valid derivation exists.
-        vars (List[str]): List of program variables.
+        variables (List[str]): List of program variables.
         relation (Relation): Relation object; does not
         choices (Choices): A choice vector-object.
         bound (Bound): A bound of mwp-bounds.
@@ -209,7 +209,7 @@ class FuncResult(Timeable, Serializable):
     """
 
     def __init__(self, name: str, infinite: bool = False,
-                 vars: Optional[List[str]] = None,
+                 variables: Optional[List[str]] = None,
                  relation: Optional[Relation] = None,
                  choices: Optional[Choices] = None,
                  bound: Optional[Bound] = None,
@@ -218,7 +218,7 @@ class FuncResult(Timeable, Serializable):
         super().__init__()
         self.name: str = name
         self.infinite: bool = infinite
-        self.vars: List[str] = vars or []
+        self.variables: List[str] = variables or []
         self.relation: Relation = relation
         self.choices: Choices = choices
         self.bound: Bound = bound
@@ -231,13 +231,14 @@ class FuncResult(Timeable, Serializable):
             return 'Some bound exists'
         txt = f'function: {self.name}'
         txt += f' • time: {self.dur_ms:,} ms\n'
-        txt += f'variables: {len(self.vars)}'
-        txt += ' • num-bounds: '
+        txt += f'variables: {len(self.variables)}'
         if self.infinite:
+            txt += ' • num-bounds: '
             txt += '0 (infinite)'
             if self.inf_flows:
                 txt += f'\nProblematic flows: {self.inf_flows}'
-        else:
+        elif len(self.variables):
+            txt += ' • num-bounds: '
             txt += f'{self.n_bounds:,}\n'
             txt += f'{Bound.show(self.bound, True, True)}'
         return txt
@@ -245,13 +246,13 @@ class FuncResult(Timeable, Serializable):
     @property
     def _attrs(self) -> List[str]:
         """List of attribute names."""
-        return 'name,infinite,start_time,end_time,vars,' \
+        return 'name,infinite,start_time,end_time,variables,' \
                'inf_flows,index,func_code'.split(',')
 
     @property
     def n_vars(self) -> int:
         """Number of variables."""
-        return len(self.vars)
+        return len(self.variables)
 
     @property
     def n_bounds(self) -> int:
@@ -275,7 +276,7 @@ class FuncResult(Timeable, Serializable):
         func = Serializable._load(FuncResult(name), **kwargs)
         matrix = FuncResult._try_get('relation', 'matrix', **kwargs)
         if matrix:
-            func.relation = Relation(func.vars, decode(matrix))
+            func.relation = Relation(func.variables, decode(matrix))
         choices = FuncResult._try_get('choices', **kwargs)
         if choices:
             func.choices = Choices(choices)
@@ -300,7 +301,7 @@ class FuncLoops(Timeable, Serializable):
 
     def __str__(self):
         loops = [f'{i}. {lp}' for i, lp in enumerate(self.loops)]
-        lp_str = '\n# ' + '\n# '.join(loops)
+        lp_str = ('\n# ' + '\n# '.join(loops)) if loops else ''
         return (f'function: {self.name} • loops: {self.n_loops}'
                 f' • time: {self.dur_ms:,} ms{lp_str}')
 
@@ -338,12 +339,14 @@ class LoopResult(Timeable, Serializable):
 
     def __str__(self):
         txt = f'{self.loop_desc}'
-        txt += f'\nvariables: {len(self.variables)}'
-        txt += f'\nlinear: {", ".join(self.linear) or "—"}'
-        txt += f'\nindependent: {", ".join(self.weak) or "—"}'
-        txt += f'\npolynomial: {", ".join(self.poly) or "—"}'
-        txt += f'\ninfinity: {", ".join(self.exp) or "—"}'
-        txt += f'\n{self.as_bound.show(True, True)}'
+        if not self.variables:
+            txt += f'\nvariables: {len(self.variables)}'
+        else:
+            txt += f'\nlinear: {", ".join(self.linear) or "—"}'
+            txt += f'\nindependent: {", ".join(self.weak) or "—"}'
+            txt += f'\npolynomial: {", ".join(self.poly) or "—"}'
+            txt += f'\ninfinity: {", ".join(self.exp) or "—"}'
+            txt += f'\n{self.as_bound.show(True, True)}'
         return txt
 
     @property
@@ -586,11 +589,16 @@ class Result(Timeable, Serializable):
         logger.info(f'\n{color}{parts}{endc}')
 
     def get_func(self, name: Optional[str] = None) \
-            -> Union[FuncResult, Dict[str, FuncResult]]:
+            -> Union[FuncResult, FuncLoops, Dict[str, FuncResult],
+                     Dict[str, FuncLoops]]:
         """Returns analysis result for function(s).
 
-        * If `name` argument is provided and key exists, returns function
-          result for exact value match.
+        Here "analysis" means either whole-function analysis, or loop
+        analysis, based on executed analysis mode; they cannot co-exist in
+        the same result.
+
+        * If `name` argument is provided and key exists, returns a result
+         for exact value match.
         * If program contained exactly 1 function, returns result for that
           function.
         * Otherwise, returns a dictionary of results for each analyzed
@@ -600,14 +608,20 @@ class Result(Timeable, Serializable):
             name: Name of function.
 
         Returns:
-            A Function analysis result, or a dictionary of results.
+            A function analysis result, or a dictionary of results.
         """
-        if name and name in self.relations:
-            return self.relations[name]
+        if name:
+            if name in self.relations:
+                return self.relations[name]
+            if name in self.loops:
+                return self.loops[name]
         if self.n_functions == 1:
             key = next(iter(self.relations))
             return self.relations[key]
-        return self.relations
+        if self.n_loops == 1:
+            key = next(iter(self.loops))
+            return self.loops[key]
+        return self.relations if self.relations else self.loops
 
     def log_result(self) -> Result:
         """Display here all interesting stats about analysis result."""

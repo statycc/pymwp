@@ -34,7 +34,7 @@ cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
 # flake8: noqa: E402
-from pymwp import Result
+from pymwp import Result, FuncLoops
 from pymwp.bound import MwpBound
 from pymwp.file_io import load_result
 
@@ -162,12 +162,17 @@ class Plot:
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['#', 'Benchmark', 'loc', 'time', 'vars', 'bounds']
+        return ['#', 'Benchmark', 'loc', 'time', 'variables', 'bounds']
 
     @staticmethod
     def text_fmt(bound, pad, wrap_at):
         return bound if len(bound) < wrap_at else \
             bound.replace('∧', f'\n{" " * pad}∧')
+
+    @staticmethod
+    def loop_bench_name(res: Result, lf: FuncLoops, n: int):
+        mid = f', {lf.name}' if res.program.name != lf.name else ''
+        return f'{res.program.name}{mid}: L{n}'
 
     def build_data_table(self):
         """Construct table data."""
@@ -180,7 +185,7 @@ class Plot:
             (i + 1, (Plot.texify_bound(f.bound), p))
             for i, f, p in [(i, f, f.bound.show(True, True)
             if f.bound else None) for (i, (_, f)) in enumerate(inputs)]
-            if f.n_bounds > 0 and len(p) > 0]
+            if f.n_bounds > 0 and p and len(p) > 0]
 
         relation_data = [
             (i + 1, (f'{ex.program.name}: {fun.name}'
@@ -193,9 +198,7 @@ class Plot:
             for lf in ex.loops.values():
                 for n, loop in enumerate(lf.loops):
                     i = len(relation_data)
-                    name = (f'{ex.program.name}, {lf.name}: L-{n + 1}'
-                            if ex.n_functions > 1 or lf.n_loops > 1 else
-                            f'{ex.program.name} (loop)')
+                    name = self.loop_bench_name(ex, lf, n + 1)
                     table = (i + 1, name, loop.n_lines, loop.dur_ms,
                              loop.n_vars, loop.n_bounded)
                     relation_data.append(table)

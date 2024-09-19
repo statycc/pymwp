@@ -76,7 +76,7 @@ class Analysis:
         result = FuncResult(name).on_start()
 
         # setup for function analysis
-        variables, body = Variables(node).vars, node.body.block_items
+        variables, body = Variables(node).vars, (node.body.block_items or [])
         relations = RelationList.identity(variables=variables)
         total, num_v = len(body), len(variables)
         show_vars = ', '.join(variables) if num_v <= 5 else num_v
@@ -100,7 +100,7 @@ class Analysis:
         # record results
         result.index = index
         result.infinite = infinite
-        result.vars = relations.first.variables
+        result.variables = relations.first.variables
         if not (infinite and stop):
             result.relation = relations.first
         if infinite and not stop:
@@ -127,6 +127,8 @@ class Analysis:
         Returns:
             True if nodes lead to infinity by delta graph.
         """
+        if not nodes:
+            return False, index
         delta_infty, total, dg = False, len(nodes), DeltaGraph()
         for i, node in enumerate(nodes):
             logger.debug(f'computing relation...{i} of {total}')

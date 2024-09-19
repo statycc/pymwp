@@ -1,7 +1,7 @@
 import pycparser
 
 from pymwp import Parser
-from .mocks.ast_mocks import INFINITE_2C, INFINITE_8C, FUNCTION_CALL
+from .mocks.ast_mocks import INFINITE_2, INFINITE_8, FUNCTION_CALL
 
 """
 Test imported external dependencies that are being used.
@@ -66,13 +66,13 @@ def test_ast_structure_infty2c():
     """
     ast = Parser.parse('c_files/infinite/infinite_2.c', **PARSER_KWARGS)
 
-    assert str(ast) == str(INFINITE_2C)
+    assert str(ast) == str(INFINITE_2)
 
 
 def test_ast_structure_infty8c():
     ast = Parser.parse('c_files/infinite/infinite_8.c', **PARSER_KWARGS)
 
-    assert str(ast) == str(INFINITE_8C)
+    assert str(ast) == str(INFINITE_8)
 
 
 def test_ast_structure_func_call():
