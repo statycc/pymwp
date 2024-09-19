@@ -262,27 +262,25 @@ class Variables(BaseAnalysis):
             Discovered variables, in the order describes above.
         """
 
-        def id_(node_, tgt):
+        def _id(node_, tgt):
             if isinstance(node_, pr.ID):
-                tgt += [node_.name]
-
-        # init is an assignment (x=e; ...)
-        def asgn(node_, itrs, values):
-            if isinstance(node_, pr.Assignment) and node_.op == '=':
-                id_(node_.lvalue, itrs)
-                id_(node_.rvalue, values)
-                return True
+                tgt.append(node_.name)
 
         iters, decls, srcs = [], [], []
-        if asgn(node.init, iters, srcs):  # (i=0;…) =1x
-            pass
-        elif isinstance(node.init, pr.DeclList):  # (int i=0,…) ≥1x
+
+        # one or more assignments (i=0, j=x,…)
+        expr_lst = isinstance(node.init, pr.ExprList)
+        if isinstance(node.init, pr.Assignment) or expr_lst:
+            for expr in (node.init.exprs if expr_lst else [node.init]):
+                _id(expr.lvalue, iters)
+                _id(expr.rvalue, srcs)
+
+        # (int i=0,…) one or more declarations
+        if isinstance(node.init, pr.DeclList):
             for decl in node.init.decls:
-                decls += [decl.name]
-                id_(decl.init, srcs)
-        elif isinstance(node.init, pr.ExprList):  # (i=0, j=x;…) >1x
-            for expr in node.init.exprs:
-                asgn(expr, iters, srcs)
+                decls.append(decl.name)
+                _id(decl.init, srcs)
+
         return iters, decls, srcs
 
     @staticmethod
