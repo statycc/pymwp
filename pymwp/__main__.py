@@ -97,31 +97,6 @@ def __parse_args(
         help="file where to store analysis result",
     )
     parser.add_argument(
-        '--cpp_path',
-        action='store',
-        default='gcc',
-        metavar="PATH",
-        help='C pre-processor [default: gcc]',
-    )
-    parser.add_argument(
-        '--cpp_args',
-        action='store',
-        default='-E',
-        metavar="ARGS",
-        help='C pre-processor arguments [default: -E]',
-    )
-    parser.add_argument(
-        "--headers",
-        action="store",
-        metavar="DIR",
-        help="C headers dir paths, separate by comma",
-    )
-    parser.add_argument(
-        "--no_cpp",
-        action='store_true',
-        help="disable C pre-processor"
-    )
-    parser.add_argument(
         "--no_save",
         action='store_true',
         help="do not write analysis result to a file"
@@ -162,6 +137,33 @@ def __parse_args(
         action="version",
         version="%(prog)s " + __version__,
     )
+    compiler = parser.add_argument_group('C compiler options')
+    compiler.add_argument(
+        '--cpp_path',
+        action='store',
+        default='gcc',
+        metavar="PATH",
+        help='pre-processor [default: gcc]',
+    )
+    compiler.add_argument(
+        '--cpp_args',
+        action='store',
+        default='-E',
+        metavar="ARGS",
+        help='pre-processor arguments [default: -E]',
+    )
+    compiler.add_argument(
+        "--headers",
+        action="store",
+        metavar="DIR",
+        help="headers dir paths, separate by comma",
+    )
+    compiler.add_argument(
+        "--no_cpp",
+        action='store_true',
+        help="disable pre-processor"
+    )
+
     return parser.parse_args(args)
 
 
