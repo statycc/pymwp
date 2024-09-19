@@ -43,9 +43,6 @@ dev-env:
 test-only:
 	pytest --cov=./pymwp tests
 
-test-miss:
-	pytest --cov=./pymwp --cov-report term-missing tests -vv
-
 test-missing:
 	pytest --cov-report term-missing --cov=./pymwp tests
 
