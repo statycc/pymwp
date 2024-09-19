@@ -132,6 +132,10 @@ class MwpBound:
         """
         return f'{";".join([",".join(v) for v in self.bound_triple])}'
 
+    def poly(self, k: str, compact: bool = False):
+        bound_exp = MwpBound.bound_poly(self, compact)
+        return f'{k}′{"≤" if compact else " ≤ "}{bound_exp}'
+
     @staticmethod
     def parse(value: str = None) -> B_TRIPLE:
         """Restore a bound from string-triple format."""

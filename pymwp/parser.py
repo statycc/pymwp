@@ -16,13 +16,14 @@
 # pymwp. If not, see <https://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
+from __future__ import annotations
 import os
 import re
 import tempfile
 from abc import ABC, abstractmethod
 from logging import getLogger
 # noinspection PyPackageRequirements,PyProtectedMember
-from typing import Any, List
+from typing import Any, List, Type, Union
 
 from pycparser import c_ast, parse_file, c_generator
 from pycparser_fake_libc import directory as fake_libc_dir
@@ -53,11 +54,21 @@ class ParserInterface(ABC):  # pragma: no cover
         pass
 
     def is_func(self, node: Any) -> bool:
+        """True if node is a function implementation."""
+        return False
+
+    def is_loop(self, node: Any) -> bool:
+        """True is node is a loop/repetition statement."""
         return False
 
     def to_c(self, node: Any) -> str:
         """Translate node back to C code."""
         return ""
+
+    @property
+    def Node(self):
+        """Base type for an AST node."""
+        return None
 
     @property
     def ArrayDecl(self):
@@ -81,6 +92,10 @@ class ParserInterface(ABC):  # pragma: no cover
 
     @property
     def Break(self):
+        return None
+
+    @property
+    def Case(self):
         return None
 
     @property
@@ -108,7 +123,15 @@ class ParserInterface(ABC):  # pragma: no cover
         return None
 
     @property
+    def Default(self):
+        return None
+
+    @property
     def DoWhile(self):
+        return None
+
+    @property
+    def EmptyStatement(self):
         return None
 
     @property
@@ -133,10 +156,6 @@ class ParserInterface(ABC):  # pragma: no cover
 
     @property
     def If(self):
-        return None
-
-    @property
-    def Node(self):
         return None
 
     @property
@@ -221,9 +240,15 @@ class PyCParser(ParserInterface):
         fp.close()
         return ast
 
-    def is_func(self, node: Any) -> bool:
-        return isinstance(node, self.FuncDef) and \
-               hasattr(node, 'body') and node.body.block_items
+    def is_func(self, node: PyCParser.Node) -> bool:
+        return (isinstance(node, self.FuncDef) and
+                hasattr(node, 'body') and
+                hasattr(node.body, 'block_items'))
+
+    def is_loop(self, node: PyCParser.Node) -> bool:
+        return (isinstance(node, self.While) or
+                isinstance(node, self.For) or
+                isinstance(node, self.DoWhile))
 
     def to_c(self, node: Any, compact: bool = False) -> str:
         """Translate node back to C code."""
@@ -232,6 +257,10 @@ class PyCParser(ParserInterface):
         if compact:
             comm = re.sub(r"[\n\t\s]+", " ", comm).strip()
         return comm
+
+    @property
+    def Node(self):
+        return Type[c_ast.Node]
 
     @staticmethod
     def add_attr_x(text: str) -> str:
@@ -281,6 +310,10 @@ class PyCParser(ParserInterface):
         return c_ast.Break
 
     @property
+    def Case(self):
+        return c_ast.Case
+
+    @property
     def Cast(self):
         return c_ast.Cast
 
@@ -305,12 +338,20 @@ class PyCParser(ParserInterface):
         return c_ast.DeclList
 
     @property
+    def Default(self):
+        return c_ast.Default
+
+    @property
     def DoWhile(self):
         return c_ast.DoWhile
 
     @property
     def ExprList(self):
         return c_ast.ExprList
+
+    @property
+    def EmptyStatement(self):
+        return c_ast.EmptyStatement
 
     @property
     def For(self):
@@ -331,10 +372,6 @@ class PyCParser(ParserInterface):
     @property
     def If(self):
         return c_ast.If
-
-    @property
-    def Node(self):
-        return c_ast.Node
 
     @property
     def NodeVisitor(self):
@@ -371,3 +408,6 @@ class PyCParser(ParserInterface):
 
 # Parser is an instance of the preferred parser implementation
 Parser = PyCParser()
+
+LOOP_T = Type[Union[Parser.While, Parser.DoWhile, Parser.For]]
+"""AST node is a loop type (for, while, do...while)."""

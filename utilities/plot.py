@@ -34,7 +34,7 @@ cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
 # flake8: noqa: E402
-from pymwp import Result
+from pymwp import Result, FuncLoops
 from pymwp.bound import MwpBound
 from pymwp.file_io import load_result
 
@@ -46,20 +46,21 @@ def cmd_args(parser):
         dest="in_dir",
         metavar="IN",
         default=join(cwd, 'output'),
-        help='Path to analysis results directory (default: output)',
+        help='Directory of analysis results.',
     )
     parser.add_argument(
         "-o", "--out",
         action='store',
         default=join(cwd, 'output'),
-        help="Directory to save generated plot (default: output)"
+        help="Directory where to save generated plot."
     )
     parser.add_argument(
         "-f", '--fmt',
         action="store",
         default="plain",
         metavar="FORMAT",
-        help='output format: {tex, plain} (default: plain)'
+        type=str.lower,
+        help='Plot format: tex or plain.'
     )
     return parser.parse_args()
 
@@ -168,9 +169,14 @@ class Plot:
         return bound if len(bound) < wrap_at else \
             bound.replace('∧', f'\n{" " * pad}∧')
 
-    def build_matrix(self):
-        """Construct table data."""
+    @staticmethod
+    def loop_bench_name(res: Result, lf: FuncLoops, n: int):
+        mid = f', {lf.name}' if res.program.name != lf.name else ''
+        return f'{res.program.name}{mid}: L{n}'
 
+    def build_data_table(self):
+        """Construct table data."""
+        # add all results that are function analyses
         inputs = [e for sublist in [[
             (ex, ex.get_func(f_name)) for f_name in ex.relations.keys()]
             for (_, ex) in sorted(self.results.items())] for e in sublist]
@@ -179,12 +185,28 @@ class Plot:
             (i + 1, (Plot.texify_bound(f.bound), p))
             for i, f, p in [(i, f, f.bound.show(True, True)
             if f.bound else None) for (i, (_, f)) in enumerate(inputs)]
-            if f.n_bounds > 0 and len(p) > 0]
+            if f.n_bounds > 0 and p and len(p) > 0]
 
-        return [(i + 1, (f'{ex.program.name}: {fun.name}'
-                         if ex.n_functions > 1 else ex.program.name),
-                 ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
-                for i, (ex, fun) in enumerate(inputs)], dict(bound_dict)
+        relation_data = [
+            (i + 1, (f'{ex.program.name}: {fun.name}'
+                     if ex.n_functions > 1 else ex.program.name),
+             ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
+            for i, (ex, fun) in enumerate(inputs)]
+
+        # look for results of loop analyses
+        for ex in sorted(self.results.values(), key=lambda x: x.program.name):
+            for lf in ex.loops.values():
+                for n, loop in enumerate(lf.loops):
+                    i = len(relation_data)
+                    name = self.loop_bench_name(ex, lf, n + 1)
+                    table = (i + 1, name, loop.n_lines, loop.dur_ms,
+                             loop.n_vars, loop.n_bounded)
+                    relation_data.append(table)
+                    if loop.n_bounded > 0:
+                        tex = Plot.texify_bound(loop.as_bound)
+                        plain = loop.as_bound.show(True, False)
+                        bound_dict.append((i + 1, (tex, plain)))
+        return relation_data, dict(bound_dict)
 
     def generate(self) -> None:
         """Generate a table plot, then show it, and save it to file."""
@@ -197,7 +219,10 @@ class Plot:
         f1_writer, f2_writer = self.writer(), self.writer()
 
         f1_writer.headers = t1_writer.headers = self.headers()
-        f1_writer.value_matrix, _ = t1_values, bounds = self.build_matrix()
+        f1_writer.value_matrix, _ = t1_values, bounds = self.build_data_table()
+        if not t1_values:
+            print('Nothing table entries to plot')
+            return
         f1_writer.dump(fn)  # write to file
 
         f2_writer.headers = ['#', 'bound']
@@ -207,13 +232,14 @@ class Plot:
         f2_writer.dump(mn)
 
         # display text tables
-        pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
         t1_writer.value_matrix = t1_values
         t1_writer.write_table()
-        print()
-        [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
-         for k, (_, v) in bounds.items()]
-        print()
+        if bounds:
+            print()
+            pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
+            [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
+             for k, (_, v) in bounds.items()]
+            print()
         print(f'Wrote tables to: {fn}\nand to: {mn}')
 
 

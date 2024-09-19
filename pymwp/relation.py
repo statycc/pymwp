@@ -21,7 +21,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict, Union
 
 from . import Choices, DeltaGraph, Polynomial, MATRIX
 from . import matrix as matrix_utils
@@ -436,8 +436,9 @@ class Relation:
         # generate valid choices
         return Choices.generate(choices, index, infinity_deltas)
 
-    def var_eval(self, choices: List[int], index: int, *scalars: str)\
-            -> Dict[str, Choices]:
+    def var_eval(self, choices: List[int], index: int,
+                 variables: Union[str, List[str]] = None,
+                 *scalars: str) -> Union[Choices, Dict[str, Choices]]:
         """Evaluate choices for each individual variable.
 
         This is same as `eval`, except it generates the choice-vectors
@@ -446,6 +447,7 @@ class Relation:
         Arguments:
             choices: List of choices at each index, `[0,1,2]`
             index: Accumulated program counter.
+            variables: One or more variables to evaluate.
             scalars: Exclude specified scalars.
 
         Returns:
@@ -453,12 +455,14 @@ class Relation:
             and value is a choice object for the evaluated variable.
         """
         result = {}
-        for col, v_name in enumerate(self.variables):
-            d = set()
+        one_var = isinstance(variables, str) and len(variables)
+        eval_set = [variables] if one_var else (variables or self.variables)
+        for v_name in eval_set:
+            d, col = set(), self.variables.index(v_name)
             for row in self.matrix:
                 d.update(row[col].eval(*scalars))
             result[v_name] = Choices.generate(choices, index, d)
-        return result
+        return result[variables] if one_var else result
 
 
 class SimpleRelation(Relation):

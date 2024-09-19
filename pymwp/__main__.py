@@ -40,9 +40,10 @@ import argparse
 import logging
 import sys
 from argparse import RawTextHelpFormatter
-from typing import List, Optional
+from typing import List, Optional, Type, Union
 
-from . import Parser, Result, Analysis, __version__, __title__ as pymwp
+from . import __version__, __title__ as pymwp
+from . import Parser, Result, Analysis, LoopAnalysis
 from .file_io import default_file_out, loc, save_result
 
 
@@ -74,7 +75,10 @@ def main():
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
 
-    result = Analysis.run(ast, result, args.fin, args.strict)
+    analyzer: Type[Union[Analysis, LoopAnalysis]] = \
+        LoopAnalysis if args.loop else Analysis
+    result = analyzer.run(ast, result, fin=args.fin, strict=args.strict)
+
     if not args.no_save:
         file_out = args.out or default_file_out(args.input_file)
         save_result(file_out, result)
@@ -97,6 +101,27 @@ def __parse_args(
         help="file where to store analysis result",
     )
     parser.add_argument(
+        "--logfile",
+        action="store",
+        metavar="FILE",
+        help="write console output to a file",
+    )
+    parser.add_argument(
+        "--fin",
+        action='store_true',
+        help="ensure analysis completion in all cases"
+    )
+    parser.add_argument(
+        '--info',
+        action='store_true',
+        help="set logging level to info"
+    )
+    parser.add_argument(
+        "--loop",
+        action='store_true',
+        help="run loop analysis"
+    )
+    parser.add_argument(
         "--no_save",
         action='store_true',
         help="do not write analysis result to a file"
@@ -107,30 +132,14 @@ def __parse_args(
         help="display log without timestamps"
     )
     parser.add_argument(
-        "--fin",
+        "--silent",
         action='store_true',
-        help="ensure analysis completion in all cases"
+        help="disable all terminal output"
     )
     parser.add_argument(
         "--strict",
         action='store_true',
-        help="require full syntax coverage to analyze"
-    )
-    parser.add_argument(
-        "--logfile",
-        action="store",
-        metavar="FILE",
-        help="write console output to a file",
-    )
-    parser.add_argument(
-        '--info', '-i',
-        action='store_true',
-        help="set logging level to info"
-    )
-    parser.add_argument(
-        "--silent", '-s',
-        action='store_true',
-        help="disable all terminal output"
+        help="require full syntax compliance to analyze"
     )
     parser.add_argument(
         "--version",

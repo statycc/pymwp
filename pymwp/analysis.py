@@ -17,13 +17,14 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Dict
 
-from . import Coverage, Variables, COM_RES
-from . import DeltaGraph, Polynomial, RelationList, Result, Bound
+from . import Coverage, Variables, FindLoops, COM_RES
+from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
+from . import Result, FuncResult, FuncLoops, LoopResult, VResult
 # noinspection PyPep8Naming
-from .parser import Parser as pr
-from .result import FuncResult
+from .parser import Parser as pr, LOOP_T
+from .semiring import ZERO_MWP, UNIT_MWP, POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
 
@@ -31,76 +32,105 @@ logger = logging.getLogger(__name__)
 class Analysis:
     """MWP analysis implementation."""
 
+    DOMAIN = [0, 1, 2]
+
     @staticmethod
-    def run(ast: pr.AST, res: Result = None, fin: bool = False,
-            strict: bool = False) -> Result:
-        """Run MWP analysis on specified input file.
+    def run(ast: pr.Node, res: Result = None, fin: bool = False,
+            strict: bool = False, **kwargs) -> Result:
+        """Run MWP analysis on AST.
 
         Arguments:
-            ast: parsed C source code AST
-            res: pre-initialized result object
-            fin: always run to completion
-            strict: require supported syntax
+            ast (pr.Node): Parsed C source code AST Node.
+            res (Result): Pre-initialized result object.
+            fin (bool): Always run to completion.
+            strict (bool): Require supported syntax.
 
         Returns:
-            A `Result` object.
+            Analysis Result object.
         """
-        result = res or Result()
+        result: Result = res or Result()
         logger.debug("started analysis")
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
-            func_res = Analysis.func(f_node, not fin, strict)
-            if func_res:
+            if Analysis.syntax_check(f_node, strict):
+                func_res = Analysis.func(f_node, not fin)
+                func_res.func_code = pr.to_c(f_node, True)
                 result.add_relation(func_res)
-        result.on_end()
-        result.log_result()
+        result.on_end().log_result()
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool, strict: bool) \
-            -> Optional[FuncResult]:
+    def func(node: pr.FuncDef, stop: bool) -> FuncResult:
         """Analyze a function.
 
         Arguments:
             node: parsed C source code function node
             stop: terminate if no bound exists
-            strict: skip function if it contains unsupported syntax
 
         Returns:
-              Analysis result for provided function. When running strict
-              mode, the result will be None if function is not analyzable.
+              Analysis result for provided function.
         """
         assert pr.is_func(node)
         name = node.decl.name
         logger.info(f"Analyzing {name}")
-        result = FuncResult(name)
-
-        # preliminary syntax check
-        cover = Coverage(node).report()
-        if not cover.full and strict:
-            logger.info(f"{name} is not analyzable")
-            return None
-        if not cover.full:
-            cover.ast_mod()
-            logger.warning(f"{name} syntax was modified")
-            if len(node.body.block_items) == 0:
-                logger.warning("nothing left to analyze")
-                return None
-            result.func_code = pr.to_c(node, True)
+        result = FuncResult(name).on_start()
 
         # setup for function analysis
-        index, options, choices = 0, [0, 1, 2], []
-        evaluated, bound = False, None
-        delta_infty, dg = False, DeltaGraph()
-        variables = Variables(node).vars
-        total = len(node.body.block_items)
+        variables, body = Variables(node).vars, (node.body.block_items or [])
         relations = RelationList.identity(variables=variables)
-        logger.debug(f"{name} variables: {', '.join(variables)}")
+        total, num_v = len(body), len(variables)
+        show_vars = ', '.join(variables) if num_v <= 5 else num_v
+        logger.debug(f"{name} variables: {show_vars}")
         logger.debug(f"{total} top-level commands to analyze")
 
         # analyze body commands
-        result.on_start()
-        for i, node in enumerate(node.body.block_items):
+        delta_infty, index = Analysis.cmds(relations, 0, body, stop)
+
+        # evaluate choices + calculate a bound
+        evaluated, choices, bound = False, None, None
+        if not delta_infty:
+            choices = relations.first.eval(Analysis.DOMAIN, index)
+            if not choices.infinite:
+                bound = Bound().calculate(
+                    relations.first.apply_choice(*choices.first))
+            evaluated = True
+        # infinite by delta graph or by choice
+        infinite = delta_infty or (evaluated and choices.infinite)
+
+        # record results
+        result.index = index
+        result.infinite = infinite
+        result.variables = relations.first.variables
+        if not (infinite and stop):
+            result.relation = relations.first
+        if infinite and not stop:
+            var_choices = relations.first.var_eval(Analysis.DOMAIN, index)
+            result.inf_flows = relations.first.infty_pairs(
+                [v for v, c in var_choices.items() if c.infinite])
+        if not infinite:
+            result.bound = bound
+            result.choices = choices
+        result.on_end()
+        return result
+
+    @staticmethod
+    def cmds(relations: RelationList, index: int, nodes: List[pr.Node],
+             stop: bool = True) -> Tuple[bool, int]:
+        """Analyze some list of commands, typically body block statements.
+
+        Arguments:
+            relations (RelationList): Initialized relation list.
+            index (int): Derivation index.
+            nodes (List[pr.Node]): List of AST nodes to analyze.
+            stop (bool): Set True to terminate early.
+
+        Returns:
+            True if nodes lead to infinity by delta graph.
+        """
+        if not nodes:
+            return False, index
+        delta_infty, total, dg = False, len(nodes), DeltaGraph()
+        for i, node in enumerate(nodes):
             logger.debug(f'computing relation...{i} of {total}')
             index, rel_list, delta_infty_ = Analysis \
                 .compute_relation(index, node, dg)
@@ -110,35 +140,28 @@ class Analysis:
                 break
             logger.debug(f'computing composition...{i} of {total}')
             relations.composition(rel_list)
+        return delta_infty, index
 
-        # evaluate choices + calculate a bound
-        if not delta_infty:
-            choices = relations.first.eval(options, index)
-            if not choices.infinite:
-                bound = Bound().calculate(
-                    relations.first.apply_choice(*choices.first))
-            evaluated = True
+    @staticmethod
+    def syntax_check(node: pr.Node, strict: bool) -> bool:
+        """Analyze function syntax and conditionally modify the AST.
 
-        # infinite by delta graph or by choice
-        infinite = delta_infty or (
-                relations.first.variables and index > 0 and
-                evaluated and choices.infinite)
+        Arguments:
+            node (pr.Node): An AST node.
+            strict (bool): When true, AST will not be modified.
 
-        # record results
-        result.index = index
-        result.infinite = infinite
-        result.vars = relations.first.variables
-        if not (infinite and stop):
-            result.relation = relations.first
-        if infinite and not stop:
-            var_choices = relations.first.var_eval(options, index)
-            result.inf_flows = relations.first.infty_pairs(
-                [v for v, c in var_choices.items() if c.infinite])
-        if not infinite:
-            result.bound = bound
-            result.choices = choices
-        result.on_end()
-        return result
+        Returns:
+            True if analysis can be performed and False otherwise.
+        """
+        name = node.decl.name if pr.is_func(node) else 'node'
+        cover = Coverage(node).report()
+        if not cover.full and strict:
+            logger.warning(f"{name} syntax is not fully analyzable")
+            return False
+        if not cover.full:
+            cover.ast_mod()  # removes unsupported commands
+            logger.warning(f"{name} syntax was modified")
+        return True
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
@@ -187,7 +210,10 @@ class Analysis:
             return index, RelationList(), False
         if (isinstance(node, pr.FuncCall)
                 and isinstance(node.name, pr.ID)
-                and node.name.name == 'assert'):
+                and (node.name.name == 'assert' or
+                     node.name.name == 'assume')):
+            return index, RelationList(), False
+        if isinstance(node, pr.EmptyStatement):
             return index, RelationList(), False
 
         Analysis._unsupported(pr.to_c(node))
@@ -291,7 +317,7 @@ class Analysis:
 
     @staticmethod
     def unary_asgn(index: int, node: pr.Assignment) -> COM_RES:
-        """Assignment where right-hand-size is a unary op e.g. `x = y++`.
+        """Assignment where right-hand-size is a unary op e.g. `x = y++;`.
 
         Arguments:
             index: delta index
@@ -336,10 +362,9 @@ class Analysis:
                 logger.debug(f'{op}{exp} converted to -1*{exp}')
                 return Analysis.binary_op(
                     index, pr.Assignment('=', tgt, r_node))
-
         # unary address of "&" will fall through
         # expr not in {ID, Constant} will fall through
-        Analysis._unsupported(type(node))
+        Analysis._unsupported(pr.to_c(node))
         return index, RelationList(), False
 
     @staticmethod
@@ -534,44 +559,188 @@ class Analysis:
         Returns:
              Updated index, list of Polynomial vectors
         """
-
+        assert op in Coverage.BIN_OPS
         x, y, z = variables
-        supported_op = Coverage.BIN_OPS
         vector = []
-
-        if op not in supported_op:
-            Analysis._unsupported(f'{op} operator')
-            return index, []
 
         # when left variable does not occur on right side of assignment
         # x = … (if x not in …), i.e. when left side variable does not
         # occur on the right side of assignment, we prepend 0 to vector
         if x != y and x != z:
-            vector.append(Polynomial('o'))
+            vector.append(Polynomial(ZERO_MWP))
 
-        if op in supported_op and (y is None or z is None):
-            vector.append(Polynomial.from_scalars(index, 'm', 'm', 'm'))
+        if y is None or z is None:
+            vector.append(Polynomial.from_scalars(
+                index, UNIT_MWP, UNIT_MWP, UNIT_MWP))
 
         elif op == '*' and y == z:
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
 
         elif op == '*' and y != z:
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
-            vector.append(Polynomial.from_scalars(index, 'w', 'w', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
+            vector.append(Polynomial.from_scalars(
+                index, WEAK_MWP, WEAK_MWP, WEAK_MWP))
 
         elif op in {'+', '-'} and y == z:
-            vector.append(Polynomial.from_scalars(index, 'p', 'p', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, POLY_MWP, POLY_MWP, WEAK_MWP))
 
         elif op in {'+', '-'} and y != z:
-            vector.append(Polynomial.from_scalars(index, 'm', 'p', 'w'))
-            vector.append(Polynomial.from_scalars(index, 'p', 'm', 'w'))
+            vector.append(Polynomial.from_scalars(
+                index, UNIT_MWP, POLY_MWP, WEAK_MWP))
+            vector.append(Polynomial.from_scalars(
+                index, POLY_MWP, UNIT_MWP, WEAK_MWP))
 
         return index + 1, vector
 
     @staticmethod
     def _unsupported(command: any):
-        """Handle unsupported command."""
+        """Keep for debugging extending parser+syntax support."""
         warning, endc = '\033[93m', '\033[0m'
         fmt_str = str(command or "").strip()
-        logger.warning(f'{warning}Unsupported syntax{endc} '
-                       f'not evaluated: {fmt_str}')
+        logger.warning(f'{warning}Unsupported syntax {fmt_str}{endc}')
+
+
+class LoopAnalysis(Analysis):
+    """MWP analysis for loops."""
+
+    @staticmethod
+    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs):
+        """Run loop-invariant analysis.
+
+        Arguments:
+            ast (pr.Node): Parsed C source code as an AST.
+            res (Result): Pre-initialized result object.
+            strict (bool): Require supported syntax.
+
+        Returns:
+            Analysis Result object.
+        """
+        result = res or Result()
+        result.on_start()
+        logger.debug("Starting loop analysis")
+        functions = [f for f in ast if pr.is_func(f)]
+        for func in functions:
+            f_name = func.decl.name
+            f_result = FuncLoops(f_name)
+            f_result.on_start()
+            logger.info(f"Analyzing {f_name}")
+            # find loops and check/fix loop body syntax
+            # nested loops are duplicated+lifted
+            loops = [loop for loop in FindLoops(func).loops if
+                     LoopAnalysis.syntax_check(loop, strict)]
+            logger.debug(f"Total analyzable loops: {len(loops)}")
+            # analyze each loop
+            for loop in loops:
+                f_result.loops.append(LoopAnalysis.inspect(loop))
+            f_result.on_end()
+            result.add_loop(f_result)
+        result.on_end()
+        result.log_result()
+        return result
+
+    @staticmethod
+    def inspect(node: LOOP_T) -> LoopResult:
+        """Analyze a loop.
+
+        Arguments:
+            node (LOOP_T): A loop node.
+
+        Returns:
+            Loop analysis result.
+        """
+        assert pr.is_loop(node)
+        result = LoopResult(pr.to_c(node)).on_start()
+
+        # setup for loop analysis
+        variables = Variables(node).vars
+        relations = RelationList.identity(variables=variables)
+
+        # analyze body commands, always run to completion
+        infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
+
+        # evaluate at variables
+        result.variables = dict(zip(variables, map(
+            lambda v: LoopAnalysis.get_result(
+                relations.first, index, v), variables))) \
+            if not infty else \
+            LoopAnalysis.maybe_result(relations.first, index)
+
+        result.on_end()
+        return result
+
+    @staticmethod
+    def syntax_check(node: LOOP_T, strict: bool) -> bool:
+        """Analyze function syntax and conditionally modify the AST.
+
+        Arguments:
+            node (LOOP_T): An AST loop node.
+            strict (bool): When true, AST will not be modified.
+
+        Returns:
+            True if analysis can be performed and False otherwise.
+        """
+        base = Analysis.syntax_check(node, strict)
+        return base and FindLoops.not_empty(node)
+
+    @staticmethod
+    def get_result(relation: Relation, index: int, v_name: str) -> VResult:
+        """Find variable bounds when they are known to exist.
+
+        Arguments:
+            relation (Relation): Relation object.
+            index (int): Degree of analysis choice.
+            v_name (str): Name of variable to evaluate.
+
+        Returns:
+            Evaluation result for identified variable.
+        """
+        result = VResult(v_name)
+        options = (('is_m', (WEAK_MWP, POLY_MWP)),
+                   ('is_w', (POLY_MWP,)),
+                   ('is_p', ()))
+        # find the "least bound-choice": 0/m < has w < has p
+        for attr, scalars in options:
+            choices = relation.var_eval(
+                Analysis.DOMAIN, index, v_name, *scalars)
+            if not choices.infinite:
+                setattr(result, attr, True)
+                result.choices = choices
+                break
+        assert result.choices
+        simple_mat = relation.apply_choice(*result.choices.first)
+        result.bound = Bound().calculate(simple_mat).bound_dict[v_name]
+        return result
+
+    @staticmethod
+    def maybe_result(relation: Relation, index: int) -> Dict[str, VResult]:
+        """Evaluate variables when some variables are known to fail.
+
+         Arguments:
+            relation (Relation): Relation object.
+            index (int): Degree of analysis choice.
+
+        Returns:
+            Dictionary of results, for each variable in relation.
+        """
+        variables = relation.variables
+        p_bounds = dict(zip(variables, map(lambda v: relation.var_eval(
+            Analysis.DOMAIN, index, v), variables)))
+        fail = [v for v, c in p_bounds.items() if c.infinite]
+        rest = dict([(v, p_bounds[v]) for v in (set(variables) - set(fail))])
+        result = dict([(v, VResult(v)) for v in fail])
+        fail_idx = [relation.variables.index(v) for v in fail]
+        if rest:  # maybe some well-behaving variables?
+            red = Choices.choice_reduce(*rest.values())
+            assert not red.infinite  # should always give a choice?
+            simple_mat = relation.apply_choice(*red.first)
+            for v in rest.keys():
+                idx = relation.variables.index(v)
+                # assumption: if dep is 0, it is 0 in all derivations?
+                deps = set([simple_mat.matrix[fi][idx] for fi in fail_idx])
+                # only when variable has no dependency on failing ones
+                result[v] = (LoopAnalysis.get_result(relation, index, v)
+                             if deps == {ZERO_MWP} else VResult(v))
+        return result

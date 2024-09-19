@@ -56,7 +56,7 @@ def test_load_relation(mocker):
         },
         "relations": {"foo": {
             "name": "foo",
-            "vars": ["x", "y"],
+            "variables": ["x", "y"],
             "relation":
                 {"matrix": [
                     [[{"scalar": "m", "deltas": [(0, 0)]}],
