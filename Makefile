@@ -54,8 +54,8 @@ cprofile:
 
 bench-only:
 	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \
- 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)" ; ))
-	@python3 utilities/runtime.py output
+ 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)" ; )) \
+     	python3 utilities/runtime.py output
 
 plot:
 	python3 utilities/plot.py -i output -f tex
