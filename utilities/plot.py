@@ -46,20 +46,21 @@ def cmd_args(parser):
         dest="in_dir",
         metavar="IN",
         default=join(cwd, 'output'),
-        help='Path to analysis results directory (default: output)',
+        help='Directory of analysis results.',
     )
     parser.add_argument(
         "-o", "--out",
         action='store',
         default=join(cwd, 'output'),
-        help="Directory to save generated plot (default: output)"
+        help="Directory where to save generated plot."
     )
     parser.add_argument(
         "-f", '--fmt',
         action="store",
         default="plain",
         metavar="FORMAT",
-        help='output format: {tex, plain} (default: plain)'
+        type=str.lower,
+        help='Plot format: tex or plain.'
     )
     return parser.parse_args()
 
@@ -170,6 +171,7 @@ class Plot:
 
     def build_data_table(self):
         """Construct table data."""
+        # add all results that are function analyses
         inputs = [e for sublist in [[
             (ex, ex.get_func(f_name)) for f_name in ex.relations.keys()]
             for (_, ex) in sorted(self.results.items())] for e in sublist]
@@ -186,14 +188,19 @@ class Plot:
              ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds)
             for i, (ex, fun) in enumerate(inputs)]
 
-        for ex in self.results.values():
+        # look for results of loop analyses
+        for ex in sorted(self.results.values(), key=lambda x: x.program.name):
             for n, loop in enumerate(ex.loops):
                 i = len(relation_data)
-                name = f'{ex.program.name} ({loop.func_name}): loop-{n + 1}'
+                name = f'{ex.program.name} ({loop.func_name}): L-{n + 1}'
+
                 table = (i + 1, name, loop.n_lines, loop.dur_ms,
                          loop.n_vars, loop.n_bounded)
                 relation_data.append(table)
-
+                if loop.n_bounded > 0:
+                    plain = loop.as_bound().show(True, False)
+                    tex = Plot.texify_bound(loop.as_bound())
+                    bound_dict.append((i + 1, (tex, plain)))
         return relation_data, dict(bound_dict)
 
     def generate(self) -> None:
@@ -222,8 +229,8 @@ class Plot:
         # display text tables
         t1_writer.value_matrix = t1_values
         t1_writer.write_table()
-        print()
         if bounds:
+            print()
             pad, wrap_at = len(str(list(bounds)[-1])) + 2, 52
             [print(f'{k:<{pad}}' + self.text_fmt(v, pad, wrap_at))
              for k, (_, v) in bounds.items()]

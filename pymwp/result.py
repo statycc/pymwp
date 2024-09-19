@@ -205,7 +205,7 @@ class FuncResult(Timeable, Serializable):
                 txt += f'\nProblematic flows: {self.inf_flows}'
         else:
             txt += f'{self.n_bounds:,}\n'
-            txt += f'{Bound.show(self.bound)}'
+            txt += f'{Bound.show(self.bound, True, True)}'
         return txt
 
     @property
@@ -271,17 +271,15 @@ class LoopResult(Timeable, Serializable):
         self.variables: Dict[str, VResult] = {}
 
     def __str__(self):
-        bounds = f' {Bound.LAND} '.join(
-            [res.bound.poly(v) for v, res in
-             self.variables.items() if res.bound])
-        txt = f'loop: {self.loop_desc}'
+        txt = f'function: {self.func_name}'
+        txt += f'\nloop: {self.loop_desc}'
         txt += f'\nvariables: {len(self.variables)}'
         txt += f' • time: {self.dur_ms:,} ms'
-        txt += f'\nlinear: {self.linear}'
-        txt += f'\nindependent: {self.weak}'
-        txt += f'\npolynomial: {self.poly}'
-        txt += f'\ninfinity: {self.exp}'
-        txt += f'\n{bounds}'
+        txt += f'\nlinear: {", ".join(self.linear) or "—"}'
+        txt += f'\nindependent: {", ".join(self.weak) or "—"}'
+        txt += f'\npolynomial: {", ".join(self.poly) or "—"}'
+        txt += f'\ninfinity: {", ".join(self.exp) or "—"}'
+        txt += f'\n{self.as_bound().show(True, True)}'
         return txt
 
     @property
@@ -290,44 +288,57 @@ class LoopResult(Timeable, Serializable):
 
     @property
     def n_vars(self) -> int:
+        """Number of variables."""
         return len(self.variables)
 
     @property
     def n_bounded(self) -> int:
-        return self.n_vars - len(list(filter(
-            lambda x: not x.is_p, self.variables.values())))
+        """Number of variables with a known bound."""
+        exp = filter(lambda x: x.exponential, self.variables.values())
+        return self.n_vars - len(list(exp))
 
     @property
     def n_lines(self) -> int:
-        return self.loop_code.count('\n')
+        """Number of code lines in a loop."""
+        return self.loop_code.strip().count('\n')
 
     @property
-    def loop_desc(self):
+    def loop_desc(self) -> str:
+        """Loop description => header block."""
         header = self.loop_code.split('\n')[:1][0].strip()
         return (header[:40] if len(header) > 40 else header) + '…'
 
-    def _v_list(self, cond: Callable[[VResult], bool]):
-        """Make a list of variables satisfying condition."""
-        items = [v for v, r in self.variables.items() if cond(r)]
-        return ", ".join(items) if items else '—'
+    @property
+    def linear(self) -> List[str]:
+        """All variables with a linear bound."""
+        return self.var_sat(lambda r: r.is_m)
 
     @property
-    def linear(self):
-        return self._v_list(lambda r: r.is_m)
+    def weak(self) -> List[str]:
+        """All variables with a weak polynomial bound."""
+        return self.var_sat(lambda r: r.is_w and not r.is_m)
 
     @property
-    def weak(self):
-        return self._v_list(lambda r: r.is_w and not r.is_m)
+    def poly(self) -> List[str]:
+        """All variables with a polynomial bound."""
+        return self.var_sat(lambda r: r.is_p and not r.is_w)
 
     @property
-    def poly(self):
-        return self._v_list(lambda r: r.is_p and not r.is_w)
+    def exp(self) -> List[str]:
+        """All variables with an unknown bound."""
+        return self.var_sat(lambda r: r.exponential)
 
-    @property
-    def exp(self):
-        return self._v_list(lambda r: r.exponential)
+    def as_bound(self) -> Bound:
+        """Combines variable results to a Bound-type."""
+        return Bound(dict([
+            (v, res.bound.bound_str) for v, res in
+            self.variables.items() if res.bound]))
 
-    def to_dict(self) -> dict:
+    def var_sat(self, cond: Callable[[VResult], bool]) -> List[str]:
+        """List of variables satisfying condition."""
+        return [v for v, r in self.variables.items() if cond(r)]
+
+    def to_dict(self) -> dict[str, Union[str, int, dict]]:
         """Serialize a function result."""
         result = super().to_dict()
         variables = {'variables': dict([
@@ -349,7 +360,7 @@ class LoopResult(Timeable, Serializable):
 
 
 class VResult(Serializable):
-    """Bounds result for a variable.
+    """Analysis result for a single variable.
 
     Attributes:
         name (str): Variable name.
@@ -375,10 +386,12 @@ class VResult(Serializable):
 
     @property
     def exponential(self):
+        """Variable has no known bound (polynomial or less)."""
         return self.is_p is False
 
     @property
     def is_m(self) -> bool:
+        """Variable has a max of linear bound."""
         return self._is_m
 
     @is_m.setter
@@ -390,6 +403,7 @@ class VResult(Serializable):
 
     @property
     def is_w(self) -> bool:
+        """Variable has a weak polynomial bound."""
         return self._is_w
 
     @is_w.setter
@@ -401,6 +415,7 @@ class VResult(Serializable):
 
     @property
     def is_p(self) -> bool:
+        """Variable has a polynomial bound."""
         return self._is_p
 
     @is_p.setter
@@ -414,8 +429,8 @@ class VResult(Serializable):
     def attrs(self) -> List[str]:
         return 'name,is_m,is_w,is_p'.split(',')
 
-    def to_dict(self) -> dict:
-        """Serialize a function result."""
+    def to_dict(self) -> dict[str, str, int, dict]:
+        """Serialize a loop variable analysis result."""
         result = super().to_dict()
         if self.choices:
             result['choices'] = self.choices.valid
@@ -539,13 +554,13 @@ class Result(Timeable, Serializable):
         return self.relations
 
     def log_result(self) -> Result:
-        """Display here all interesting stats."""
+        """Display here all interesting stats about analysis result."""
         if self.n_functions == 0 and self.n_loops == 0:
             logger.warning("Nothing was analyzed")
         logger.info(f'Total time: {self.dur_s} s ({self.dur_ms} ms)')
         return self
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Union[str, dict]]:
         """JSON serialize a result object.
 
         Returns:
