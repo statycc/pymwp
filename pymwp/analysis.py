@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
@@ -114,14 +114,14 @@ class Analysis:
         return result
 
     @staticmethod
-    def cmds(relations: RelationList, index: int, nodes: list[pr.Node],
+    def cmds(relations: RelationList, index: int, nodes: List[pr.Node],
              stop: bool = True) -> Tuple[bool, int]:
         """Analyze some list of commands, typically body block statements.
 
         Arguments:
             relations (RelationList): Initialized relation list.
             index (int): Derivation index.
-            nodes (list[pr.Node]): List of AST nodes to analyze.
+            nodes (List[pr.Node]): List of AST nodes to analyze.
             stop (bool): Set True to terminate early.
 
         Returns:
@@ -715,7 +715,7 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def maybe_result(relation: Relation, index: int) -> dict[str, VResult]:
+    def maybe_result(relation: Relation, index: int) -> Dict[str, VResult]:
         """Evaluate variables when some variables are known to fail.
 
          Arguments:
