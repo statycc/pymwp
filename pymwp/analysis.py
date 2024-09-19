@@ -638,7 +638,7 @@ class LoopAnalysis(Analysis):
             logger.debug(f"Total analyzable loops: {len(loops)}")
             # analyze each loop
             for loop in loops:
-                f_result.add_loop(LoopAnalysis.loop(loop))
+                f_result.loops.append(LoopAnalysis.inspect(loop))
             f_result.on_end()
             result.add_loop(f_result)
         result.on_end()
@@ -646,7 +646,7 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def loop(node: LOOP_T) -> LoopResult:
+    def inspect(node: LOOP_T) -> LoopResult:
         """Analyze a loop.
 
         Arguments:
@@ -672,7 +672,6 @@ class LoopAnalysis(Analysis):
             if not infty else \
             LoopAnalysis.maybe_result(relations.first, index)
 
-        # Save results
         result.on_end()
         return result
 

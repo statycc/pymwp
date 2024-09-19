@@ -200,8 +200,8 @@ class Plot:
                              loop.n_vars, loop.n_bounded)
                     relation_data.append(table)
                     if loop.n_bounded > 0:
-                        plain = loop.as_bound().show(True, False)
-                        tex = Plot.texify_bound(loop.as_bound())
+                        tex = Plot.texify_bound(loop.as_bound)
+                        plain = loop.as_bound.show(True, False)
                         bound_dict.append((i + 1, (tex, plain)))
         return relation_data, dict(bound_dict)
 
