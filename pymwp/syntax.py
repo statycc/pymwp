@@ -250,16 +250,17 @@ class Variables(BaseAnalysis):
                 pr.Continue, pr.Switch, pr.TernaryOp, pr.Return)
 
     @staticmethod
-    def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
-        """Find variables in a for loop control block.
+    def _loop_init(node: pr.For) -> Tuple[List[str], List[str], List[str]]:
+        """Find variables in a for loop init block.
 
-        Arguments:
-            node: for-loop node.
+        Look for
+        1. "iterator" variables: i=…,…
+        2. Declarations: int x=…,…
+        3. init "source" variables: (…=y)
 
         Returns:
-            Two lists of variables: (loop guard, body variables).
+            Discovered variables, in the order describes above.
         """
-        iters, decls, srcs = [], [], []
 
         def id_(node_, tgt):
             if isinstance(node_, pr.ID):
@@ -272,31 +273,41 @@ class Variables(BaseAnalysis):
                 id_(node_.rvalue, values)
                 return True
 
-        if not asgn(node.init, iters, srcs):
-            # init is a declaration (int i=0; ...)
-            if isinstance(node.init, pr.DeclList):
-                for decl in node.init.decls:
-                    decls += [decl.name]
-                    id_(decl.init, srcs)
-            # init is a list (i=0, j=x; ...)
-            elif isinstance(node.init, pr.ExprList):
-                for expr in node.init.exprs:
-                    asgn(expr, iters, srcs)
+        iters, decls, srcs = [], [], []
+        if asgn(node.init, iters, srcs):  # (i=0;…) =1x
+            pass
+        elif isinstance(node.init, pr.DeclList):  # (int i=0,…) ≥1x
+            for decl in node.init.decls:
+                decls += [decl.name]
+                id_(decl.init, srcs)
+        elif isinstance(node.init, pr.ExprList):  # (i=0, j=x;…) >1x
+            for expr in node.init.exprs:
+                asgn(expr, iters, srcs)
+        return iters, decls, srcs
 
+    @staticmethod
+    def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
+        """Find variables in a for loop control block.
+
+        Arguments:
+            node: for-loop node.
+
+        Returns:
+            Two lists of variables: (loop guard, body variables).
+        """
+        iters, decls, srcs = Variables._loop_init(node)
         conds = Variables(node.cond).vars
-        body = Variables(node.stmt).vars
         nxt = Variables(node.next).vars
         iters = list(set(iters) | set(nxt))
+        body = Variables(node.stmt).vars
 
-        # conditional expr + source-variables from init
-        loop_vars = list(set(conds) | set(srcs))
-        # loop_vars - declarations - iterators
-        loop_x = list(set(loop_vars) - set(decls) - set(iters))
+        loop_vars = set(conds) | set(srcs)
+        exclude = set(decls) | set(iters)
+        loop_x = list(loop_vars - exclude)
 
-        info = [('maybe', loop_vars), ('iter', iters), ('decl', decls),
-                ('guard', loop_x), ('body', body)]
+        info = [('guard', loop_x), ('body', body)]
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
-        logger.debug(f"for-loop variables\n  {', '.join(info)}")
+        logger.debug(f"for-loop {', '.join(info)}")
         return loop_x, body
 
     def handler(self, node: pr.Node, *args, **kwargs):
