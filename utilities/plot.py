@@ -162,7 +162,7 @@ class Plot:
     @staticmethod
     def headers() -> List[str]:
         """Specify table headers."""
-        return ['#', 'Benchmark', 'loc', 'time', 'variables', 'bounds']
+        return ['#', 'Benchmark', 'loc', 'time', 'vars', 'bounds']
 
     @staticmethod
     def text_fmt(bound, pad, wrap_at):
