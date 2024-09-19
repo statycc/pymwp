@@ -38,5 +38,5 @@ from pymwp.polynomial import Polynomial
 from pymwp.relation import Relation
 from pymwp.relation_list import RelationList
 from pymwp.bound import Bound, MwpBound
-from pymwp.result import Result
+from pymwp.result import Result, FuncResult, FuncLoops, LoopResult, VResult
 from pymwp.analysis import Analysis, LoopAnalysis

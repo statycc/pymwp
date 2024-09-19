@@ -22,7 +22,7 @@ import logging
 import time
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Union, List, Any, Callable
+from typing import Optional, Dict, Union, List, Any, Callable, Type
 
 from pymwp import Relation, Bound, MwpBound, Choices
 from .matrix import decode
@@ -75,8 +75,64 @@ class Serializable(ABC):
     @property
     @abstractmethod
     def attrs(self) -> List[str]:
-        """List of relevant attribute names."""
+        """List of simple attribute names."""
         pass
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert an object to a dictionary.
+
+        Returns:
+            Dictionary version of implementing class.
+        """
+        values = map(self.__getattribute__, self.attrs)
+        return dict(zip(self.attrs, values))
+
+    @staticmethod
+    @abstractmethod
+    def from_dict(**kwargs):
+        """Restore serializable object from a dictionary.
+
+        Returns:
+            Restored instance.
+        """
+        pass
+
+    @staticmethod
+    def _load(obj: Serializable, *sattrs, **kwargs) -> Any:
+        """Initialize Serializable object from kwargs.
+
+        Arguments:
+            obj: initialized object.
+
+        Returns:
+            Loaded object.
+        """
+        [obj.try_set(obj, key, **kwargs) for key in obj.attrs]
+        for attr, objT in [a for a in sattrs if len(a) == 2]:
+            setattr(obj, attr, Serializable._obj_attr(
+                attr, objT, **kwargs))
+        for attr, key, objT in [a for a in sattrs if len(a) == 3]:
+            setattr(obj, attr, Serializable._recover(
+                attr, key, objT, **kwargs) or {})
+        return obj
+
+    # noinspection PyPep8Naming
+    @staticmethod
+    def _recover(attr: str, key_attr: str, objT: Type[Serializable], **kwargs):
+        """Try to reload a complex Dictionary type."""
+        items: Dict = Result.try_get(attr, **kwargs)
+        if items:
+            values = [objT.from_dict(**value) for value in items.values()]
+            keys = [getattr(obj, key_attr) for obj in values]
+            return dict(zip(keys, values))
+
+    # noinspection PyPep8Naming
+    @staticmethod
+    def _obj_attr(attr: str, objT: Type[Serializable], **kwargs):
+        """Try to reload a complex type."""
+        values = Serializable.try_get(attr, **kwargs)
+        if values:
+            return objT.from_dict(**values)
 
     @staticmethod
     def try_set(target: object, attr: str, *keys: str, **kwargs) -> None:
@@ -92,24 +148,6 @@ class Serializable(ABC):
         for i, key in enumerate(keys):
             ob = ob[key] if (ob and key in ob) else None
         return ob
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert an object to a dictionary.
-
-        Returns:
-            Dictionary version of implementing class.
-        """
-        values = map(self.__getattribute__, self.attrs)
-        return dict(zip(self.attrs, values))
-
-    @staticmethod
-    def _from_dict(obj: Serializable, **kwargs) -> None:
-        """Initialize Serializable object from kwargs.
-
-        Arguments:
-            obj: initialized object.
-        """
-        [obj.try_set(obj, key, **kwargs) for key in obj.attrs]
 
 
 class Program(Serializable):
@@ -145,9 +183,7 @@ class Program(Serializable):
         Returns:
             Program: initialized Program object.
         """
-        prog = Program()
-        Serializable._from_dict(prog, **kwargs)
-        return prog
+        return Serializable._load(Program(), **kwargs)
 
 
 # noinspection PyShadowingBuiltins
@@ -166,8 +202,7 @@ class FuncResult(Timeable, Serializable):
         inf_flows (str): (optional) Description of problematic flows.
             exist if analysis terminated early.
         index (int): (optional) Degree of derivation choice [default: 0].
-        func_code (str): (optional) Function source code, if the AST required
-            modification.
+        func_code (str): (optional) Function source code, if modified.
     """
 
     def __init__(
@@ -239,8 +274,7 @@ class FuncResult(Timeable, Serializable):
     def from_dict(name: str = None, infinite: bool = False, **kwargs) \
             -> FuncResult:
         """Deserialize a function result."""
-        func = FuncResult(name, infinite)
-        Serializable._from_dict(func, **kwargs)
+        func = Serializable._load(FuncResult(name, infinite), **kwargs)
         matrix = FuncResult.try_get('relation', 'matrix', **kwargs)
         if matrix:
             func.relation = Relation(func.vars, decode(matrix))
@@ -253,28 +287,79 @@ class FuncResult(Timeable, Serializable):
         return func
 
 
-class LoopResult(Timeable, Serializable):
+class FuncLoops(Timeable, Serializable):
     """Analysis result for loop.
 
     Attributes:
-        func_name (str): Containing function name.
+        name (str): Containing function name.
+        loops (Dict[str, LoopResult]): Results of function loop analysis.
+    """
+
+    def __init__(self, name: str = None):
+        super().__init__()
+        self.name: str = name
+        self.loops: List[LoopResult] = []
+
+    def __str__(self):
+        every, sep = [str(loop) for loop in self.loops], f'\n# '
+        loops = sep.join([f'{i}. {lp}' for i, lp in enumerate(every)])
+        return f'function: {self.name} • loops: {self.n_loops}' \
+               f' • time: {self.dur_ms:,} ms{sep}{loops}'
+
+    @property
+    def attrs(self) -> List[str]:
+        return 'name,start_time,end_time'.split(',')
+
+    @property
+    def n_loops(self) -> int:
+        """Number of analyzed loops"""
+        return len(self.loops)
+
+    def add_loop(self, result: LoopResult):
+        """Append a loop analysis result."""
+        self.loops.append(result)
+
+    def to_dict(self) -> dict[str, Union[str, int, dict]]:
+        """JSON serialize a result object.
+
+        Returns:
+            dict: A dictionary representation.
+        """
+        result = super().to_dict()
+        loops = {'loops': [lp.to_dict() for lp in self.loops]} \
+            if self.loops else {}
+        return {**result, **loops}
+
+    @staticmethod
+    def from_dict(**kwargs) -> FuncLoops:
+        """Reverse of serialize.
+
+        Returns:
+            Result: Initialized Result object.
+        """
+        r = Serializable._load(FuncLoops(), **kwargs)
+        loops = Result.try_get('loops', **kwargs)
+        if loops:
+            r.loops = [LoopResult.from_dict(**loop) for loop in loops]
+        return r
+
+
+class LoopResult(Timeable, Serializable):
+    """Analysis result for one loop.
+
+    Attributes:
         loop_code (str): The analyzed loop.
         variables (Dict[str, VResult]): Results by variable.
     """
 
-    def __init__(
-            self, func_name: str = None,
-            loop_code: str = None):
+    def __init__(self, loop_code: str = None):
         super().__init__()
-        self.func_name: str = func_name
         self.loop_code: str = loop_code
         self.variables: Dict[str, VResult] = {}
 
     def __str__(self):
-        txt = f'function: {self.func_name}'
-        txt += f'\nloop: {self.loop_desc}'
+        txt = f'{self.loop_desc}'
         txt += f'\nvariables: {len(self.variables)}'
-        txt += f' • time: {self.dur_ms:,} ms'
         txt += f'\nlinear: {", ".join(self.linear) or "—"}'
         txt += f'\nindependent: {", ".join(self.weak) or "—"}'
         txt += f'\npolynomial: {", ".join(self.poly) or "—"}'
@@ -284,7 +369,7 @@ class LoopResult(Timeable, Serializable):
 
     @property
     def attrs(self) -> List[str]:
-        return 'func_name,start_time,end_time,loop_code'.split(',')
+        return 'loop_code,start_time,end_time'.split(',')
 
     @property
     def n_vars(self) -> int:
@@ -305,7 +390,7 @@ class LoopResult(Timeable, Serializable):
     @property
     def loop_desc(self) -> str:
         """Loop description => header block."""
-        header = self.loop_code.split('\n')[:1][0].strip()
+        header = self.loop_code.split('\n', 1)[0].strip()
         return (header[:40] if len(header) > 40 else header) + '…'
 
     @property
@@ -335,7 +420,7 @@ class LoopResult(Timeable, Serializable):
             self.variables.items() if res.bound]))
 
     def var_sat(self, cond: Callable[[VResult], bool]) -> List[str]:
-        """List of variables satisfying condition."""
+        """List of variables satisfying a condition."""
         return [v for v, r in self.variables.items() if cond(r)]
 
     def to_dict(self) -> dict[str, Union[str, int, dict]]:
@@ -349,14 +434,8 @@ class LoopResult(Timeable, Serializable):
     @staticmethod
     def from_dict(**kwargs) -> LoopResult:
         """Deserialize a function result."""
-        result = LoopResult()
-        Serializable._from_dict(result, **kwargs)
-        variables = LoopResult.try_get('variables', **kwargs)
-        if variables:
-            result.variables = dict([
-                (name, VResult.from_dict(**value))
-                for name, value in variables.items()])
-        return result
+        args = ('variables', 'name', VResult)
+        return Serializable._load(LoopResult(), args, **kwargs)
 
 
 class VResult(Serializable):
@@ -368,7 +447,7 @@ class VResult(Serializable):
         is_w (bool): Has weak polynomial bound.
         is_p (bool): Has polynomial bound.
         bound (Optional[MwpBound]): A bound (if exists).
-        choices (Optional[Choice]): Choice for bound.
+        choices (Optional[Choice]): Bound choices.
     """
 
     def __init__(self, name: str = None, is_m: bool = False,
@@ -445,8 +524,7 @@ class VResult(Serializable):
         Returns:
             Result: Initialized Result object.
         """
-        r = VResult()
-        Serializable._from_dict(r, **kwargs)
+        r = Serializable._load(VResult(), **kwargs)
         choices = VResult.try_get('choices', **kwargs)
         if choices:
             r.choices = Choices(choices)
@@ -462,14 +540,14 @@ class Result(Timeable, Serializable):
     Attributes:
         program (Program): Information about analyzed C File.
         relations (Dict[str, FuncResult]): Dictionary of function results.
-        loops ([LoopResult]: List of analyzed loops.
+        loops (Dict[str, FuncLoops]): Dictionary of function loop results.
     """
 
     def __init__(self):
         super().__init__()
         self.program: Program = Program()
         self.relations: Dict[str, FuncResult] = {}
-        self.loops = []
+        self.loops: Dict[str, FuncLoops] = {}
 
     @property
     def n_functions(self) -> int:
@@ -478,8 +556,8 @@ class Result(Timeable, Serializable):
 
     @property
     def n_loops(self) -> int:
-        """Number of loops in analyzed program."""
-        return len(self.loops)
+        """Number of loops in functions of analyzed program."""
+        return sum([lp.n_loops for lp in self.loops.values()])
 
     @property
     def attrs(self) -> List[str]:
@@ -491,10 +569,10 @@ class Result(Timeable, Serializable):
         self.relations[func_result.name] = func_result
         Result.pretty_print_result(str(func_result))
 
-    def add_loop(self, loop_result: LoopResult) -> None:
+    def add_loop(self, func_result: FuncLoops) -> None:
         """Append loop analysis to result."""
-        self.loops.append(loop_result)
-        Result.pretty_print_result(str(loop_result))
+        self.loops[func_result.name] = func_result
+        Result.pretty_print_result(str(func_result))
 
     @staticmethod
     def pretty_print_result(txt: str) -> None:
@@ -568,8 +646,9 @@ class Result(Timeable, Serializable):
         """
         result = super().to_dict()
         prog = {'program': self.program.to_dict()}
-        loop = {'loops': [lp.to_dict() for lp in self.loops]} \
-            if self.loops else {}
+        loop = {'loops': dict([
+            (name, v.to_dict()) for (name, v) in
+            self.loops.items()])} if self.loops else {}
         rest = {'relations': dict([
             (name, v.to_dict()) for (name, v) in
             self.relations.items()])} if self.relations else {}
@@ -582,16 +661,7 @@ class Result(Timeable, Serializable):
         Returns:
             Result: Initialized Result object.
         """
-        r = Result()
-        Serializable._from_dict(r, **kwargs)
-        program = Result.try_get('program', **kwargs)
-        if program:
-            r.program = Program.from_dict(**program)
-        loops = Result.try_get('loops', **kwargs)
-        if loops:
-            r.loops = [LoopResult.from_dict(**loop) for loop in loops]
-        relations = Result.try_get('relations', **kwargs)
-        if relations:
-            for value in relations.values():
-                r.add_relation(FuncResult.from_dict(**value))
-        return r
+        args = (('program', Program),
+                ('loops', 'name', FuncLoops),
+                ('relations', 'name', FuncResult))
+        return Serializable._load(Result(), *args, **kwargs)

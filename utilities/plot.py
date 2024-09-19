@@ -190,17 +190,19 @@ class Plot:
 
         # look for results of loop analyses
         for ex in sorted(self.results.values(), key=lambda x: x.program.name):
-            for n, loop in enumerate(ex.loops):
-                i = len(relation_data)
-                name = f'{ex.program.name} ({loop.func_name}): L-{n + 1}'
-
-                table = (i + 1, name, loop.n_lines, loop.dur_ms,
-                         loop.n_vars, loop.n_bounded)
-                relation_data.append(table)
-                if loop.n_bounded > 0:
-                    plain = loop.as_bound().show(True, False)
-                    tex = Plot.texify_bound(loop.as_bound())
-                    bound_dict.append((i + 1, (tex, plain)))
+            for lf in ex.loops.values():
+                for n, loop in enumerate(lf.loops):
+                    i = len(relation_data)
+                    name = (f'{ex.program.name}, {lf.name}: L-{n + 1}'
+                            if ex.n_functions > 1 or lf.n_loops > 1 else
+                            f'{ex.program.name} (loop)')
+                    table = (i + 1, name, loop.n_lines, loop.dur_ms,
+                             loop.n_vars, loop.n_bounded)
+                    relation_data.append(table)
+                    if loop.n_bounded > 0:
+                        plain = loop.as_bound().show(True, False)
+                        tex = Plot.texify_bound(loop.as_bound())
+                        bound_dict.append((i + 1, (tex, plain)))
         return relation_data, dict(bound_dict)
 
     def generate(self) -> None:

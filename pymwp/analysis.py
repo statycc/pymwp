@@ -21,9 +21,9 @@ from typing import List, Tuple
 
 from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
+from . import Result, FuncResult, FuncLoops, LoopResult, VResult
 # noinspection PyPep8Naming
 from .parser import Parser as pr, LOOP_T
-from .result import Result, FuncResult, LoopResult, VResult
 from .semiring import ZERO_MWP, UNIT_MWP, POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
@@ -625,18 +625,22 @@ class LoopAnalysis(Analysis):
         result = res or Result()
         result.on_start()
         logger.debug("Starting loop analysis")
-        for func in [f for f in ast if pr.is_func(f)]:
+        functions = [f for f in ast if pr.is_func(f)]
+        for func in functions:
             f_name = func.decl.name
+            f_result = FuncLoops(f_name)
+            f_result.on_start()
             logger.info(f"Analyzing {f_name}")
             # find loops and check/fix loop body syntax
             # nested loops are duplicated+lifted
             loops = [loop for loop in FindLoops(func).loops if
                      LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
+            # analyze each loop
             for loop in loops:
-                loop_res = LoopAnalysis.loop(loop)
-                loop_res.func_name = f_name
-                result.add_loop(loop_res)
+                f_result.add_loop(LoopAnalysis.loop(loop))
+            f_result.on_end()
+            result.add_loop(f_result)
         result.on_end()
         result.log_result()
         return result
@@ -652,7 +656,7 @@ class LoopAnalysis(Analysis):
             Loop analysis result.
         """
         assert pr.is_loop(node)
-        result = LoopResult().on_start()
+        result = LoopResult(pr.to_c(node)).on_start()
 
         # setup for loop analysis
         variables = Variables(node).vars
@@ -662,16 +666,13 @@ class LoopAnalysis(Analysis):
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
         # evaluate at variables
-        if not infty:
-            result.variables = dict(zip(variables, map(
-                lambda v: LoopAnalysis.get_result(
-                    relations.first, index, v), variables)))
-        else:
-            result.variables = LoopAnalysis.maybe_result(
-                relations.first, index)
+        result.variables = dict(zip(variables, map(
+            lambda v: LoopAnalysis.get_result(
+                relations.first, index, v), variables))) \
+            if not infty else \
+            LoopAnalysis.maybe_result(relations.first, index)
 
         # Save results
-        result.loop_code = pr.to_c(node)
         result.on_end()
         return result
 
@@ -691,7 +692,7 @@ class LoopAnalysis(Analysis):
 
     @staticmethod
     def get_result(relation: Relation, index: int, v_name: str) -> VResult:
-        """Find variable bounds when known to exist.
+        """Find variable bounds when they are known to exist.
 
         Arguments:
             relation (Relation): Relation object.
@@ -705,8 +706,7 @@ class LoopAnalysis(Analysis):
         options = (('is_m', (WEAK_MWP, POLY_MWP)),
                    ('is_w', (POLY_MWP,)),
                    ('is_p', ()))
-        # take the "least bound-choice"
-        # e.g., choice that produces only 0/m < some w < some p
+        # find the "least bound-choice": 0/m < has w < has p
         for attr, scalars in options:
             choices = relation.var_eval(
                 Analysis.DOMAIN, index, v_name, *scalars)
@@ -745,6 +745,7 @@ class LoopAnalysis(Analysis):
                 idx = relation.variables.index(v)
                 # assumption: if dep is 0, it is 0 in all derivations?
                 deps = set([simple_mat.matrix[fi][idx] for fi in fail_idx])
+                # only when variable has no dependency on failing ones
                 result[v] = (LoopAnalysis.get_result(relation, index, v)
                              if deps == {ZERO_MWP} else VResult(v))
         return result
