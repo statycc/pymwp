@@ -41,13 +41,13 @@ Analysis will bypass any unsupported statement and raises a warning.
 | for loop[^1][^3]                                     |  🟩   | `for (i = 0; i < x; ++i) { ... }`           |
 | **Jump statements**[^1][^4]                          |  🟩   | `break`, `continue`, `return x`             |
 | **Functions**                                        |  🟧   |                                             |     
-| **Pointers**                                         |   ⬜   |                                             |     
+| **Pointers**[^2]                                     |   ⬜   |                                             |     
 | **Arrays**                                           |   ⬜   |                                             |      
 | **Header files inclusion**                           |  🟩   |                                             |      
 | **Comments** (single-line, delimited)                |  🟩   | `// comment`, `/* comment */`               |
 | **assume and assert macros**[^1]                     |  🟩   | `assert (x == y)`                           |
 
 [^1]: Added in version > 0.4.2
-[^2]: Excludes unary `&` address-of operator.
+[^2]: Excludes unary `&` address-of operator and pointers.
 [^3]: Loop must be recognizable as "run `X` times" and guard variable `X` cannot occur in body.
 [^4]: Excludes `goto` statement. 

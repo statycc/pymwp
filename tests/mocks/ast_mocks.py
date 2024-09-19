@@ -22,6 +22,7 @@ def load_ast(fp):
         return eval(f.read())
 
 
+VAR_TESTS = load_ast('tests/mocks/var_tests.txt')
 INFINITE_2 = load_ast('tests/mocks/infinite_2.txt')
 INFINITE_8 = load_ast('tests/mocks/infinite_8.txt')
 IF_WO_BRACES = load_ast('tests/mocks/if_wo_braces.txt')
