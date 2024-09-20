@@ -1,6 +1,7 @@
 import pycparser
 
 from pymwp import Parser
+from pymwp.parser import Nodes, NodeHandler
 from .mocks.ast_mocks import INFINITE_2, INFINITE_8, FUNCTION_CALL
 
 """
@@ -64,18 +65,20 @@ def test_ast_structure_infty2c():
     If this (or subsequent similar tests) fails after parser version bump,
     update the mock AST trees.
     """
-    ast = Parser.parse('c_files/infinite/infinite_2.c', **PARSER_KWARGS)
-
+    ast = Parser.parse('tests/test_examples/infinite_2.c', **PARSER_KWARGS)
     assert str(ast) == str(INFINITE_2)
 
 
 def test_ast_structure_infty8c():
-    ast = Parser.parse('c_files/infinite/infinite_8.c', **PARSER_KWARGS)
-
+    ast = Parser.parse('tests/test_examples/infinite_8.c', **PARSER_KWARGS)
     assert str(ast) == str(INFINITE_8)
 
 
 def test_ast_structure_func_call():
-    ast = Parser.parse('c_files/implementation_paper/example14.c',
-                       **PARSER_KWARGS)
+    ast = Parser.parse('tests/test_examples/function_call.c', **PARSER_KWARGS)
     assert str(ast) == str(FUNCTION_CALL)
+
+
+def test_nodes_and_node_handler_methods_match():
+    for nodeT in [n for n in dir(Nodes) if not n.startswith('_')]:
+        assert nodeT in dir(NodeHandler)
