@@ -250,38 +250,30 @@ class Variables(BaseAnalysis):
                 pr.Continue, pr.Switch, pr.TernaryOp, pr.Return)
 
     @staticmethod
-    def _loop_init(node: pr.For) -> Tuple[List[str], List[str], List[str]]:
+    def _loop_init(node: Union[pr.DeclList, pr.Assignment, pr.ExprList]) \
+            -> Tuple[List[str], List[str]]:
         """Find variables in a for loop init block.
 
         Look for
-        1. "iterator" variables: i=…,…
-        2. Declarations: int x=…,…
-        3. init "source" variables: (…=y)
+        1. left-side "iterator/declarations: i=…,… (or int i=…,…)
+        2. right-side "source" variables: …=y
 
         Returns:
-            Discovered variables, in the order describes above.
+            Discovered variable-lists.
         """
+        def att(lst, attr):
+            return [getattr(e, attr) for e in lst]
 
-        def _id(node_, tgt):
-            if isinstance(node_, pr.ID):
-                tgt.append(node_.name)
-
-        iters, decls, srcs = [], [], []
-
-        # one or more assignments (i=0, j=x,…)
-        expr_lst = isinstance(node.init, pr.ExprList)
-        if isinstance(node.init, pr.Assignment) or expr_lst:
-            for expr in (node.init.exprs if expr_lst else [node.init]):
-                _id(expr.lvalue, iters)
-                _id(expr.rvalue, srcs)
+        def names(lst):
+            return [e.name for e in lst if isinstance(e, (pr.ID, pr.Decl))]
 
         # (int i=0,…) one or more declarations
-        if isinstance(node.init, pr.DeclList):
-            for decl in node.init.decls:
-                decls.append(decl.name)
-                _id(decl.init, srcs)
+        if isinstance(node, pr.DeclList):
+            return names(node.decls), names(att(node.decls, 'init'))
 
-        return iters, decls, srcs
+        # (i=0, j=x,…) one or more assignments
+        exp = node.exprs if hasattr(node, 'exprs') else [node]
+        return names(att(exp, 'lvalue')), names(att(exp, 'rvalue'))
 
     @staticmethod
     def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
@@ -293,15 +285,14 @@ class Variables(BaseAnalysis):
         Returns:
             Two lists of variables: (loop guard, body variables).
         """
-        iters, decls, srcs = Variables._loop_init(node)
+        iters, srcs = Variables._loop_init(node.init)
         conds = Variables(node.cond).vars
         nxt = Variables(node.next).vars
         iters = list(set(iters) | set(nxt))
         body = Variables(node.stmt).vars
 
         loop_vars = set(conds) | set(srcs)
-        exclude = set(decls) | set(iters)
-        loop_x = list(loop_vars - exclude)
+        loop_x = list(loop_vars - set(iters))
 
         info = [('guard', loop_x), ('body', body)]
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
@@ -314,8 +305,7 @@ class Variables(BaseAnalysis):
                 self.vars.append(node.name)
 
     def recurse(self, node: pr.Node, *args, **kwargs) -> None:
-        if not next((True for type_ in self.skip
-                     if isinstance(node, type_)), False):
+        if not isinstance(node, self.skip):
             super().recurse(node, *args, **kwargs)
 
     def assign(self, node: pr.Assignment, *args, **kwargs):
