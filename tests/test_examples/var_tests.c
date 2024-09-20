@@ -13,7 +13,7 @@ void pointer_loop(int *level, int z){
      z++;
 }
 
-void ok_loop(int x, int y, float z){
+void ok_loop(int x, int y, int z){
    for (int i = 0; i < x; i++)
      y = z + z;
 }
