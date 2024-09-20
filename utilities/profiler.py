@@ -95,8 +95,6 @@ from argparse import RawTextHelpFormatter
 from os import listdir, makedirs, remove
 from os.path import abspath, join, dirname, basename, splitext, exists, isfile
 
-from runtime import write_file, machine_info
-
 cwd = abspath(join(dirname(__file__), '../'))  # repository root
 
 
@@ -286,7 +284,6 @@ class Profiler:
             asyncio.run(self.profile_file(file))
         self.end_time = time.monotonic()
         self.clear_temp_files()
-        write_file(machine_info(), self.output)
         self.post_log()
 
     async def profile_file(self, c_file):

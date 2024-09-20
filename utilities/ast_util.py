@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# noinspection PyUnresolvedReferences
 """
 This is a utility script that reads and parses a C file, or a directory of
 C files, then generates an AST.

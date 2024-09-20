@@ -50,7 +50,8 @@ lint-only:
 	flake8 ./pymwp --count --show-source --statistics
 
 cprofile:
-	python3 utilities/profiler.py --lines=100 --extern --out profile
+	@python3 utilities/profiler.py --lines=100 --extern --out profile
+	@python3 utilities/runtime.py profile
 
 bench-only:
 	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \

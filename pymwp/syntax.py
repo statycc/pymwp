@@ -48,8 +48,8 @@ class SyntaxUtils:
         """Find and group variables in an init-block.
 
         Looks for:
-           1. left-side "iterator/declarations: i=…,… (or int i=…,…)
-           2. right-side "source" variables: …=y
+        1. Left-side "iterator/declarations: `i=…,…` (or `int i=…,…`).
+        2. Right-side "source" variables: `…=y`.
 
         Returns:
             Discovered variable lists.
