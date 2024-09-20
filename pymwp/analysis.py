@@ -23,7 +23,7 @@ from . import Coverage, Variables, FindLoops, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
 from . import Result, FuncResult, FuncLoops, LoopResult, VResult
 # noinspection PyPep8Naming
-from .parser import Parser as pr, LOOP_T
+from .parser import Parser as pr
 from .semiring import ZERO_MWP, UNIT_MWP, POLY_MWP, WEAK_MWP
 
 logger = logging.getLogger(__name__)
@@ -643,7 +643,7 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def inspect(node: LOOP_T) -> LoopResult:
+    def inspect(node: pr.LoopT) -> LoopResult:
         """Analyze a loop.
 
         Arguments:
@@ -673,7 +673,7 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def syntax_check(node: LOOP_T, strict: bool) -> bool:
+    def syntax_check(node: pr.LoopT, strict: bool) -> bool:
         """Analyze function syntax and conditionally modify the AST.
 
         Arguments:
@@ -684,7 +684,7 @@ class LoopAnalysis(Analysis):
             True if analysis can be performed and False otherwise.
         """
         base = Analysis.syntax_check(node, strict)
-        return base and FindLoops.not_empty(node)
+        return base and pr.is_loop(node)
 
     @staticmethod
     def get_result(relation: Relation, index: int, v_name: str) -> VResult:

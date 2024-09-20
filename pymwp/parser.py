@@ -45,7 +45,238 @@ such upgrades do not break pymwp.
 
 
 # noinspection PyPep8Naming
-class ParserInterface(ABC):  # pragma: no cover
+class Nodes(ABC):  # pragma: no cover
+    @property
+    @abstractmethod
+    def ArrayDecl(self):
+        pass
+
+    @property
+    @abstractmethod
+    def ArrayRef(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Assignment(self):
+        pass
+
+    @property
+    @abstractmethod
+    def BinaryOp(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Break(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Case(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Cast(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Compound(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Constant(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Continue(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Decl(self):
+        pass
+
+    @property
+    @abstractmethod
+    def DeclList(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Default(self):
+        pass
+
+    @property
+    @abstractmethod
+    def DoWhile(self):
+        pass
+
+    @property
+    @abstractmethod
+    def EmptyStatement(self):
+        pass
+
+    @property
+    @abstractmethod
+    def ExprList(self):
+        pass
+
+    @property
+    @abstractmethod
+    def For(self):
+        pass
+
+    @property
+    @abstractmethod
+    def FuncCall(self):
+        pass
+
+    @property
+    @abstractmethod
+    def FuncDef(self):
+        pass
+
+    @property
+    @abstractmethod
+    def ID(self):
+        pass
+
+    @property
+    @abstractmethod
+    def If(self):
+        pass
+
+    @property
+    @abstractmethod
+    def ParamList(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Return(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Switch(self):
+        pass
+
+    @property
+    @abstractmethod
+    def TernaryOp(self):
+        pass
+
+    @property
+    @abstractmethod
+    def TypeDecl(self):
+        pass
+
+    @property
+    @abstractmethod
+    def UnaryOp(self):
+        pass
+
+    @property
+    @abstractmethod
+    def While(self):
+        pass
+
+
+# noinspection PyPep8Naming
+class NodeHandler(ABC):  # pragma: no cover
+
+    def ArrayDecl(self, node: Nodes.ArrayDecl, *args, **kwargs):
+        pass
+
+    def ArrayRef(self, node: Nodes.ArrayRef, *args, **kwargs):
+        pass
+
+    def Assignment(self, node: Nodes.Assignment, *args, **kwargs):
+        pass
+
+    def BinaryOp(self, node: Nodes.BinaryOp, *args, **kwargs):
+        pass
+
+    def Break(self, node: Nodes.Break, *args, **kwargs):
+        pass
+
+    def Case(self, node: Nodes.Case, *args, **kwargs):
+        pass
+
+    def Cast(self, node: Nodes.Cast, *args, **kwargs):
+        pass
+
+    def Compound(self, node: Nodes.Compound, *args, **kwargs):
+        pass
+
+    def Constant(self, node: Nodes.Constant, *args, **kwargs):
+        pass
+
+    def Continue(self, node: Nodes.Continue, *args, **kwargs):
+        pass
+
+    def Decl(self, node: Nodes.Decl, *args, **kwargs):
+        pass
+
+    def DeclList(self, node: Nodes.DeclList, *args, **kwargs):
+        pass
+
+    def Default(self, node: Nodes.Default, *args, **kwargs):
+        pass
+
+    def DoWhile(self, node: Nodes.DoWhile, *args, **kwargs):
+        pass
+
+    def EmptyStatement(self, node: Nodes.EmptyStatement, *args, **kwargs):
+        pass
+
+    def ExprList(self, node: Nodes.ExprList, *args, **kwargs):
+        pass
+
+    def For(self, node: Nodes.For, *args, **kwargs):
+        pass
+
+    def FuncCall(self, node: Nodes.FuncCall, *args, **kwargs):
+        pass
+
+    def FuncDef(self, node: Nodes.FuncDef, *args, **kwargs):
+        pass
+
+    def ID(self, node: Nodes.ID, *args, **kwargs):
+        pass
+
+    def If(self, node: Nodes.If, *args, **kwargs):
+        pass
+
+    def ParamList(self, node: Nodes.ParamList, *args, **kwargs):
+        pass
+
+    def Return(self, node: Nodes.Return, *args, **kwargs):
+        pass
+
+    def Switch(self, node: Nodes.Switch, *args, **kwargs):
+        pass
+
+    def TernaryOp(self, node: Nodes.TernaryOp, *args, **kwargs):
+        pass
+
+    def TypeDecl(self, node: Nodes.TypeDecl, *args, **kwargs):
+        pass
+
+    def UnaryOp(self, node: Nodes.UnaryOp, *args, **kwargs):
+        pass
+
+    def While(self, node: Nodes.While, *args, **kwargs):
+        pass
+
+
+# noinspection PyPep8Naming
+class ParserInterface(Nodes):  # pragma: no cover
     """Interface for C code parser."""
 
     @staticmethod
@@ -61,7 +292,7 @@ class ParserInterface(ABC):  # pragma: no cover
 
     @abstractmethod
     def is_loop(self, node: Any) -> bool:
-        """True is node is a loop/repetition statement."""
+        """True is node is a loop statement."""
         pass
 
     @abstractmethod
@@ -70,133 +301,21 @@ class ParserInterface(ABC):  # pragma: no cover
         pass
 
     @property
-    def Node(self):
-        """Base type for an AST node."""
-        return None
+    @abstractmethod
+    def Node(self) -> Type:
+        """Base type for all AST nodes."""
+        pass
 
+    # noinspection PyPep8Naming
     @property
-    def ArrayDecl(self):
-        return None
-
-    @property
-    def ArrayRef(self):
-        return None
-
-    @property
-    def AST(self):
-        return None
-
-    @property
-    def Assignment(self):
-        return None
-
-    @property
-    def BinaryOp(self):
-        return None
-
-    @property
-    def Break(self):
-        return None
-
-    @property
-    def Case(self):
-        return None
-
-    @property
-    def Cast(self):
-        return None
-
-    @property
-    def Compound(self):
-        return None
-
-    @property
-    def Constant(self):
-        return None
-
-    @property
-    def Continue(self):
-        return None
-
-    @property
-    def Decl(self):
-        return None
-
-    @property
-    def DeclList(self):
-        return None
-
-    @property
-    def Default(self):
-        return None
-
-    @property
-    def DoWhile(self):
-        return None
-
-    @property
-    def EmptyStatement(self):
-        return None
-
-    @property
-    def ExprList(self):
-        return None
-
-    @property
-    def For(self):
-        return None
-
-    @property
-    def FuncCall(self):
-        return None
-
-    @property
-    def FuncDef(self):
-        return None
-
-    @property
-    def ID(self):
-        return None
-
-    @property
-    def If(self):
-        return None
-
-    @property
-    def NodeVisitor(self):
-        return None
-
-    @property
-    def ParamList(self):
-        return None
-
-    @property
-    def Return(self):
-        return None
-
-    @property
-    def Switch(self):
-        return None
-
-    @property
-    def TernaryOp(self):
-        return None
-
-    @property
-    def TypeDecl(self):
-        return None
-
-    @property
-    def UnaryOp(self):
-        return None
-
-    @property
-    def While(self):
-        return None
+    @abstractmethod
+    def LoopT(self) -> Type:
+        """Loop type."""
+        pass
 
 
 class PyCParser(ParserInterface):
-    """Implementation of the parser interface, using pycparser."""
+    """Implementation of the parser interface using pycparser."""
 
     @staticmethod
     def parse(file_name: str, headers: List[str] = None, **kwargs):
@@ -244,15 +363,17 @@ class PyCParser(ParserInterface):
         fp.close()
         return ast
 
-    def is_func(self, node: PyCParser.Node) -> bool:
+    def is_func(self, node: ParserInterface.Node) -> bool:
+        """True if node is a (non-empty) function implementation."""
         return (isinstance(node, self.FuncDef) and
                 hasattr(node, 'body') and
                 hasattr(node.body, 'block_items'))
 
-    def is_loop(self, node: PyCParser.Node) -> bool:
-        return (isinstance(node, self.While) or
-                isinstance(node, self.For) or
-                isinstance(node, self.DoWhile))
+    def is_loop(self, node: ParserInterface.Node) -> bool:
+        """True is node is a (non-empty) loop statement."""
+        return (isinstance(node, (self.While, self.For, self.DoWhile))
+                and hasattr(node, 'stmt') and node.stmt
+                and not isinstance(node.stmt, self.EmptyStatement))
 
     def to_c(self, node: Any, compact: bool = False) -> str:
         """Translate node back to C code."""
@@ -264,7 +385,14 @@ class PyCParser(ParserInterface):
 
     @property
     def Node(self) -> Type:
+        """Base type for all AST nodes."""
         return Type[c_ast.Node]
+
+    # noinspection PyPep8Naming
+    @property
+    def LoopT(self) -> Type:
+        """Loop type."""
+        return Type[Union[Parser.While, Parser.DoWhile, Parser.For]]
 
     @staticmethod
     def add_attr_x(text: str) -> str:
@@ -378,10 +506,6 @@ class PyCParser(ParserInterface):
         return c_ast.If
 
     @property
-    def NodeVisitor(self):
-        return c_ast.NodeVisitor
-
-    @property
     def ParamList(self):
         return c_ast.ParamList
 
@@ -412,6 +536,3 @@ class PyCParser(ParserInterface):
 
 # Parser is an instance of the preferred parser implementation
 Parser = PyCParser()
-
-LOOP_T = Type[Union[Parser.While, Parser.DoWhile, Parser.For]]
-"""AST node is a loop type (for, while, do...while)."""
