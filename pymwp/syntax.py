@@ -225,7 +225,7 @@ class BaseAnalysis(ABC):
 
 
 class Variables(BaseAnalysis):
-    """Locate and analyze variables in an AST.
+    """Find variables in an AST.
 
     Attributes:
         vars (List[str]): List of variables.
@@ -236,84 +236,44 @@ class Variables(BaseAnalysis):
         [self.recurse(node) for node in nodes]
         self.vars = sorted(self.vars)
 
-    def handler(self, node: pr.Node, *args, **kwargs):
-        if hasattr(node, 'name') and node.name:
-            if node.name not in self.vars:
-                self.vars.append(node.name)
+    @property
+    def skip(self) -> Tuple[pr.Node, ...]:
+        """These AST nodes that will not be searched for variables.
 
-    def array_ref(self, node: pr.ArrayRef, *args, **kwargs):
-        self._recurse_attr(node, 'subscript', *args, **kwargs)
+        Either they are not supported by analysis syntax (e.g., arrays
+        and switch) or they don't contain variables (e.g., break).
+        Also ignore `return`, because variables in return must exist
+        elsewhere in body.
+        """
+        # FuncCall includes assert and assume
+        return (pr.ArrayRef, pr.FuncCall, pr.Break, pr.Constant,
+                pr.Continue, pr.Switch, pr.TernaryOp, pr.Return)
 
-    def assert_(self, node: pr.FuncCall, *args, **kwargs):
-        return
+    @staticmethod
+    def _loop_init(node: Union[pr.DeclList, pr.Assignment, pr.ExprList]) \
+            -> Tuple[List[str], List[str]]:
+        """Find variables in a for loop init block.
 
-    def assume_(self, node: pr.FuncCall, *args, **kwargs):
-        return
+        Look for
+        1. left-side "iterator/declarations: i=…,… (or int i=…,…)
+        2. right-side "source" variables: …=y
 
-    def assign(self, node: pr.Assignment, *args, **kwargs):
-        self._recurse_attr(node, 'lvalue', *args, **kwargs)
-        self._recurse_attr(node, 'rvalue', *args, **kwargs)
+        Returns:
+            Discovered variable-lists.
+        """
+        def att(lst, attr):
+            return [getattr(e, attr) for e in lst]
 
-    def binop(self, node: pr.BinaryOp, *args, **kwargs):
-        self._recurse_attr(node, 'left', *args, **kwargs)
-        self._recurse_attr(node, 'right', *args, **kwargs)
+        def names(lst):
+            return [e.name for e in lst if isinstance(e, (pr.ID, pr.Decl))]
 
-    def break_(self, node: pr.Break, *args, **kwargs):
-        return
+        # (int i=0,…) one or more declarations
+        if isinstance(node, pr.DeclList):
+            return names(node.decls), names(att(node.decls, 'init'))
 
-    def cast(self, node: pr.Cast, *args, **kwargs):
-        self._recurse_attr(node, 'expr', *args, **kwargs)
-
-    def constant(self, node: pr.Constant, *args, **kwargs):
-        return
-
-    def continue_(self, node: pr.Continue, *args, **kwargs):
-        return
-
-    def decl(self, node: pr.Decl, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
-        self._recurse_attr(node, 'init', *args, **kwargs)
-
-    def do_while(self, node: pr.DoWhile, *args, **kwargs):
-        self._recurse_attr(node, 'cond', *args, **kwargs)
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
-
-    def for_(self, node: pr.For, *args, **kwargs):
-        # skip control block in general
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
-
-    def func_call(self, node: pr.FuncCall, *args, **kwargs):
-        self._iter_attr(node, 'args', *args, **kwargs)
-
-    def func_def(self, node: pr.FuncDef, *args, **kwargs):
-        self.recurse(node.decl.type.args, *args, **kwargs)
-        self.recurse(node.body, *args, **kwargs)
-
-    def id_(self, node: pr.ID, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
-
-    def if_(self, node: pr.If, *args, **kwargs):
-        self._recurse_attr(node, 'iftrue', *args, **kwargs)
-        self._recurse_attr(node, 'iffalse', *args, **kwargs)
-
-    def return_(self, node: pr.Return, *args, **kwargs):
-        self._recurse_attr(node, 'expr', *args, **kwargs)
-
-    def switch_(self, node: pr.Switch, *args, **kwargs):
-        self._recurse_attr(node, 'cond', *args, **kwargs)
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
-
-    def ternary(self, node: pr.TernaryOp, *args, **kwargs):
-        self._recurse_attr(node, 'cond', *args, **kwargs)
-        self._recurse_attr(node, 'iftrue', *args, **kwargs)
-        self._recurse_attr(node, 'iffalse', *args, **kwargs)
-
-    def unary(self, node: pr.UnaryOp, *args, **kwargs):
-        self._recurse_attr(node, 'expr', *args, **kwargs)
-
-    def while_(self, node: pr.While, *args, **kwargs):
-        self._recurse_attr(node, 'cond', *args, **kwargs)
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
+        # (i=0, j=x,…) one or more assignments
+        exp = node.exprs if hasattr(node, 'exprs') else [node]
+        return names(att(exp, 'lvalue')), names(att(exp, 'rvalue'))
 
     @staticmethod
     def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
@@ -325,45 +285,75 @@ class Variables(BaseAnalysis):
         Returns:
             Two lists of variables: (loop guard, body variables).
         """
-        iters, decls, srcs = [], [], []
-
-        def id_(node_, tgt):
-            if isinstance(node_, pr.ID):
-                tgt += [node_.name]
-
-        # init is an assignment (x=e; ...)
-        def asgn(node_, itrs, values):
-            if isinstance(node_, pr.Assignment) and node_.op == '=':
-                id_(node_.lvalue, itrs)
-                id_(node_.rvalue, values)
-                return True
-
-        if not asgn(node.init, iters, srcs):
-            # init is a declaration (int i=0; ...)
-            if isinstance(node.init, pr.DeclList):
-                for decl in node.init.decls:
-                    decls += [decl.name]
-                    id_(decl.init, srcs)
-            # init is a list (i=0, j=x; ...)
-            elif isinstance(node.init, pr.ExprList):
-                for expr in node.init.exprs:
-                    asgn(expr, iters, srcs)
-
+        iters, srcs = Variables._loop_init(node.init)
         conds = Variables(node.cond).vars
-        body = Variables(node.stmt).vars
         nxt = Variables(node.next).vars
         iters = list(set(iters) | set(nxt))
+        body = Variables(node.stmt).vars
 
-        # conditional expr + source-variables from init
-        loop_vars = list(set(conds) | set(srcs))
-        # loop_vars - declarations - iterators
-        loop_x = list(set(loop_vars) - set(decls) - set(iters))
+        loop_vars = set(conds) | set(srcs)
+        loop_x = list(loop_vars - set(iters))
 
-        info = [('maybe', loop_vars), ('iter', iters), ('decl', decls),
-                ('guard', loop_x), ('body', body)]
+        info = [('guard', loop_x), ('body', body)]
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
-        logger.debug(f"for-loop variables\n  {', '.join(info)}")
+        logger.debug(f"for-loop {', '.join(info)}")
         return loop_x, body
+
+    def handler(self, node: pr.Node, *args, **kwargs):
+        if hasattr(node, 'name') and node.name:
+            if node.name not in self.vars:
+                self.vars.append(node.name)
+
+    def recurse(self, node: pr.Node, *args, **kwargs) -> None:
+        if not isinstance(node, self.skip):
+            super().recurse(node, *args, **kwargs)
+
+    def assign(self, node: pr.Assignment, *args, **kwargs):
+        self._recurse_attr(node, 'lvalue', *args, **kwargs)
+        self._recurse_attr(node, 'rvalue', *args, **kwargs)
+
+    def binop(self, node: pr.BinaryOp, *args, **kwargs):
+        self._recurse_attr(node, 'left', *args, **kwargs)
+        self._recurse_attr(node, 'right', *args, **kwargs)
+
+    def cast(self, node: pr.Cast, *args, **kwargs):
+        self._recurse_attr(node, 'expr', *args, **kwargs)
+
+    def decl(self, node: pr.Decl, *args, **kwargs):
+        # skip when not TypeDecl => PtrDecl is ignored
+        if hasattr(node, 'type') and isinstance(node.type, pr.TypeDecl):
+            self.handler(node, *args, **kwargs)
+        self._recurse_attr(node, 'init', *args, **kwargs)
+
+    def do_while(self, node: pr.DoWhile, *args, **kwargs):
+        self._recurse_attr(node, 'cond', *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def for_(self, node: pr.For, *args, **kwargs):
+        # generally skip control block => use loop_guard
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def func_def(self, node: pr.FuncDef, *args, **kwargs):
+        self._recurse_attr(node.decl.type, 'args', *args, **kwargs)
+        self._recurse_attr(node, 'body', *args, **kwargs)
+
+    def id_(self, node: pr.ID, *args, **kwargs):
+        self.handler(node, *args, **kwargs)
+
+    def if_(self, node: pr.If, *args, **kwargs):
+        self._recurse_attr(node, 'iftrue', *args, **kwargs)
+        self._recurse_attr(node, 'iffalse', *args, **kwargs)
+
+    def return_(self, node: pr.Return, *args, **kwargs):
+        self._recurse_attr(node, 'expr', *args, **kwargs)
+
+    def unary(self, node: pr.UnaryOp, *args, **kwargs):
+        if node.op in self.U_OPS:
+            self._recurse_attr(node, 'expr', *args, **kwargs)
+
+    def while_(self, node: pr.While, *args, **kwargs):
+        self._recurse_attr(node, 'cond', *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
 
 
 class Coverage(BaseAnalysis):

@@ -25,6 +25,7 @@ from logging import getLogger
 # noinspection PyPackageRequirements,PyProtectedMember
 from typing import Any, List, Type, Union
 
+# noinspection PyProtectedMember
 from pycparser import c_ast, parse_file, c_generator
 from pycparser_fake_libc import directory as fake_libc_dir
 
@@ -53,17 +54,20 @@ class ParserInterface(ABC):  # pragma: no cover
         """Extract text from the currently loaded file."""
         pass
 
+    @abstractmethod
     def is_func(self, node: Any) -> bool:
         """True if node is a function implementation."""
-        return False
+        pass
 
+    @abstractmethod
     def is_loop(self, node: Any) -> bool:
         """True is node is a loop/repetition statement."""
-        return False
+        pass
 
+    @abstractmethod
     def to_c(self, node: Any) -> str:
         """Translate node back to C code."""
-        return ""
+        pass
 
     @property
     def Node(self):
@@ -259,7 +263,7 @@ class PyCParser(ParserInterface):
         return comm
 
     @property
-    def Node(self):
+    def Node(self) -> Type:
         return Type[c_ast.Node]
 
     @staticmethod
