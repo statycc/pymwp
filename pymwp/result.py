@@ -192,7 +192,6 @@ class Program(Serializable):
         return Serializable._load(Program(), **kwargs)
 
 
-# noinspection PyShadowingBuiltins
 class FuncResult(Timeable, Serializable):
     """Analysis results for one function of the input program.
 
