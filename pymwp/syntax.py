@@ -146,15 +146,16 @@ class SyntaxUtils:
         Returns:
             AST node conditionally formatted for display.
         """
-        if isinstance(node, (pr.ArrayRef, pr.Switch, pr.For, pr.FuncCall)):
+        if isinstance(node, pr.ArrayRef):
             node = deepcopy(node)
-            if isinstance(node, pr.ArrayRef):
-                node.name = pr.ID(SyntaxUtils.array_name(node))
-                node.subscript = pr.Constant('String', '…')
-            elif hasattr(node, 'args') and hasattr(node.args, 'exprs'):
-                node.args = pr.ExprList([pr.Constant('String', '…')])
-            elif hasattr(node, 'stmt'):
-                node.stmt = None
+            node.name = pr.ID(SyntaxUtils.array_name(node))
+            node.subscript = pr.Constant('String', '…')
+        elif hasattr(node, 'args') and hasattr(node.args, 'exprs'):
+            node = deepcopy(node)
+            node.args = pr.ExprList([pr.Constant('String', '…')])
+        elif hasattr(node, 'stmt'):
+            node = deepcopy(node)
+            node.stmt = None
         return node
 
 
