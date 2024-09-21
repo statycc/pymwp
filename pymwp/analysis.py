@@ -182,13 +182,15 @@ class Analysis:
             return index, RelationList(), False
         if isinstance(node, pr.Assignment) and \
                 isinstance(node.lvalue, pr.ID):
-            if isinstance(node.rvalue, pr.BinaryOp):
+            rvalue = node.rvalue.expr if isinstance(
+                node.rvalue, pr.Cast) else node.rvalue
+            if isinstance(rvalue, pr.BinaryOp):
                 return Analysis.binary_op(index, node)
-            if isinstance(node.rvalue, pr.Constant):
+            if isinstance(rvalue, pr.Constant):
                 return Analysis.constant(index, node.lvalue.name)
-            if isinstance(node.rvalue, pr.UnaryOp):
+            if isinstance(rvalue, pr.UnaryOp):
                 return Analysis.unary_asgn(index, node)
-            if isinstance(node.rvalue, pr.ID):
+            if isinstance(rvalue, pr.ID):
                 return Analysis.id(index, node)
         if isinstance(node, pr.UnaryOp):
             return Analysis.unary_op(index, node, dg)
@@ -273,11 +275,16 @@ class Analysis:
         """
         logger.debug('Computing Relation: binary op')
         x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
-        non_constants = tuple([v.name if hasattr(v, 'name') else None
-                               for v in [x, y, z]])
-        if not ((isinstance(y, pr.Constant) or isinstance(y, pr.ID)) and
-                (isinstance(z, pr.Constant) or isinstance(z, pr.ID))):
-            Analysis._unsupported(pr.to_c(node))
+        y = y.expr if isinstance(y, pr.Cast) else y
+        z = z.expr if isinstance(z, pr.Cast) else z
+
+        non_constants = tuple([
+            v.name if hasattr(v, 'name') else None
+            for v in [x, y, z]])
+
+        if not ((isinstance(y, (pr.Constant, pr.ID)) and
+                 (isinstance(z, (pr.Constant, pr.ID))))):
+            Analysis._unsupported(pr.to_c(node))  # could be unary
             return index, RelationList(), False
 
         # create a vector of polynomials based on operator type
@@ -607,7 +614,7 @@ class LoopAnalysis(Analysis):
     """MWP analysis for loops."""
 
     @staticmethod
-    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs)\
+    def run(ast: pr.Node, res: Result = None, strict: bool = False, **kwargs) \
             -> Result:
         """Run loop analysis.
 
