@@ -35,24 +35,32 @@ class SyntaxUtils:
 
     @staticmethod
     def array_name(node: pr.ArrayRef) -> str:
-        """Finds array name; if multidimensional, iterates to find
-        the nested node that contains the name."""
+        """Find array identifier.
+
+        Arguments:
+            node (pr.ArrayRef): Array AST node.
+
+        Returns:
+            Find array name from node.
+        """
         name_node = node.name
         while not isinstance(name_node, pr.ID):
             name_node = name_node.name
         return name_node.name
 
     @staticmethod
-    def init_vars(node: Union[pr.DeclList, pr.Assignment, pr.ExprList]) \
+    def init_vars(node: Union[pr.Assignment, pr.DeclList, pr.ExprList]) \
             -> Tuple[List[str], List[str]]:
         """Find and group variables in an init-block.
 
-        Looks for:
-        1. Left-side "iterator/declarations: `i=…,…` (or `int i=…,…`).
-        2. Right-side "source" variables: `…=y`.
+        Looks for declarations/iterators `int i=…,…` on left
+        and "source" variables `…=y` on right.
+
+        Arguments:
+            node: Node to inspect.
 
         Returns:
-            Discovered variable lists.
+            Discovered variable lists of declarations and sources.
         """
 
         def att(lst, attr):
@@ -61,11 +69,11 @@ class SyntaxUtils:
         def names(lst):
             return [e.name for e in lst if isinstance(e, (pr.ID, pr.Decl))]
 
-        # (int i=0,…) one or more declarations
+        # int i=0,… one or more declarations
         if isinstance(node, pr.DeclList):
             return names(node.decls), names(att(node.decls, 'init'))
 
-        # (i=0, j=x,…) one or more assignments
+        # i=0, j=x,… one or more assignments
         exp = node.exprs if hasattr(node, 'exprs') else [node]
         return names(att(exp, 'lvalue')), names(att(exp, 'rvalue'))
 
@@ -104,12 +112,12 @@ class SyntaxUtils:
         """Formatter for displaying unsupported nodes.
 
         Arguments:
-            idx: ranked order (1., 2., 3....).
-            count: number of occurrences.
-            desc: node description.
+            idx (int): Ranked order (1., 2., 3.…).
+            count (int): Number of occurrences.
+            desc (str): Node description.
 
         Returns:
-              Formatted string expression for display.
+            Formatted string expression for display.
         """
         order = f"{(str(idx) + '.'):<4}"
         times = f" {(str(count) + 'x ')}" if count > 1 else ' '
@@ -136,8 +144,8 @@ class SyntaxUtils:
     def print_mod(node: pr.Node) -> pr.Node:
         """Prepare AST node for display as string.
 
-        For example, for long blocks, the body statement is removed.
-        The original node is never modified; if some edit is applied it is
+        For example, for long blocks the body statement is removed.
+        The original node is never modified; if some edit is applied, it is
         always applied to a copy of the AST node.
 
         Arguments:
@@ -168,12 +176,13 @@ class BaseAnalysis(NodeHandler):
     U_OPS = INC_DEC | {'+', '-', '!', 'sizeof'}
 
     @abstractmethod
-    def handler(self, node: pr.Node, *args, **kwargs) -> None:
+    def handler(self, node: pr.Node, *args, **kwargs) \
+            -> None:  # pragma: no cover
         """Handler for AST nodes that meet some abstract criteria."""
         pass
 
     def node_handler(self, node: pr.Node) -> Callable:
-        """Determine method to call by node type."""
+        # Maps node type to method to call.
         t_name = type(node).__name__
         return getattr(self, t_name) if hasattr(self, t_name) \
             else self.handler
@@ -236,13 +245,13 @@ class Coverage(BaseAnalysis):
     Attributes:
         node(pr.Node): AST node.
         omit(List[str]): List of unsupported commands.
-        to_clear(List[Callable]): Functions to clear unsupported syntax.
+        clear_list(List[Callable]): Functions to clear unsupported syntax.
     """
 
     def __init__(self, node: pr.Node):
         self.node = node
         self.omit = []
-        self.to_clear = []
+        self.clear_list = []
         self.recurse(self.node)
 
     @property
@@ -251,36 +260,35 @@ class Coverage(BaseAnalysis):
         return len(self.omit) == 0
 
     def report(self) -> Coverage:
-        """Display syntax coverage for AST node."""
-        if not self.full:
-            SyntaxUtils.unsupported(self.omit)
+        """Display syntax coverage for inspected AST node."""
+        SyntaxUtils.unsupported(self.omit)
         return self
 
     def ast_mod(self) -> Coverage:
         """Removes unsupported AST nodes in place."""
         n = len(self.omit)
-        assert (n == len(self.to_clear))
-        [callable_() for callable_ in self.to_clear]
-        self.omit, self.to_clear = [], []
-        logger.debug(f"removed unsupported syntax: {n} node(s)")
+        assert (n == len(self.clear_list))
+        [callable_() for callable_ in self.clear_list]
+        self.omit, self.clear_list = [], []
+        logger.debug(f"Removed unsupported syntax: {n} node(s)")
         return self
 
     @staticmethod
     def loop_compat(node: pr.For) -> Tuple[bool, Optional[str]]:
         r"""Check if C-language for loop is compatible with an "mwp-loop".
 
-        The mwp-loop has form `loop X { C }`. Try to identify if C-language
-        `for` loop has a similar form, "repeat command X times". The
-        variable `X` is not allowed to occur in the body `C` of the loop.
+        The mwp-loop has form $\text{loop} \; \texttt{X} \; \{ \texttt{C} \}$.
+        Try to identify if C-language `for` loop has a similar form,
+        _repeat X times command C_. The variable X is not allowed to
+        occur in the body C of the loop.
 
         Arguments:
             node: AST node to inspect.
 
         Returns:
-            A tuple containing `<bool, string>`. The first is a compatibility
-                result: True if for loop is mwp-loop compatible, otherwise
-                False. The second is the name of iteration variable `X`,
-                possibly `None`.
+            A tuple where the first item is a compatibility result: True if
+               for loop is mwp-loop compatible, otherwise False. The second is
+               the name of iteration guard variable X, possibly `None`.
         """
         loop_x, body = Variables.loop_guard(node)
         if len(loop_x) != 1:  # exactly one guard variable
@@ -297,7 +305,7 @@ class Coverage(BaseAnalysis):
     def handler(self, node: pr.Node, *args, **kwargs):
         """Make a list of uncovered nodes."""
         # add to clear list
-        self.to_clear.append(kwargs['clear'])  # should always exist
+        self.clear_list.append(kwargs['clear'])  # should always exist
         # display edit, then add to list of issues to display
         node = SyntaxUtils.print_mod(node)
         self.omit.append(pr.to_c(node, compact=True))
@@ -424,13 +432,13 @@ class Variables(BaseAnalysis):
 
     @staticmethod
     def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
-        """Find variables in a for loop control block.
+        """Find variables in a for loop.
 
         Arguments:
-            node: for-loop node.
+            node (pr.For): A for-loop AST node.
 
         Returns:
-            Two lists of variables: (loop guard, body variables).
+            Two lists of variables: `(loop_guard, body_variables)`.
         """
         iters, srcs = SyntaxUtils.init_vars(node.init)
         conds = Variables(node.cond).vars
@@ -447,7 +455,7 @@ class Variables(BaseAnalysis):
         return loop_x, body
 
     def handler(self, node: pr.Node, *args, **kwargs):
-        """Record the name of discovered variables."""
+        """Record the name of a discovered variable."""
         if hasattr(node, 'name') and node.name:
             if node.name not in self.vars:
                 self.vars.append(node.name)
