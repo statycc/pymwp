@@ -330,18 +330,15 @@ class Coverage(BaseAnalysis):
         self.handler(node, *args, **kwargs)
 
     def Assignment(self, node: pr.Assignment, *args, **kwargs):
-        operands = pr.BinaryOp, pr.Constant, pr.ID, pr.UnaryOp
-        allow = (*operands, pr.Cast)
-        if not (node.op == "="
-                and isinstance(node.lvalue, pr.ID)
-                and isinstance(node.rvalue, allow)):
-            self.handler(node, *args, **kwargs)
-        elif (isinstance(node.rvalue, pr.Cast)  # no nesting
-              and not isinstance(node.rvalue.expr, operands)):
+        allow = pr.BinaryOp, pr.Constant, pr.ID, pr.UnaryOp
+        right = (node.rvalue.expr if isinstance(node.rvalue, pr.Cast)
+                 else node.rvalue)
+        if not (node.op == "=" and isinstance(node.lvalue, pr.ID) and
+                isinstance(right, allow)):
             self.handler(node, *args, **kwargs)
         else:
             self.recurse(node.lvalue, *args, **kwargs)
-            self.recurse(node.rvalue, *args, **kwargs)
+            self.recurse(right, *args, **kwargs)
 
     def BinaryOp(self, node: pr.BinaryOp, *args, **kwargs):
         left, right = node.left, node.right
