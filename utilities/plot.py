@@ -32,10 +32,9 @@ from pytablewriter.writer.text._latex import LatexWriter
 cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
-# flake8: noqa: E402
-from pymwp import Bound, MwpBound
-from pymwp.result import Result, FuncResult, FuncLoops, LoopResult
-from pymwp.file_io import load_result
+from pymwp import Bound, MwpBound, Result  # noqa: E402
+from pymwp.result import FuncResult, FuncLoops, LoopResult  # noqa: E402
+from pymwp.file_io import load_result  # noqa: E402
 
 
 def cmd_args(parser):
@@ -277,7 +276,7 @@ class Plot:
             fun_data, loop_data, bounds = self.build_table()
             head1 = '#,Benchmark,loc,time,vars,bounds'.split(',')
             self.write_table('', fun_data, head1, writes)
-            head2 = '#,Benchmark,loc,time,vars,vb'.split(',')
+            head2 = '#,Benchmark,loc,time,vars,v+b'.split(',')
             self.write_table('_loops', loop_data, head2, writes)
             self.write_bounds(bounds, writes)
         if writes:
