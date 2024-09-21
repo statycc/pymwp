@@ -287,8 +287,8 @@ class Coverage(BaseAnalysis):
 
         Returns:
             A tuple where the first item is a compatibility result: True if
-               for loop is mwp-loop compatible, otherwise False. The second is
-               the name of iteration guard variable X, possibly `None`.
+                for loop is mwp-loop compatible, otherwise False. The second
+                is the name of iteration guard variable X, possibly `None`.
         """
         loop_x, body = Variables.loop_guard(node)
         if len(loop_x) != 1:  # exactly one guard variable
