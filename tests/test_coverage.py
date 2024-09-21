@@ -65,7 +65,7 @@ def test_reports_unsupported(caplog):
     with caplog.at_level(logging.DEBUG):
         Coverage(f(VAR_TESTS, 'arr')).report()
         assert len(caplog.records) == 3
-        assert 'my_arrC[…]' in caplog.records[-1].message
+        assert 'my_arrC[x][x]' in caplog.records[-1].message
 
 
 def test_loop_compat_rejects_invalid_guard():
@@ -78,3 +78,8 @@ def test_loop_compat_rejects_invalid_body():
     compat, guard = Coverage.loop_compat(loop(f(FOR_BODY, 'main')))
     assert guard is None
     assert not compat
+
+
+def test_some_casts_not_supported():
+    cover = Coverage(f(CASTS, 'foo'))
+    assert len(cover.omit) == 5

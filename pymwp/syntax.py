@@ -330,16 +330,30 @@ class Coverage(BaseAnalysis):
         self.handler(node, *args, **kwargs)
 
     def Assignment(self, node: pr.Assignment, *args, **kwargs):
-        if node.op != "=":  # allow only =
-            return self.handler(node, *args, **kwargs)
-        self.recurse(node.lvalue, *args, **kwargs)
-        self.recurse(node.rvalue, *args, **kwargs)
+        operands = pr.BinaryOp, pr.Constant, pr.ID, pr.UnaryOp
+        allow = (*operands, pr.Cast)
+        if not (node.op == "=" and isinstance(node.lvalue, pr.ID)
+                and isinstance(node.rvalue, allow)):
+            self.handler(node, *args, **kwargs)
+        elif (isinstance(node.rvalue, pr.Cast)  # no nesting
+              and not isinstance(node.rvalue.expr, operands)):
+            self.handler(node, *args, **kwargs)
+        else:
+            self.recurse(node.lvalue, *args, **kwargs)
+            self.recurse(node.rvalue, *args, **kwargs)
 
     def BinaryOp(self, node: pr.BinaryOp, *args, **kwargs):
-        allow = (pr.Constant, pr.ID, pr.UnaryOp, pr.Cast)
-        left_ok = isinstance(node.left, allow)
-        right_ok = isinstance(node.right, allow)
-        if not (node.op in self.BIN_OPS and left_ok and right_ok):
+        operands = pr.Constant, pr.ID, pr.UnaryOp
+        allow = (*operands, pr.Cast)
+        if not (node.op in self.BIN_OPS
+                and isinstance(node.left, allow)
+                and isinstance(node.right, allow)):
+            self.handler(node, *args, **kwargs)
+        if (isinstance(node.left, pr.Cast)  # no nesting
+                and not isinstance(node.left.expr, operands)):
+            self.handler(node, *args, **kwargs)
+        if (isinstance(node.right, pr.Cast)  # no nesting
+                and not isinstance(node.right.expr, operands)):
             self.handler(node, *args, **kwargs)
 
     def Cast(self, node: pr.Cast, *args, **kwargs):

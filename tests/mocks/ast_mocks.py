@@ -23,6 +23,7 @@ def load_ast(fp):
 
 
 BRACES_ISSUES = load_ast('tests/mocks/braces_issues.txt')
+CASTS = load_ast('tests/mocks/casts.txt')
 EMPTY = load_ast('tests/mocks/empty.txt')
 EMPTY_FUNCTION = load_ast('tests/mocks/empty_function.txt')
 FOR_BODY = load_ast('tests/mocks/for_body.txt')
