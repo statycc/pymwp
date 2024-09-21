@@ -292,9 +292,7 @@ class Coverage(BaseAnalysis):
         """
         loop_x, body = Variables.loop_guard(node)
         if len(loop_x) != 1:  # exactly one guard variable
-            logger.debug(
-                f"Too many loop guard variables: ({', '.join(loop_x)})"
-                if len(loop_x) > 1 else "Unknown loop guard variable")
+            logger.debug(f"Unknown loop guard variable in {loop_x}")
             return False, None
         x_var = loop_x[0]
         if x_var in body:
@@ -338,8 +336,9 @@ class Coverage(BaseAnalysis):
         self.recurse(node.rvalue, *args, **kwargs)
 
     def BinaryOp(self, node: pr.BinaryOp, *args, **kwargs):
-        left_ok = isinstance(node.left, (pr.Constant, pr.ID))
-        right_ok = isinstance(node.right, (pr.Constant, pr.ID, pr.UnaryOp))
+        allow = (pr.Constant, pr.ID, pr.UnaryOp, pr.Cast)
+        left_ok = isinstance(node.left, allow)
+        right_ok = isinstance(node.right, allow)
         if not (node.op in self.BIN_OPS and left_ok and right_ok):
             self.handler(node, *args, **kwargs)
 
@@ -368,6 +367,9 @@ class Coverage(BaseAnalysis):
     def If(self, node: pr.If, *args, **kwargs):
         self._recurse_attr(node, 'iftrue', *args, **kwargs)
         self._recurse_attr(node, 'iffalse', *args, **kwargs)
+
+    def Return(self, node: pr.Return, *args, **kwargs):
+        self._recurse_attr(node, 'expr', *args, **kwargs)
 
     def UnaryOp(self, node: pr.UnaryOp, *args, **kwargs):
         if node.op not in self.U_OPS:
