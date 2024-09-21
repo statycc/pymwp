@@ -159,25 +159,28 @@ class Plot:
         return MyLatexTableWriter() if self.format == 'tex' \
             else SpaceTable()
 
+    @staticmethod
+    def flatten(items):
+        """Convert 2D list to 1D."""
+        return [e for sub in items for e in sub]
+
     @property
     def relations(self) -> List[Tuple[Result, FuncResult]]:
         """Flat list of relation results."""
-        items = [[(ex, ex.get_func(f_name))
-                  for f_name in ex.relations.keys()]
-                 for (_, ex) in sorted(self.results.items())]
-        return [e for sub in items for e in sub]
+        return Plot.flatten([[
+            (ex, ex.get_func(f_name))
+            for f_name in ex.relations.keys()]
+            for (_, ex) in sorted(self.results.items())])
 
     @property
     def loops(self) -> List[Tuple[int, Result, FuncLoops, LoopResult]]:
         """Flat list of loop analysis results."""
-        result = []
-        for (_, ex) in sorted(self.results.items()):
-            for f_name in ex.loops.keys():
-                loop_n = 1
-                for loop in ex.loops[f_name].loops:
-                    result.append((loop_n, ex, ex.loops[f_name], loop))
-                    loop_n += 1
-        return result
+        return Plot.flatten([Plot.flatten([
+            [(loop_n + 1, ex, ex.loops[f_name], loop)
+             for (loop_n, loop) in enumerate(ex.loops[f_name].loops)]
+            for f_name in sorted(ex.loops)])
+            for (_, ex) in sorted(self.results.items())
+            if ex.loops])
 
     @property
     def pad(self) -> int:
