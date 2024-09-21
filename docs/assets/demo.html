@@ -299,7 +299,7 @@
     }
 
     #demo-output {
-        margin: 2rem 0 5rem 0;
+        margin: 2rem 0 5rem;
     }
 
     #demo-output h3, #demo-output h4, #demo-output h5, #demo-output h6 {
@@ -419,9 +419,13 @@
         border-radius: 60px;
         overflow: hidden;
         width: 250px;
-        max-width: 80%;
         margin: 2rem auto;
         opacity: 0;
+        left: 50%;
+        max-width: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate3d(-50%, -50%, 0);
     }
 
     #progress-container[visible] .progress-bar {
@@ -444,14 +448,6 @@
         background: var(--md-accent-fg-color);
         padding: 5px;
         width: 0;
-    }
-
-    .progress-bar {
-        left: 50%;
-        max-width: 50%;
-        position: absolute;
-        top: 50%;
-        transform: translate3d(-50%, -50%, 0);
     }
 
     .hljs-section, .hljs-title {

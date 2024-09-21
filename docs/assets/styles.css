@@ -24,11 +24,6 @@
 /* navigation bar active color*/
 .md-nav__item .md-nav__link--active {
     font-weight: bold !important;
-    color: var(--md-accent-fg-color);
-}
-
-.md-nav__item .md-nav__link--active {
-    font-weight: bold !important;
     font-size: .75rem !important;
     color: var(--md-accent-fg-color);
 }

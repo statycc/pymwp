@@ -81,7 +81,6 @@ Arguments:
     --extern (): Exclude package external methods from cProfile results
     --callers (): Include function caller statistics.
     --save (): Save pymwp analysis results [default: False].
-    --help (): Command help.
 """
 
 import argparse

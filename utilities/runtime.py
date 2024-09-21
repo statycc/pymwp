@@ -20,45 +20,10 @@ import sys
 from datetime import datetime
 from os import makedirs
 from os.path import join, exists
-from types import SimpleNamespace
 from typing import Any
 
 # noinspection PyPackageRequirements
 import psutil
-
-
-def _machine_details() -> dict[str, Any]:
-    """Capture relevant details of current machine."""
-    result = {}
-    uname = platform.uname()
-    mem = psutil.virtual_memory()
-    cpufreq = SimpleNamespace(**{'min': '?', 'max': '?', 'current': '?'})
-    try:
-        cpufreq = psutil.cpu_freq()
-    except FileNotFoundError:
-        pass
-    result["operating_system"] = uname.system
-    result["operating_system_release"] = uname.release
-    result["operating_system_version"] = uname.version
-    result["machine_architecture"] = uname.machine
-    result["processor"] = uname.processor
-    result["cpu_physical_cores"] = psutil.cpu_count(logical=False)
-    result["cpu_total_cores"] = psutil.cpu_count(logical=True)
-    result["cpu_max_frequency"] = cpufreq.max
-    result["cpu_min_frequency"] = cpufreq.min
-    result["cpu_current_frequency"] = cpufreq.current
-    result["cpu_usage_per_core"] = psutil.cpu_percent(percpu=True, interval=1)
-    result["cpu_total_usage"] = psutil.cpu_percent()
-    result["virtual_mem_total_size"] = _size(mem.total)
-    result["virtual_mem_available"] = _size(mem.available)
-    result["virtual_mem_used"] = _size(mem.used)
-    result["virtual_mem_percentage"] = mem.percent
-    result["software_gcc_version"] = _gcc_version()
-    result["software_make_version"] = _make_version()
-    result["software_pymwp_version"] = _pymwp_version()
-    result["software_python_version"] = sys.version
-    result["time_now"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    return result
 
 
 def _size(bytes_, suffix="B") -> str:
@@ -82,12 +47,53 @@ def _size(bytes_, suffix="B") -> str:
         bytes_ /= factor
 
 
+def _machine_details() -> dict[str, Any]:
+    """Capture details of current machine."""
+    uname, mem = platform.uname(), psutil.virtual_memory()
+    return dict(
+        operating_system=uname.system,
+        operating_system_release=uname.release,
+        operating_system_version=uname.version,
+        machine_architecture=uname.machine,
+        processor=uname.processor,
+        cpu_physical_cores=psutil.cpu_count(logical=False),
+        cpu_total_cores=psutil.cpu_count(logical=True),
+        cpu_usage_per_core=psutil.cpu_percent(
+            percpu=True, interval=1), **_cpu_freq(),
+        cpu_total_usage=psutil.cpu_percent(),
+        virtual_mem_total_size=_size(mem.total),
+        virtual_mem_available=_size(mem.available),
+        virtual_mem_used=_size(mem.used),
+        virtual_mem_percentage=mem.percent,
+        software_gcc_version=_gcc_version(),
+        software_make_version=_make_version(),
+        software_pymwp_version=_pymwp_version(),
+        software_python_version=sys.version,
+        time_now=datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+
+def _cpu_freq() -> dict:
+    """Try to get details of CPU frequency."""
+    try:
+        return dict(
+            cpu_max_frequency=psutil.cpu_freq().max,
+            cpu_min_frequency=psutil.cpu_freq().min,
+            cpu_current_frequency=psutil.cpu_freq().current)
+    except FileNotFoundError:
+        return dict(
+            cpu_max_frequency='?',
+            cpu_min_frequency='?',
+            cpu_current_frequency='?')
+
+
 # noinspection PyBroadException
 def _run_cmd(*args):
     """Run system command and return stdout."""
     try:
         result = subprocess.run(
-            args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
         return result.stdout.decode('utf-8') or ''
     except Exception:
         cmd = " ".join(args)
@@ -96,8 +102,10 @@ def _run_cmd(*args):
 
 def _pymwp_version():
     """pymwp version details."""
-    version = "".join(_run_cmd('python', '-m', 'pymwp', '--version'))
-    sha = "".join(_run_cmd('git', 'log', "--pretty=format:%h (%ai)", '-n 1'))
+    cmd = 'python', '-m', 'pymwp', '--version'
+    git = 'git', 'log', "--pretty=format:%h (%ai)", '-n 1'
+    version = ("".join(_run_cmd(*cmd))).strip()
+    sha = "".join(_run_cmd(*git))
     return f"{version}:{sha}"
 
 
@@ -122,18 +130,15 @@ def machine_info() -> str:
     return "\n".join(map(lambda x: f'{x[0]}: {x[1]}', zip(md, values)))
 
 
-def write_file(content, output_dir: str):
-    if len(output_dir) > 0 and not exists(output_dir):
-        makedirs(output_dir)
-    fp = join(output_dir, '__machine_info')
-    with open(fp, 'w') as mi:
-        mi.write(content)
-    print(f'Wrote machine details to {fp}')
-
-
 if __name__ == '__main__':
-    """By default write the info."""
     if len(sys.argv) >= 2:
-        write_file(machine_info(), sys.argv[1])
+        content = machine_info()
+        output_dir = sys.argv[1]
+        if len(output_dir) > 0 and not exists(output_dir):
+            makedirs(output_dir)
+        fp = join(output_dir, '__machine_info')
+        with open(fp, 'w') as mi:
+            mi.write(content)
+        print(f'Wrote machine details to {fp}')
     else:
         print('Output directory is required')

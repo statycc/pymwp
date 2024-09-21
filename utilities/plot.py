@@ -14,7 +14,6 @@ Arguments:
     --in (str): Directory of analysis results.
     --out (str): Directory where to save generated plot.
     --fmt (str): Plot format: `tex` or `plain`.
-    --help (): Command help.
 """
 
 import argparse
@@ -34,34 +33,30 @@ cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
 # flake8: noqa: E402
-from pymwp import Result, FuncLoops
-from pymwp.bound import MwpBound
+from pymwp import Result, FuncLoops, MwpBound
 from pymwp.file_io import load_result
 
 
 def cmd_args(parser):
     """Define available arguments."""
     parser.add_argument(
-        "-i", "--in",
-        dest="in_dir",
-        metavar="IN",
+        '-i', '--in',
+        dest='in_dir',
+        metavar='IN',
         default=join(cwd, 'output'),
-        help='Directory of analysis results.',
-    )
+        help='Directory of analysis results.')
     parser.add_argument(
-        "-o", "--out",
+        '-o', '--out',
         action='store',
         default=join(cwd, 'output'),
-        help="Directory where to save generated plot."
-    )
+        help='Directory where to save generated plot.')
     parser.add_argument(
-        "-f", '--fmt',
-        action="store",
-        default="plain",
-        metavar="FORMAT",
+        '-f', '--fmt',
+        action='store',
+        default='plain',
+        metavar='FMT',
         type=str.lower,
-        help='Plot format: tex or plain.'
-    )
+        help='Plot format: tex or plain.')
     return parser.parse_args()
 
 
