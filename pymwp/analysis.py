@@ -178,7 +178,9 @@ class Analysis:
         """
 
         logger.debug("in compute_relation")
-        if isinstance(node, pr.Decl):
+        if isinstance(node, (
+                pr.Return, pr.Break, pr.Continue,
+                pr.EmptyStatement, pr.Decl)):  # => skip
             return index, RelationList(), False
         if isinstance(node, pr.Assignment) and \
                 isinstance(node.lvalue, pr.ID):
@@ -196,26 +198,15 @@ class Analysis:
             return Analysis.unary_op(index, node, dg)
         if isinstance(node, pr.If):
             return Analysis.if_stmt(index, node, dg)
-        if isinstance(node, pr.While):
-            return Analysis.while_loop(index, node, dg)
-        if isinstance(node, pr.DoWhile):
+        if isinstance(node, (pr.While, pr.DoWhile)):
             return Analysis.while_loop(index, node, dg)
         if isinstance(node, pr.For):
             return Analysis.for_loop(index, node, dg)
         if isinstance(node, pr.Compound):
             return Analysis.compound(index, node, dg)
-        if isinstance(node, pr.Break):  # => skip
-            return index, RelationList(), False
-        if isinstance(node, pr.Continue):  # => skip
-            return index, RelationList(), False
-        if isinstance(node, pr.Return):  # => skip
-            return index, RelationList(), False
         if (isinstance(node, pr.FuncCall)
                 and isinstance(node.name, pr.ID)
-                and (node.name.name == 'assert' or
-                     node.name.name == 'assume')):
-            return index, RelationList(), False
-        if isinstance(node, pr.EmptyStatement):
+                and (node.name.name in ('assert', 'assume'))):
             return index, RelationList(), False
 
         Analysis._unsupported(pr.to_c(node))
@@ -376,7 +367,7 @@ class Analysis:
 
     @staticmethod
     def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) -> COM_RES:
-        """Analyze a standalone unary operation.
+        """Analyze a unary operation.
 
         Arguments:
             index (int): Delta index.
@@ -386,18 +377,21 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        if not (isinstance(node.expr, pr.Constant) or
-                isinstance(node.expr, pr.ID)):
+        # if node.expr is a cast
+
+        if not (isinstance(node.expr, (pr.ID, pr.Constant))):
             return Analysis.compute_relation(index, node.expr, dg)
 
         op, exp = node.op, node.expr.name
+
         if op in Coverage.INC_DEC:
-            # expand unary incr/decr to a binary op
-            op_code = '+' if op in ('p++', '++') else '-'
+            # dynamically expand unary incr/decr to a binary op
+            op_code = '+' if op in Coverage.INC else '-'
             dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
             logger.debug(f'{dsp} expanded to {exp}={exp}{op_code}1')
             r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
             return Analysis.binary_op(index, pr.Assignment('=', exp, r_node))
+
         # all other unary ops do nothing ("skip") without assignment.
         return index, RelationList(), False
 

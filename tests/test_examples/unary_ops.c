@@ -3,7 +3,7 @@ int foo(int x, int y){
     ++x;
     x--;
     --x;
-    sizeof(x); // skip
+    sizeof((int)x); // skip
     sizeof(*x); // invalid
     x = ++x;
     y = x++;

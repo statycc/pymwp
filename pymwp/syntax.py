@@ -172,7 +172,8 @@ class BaseAnalysis(NodeHandler):
     """Base implementation for AST analysis."""
 
     BIN_OPS = {"+", "-", "*"}
-    INC_DEC = {'p++', '++', 'p--', '--'}
+    INC, DEC = {'p++', '++'}, {'p--', '--'}
+    INC_DEC = INC | DEC
     U_OPS = INC_DEC | {'+', '-', '!', 'sizeof'}
 
     @abstractmethod
