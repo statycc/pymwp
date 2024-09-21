@@ -65,8 +65,7 @@ class Polynomial:
             zero = Polynomial()
             ```
 
-            Create polynomial with one monomial with specific scalar, 
-            no deltas:
+            Create polynomial with one monomial with specific scalar:
 
             ```python
             poly = Polynomial('w')               # shorthand
@@ -76,7 +75,7 @@ class Polynomial:
             Create polynomial with two monomials and lists of deltas:
 
             ```python
-            poly = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1))) 
+            poly = Polynomial(('m', (0, 1)), ('w', (0, 0), (1, 1)))
             ```
 
         Arguments:

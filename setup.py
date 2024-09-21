@@ -63,7 +63,7 @@ setuptools.setup(
         'Typing :: Typed',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'  # noqa: E501
     ],
     python_requires=">=3.7",
     install_requires=[
@@ -71,4 +71,3 @@ setuptools.setup(
         'pycparser-fake-libc'
     ]
 )
-
