@@ -16,6 +16,27 @@ def loop(func, nth=0):
             if pr.is_loop(lp)][nth]
 
 
+def test_assert_and_assume_are_allowed():
+    assert Coverage(f(VERIFICATION, 'main')).full
+
+
+def test_allow_cast():
+    assert Coverage(f(VAR_TESTS, 'cast')).full
+
+
+def test_nary_not_supported():
+    assert not Coverage(f(VAR_TESTS, 'triple')).full
+
+
+def test_allow_do_while():
+    assert Coverage(f(VAR_TESTS, 'fun_if')).full
+
+
+def test_casts_maybe_supported():
+    cover = Coverage(f(CASTS, 'foo'))
+    assert len(cover.omit) == 5
+
+
 def test_fully_supported_ast_remains_unchanged():
     func = f(SINGLE_LINK_CLUSTER, 'SingleLinkCluster')
     before = deepcopy(func)
@@ -35,24 +56,19 @@ def test_removes_top_level_function_call():
            "int foo(int X1, int X2) { X2 = X1 + X1; }"
 
 
+def test_clears_incompatible_loop():
+    func = f(FOR_INVALID, 'main')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "int main(int x, int y, int z) { }"
+
+
 def test_clears_invalid_loop_body():
     func = f(VAR_TESTS, 'invalid_body')
     after = Coverage(func).ast_mod().node
     assert pr.to_c(after, compact=True).strip() == \
            "void invalid_body(int x, int y) " \
            "{ for (int i = 0; i < x; i++) ; }"
-
-
-def test_assert_and_assume_are_allowed():
-    assert Coverage(f(VERIFICATION, 'main')).full
-
-
-def test_allow_cast():
-    assert Coverage(f(VAR_TESTS, 'cast')).full
-
-
-def test_nary_not_supported():
-    assert not Coverage(f(VAR_TESTS, 'triple')).full
 
 
 def test_reports_nothing_on_full_cover(caplog):
@@ -78,8 +94,3 @@ def test_loop_compat_rejects_invalid_body():
     compat, guard = Coverage.loop_compat(loop(f(FOR_BODY, 'main')))
     assert guard is None
     assert not compat
-
-
-def test_some_casts_not_supported():
-    cover = Coverage(f(CASTS, 'foo'))
-    assert len(cover.omit) == 5

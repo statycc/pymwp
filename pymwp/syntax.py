@@ -332,7 +332,8 @@ class Coverage(BaseAnalysis):
     def Assignment(self, node: pr.Assignment, *args, **kwargs):
         operands = pr.BinaryOp, pr.Constant, pr.ID, pr.UnaryOp
         allow = (*operands, pr.Cast)
-        if not (node.op == "=" and isinstance(node.lvalue, pr.ID)
+        if not (node.op == "="
+                and isinstance(node.lvalue, pr.ID)
                 and isinstance(node.rvalue, allow)):
             self.handler(node, *args, **kwargs)
         elif (isinstance(node.rvalue, pr.Cast)  # no nesting
