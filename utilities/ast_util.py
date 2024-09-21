@@ -30,7 +30,7 @@ from os.path import join, abspath, dirname
 cwd = abspath(join(dirname(__file__), '../'))
 sys.path.insert(0, cwd)
 
-from pymwp.parser import Parser
+from pymwp.parser import Parser  # noqa: E402
 
 PARSER_ARGS = {'use_cpp': True, 'cpp_path': 'gcc', 'cpp_args': '-E'}
 _RE_COMBINE_WHITESPACE = re.compile(r'\s+')
