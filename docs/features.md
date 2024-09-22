@@ -5,11 +5,12 @@ analyze. It also lists language features that are in the process of being
 implemented and for which implementation is planned.
 
 !!! info "Note on C file parsing"
-pymwp uses pycparser to process the C input file. Any limitation of
-pycparser is also a limitation in pymwp. From
-[pycparser website](https://github.com/eliben/pycparser):
-"pycparser aims to support the full C99 language (according to the
-standard ISO/IEC 9899). Some features from C11 are also supported."
+
+    pymwp uses pycparser to process the C input file. Any limitation of
+    pycparser is also a limitation in pymwp. From
+    [pycparser website](https://github.com/eliben/pycparser):
+    "pycparser aims to support the full C99 language (according to the
+    standard ISO/IEC 9899). Some features from C11 are also supported."
 
 BY default, analysis bypasses unsupported statements and raises a warning.
 
