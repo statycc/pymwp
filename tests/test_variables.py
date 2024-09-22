@@ -57,3 +57,7 @@ def test_find_right_nested_variables():
 
 def test_finds_casted_variables():
     assert Variables(f(VAR_TESTS, 'cast')).vars == ['count', 'sum']
+
+
+def test_ignore_true_false():
+    assert Variables(f(VAR_TESTS, 'ignore_tf')).vars == ['X1', 'X2']

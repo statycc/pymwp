@@ -54,3 +54,9 @@ void arr(int x, int some_var, int* my_arrC){
     my_arrC[x][x] = 1;
     some_var = x;
 }
+
+void ignore_tf(int X1, int X2){
+    while(true){
+       X1 = X1 + X2;
+    }
+}
