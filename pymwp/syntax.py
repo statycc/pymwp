@@ -435,6 +435,10 @@ class Variables(BaseAnalysis):
         vars (List[str]): List of variables.
     """
 
+    RESERVED = 'true,false'.split(',')
+    """List of reserved names that are not variables.
+    See: https://github.com/statycc/pymwp/issues/150"""
+
     def __init__(self, *nodes: pr.Node):
         self.vars = []
         [self.recurse(node) for node in nodes]
@@ -500,7 +504,8 @@ class Variables(BaseAnalysis):
         self._recurse_attr(node, 'body', *args, **kwargs)
 
     def ID(self, node: pr.ID, *args, **kwargs):
-        self.handler(node, *args, **kwargs)
+        if node.name not in Variables.RESERVED:
+            self.handler(node, *args, **kwargs)
 
     def If(self, node: pr.If, *args, **kwargs):
         self._recurse_attr(node, 'iftrue', *args, **kwargs)
