@@ -180,7 +180,7 @@ class Choices:
             sequences = Choices.except_one(domain, sequences)
             len_after = len(sequences)
             if len_before == len_after or len_after == 0:
-                return set([s for s in sequences if s])
+                return sequences
 
     @staticmethod
     def _reduce(
@@ -298,7 +298,8 @@ class Choices:
             find = [(c, index) for c in domain
                     if c != v and c not in values]
             if len(find) == 1:
-                for p in [s for s in sequences if find[0] in s]:
+                for p in [s for s in sequences
+                          if find[0] in s and len(s) > 1]:
                     sequences.add(tuple([x for x in p if x != find[0]]))
                     sequences.remove(p)
             map(l1.remove, matches)
