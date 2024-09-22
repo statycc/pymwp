@@ -180,7 +180,7 @@ class Choices:
             sequences = Choices.except_one(domain, sequences)
             len_after = len(sequences)
             if len_before == len_after or len_after == 0:
-                return sequences
+                return set([s for s in sequences if s])
 
     @staticmethod
     def _reduce(

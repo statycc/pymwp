@@ -188,10 +188,10 @@ class Plot:
         return len(str(items)) + 2
 
     @staticmethod
-    def table_format_bound(n: int, bound: Bound, pad=5) \
+    def table_format_bound(n: int, bound: Bound, pad=5, sig=True) \
             -> Optional[Tuple[int, Tuple[str, str, str]]]:
         """Convert a bound to various display-formats."""
-        plain = bound.show(True, True) if bound else ''
+        plain = bound.show(True, sig) if bound else ''
         if len(plain) == 0:
             return None
         tex = MyLatexTableWriter.texify_bound(bound)
@@ -215,14 +215,17 @@ class Plot:
     def loop_data(self, offset=1):
         """Construct table data of loop analyses results."""
         return [((i + offset, Plot.loop_name(ex, fun, n),
-                  lp.n_lines, lp.dur_ms, lp.n_vars, lp.n_bounded),
-                 Plot.table_format_bound(i + offset, lp.as_bound, self.pad))
+                  lp.n_lines, lp.dur_ms, lp.n_vars,
+                  str(lp.n_bounded if lp.n_bounded else '.')),
+                 Plot.table_format_bound(
+                     i + offset, lp.as_bound, self.pad, False))
                 for i, (n, ex, fun, lp) in enumerate(self.loops)]
 
     def func_data(self, offset=1):
         """Construct table data of function analyses results."""
-        return [((i + offset, Plot.fun_name(ex, fun), ex.program.n_lines,
-                  fun.dur_ms, fun.n_vars, fun.n_bounds),
+        return [((i + offset, Plot.fun_name(ex, fun),
+                  ex.program.n_lines, fun.dur_ms, fun.n_vars,
+                  str(fun.n_bounds if fun.n_bounds else '.')),
                  Plot.table_format_bound(i + offset, fun.bound, self.pad))
                 for i, (ex, fun) in enumerate(self.relations)]
 
@@ -276,7 +279,7 @@ class Plot:
             fun_data, loop_data, bounds = self.build_table()
             head1 = '#,Benchmark,loc,time,vars,bounds'.split(',')
             self.write_table('', fun_data, head1, writes)
-            head2 = '#,Benchmark,loc,time,vars,v+b'.split(',')
+            head2 = '#,Benchmark,loc,time,vars,vb'.split(',')
             self.write_table('_loops', loop_data, head2, writes)
             self.write_bounds(bounds, writes)
         if writes:
