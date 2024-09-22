@@ -381,7 +381,7 @@ class PyCParser(ParserInterface):
         comm = generator.visit(node)
         if compact:
             comm = re.sub(r"[\n\t\s]+", " ", comm).strip()
-        return comm
+        return comm.strip()
 
     @property
     def Node(self) -> Type:

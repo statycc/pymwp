@@ -176,7 +176,6 @@ class Analysis:
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-
         logger.debug("in compute_relation")
         if isinstance(node, (
                 pr.Return, pr.Break, pr.Continue,
@@ -191,11 +190,11 @@ class Analysis:
             if isinstance(rvalue, pr.Constant):
                 return Analysis.constant(index, node.lvalue.name)
             if isinstance(rvalue, pr.UnaryOp):
-                return Analysis.unary_asgn(index, node)
+                return Analysis.unary_asgn(index, node, dg)
             if isinstance(rvalue, pr.ID):
                 return Analysis.id(index, node)
         if isinstance(node, pr.UnaryOp):
-            return Analysis.unary_op(index, node, dg)
+            return Analysis.unary_op(index, node)
         if isinstance(node, pr.If):
             return Analysis.if_stmt(index, node, dg)
         if isinstance(node, (pr.While, pr.DoWhile)):
@@ -237,20 +236,12 @@ class Analysis:
         # create a vector of polynomials based on operator type
         #     x   y
         # x | o   o
-        # y | m   m
-        vector = [  # because x != y
-            Polynomial('o'), Polynomial('m')]
+        # y | m   m    because x != y
+        vector = [Polynomial('o'), Polynomial('m')]
 
-        # build a list of unique variables
-        variables = vars_list[0]
-        for var in vars_list[1]:
-            if var not in variables:
-                variables.append(var)
-
-        # create relation list
+        variables = vars_list[0] + vars_list[1]
         rel_list = RelationList.identity(variables)
         rel_list.replace_column(vector, x)
-
         return index, rel_list, False
 
     @staticmethod
@@ -265,26 +256,23 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         logger.debug('Computing Relation: binary op')
-        x, y, z = node.lvalue, node.rvalue.left, node.rvalue.right
-        y = y.expr if isinstance(y, pr.Cast) else y
-        z = z.expr if isinstance(z, pr.Cast) else z
+        x = node.lvalue
+        y = Analysis.rm_cast(node.rvalue.left)
+        z = Analysis.rm_cast(node.rvalue.right)
+
+        # operands cannot be unary, nested cast etc.
+        assert isinstance(y, (pr.Constant, pr.ID))
+        assert isinstance(z, (pr.Constant, pr.ID))
 
         non_constants = tuple([
             v.name if hasattr(v, 'name') else None
             for v in [x, y, z]])
 
-        if not ((isinstance(y, (pr.Constant, pr.ID)) and
-                 (isinstance(z, (pr.Constant, pr.ID))))):
-            Analysis._unsupported(pr.to_c(node))  # could be unary
-            return index, RelationList(), False
-
         # create a vector of polynomials based on operator type
         index, vector = Analysis.create_vector(
             index, node.rvalue.op, non_constants)
-
         # build a list of unique variables but maintain order
         variables = list(dict.fromkeys(non_constants))
-
         # create relation list
         rel_list = RelationList.identity(variables)
         if hasattr(x, 'name'):
@@ -314,86 +302,88 @@ class Analysis:
         return index, RelationList([variable_name]), False
 
     @staticmethod
-    def unary_asgn(index: int, node: pr.Assignment) -> COM_RES:
+    def unary_asgn(index: int, node: pr.Assignment, dg: DeltaGraph) -> COM_RES:
         """Assignment where right-hand-size is a unary op e.g. `x = y++;`.
 
         Arguments:
-            index: delta index
-            node: Assignment, where the right-side is a unary operation.
-
-        Returns:
-            Updated index value, relation list, and an exit flag.
-        """
-        logger.debug('Computing Relation: unary')
-        tgt, unary, op = node.lvalue, node.rvalue, node.rvalue.op
-        if isinstance(unary.expr, pr.Constant):
-            return Analysis.constant(index, tgt.name)
-        if isinstance(unary.expr, pr.ID):
-            exp = unary.expr.name
-            if op in Coverage.INC_DEC:
-                # expand unary incr/decr to a binary op
-                # this ignores the +1/-1 applied to exp, but this is ok since
-                # constants are irrelevant
-                op_code = '+' if op in ('p++', '++') else '-'
-                dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
-                logger.debug(f'{dsp} converted to {exp}{op_code}1')
-                r_node = pr.BinaryOp(
-                    op_code, pr.ID(exp), pr.Constant('int', 1))
-                return Analysis.binary_op(
-                    index, pr.Assignment('=', tgt, r_node))
-            if op == '!':
-                # negation ! of an integer gives either 0 or 1
-                logger.debug(f'int negation of {exp} is a constant')
-                return Analysis.id(index, pr.Assignment(
-                    '=', tgt, pr.Constant('int', 1)))
-            if op == 'sizeof':
-                # sizeof gets variable's size in bytes
-                # for all integers, the value is 8--64
-                # https://en.wikipedia.org/wiki/C_data_types
-                logger.debug(f'sizeof({exp}) is a constant')
-                return Analysis.id(index, pr.Assignment(
-                    '=', tgt, pr.Constant('int', 64)))
-            if op == '+':  # does nothing; just an explicit sign
-                return Analysis.id(index, pr.Assignment('=', tgt, unary.expr))
-            if op == '-':  # flips variable sign
-                r_node = pr.BinaryOp('*', pr.ID(exp), pr.Constant('int', -1))
-                logger.debug(f'{op}{exp} converted to -1*{exp}')
-                return Analysis.binary_op(
-                    index, pr.Assignment('=', tgt, r_node))
-        # unary address of "&" will fall through
-        # expr not in {ID, Constant} will fall through
-        Analysis._unsupported(pr.to_c(node))
-        return index, RelationList(), False
-
-    @staticmethod
-    def unary_op(index: int, node: pr.UnaryOp, dg: DeltaGraph) -> COM_RES:
-        """Analyze a unary operation.
-
-        Arguments:
-            index (int): Delta index.
-            node (pr.UnaryOp): AST node to analyze.
+            index (int): delta index
+            node (pr.Assignment): Node with right-side unary operation.
             dg (DeltaGraph): DeltaGraph instance.
 
         Returns:
             Updated index value, relation list, and an exit flag.
         """
-        # if node.expr is a cast
+        logger.debug('Computing Relation: unary')
+        tgt, right, op = node.lvalue, node.rvalue.expr, node.rvalue.op
+        init = f'{pr.to_c(node, True)} ==> '
+        new_node = None
 
-        if not (isinstance(node.expr, (pr.ID, pr.Constant))):
-            return Analysis.compute_relation(index, node.expr, dg)
+        if isinstance(right, pr.Constant):
+            new_node = pr.Assignment('=', tgt, right)
 
-        op, exp = node.op, node.expr.name
+        if isinstance(right, pr.ID):
+            r_name = right.name
+            if op in Coverage.INC_DEC:
+                fst = Analysis.rewrite_id_inc_dec(node.rvalue)
+                snd = pr.Assignment('=', tgt, pr.ID(r_name))
+                cmds = [fst, snd] if op in Coverage.PREFIX else [snd, fst]
+                new_node = pr.Compound(cmds)
+            if op == '-':  # flips sign
+                neg_1 = pr.Constant('int', -1)
+                r_node = pr.BinaryOp('*', pr.ID(r_name), neg_1)
+                new_node = pr.Assignment('=', tgt, r_node)
+            if op == '+':  # does nothing
+                new_node = pr.Assignment('=', tgt, pr.ID(r_name))
 
-        if op in Coverage.INC_DEC:
-            # dynamically expand unary incr/decr to a binary op
-            op_code = '+' if op in Coverage.INC else '-'
-            dsp = op.replace('p', exp) if ('p' in op) else f'{op}{exp}'
-            logger.debug(f'{dsp} expanded to {exp}={exp}{op_code}1')
-            r_node = pr.BinaryOp(op_code, pr.ID(exp), pr.Constant('int', 1))
-            return Analysis.binary_op(index, pr.Assignment('=', exp, r_node))
+        if op == Coverage.NEG:  # negation=> 0 or 1
+            new_node = pr.Assignment('=', tgt, pr.Constant('int', 1))
 
-        # all other unary ops do nothing ("skip") without assignment.
+        if op == Coverage.SIZEOF:  # var size in bytes ≤ 64
+            new_node = pr.Assignment('=', tgt, pr.Constant('int', 64))
+
+        if new_node:
+            logger.debug(f'{init}{pr.to_c(new_node, True)}')
+            return Analysis.compute_relation(index, new_node, dg)
+
+        Analysis._unsupported(pr.to_c(node))
         return index, RelationList(), False
+
+    @staticmethod
+    def unary_op(index: int, node: pr.UnaryOp) -> COM_RES:
+        """Analyze a standalone unary operation.
+
+        Arguments:
+            index (int): Delta index.
+            node (pr.UnaryOp): AST node to analyze.
+
+        Returns:
+            Updated index value, relation list, and an exit flag.
+        """
+        expr = Analysis.rm_cast(node.expr)
+        if node.op in Coverage.INC_DEC and isinstance(expr, pr.ID):
+            node_ = Analysis.rewrite_id_inc_dec(node)
+            return Analysis.binary_op(index, node_)
+        # could be recursive unary...
+        # others operators do nothing without assignment.
+        return index, RelationList(), False
+
+    @staticmethod
+    def rewrite_id_inc_dec(node: pr.UnaryOp):
+        """Converts unary ++/-- operators to binary: x = x (op) 1."""
+        expr = Analysis.rm_cast(node.expr)
+        new_op, name = node.op[-1], expr.name
+        const_1 = pr.Constant('int', 1)
+        rvalue = pr.BinaryOp(new_op, pr.ID(name), const_1)
+        node_ = pr.Assignment('=', pr.ID(name), rvalue)
+        logger.debug(f'{pr.to_c(node)} rewrite to {pr.to_c(node_)}')
+        return node_
+
+    @staticmethod
+    def rm_cast(node: pr.Node) -> pr.Node:
+        """If Cast node, returns the expression of cast."""
+        while isinstance(node, pr.Cast) and node.expr:
+            node = node.expr
+        return node
 
     @staticmethod
     def if_stmt(index: int, node: pr.If, dg: DeltaGraph) -> COM_RES:
