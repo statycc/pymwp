@@ -67,8 +67,15 @@ def test_clears_invalid_loop_body():
     func = f(VAR_TESTS, 'invalid_body')
     after = Coverage(func).ast_mod().node
     assert pr.to_c(after, compact=True).strip() == \
-           "void invalid_body(int x, int y) " \
-           "{ for (int i = 0; i < x; i++) ; }"
+           "void invalid_body(int x, int y) { }"
+
+
+def test_clears_partially_invalid_loop_body():
+    func = f(VAR_TESTS, 'partially_invalid_body')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void partially_invalid_body(int x, int y) " \
+           "{ for (int i = 0; i < x; i++) { y = y + 1; } }"
 
 
 def test_reports_nothing_on_full_cover(caplog):
@@ -94,3 +101,42 @@ def test_loop_compat_rejects_invalid_body():
     compat, guard = Coverage.loop_compat(loop(f(FOR_BODY, 'main')))
     assert guard is None
     assert not compat
+
+
+def test_if_true_branch_invalid():
+    after = Coverage(f(IF_INVALID_TESTS, 'invalid_true')).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void invalid_true(int x, int y, int z) " \
+           "{ if (true) ; else w = z + 1; }"
+
+
+def test_if_true_branch_partly_invalid():
+    func = f(IF_INVALID_TESTS, 'partially_invalid_true')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void partially_invalid_true(int x, int y, int z) { " \
+           "if (true) { y = x + y; } else w = z + 1; }"
+
+
+def test_if_else_branch_invalid():
+    func = f(IF_INVALID_TESTS, 'invalid_else')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void invalid_else(int x, int y, int z) { " \
+           "if (true) x = x + 1; else ; }"
+
+
+def test_if_else_branch_partly_invalid():
+    func = f(IF_INVALID_TESTS, 'partially_invalid_else')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void partially_invalid_else(int x, int y, int z) { " \
+           "if (true) x = x + 1; else { z = z + 1; } }"
+
+
+def test_if_both_branches_invalid():
+    func = f(IF_INVALID_TESTS, 'invalid_branches')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           "void invalid_branches(int x, int y, int z)" \
+           " { if (true) ; else ; }"

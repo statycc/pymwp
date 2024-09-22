@@ -21,6 +21,12 @@ void invalid_body(int x, int y){
    for (int i = 0; i < x; i++)
      foo(y);
 }
+void partially_invalid_body(int x, int y){
+   for (int i = 0; i < x; i++){
+     foo(y);
+     y = y + 1;
+   }
+}
 
 void fun_do_wh(){
   switch (a)

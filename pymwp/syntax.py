@@ -171,9 +171,13 @@ class SyntaxUtils:
 class BaseAnalysis(NodeHandler):
     """Base implementation for AST analysis."""
 
+    SIGN = {'+', '-'}
+    NEG, SIZEOF = '!', 'sizeof'
     BIN_OPS = {"+", "-", "*"}
-    INC_DEC = {'p++', '++', 'p--', '--'}
-    U_OPS = INC_DEC | {'+', '-', '!', 'sizeof'}
+    PREFIX = {'++', '--'}
+    INC, DEC = {'p++', '++'}, {'p--', '--'}
+    INC_DEC = INC | DEC
+    U_OPS = INC_DEC | SIGN | {NEG, SIZEOF}
 
     @abstractmethod
     def handler(self, node: pr.Node, *args, **kwargs) \
@@ -320,12 +324,6 @@ class Coverage(BaseAnalysis):
                 cl = SyntaxUtils.rm_child(node, attr, n)
                 self.recurse(n, *args, **{**kwargs, 'clear': cl})
 
-    def _recurse_attr(self, node: pr.Node, attr: str, *args, **kwargs):
-        if hasattr(node, attr) and getattr(node, attr):
-            at = getattr(node, attr)
-            cl = SyntaxUtils.rm_attr(node, attr)
-            self.recurse(at, *args, **{**kwargs, 'clear': cl})
-
     def FuncCall(self, node: pr.FuncCall, *args, **kwargs):
         self.handler(node, *args, **kwargs)
 
@@ -344,7 +342,7 @@ class Coverage(BaseAnalysis):
         left, right = node.left, node.right
         lf = left.expr if isinstance(left, pr.Cast) else left
         rt = right.expr if isinstance(right, pr.Cast) else right
-        allow = pr.Constant, pr.ID, pr.UnaryOp
+        allow = pr.Constant, pr.ID
         if not (node.op in self.BIN_OPS and isinstance(lf, allow) and
                 isinstance(rt, allow)):
             self.handler(node, *args, **kwargs)
@@ -372,14 +370,17 @@ class Coverage(BaseAnalysis):
         self._recurse_attr(node, 'body', *args, **kwargs)
 
     def If(self, node: pr.If, *args, **kwargs):
-        self._recurse_attr(node, 'iftrue', *args, **kwargs)
-        self._recurse_attr(node, 'iffalse', *args, **kwargs)
+        t_kwargs = {**kwargs, 'clear': SyntaxUtils.rm_attr(node, 'iftrue')}
+        self._recurse_attr(node, 'iftrue', *args, **t_kwargs)
+        e_kwargs = {**kwargs, 'clear': SyntaxUtils.rm_attr(node, 'iffalse')}
+        self._recurse_attr(node, 'iffalse', *args, **e_kwargs)
 
     def Return(self, node: pr.Return, *args, **kwargs):
         self._recurse_attr(node, 'expr', *args, **kwargs)
 
     def UnaryOp(self, node: pr.UnaryOp, *args, **kwargs):
-        if node.op not in self.U_OPS:
+        if not (node.op in self.U_OPS and isinstance(
+                node.expr, (pr.ID, pr.Constant, pr.Cast, pr.UnaryOp))):
             self.handler(node, *args, **kwargs)
         else:
             self._recurse_attr(node, 'expr', *args, **kwargs)
