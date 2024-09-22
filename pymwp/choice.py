@@ -146,7 +146,7 @@ class Choices:
         # only sorted here for presentation purposes
         paths = [str(list(i)) for i in sorted(
             list(sequences), key=lambda x: (len(x), x))]
-        logger.debug(f'infinity paths: {len(paths)}')
+        logger.debug(f'infinity paths: {" # ".join(paths)}')
 
         # build vectors representing valid choices
         valid = Choices.build_choices(domain, index, sequences)
