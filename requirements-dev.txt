@@ -1,8 +1,9 @@
--r requirements-test.txt
+-r requirements.txt
 
-# the deps needed to build docs
-
-mkdocs-material==9.5.34
-mkdocstrings-python==1.11.1
-mkdocs-include-markdown-plugin==6.2.2
-black
+# all things needed to test/measure/profile/benchmark
+flake8
+pytest
+pytest-cov
+pytest-mock
+pytablewriter==1.2.0
+psutil

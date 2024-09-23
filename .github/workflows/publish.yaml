@@ -16,23 +16,28 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install build setuptools wheel twine
+        run: |
+          pip install build setuptools wheel twine
+          python -m pip install -r requirements-dev.txt  
 
       - name: Run tests
-        run: make test
+        run: make lint && make test
 
-      - name: Run profiler
-        run: make profile
-
-      - uses: vimtor/action-zip@v1.1
-        with:
-          files: profile/
-          dest: profile.zip
+      - name: Run benchmarks
+        run: make bench
 
       - uses: vimtor/action-zip@v1.1
         with:
           files: c_files/
           dest: examples.zip
+
+      - uses: vimtor/action-zip@v1.1
+        with:
+          files: output/
+          dest: benchmark.zip
+
+      - name: Combine benchmark tables
+        run: ( cat output/__table.txt ; echo ""; cat output/__table_map.txt; echo ) > output/benchmarks.txt
 
       - name: Build and publish
         env:
@@ -43,9 +48,10 @@ jobs:
           python -m twine upload dist/*
 
       - name: Github release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.14.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: |
+            output/benchmark.txt
+            ${{ github.workspace }}/benchmark.zip
             ${{ github.workspace }}/examples.zip
-            ${{ github.workspace }}/profile.zip

@@ -549,21 +549,26 @@ class Result(Timeable, Serializable):
     def add_relation(self, result: FuncResult) -> None:
         """Appends function analysis to result."""
         self.relations[result.name] = result
-        Result._pretty_print_result(str(result))
+        Result.pretty_print(str(result))
 
     def add_loop(self, result: FuncLoops) -> None:
         """Append loop analysis to result."""
         self.loops[result.name] = result
-        Result._pretty_print_result(str(result))
+        Result.pretty_print(str(result))
 
     @staticmethod
-    def _pretty_print_result(txt: str) -> None:
+    def pretty_print(txt: str, line_w: int = 50, hb='─') -> str:
         """Draws a colored box around text before display.
 
         Arguments:
-            txt: some text to display.
+            txt: Some text to display.
+            line_w: Formatted text line width.
+            hb: Horizontal bar box-drawing character
+
+        Returns:
+             Formatted text.
         """
-        color, endc, line_w, hb = '\033[96m', '\033[0m', 50, '─'
+        color, endc = '\033[96m', '\033[0m'
         top_bar = (hb * (line_w + 3))
         bot_bar = top_bar[:]
         land, i_bar = Bound.LAND, Relation.INFTY_BAR
@@ -577,6 +582,8 @@ class Result(Timeable, Serializable):
                     split_at = 1 + vals[:line_w].index(land)
                 elif i_bar in vals[:line_w] and len(vals) > line_w:
                     split_at = 1 + vals[:line_w].rindex(i_bar)
+                elif ' ' in vals[:line_w] and len(vals) > line_w:
+                    split_at = 1 + vals[:line_w].rindex(' ')
                 else:
                     split_at = line_w
                 # split to current...remaining
@@ -588,6 +595,7 @@ class Result(Timeable, Serializable):
                 lines += [f' {part:<{line_w}}']
         parts = '\n'.join([top_bar, '\n'.join(lines), bot_bar])
         logger.info(f'\n{color}{parts}{endc}')
+        return parts
 
     def get_func(self, name: Optional[str] = None) \
             -> Union[FuncResult, FuncLoops, Dict[str, FuncResult],

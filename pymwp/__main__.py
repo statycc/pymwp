@@ -43,6 +43,7 @@ from argparse import RawTextHelpFormatter
 from typing import List, Optional, Type, Union
 
 from . import __version__, __title__ as pymwp
+from . import __notice__, __warranty__, __conditions__
 from . import Parser, Result, Analysis, LoopAnalysis
 from .file_io import default_file_out, loc, save_result
 
@@ -50,9 +51,16 @@ from .file_io import default_file_out, loc, save_result
 def main():
     """Implementation of MWP analysis on C code in Python."""
     parser = argparse.ArgumentParser(
-        prog=pymwp, description=main.__doc__,
+        prog=pymwp, description=main.__doc__ + '\n\n' + __notice__,
         formatter_class=RawTextHelpFormatter)
     args = __parse_args(parser)
+
+    if args.license:
+        import shutil
+        shell_size = shutil.get_terminal_size((50, 20))
+        text = __conditions__ if args.license == 'C' else __warranty__
+        print(Result.pretty_print(text, shell_size.columns - 5))
+        sys.exit(0)
 
     if not args.input_file:
         parser.print_help()
@@ -97,6 +105,15 @@ def __parse_args(
         '-v', "--version",
         action="version",
         version="%(prog)s " + __version__,
+    )
+    parser.add_argument(
+        "--license",
+        action='store',
+        dest='license',
+        type=str.upper,
+        metavar="L",
+        choices=['W', 'C'],
+        help="show license warranty (W) or conditions (C)"
     )
 
     analysis = parser.add_argument_group('Analysis options')

@@ -18,7 +18,7 @@ These tools are not shipped with the distributed version of pymwp, but are avail
     First install required dependencies for running utilities:
     
     ```
-    python -m pip install -r requirements-test.txt
+    python -m pip install -r requirements-dev.txt
     ```
 
 ## AST Generator

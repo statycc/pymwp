@@ -38,7 +38,7 @@ bench: dev-env bench-only plot
 dev-env:
 	@test -d venv || python3 -m venv venv;
 	@source venv/bin/activate;
-	@pip3 install -q -r requirements-test.txt
+	@pip3 install -q -r requirements-dev.txt
 
 test-only:
 	pytest --cov=./pymwp tests
@@ -55,11 +55,11 @@ cprofile:
 
 bench-only:
 	@$(foreach cat, $(C_FILES), $(foreach f, $(shell find c_files/$(cat) -type f -iname '*.c'), \
- 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)" ; )) \
- 		python3 utilities/runtime.py output
+ 		python3 -m pymwp $(f) --fin --silent && echo "DONE -- $(f)" ; ))
+	@python3 utilities/runtime.py output
 
 plot:
-	python3 utilities/plot.py -i output -f tex
+	python3 utilities/plot.py -i output -f plain
 
 ast:
 	rm -rf test/mocks/*.txt

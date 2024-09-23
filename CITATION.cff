@@ -36,6 +36,4 @@ authors:
 repository-code: https://github.com/statycc/pymwp
 repository-artifact: https://zenodo.org/record/7879822
 doi: 10.5281/zenodo.7879822
-version: 0.4.2
-date-released: 2023-05-23
 license: GPL-3.0-or-later
