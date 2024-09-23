@@ -653,6 +653,9 @@ class LoopAnalysis(Analysis):
         # analyze body commands, always run to completion
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
 
+        # lame fix because of #148
+        infty = infty or relations.first.eval(Analysis.DOMAIN, index).infinite
+
         # evaluate at variables
         result.variables = dict(zip(variables, map(
             lambda v: LoopAnalysis.get_result(
