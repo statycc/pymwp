@@ -53,7 +53,7 @@ def analyze_v2(category, filename):
             (r, vals.relation.infty_vars())
             for r, vals in res.relations.items() if vals.infinite])
         result['bounds'] = dict([
-            (r, vals.bound.show_poly())
+            (r, vals.bound.show())
             for r, vals in res.relations.items() if not vals.infinite])
         result['result'] = res
     except:

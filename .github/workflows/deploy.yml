@@ -7,22 +7,25 @@ on:
 
 jobs:
   deploy-server:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     runs-on: ubuntu-latest
     environment:
         name: demo
         url: https://statycc.github.io/pymwp/demo
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Get Hash
-      id: hash
       run: echo "hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
 
-    - name: Deploy to App Engine
-      uses: google-github-actions/deploy-appengine@v0.4.0
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
       with:
-        deliverables: app.yaml
-        project_id: ${{ secrets.GCP_PROJECT }}
-        credentials: ${{ secrets.GCP_SA_KEY }}
-        promote: true
-        version: ${{ env.hash }}
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - id: Deploy to App Engine
+      uses: 'google-github-actions/deploy-appengine@v2'
+      with:
+        version_id: ${{ env.hash }}
