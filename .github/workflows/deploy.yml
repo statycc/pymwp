@@ -30,4 +30,5 @@ jobs:
       id: 'deploy'
       uses: 'google-github-actions/deploy-appengine@v2'
       with:
-        version_id: ${{ env.hash }}
+        project_id: ${{ secrets.GCP_PROJECT }}
+        version: ${{ env.hash }}
