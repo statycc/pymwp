@@ -20,12 +20,14 @@ jobs:
     - name: Get Hash
       run: echo "hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
 
-    - id: 'auth'
+    - name: Authenticate
+      id: 'auth'
       uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - id: Deploy to App Engine
+    - name: Deploy to App Engine
+      id: 'deploy'
       uses: 'google-github-actions/deploy-appengine@v2'
       with:
         version_id: ${{ env.hash }}
