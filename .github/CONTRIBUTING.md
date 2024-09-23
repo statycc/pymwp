@@ -68,9 +68,10 @@ make lint         # check code style only
 Setting up the code environment and dependencies, also includes the setup for pymwp docs.
 The documentation is built with [mkdocs](https://squidfunk.github.io/mkdocs-material/).
 
-If you want to build and run the documentation website, run:
+If you want to build and run the documentation website locally, run:
 
-```
+``` 
+python -m pip install -r requirements-doc.txt
 mkdocs serve
 ```
 
@@ -111,4 +112,4 @@ for all configured distribution channels.
 
 **Relevant workflows**
 
-[![Publish & Release](https://github.com/statycc/pymwp/actions/workflows/publish.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/publish.yaml) handles all release and deployment tasks.
+[![Publish](https://github.com/statycc/pymwp/actions/workflows/publish.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/publish.yaml) handles all release and deployment tasks.
