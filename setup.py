@@ -17,17 +17,26 @@
 # -----------------------------------------------------------------------------
 
 import setuptools
+import os
 
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __desc__ = "Implementation of MWP analysis on C code in Python."
-__version__ = "0.4.2"
 
 with open('README.md', 'r', encoding='utf-8') as fh:
-    long_description = fh.read()
+    readme = fh.read()
+    start_key, end_key = '<!--include-start-->', '<!--include-end-->'
+    start = readme.index(start_key) + len(start_key)
+    end = readme.index(end_key)
+    long_description = readme[start:end]
+
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                       "pymwp", "version.py")) as fp:
+    exec(fp.read())
+
 setuptools.setup(
     name=__title__,
-    version=__version__,
+    version=__version__,  # noqa: F821
     author=__author__,
     author_email='nrusch@augusta.edu',
     packages=['pymwp'],
@@ -63,7 +72,8 @@ setuptools.setup(
         'Typing :: Typed',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'  # noqa: E501
+        ('License :: OSI Approved :: ' +
+         'GNU General Public License v3 or later (GPLv3+)')
     ],
     python_requires=">=3.7",
     install_requires=[

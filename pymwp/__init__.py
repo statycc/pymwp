@@ -25,9 +25,30 @@ pymwp: implementation of MWP analysis on C code in Python.
 __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "GPL-3.0-or-later"
-__version__ = "0.4.2"
+
+_gpl = ("See the GNU General Public License for more details "
+        "https://www.gnu.org/licenses/gpl-3.0.html. ")
+
+__notice__ = (
+    f"{__title__} Copyright (c) 2020-2024 {__author__}. This program comes "
+    f"with ABSOLUTELY NO WARRANTY; for details type `{__title__} --license W`."
+    f"This is free software, and you are welcome to redistribute it under "
+    f"certain conditions; type `{__title__} --license C` for details.")
+
+__warranty__ = (
+    f"{__title__} is distributed in the hope that it will be useful, "
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+    f"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. {_gpl}")
+
+__conditions__ = (
+    "Permissions of this strong copyleft license are conditioned on making "
+    "available complete source code of licensed works and modifications, "
+    "which include larger works using a licensed work, under the same "
+    "license. Copyright and license notices must be preserved. Contributors "
+    f"provide an express grant of patent rights. {_gpl}")
 
 # flake8: noqa: F401
+from pymwp.version import __version__
 from pymwp.constants import *  # import all types
 from pymwp.parser import Parser
 from pymwp.choice import Choices
