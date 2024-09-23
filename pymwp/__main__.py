@@ -111,9 +111,9 @@ def __parse_args(
         action='store',
         dest='license',
         type=str.upper,
-        metavar="L",
+        metavar="opt",
         choices=['W', 'C'],
-        help="show license warranty (W) or conditions (C)"
+        help="show warranty (W) or conditions (C) and exit"
     )
 
     analysis = parser.add_argument_group('Analysis options')
@@ -123,7 +123,7 @@ def __parse_args(
         dest='mode',
         default='F',
         type=str.upper,
-        metavar="M",
+        metavar="opt",
         choices=['F', 'L'],
         help="analyze functions (F) or loops (L) [default: F]"
     )

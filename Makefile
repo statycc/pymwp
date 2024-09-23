@@ -1,11 +1,14 @@
 SHELL := /bin/bash
 
 help:
-	@echo "clean - remove all build, test, coverage and Python artifacts"
-	@echo "pre-commit - run unit tests and linter"
-	@echo "profile - run cProfile on all examples"
-	@echo "test - run unit tests only"
-	@echo "lint - check code style only"
+	@echo "  make ast             parse all test/examples"
+	@echo "  make bench           run pymwp on all examples"
+	@echo "  make clean           remove all generated files"
+	@echo "  make lint            check code style only"
+	@echo "  make plot            plot analysis results in output"
+	@echo "  make pre-commit      run unit tests and linter"
+	@echo "  make profile         run cProfile on all examples"
+	@echo "  make test            run unit tests only"
 
 clean:
 	@rm -fr output/
@@ -15,13 +18,12 @@ clean:
 	@rm -fr profile/
 	@rm -fr .pytest_cache/
 	@rm -fr .eggs/
-	@rm -fr .coverage
+	@rm -fr coverage.xml
 	@find . -name '*.egg-info' -exec rm -fr {} +
 	@find . -name '*.egg' -exec rm -f {} +
 	@find . -name '*.pyc' -exec rm -f {} +
 	@find . -name '*.pyo' -exec rm -f {} +
 	@find . -name '*~' -exec rm -f {} +
-	@find . -name '__pycache__' -exec rm -fr {} +
 
 C_FILES = basics implementation_paper infinite not_infinite original_paper other tool_paper
 
@@ -63,4 +65,4 @@ plot:
 
 ast:
 	rm -rf test/mocks/*.txt
-	python3 utilities/ast_util.py tests/test_examples tests/mocks
+	python3 utilities/ast_util.py tests/examples tests/mocks

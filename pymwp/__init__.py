@@ -26,9 +26,6 @@ __title__ = "pymwp"
 __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "GPL-3.0-or-later"
 
-_gpl = ("See the GNU General Public License for more details "
-        "https://www.gnu.org/licenses/gpl-3.0.html. ")
-
 __notice__ = (
     f"{__title__} Copyright (c) 2020-2024 {__author__}. This program comes "
     f"with ABSOLUTELY NO WARRANTY; for details type `{__title__} --license W`."
@@ -36,16 +33,19 @@ __notice__ = (
     f"certain conditions; type `{__title__} --license C` for details.")
 
 __warranty__ = (
-    f"{__title__} is distributed in the hope that it will be useful, "
-    "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-    f"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. {_gpl}")
+    f"{__title__} is distributed in the hope that it will be useful, but "
+    f"WITHOUT ANY WARRANTY; without even the implied warranty of "
+    f"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU "
+    f"General Public License for more details "
+    f"https://www.gnu.org/licenses/gpl-3.0.html.")
 
 __conditions__ = (
     "Permissions of this strong copyleft license are conditioned on making "
     "available complete source code of licensed works and modifications, "
     "which include larger works using a licensed work, under the same "
     "license. Copyright and license notices must be preserved. Contributors "
-    f"provide an express grant of patent rights. {_gpl}")
+    f"provide an express grant of patent rights. See the GNU General Public "
+    f"License for more details https://www.gnu.org/licenses/gpl-3.0.html.")
 
 # flake8: noqa: F401,E402
 from pymwp.version import __version__
