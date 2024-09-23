@@ -14,7 +14,7 @@ CORS(app)
 
 source_link = 'https://github.com/statycc/pymwp/tree/main/c_files/'
 examples_directory = 'c_files'
-pre_parser = "cpp"
+pre_parser = "gcc"
 
 
 @app.errorhandler(500)
@@ -70,8 +70,12 @@ def version():
     """Display pymwp version info."""
     result = {
         'result': f'pymwp version: {__version__}\n\n' + \
-                  f'OS/v: {platform.system()} {platform.release()}\n\n' + \
-                  f'C pre-parser: {pre_parser}'
+                  f'OS: {platform.system()} {platform.machine()}\n'
+                  f'OS version: {platform.version()}\n'
+                  f'OR release: {platform.release()}\n\n' + \
+                  f'C pre-parser: {pre_parser}\n\n'
+                  f'Python: {platform.python_version()} '
+                  f'(compiler: {platform.python_compiler()})'
     }
     return jsonify(result)
 
