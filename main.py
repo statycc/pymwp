@@ -1,20 +1,37 @@
-import sys
 import os
 import platform
+import sys
+import re
+from os.path import isdir, isfile, join
 
 import jsons as jsons
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
-from pymwp import __version__
-from pymwp.parser import parse_file
-from pymwp.analysis import Analysis, Result
+from pymwp import __version__, Analysis, Result
+from pymwp.parser import parse_file  # pycparser
+from pymwp.file_io import loc
 
 app = Flask(__name__)
 CORS(app)
 
 source_link = 'https://github.com/statycc/pymwp/tree/main/c_files/'
 examples_directory = 'c_files'
-pre_parser = "gcc"
+pre_parser = "cpp"
+
+
+def file_text(file_name):
+    with open(file_name) as file_object:
+        return file_object.read()
+
+
+def ex_name(file_name: str) -> str:
+    """Format example display name.
+    e.g., inline_variable => Inline Variable"""
+    file_name = re.sub(r'(\d+)_(\d+)', r'\1.\2', file_name)
+    file_name = (file_name.replace('not', 'not_')
+                 .replace('example', 'example_'))
+    words = map(lambda w: w.capitalize(), file_name.split("_"))
+    return ' '.join(words)
 
 
 @app.errorhandler(500)
@@ -26,78 +43,67 @@ def server_error(e):
 @app.route('/v2/<category>/<filename>')
 def analyze_v2(category, filename):
     """Run analysis on specified example."""
-    if not os.path.isdir(os.path.join(examples_directory, category)):
+
+    if not isdir(join(examples_directory, category)):
         return 'invalid example category!', 500
-    if not os.path.isfile(
-            os.path.join(examples_directory, category, filename)):
+    if not isfile(join(examples_directory, category, filename)):
         return 'example does not exits!', 500
 
-    sample = os.path.join(category, filename)
-    file = os.path.join(examples_directory, sample)
-    result = {
-        'url': f'{source_link}{sample}',
-        'name': sample
-    }
+    sample = join(category, filename)
+    file = join(examples_directory, sample)
+    ex = dict(url=f'{source_link}{sample}', name=sample)
 
+    # noinspection PyBroadException
     try:
-        result['program'] = file_text(file) or ""
-        ast = parse_file(file, use_cpp=True, cpp_path=pre_parser,
-                         cpp_args='-E')
+        program = file_text(file) or ""
+        ast = parse_file(file, True, pre_parser, '-E')
         analysis_result = Result()
         analysis_result.program.program_path = sample
-        analysis_result.program.n_lines = \
-            len(result['program'].split("\n"))
-        res = Analysis.run(
+        analysis_result.program.n_lines = loc(file)
+        result = Analysis.run(
             ast, no_save=True, res=analysis_result, fin=True)
-        result['fail'] = dict([
-            (r, vals.relation.infty_vars())
-            for r, vals in res.relations.items() if vals.infinite])
-        result['bounds'] = dict([
-            (r, vals.bound.show())
-            for r, vals in res.relations.items() if not vals.infinite])
-        result['result'] = res
-    except:
-        type_, value, tb = sys.exc_info()
-        result['error'] = True
-        result['error_msg'] = f'{type_.__name__}: {value}'
+        fail = [(k, v.relation.infty_vars()) for k, v
+                in result.relations.items() if v.infinite]
+        bounds = [(k, v.bound.show()) for k, v
+                  in result.relations.items() if not v.infinite]
+        msg = dict(program=program, result=result,
+                   fail=fail, bounds=bounds)
+    except Exception:
+        type_, value, _ = sys.exc_info()
+        msg = dict(error=True, error_msg=f'{type_.__name__}: {value}')
 
-    return Response(jsons.dumps(result), mimetype='application/json')
+    response = jsons.dumps({**ex, **msg})
+    return Response(response, mimetype='application/json')
 
 
 @app.route('/')
 @app.route('/v2/')
 def version():
     """Display pymwp version info."""
-    result = {
-        'result': f'pymwp version: {__version__}\n\n' + \
-                  f'OS: {platform.system()} {platform.machine()}\n'
-                  f'OS version: {platform.version()}\n'
-                  f'OR release: {platform.release()}\n\n' + \
-                  f'C pre-parser: {pre_parser}\n\n'
-                  f'Python: {platform.python_version()} '
-                  f'(compiler: {platform.python_compiler()})'
-    }
-    return jsonify(result)
+    pf = platform.uname()
+    info = [('OS', f'{pf.system} {pf.machine}'),
+            ('OS version', pf.version),
+            ('OS release', pf.release),
+            ('Processor', pf.processor),
+            ('C pre-parser', pre_parser),
+            ('Python', f'{platform.python_version()}'),
+            ('pymwp version', __version__)]
+    return jsonify(dict(result="\n".join(
+        [f'{k}: {v}' for k, v in info])))
 
 
 @app.route('/examples')
 @app.route('/v2/examples')
 def examples():
     """List all known examples."""
-    result = {}
-    for dirs in os.listdir(examples_directory):
-        display = dirs.capitalize().replace('_', ' ')
-        result[display] = {}
-        for files in os.listdir(examples_directory + "/" + dirs):
-            fname = files.capitalize().replace('_', ' ')[:-2]
-            result[display][fname] = f'{dirs}/{files}'
-    result['Version'] = {'Version info': '/'}
+    result = dict([
+        (ex_name(category), dict([(
+            ex_name(f_name[:-2]), f'{category}/{f_name}')
+            for f_name in
+            os.listdir(examples_directory + "/" + category)]))
+        for category in os.listdir(examples_directory)],
+        Version={'Version info': '/'})
     return jsonify(result)
-
-
-def file_text(file_name):
-    with open(file_name) as file_object:
-        return file_object.read()
 
 
 if __name__ == '__main__':

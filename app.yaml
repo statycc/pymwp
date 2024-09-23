@@ -1,2 +1,5 @@
 # https://cloud.google.com/appengine/docs/standard/reference/app-yaml?tab=python
-runtime: python312
+# https://cloud.google.com/appengine/docs/standard/lifecycle/support-schedule#python
+# https://cloud.google.com/appengine/docs/standard/reference/system-packages
+# Ubuntu 22.04 does not have cpp system package !
+runtime: python39
