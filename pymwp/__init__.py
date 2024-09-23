@@ -47,7 +47,7 @@ __conditions__ = (
     "license. Copyright and license notices must be preserved. Contributors "
     f"provide an express grant of patent rights. {_gpl}")
 
-# flake8: noqa: F401
+# flake8: noqa: F401,E402
 from pymwp.version import __version__
 from pymwp.constants import *  # import all types
 from pymwp.parser import Parser
