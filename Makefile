@@ -19,6 +19,7 @@ clean:
 	@rm -fr .pytest_cache/
 	@rm -fr .eggs/
 	@rm -fr coverage.xml
+	@rm -fr .coverage
 	@find . -name '*.egg-info' -exec rm -fr {} +
 	@find . -name '*.egg' -exec rm -f {} +
 	@find . -name '*.pyc' -exec rm -f {} +

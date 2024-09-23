@@ -557,7 +557,7 @@ class Result(Timeable, Serializable):
         Result.pretty_print(str(result))
 
     @staticmethod
-    def pretty_print(txt: str, line_w: int = 50, hb='─') -> str:
+    def pretty_print(txt: str, line_w: int = 50, hb: str = '─') -> str:
         """Draws a colored box around text before display.
 
         Arguments:
