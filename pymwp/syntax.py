@@ -171,13 +171,18 @@ class SyntaxUtils:
 class BaseAnalysis(NodeHandler):
     """Base implementation for AST analysis."""
 
-    SIGN = {'+', '-'}
+    PLUS, MINUS, MULT = '+', '-', '*'
     NEG, SIZEOF = '!', 'sizeof'
-    BIN_OPS = {"+", "-", "*"}
+
+    BIN_OPS = {PLUS, MINUS, MULT}
+    """Supported binary operators."""
+
+    SIGN = {'+', '-'}
     PREFIX = {'++', '--'}
     INC, DEC = {'p++', '++'}, {'p--', '--'}
     INC_DEC = INC | DEC
-    U_OPS = INC_DEC | SIGN | {NEG, SIZEOF}
+    U_OPS = INC | DEC | {PLUS, MINUS, NEG, SIZEOF}
+    """Supported unary operators."""
 
     @abstractmethod
     def handler(self, node: pr.Node, *args, **kwargs) \
@@ -435,9 +440,9 @@ class Variables(BaseAnalysis):
         vars (List[str]): List of variables.
     """
 
-    RESERVED = 'true,false'.split(',')
-    """List of reserved names that are not variables.
-    See: https://github.com/statycc/pymwp/issues/150"""
+    RESERVED = ['true', 'false']
+    """List of reserved names that are not variables;
+    see [issue #150](https://github.com/statycc/pymwp/issues/150)."""
 
     def __init__(self, *nodes: pr.Node):
         self.vars = []

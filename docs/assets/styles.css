@@ -60,13 +60,19 @@
 .doc-label-property code,
 .doc-label-abstractmethod code,
 .doc-label-staticmethod code,
-.doc-label-module-attribute code { display: none; }
+.doc-label-module-attribute code,
+.doc-label-class-attribute code,
+.doc-label-instance-attribute code { display: none; }
 
 .doc-label-abstractmethod { background-color: #EC407A; }
 .doc-label-staticmethod { background-color: #31ff99; }
 .doc-label-property { background-color: #FFCA28; }
 .doc-label-module-attribute { background-color: #00838F; }
+.doc-label-class-attribute { background-color: #4051b5; }
+.doc-label-instance-attribute { background-color: #6A1B9A; }
 
+.doc-label-instance-attribute::after,
+.doc-label-class-attribute::after,
 .doc-label-module-attribute::after,
 .doc-label-abstractmethod::after { color: white; }
 .doc-label-staticmethod::after,
@@ -76,6 +82,8 @@
 .doc-label-staticmethod::after { content: "static"; }
 .doc-label-abstractmethod::after { content: "abstract"; }
 .doc-label-property::after { content: "property"; }
+.doc-label-class-attribute::after { content:"class-attr"; }
+.doc-label-instance-attribute::after { content:"instance-attr"; }
 
 .doc-symbol-toc.doc-symbol-parameter::after { content: "P"; }
 .doc-symbol-toc.doc-symbol-attribute::after { content: "A"; }

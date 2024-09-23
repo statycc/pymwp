@@ -328,11 +328,11 @@ class Analysis:
                 snd = pr.Assignment('=', tgt, pr.ID(r_name))
                 cmds = [fst, snd] if op in Coverage.PREFIX else [snd, fst]
                 new_node = pr.Compound(cmds)
-            if op == '-':  # flips sign
+            if op == Coverage.MINUS:  # flips sign
                 neg_1 = pr.Constant('int', -1)
-                r_node = pr.BinaryOp('*', pr.ID(r_name), neg_1)
+                r_node = pr.BinaryOp(Coverage.MULT, pr.ID(r_name), neg_1)
                 new_node = pr.Assignment('=', tgt, r_node)
-            if op == '+':  # does nothing
+            if op == Coverage.PLUS:  # does nothing
                 new_node = pr.Assignment('=', tgt, pr.ID(r_name))
 
         if op == Coverage.NEG:  # negation=> 0 or 1
