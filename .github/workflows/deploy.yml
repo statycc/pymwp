@@ -32,3 +32,4 @@ jobs:
       with:
         project_id: ${{ secrets.GCP_PROJECT }}
         version: ${{ env.hash }}
+        deliverables: app.yaml
