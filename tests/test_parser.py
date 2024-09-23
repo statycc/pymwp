@@ -65,17 +65,17 @@ def test_ast_structure_infty2c():
     If this (or subsequent similar tests) fails after parser version bump,
     update the mock AST trees.
     """
-    ast = Parser.parse('tests/test_examples/infinite_2.c', **PARSER_KWARGS)
+    ast = Parser.parse('tests/examples/infinite_2.c', **PARSER_KWARGS)
     assert str(ast) == str(INFINITE_2)
 
 
 def test_ast_structure_infty8c():
-    ast = Parser.parse('tests/test_examples/infinite_8.c', **PARSER_KWARGS)
+    ast = Parser.parse('tests/examples/infinite_8.c', **PARSER_KWARGS)
     assert str(ast) == str(INFINITE_8)
 
 
 def test_ast_structure_func_call():
-    ast = Parser.parse('tests/test_examples/function_call.c', **PARSER_KWARGS)
+    ast = Parser.parse('tests/examples/function_call.c', **PARSER_KWARGS)
     assert str(ast) == str(FUNCTION_CALL)
 
 

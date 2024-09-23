@@ -3,7 +3,7 @@
 """
 Sample ASTs for unit testing Analysis.
 We mock the outputs of pycparser.parse_file.
-These ASTs match the examples in tests/test_examples.
+These ASTs match the examples in tests/examples.
 
 How add a new example:
 1. add .c file to test_examples
