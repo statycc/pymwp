@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: 'pymwp: MWP analysis in Python'
+title: 'pymwp: A Static Analyzer Determining Polynomial Growth Bounds'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -35,5 +35,5 @@ authors:
     affiliation: LIPN – UMR 7030 Université Sorbonne Paris Nord & CNRS
 repository-code: https://github.com/statycc/pymwp
 repository-artifact: https://zenodo.org/record/7879822
-doi: 10.5281/zenodo.7879822
+doi: 10.1007/978-3-031-45332-8_14
 license: GPL-3.0-or-later

@@ -27,8 +27,11 @@
   ],
   "language": "eng",
   "keywords": [
-    "program analysis",
-    "mwp-analysis",
-    "implicit computational complexity"
+    "program analysis", "mwp-analysis", "implicit computational complexity"
+  ],
+  "related_identifiers": [
+    { "relation": "isDocumentedBy", "identifier": "https://statycc.github.io/pymwp/", "scheme": "url", "resource_type": "publication-softwaredocumentation"},
+    { "relation": "isDescribedBy", "identifier":  "https://statycc.github.io/.github/pymwp/", "scheme": "url", "resource_type": "presentation" },
+    { "relation": "isPublishedIn", "identifier":  "10.1007/978-3-031-45332-8_14", "scheme": "doi", "resource_type": "publication-conferencepaper" }
   ]
 }
