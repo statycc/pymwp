@@ -1,3 +1,2 @@
 # https://cloud.google.com/appengine/docs/standard/reference/app-yaml?tab=python
 runtime: python312
-entrypoint: gunicorn -b :$PORT main:app
