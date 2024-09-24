@@ -405,7 +405,7 @@ class LoopResult(Timeable, Serializable):
         """Combines variable results to a Bound-type."""
         return Bound(dict([
             (v, res.bound.bound_str) for v, res in
-            self.variables.items() if res.bound]))
+            sorted(self.variables.items()) if res.bound]))
 
     def var_sat(self, cond: Callable[[VResult], bool]) -> List[str]:
         """List of variables satisfying a condition."""

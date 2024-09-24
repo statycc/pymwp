@@ -224,8 +224,7 @@ class Plot:
     def func_data(self, offset=1):
         """Construct table data of function analyses results."""
         return [((i + offset, Plot.fun_name(ex, fun),
-                  ex.program.n_lines, fun.dur_ms, fun.n_vars,
-                  str(fun.n_bounds if fun.n_bounds else '.')),
+                  ex.program.n_lines, fun.dur_ms, fun.n_vars, fun.n_bounds),
                  Plot.table_format_bound(i + offset, fun.bound, self.pad))
                 for i, (ex, fun) in enumerate(self.relations)]
 
@@ -242,7 +241,8 @@ class Plot:
             relations, bounds = list(zip(*self.func_data()))
             bounds1 = dict([b for b in bounds if b])
         if self.loops:
-            loops, bounds = list(zip(*self.loop_data(len(relations))))
+            offset = max(1, len(relations))
+            loops, bounds = list(zip(*self.loop_data(offset)))
             bounds2 = dict([b for b in bounds if b])
         return relations, loops, {**bounds1, **bounds2}
 
