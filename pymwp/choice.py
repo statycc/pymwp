@@ -171,11 +171,11 @@ class Choices:
             Simplified list of infinity paths.
         """
         while True:
+            len_before = len(sequences)
             while Choices.reduce(domain, sequences):
                 continue
             while Choices.reduce_end(domain, sequences):
                 continue
-            len_before = len(sequences)
             sequences = Choices.unique_sequences(sequences)
             sequences = Choices.except_one(domain, sequences)
             len_after = len(sequences)
