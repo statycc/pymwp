@@ -21,7 +21,7 @@ import glob
 import sys
 from json import JSONDecodeError
 from os.path import join, isdir, abspath, dirname
-from typing import Dict, Union, List, Tuple, Optional, Any
+from typing import Dict, Union, List, Tuple, Optional, Any, Callable
 
 # noinspection PyPackageRequirements
 from pytablewriter import SpaceAlignedTableWriter as SpaceTable
@@ -212,13 +212,22 @@ class Plot:
         mid = f', {lf.name}' if res.program.name != lf.name else ''
         return f'{res.program.name}{mid}: L{n}'
 
+    @staticmethod
+    def count_vars(lp: LoopResult, cond: Callable[[dict], bool]):
+        count = sum([1 for x in lp.variables.values() if cond(x)])
+        return '.' if count == 0 else count
+
     def loop_data(self, offset=1):
         """Construct table data of loop analyses results."""
         return [((i + offset, Plot.loop_name(ex, fun, n),
-                  lp.n_lines, lp.dur_ms, lp.n_vars,
-                  str(lp.n_bounded if lp.n_bounded else '.')),
+                  # lp.n_lines,
+                  lp.dur_ms, lp.n_vars,
+                  Plot.count_vars(lp, lambda x: x.is_m),
+                  Plot.count_vars(lp, lambda x: x.is_w and not x.is_m),
+                  Plot.count_vars(lp, lambda x: x.is_p and not x.is_w),
+                  Plot.count_vars(lp, lambda x: x.exponential)),
                  Plot.table_format_bound(
-                     i + offset, lp.as_bound, self.pad, False))
+                     i + offset, lp.as_bound, self.pad)) #, False))
                 for i, (n, ex, fun, lp) in enumerate(self.loops)]
 
     def func_data(self, offset=1):
@@ -279,7 +288,7 @@ class Plot:
             fun_data, loop_data, bounds = self.build_table()
             head1 = '#,Benchmark,loc,time,vars,bounds'.split(',')
             self.write_table('', fun_data, head1, writes)
-            head2 = '#,Benchmark,loc,time,vars,vb'.split(',')
+            head2 = '#,Benchmark,time,vars,m,w,p,i'.split(',')
             self.write_table('_loops', loop_data, head2, writes)
             self.write_bounds(bounds, writes)
         if writes:

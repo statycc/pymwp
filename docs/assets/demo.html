@@ -243,22 +243,23 @@
             if (combinations && combinations.valid)
                 div.append(partialResult(
                     `Choices (${details.n_bounds} bound${details.n_bounds === 1 ? '' : 's'})`, '',
-                    textBlock(JSON.stringify(combinations.valid)), offset));
+                    (combinations.valid.length && combinations.valid[0].length ?
+                    textBlock(JSON.stringify(combinations.valid)) : ''), offset));
             if (bound)
                 div.append(partialResult(`Bound ${details.n_bounds === 1 ? '' : '(one example)'}`, '',
                     textBlock(bound), offset));
-            if (relation) {
-                div.append(partialResult('Matrix', '',
-                    renderMatrix(relation), offset));
-                document.onkeyup = event => event.code === "MetaLeft"
-                    ? toggleInfty() : true;
-            }
+        }
+        if (relation) {
+            div.append(partialResult('Matrix', '', renderMatrix(relation), offset));
+            document.onkeyup = event => event.code === "MetaLeft" ? toggleInfty() : true;
         }
         return div;
     }
 
     function displayAnalysisResult(response) {
         const {url, program, name, result = {}, bounds = {}, fail = {}, error = false} = response;
+        const bounds_dist = Object.fromEntries(bounds)
+        const fail_dist = Object.fromEntries(fail)
         const output = [buildProgramOutput(program, url, name, result)];
         if (error)
             output.push(buildTextResult(
@@ -269,7 +270,7 @@
         else {
             const relations = result && result.relations ? result.relations : {}
             Object.entries(relations)
-                .map(([k, v]) => buildFunctionResult(k, v, bounds[k], fail[k]))
+                .map(([k, v]) => buildFunctionResult(k, v, bounds_dist[k], fail_dist[k]))
                 .forEach(item => output.push(item))
         }
         setDisplay(output);

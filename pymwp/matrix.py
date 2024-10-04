@@ -20,7 +20,7 @@
 
 import logging
 from functools import reduce
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Callable
 
 from . import Monomial, Polynomial, MATRIX
 from .semiring import ZERO_MWP, UNIT_MWP
@@ -200,7 +200,8 @@ def resize(matrix: MATRIX, new_size: int) -> MATRIX:
     return res
 
 
-def show(matrix: MATRIX, prefix: str = None, postfix: str = None) -> None:
+def show(matrix: MATRIX, prefix: str = None, postfix: str = None,
+         fmt:Callable[[Any],str]=None) -> None:
     """Pretty print a matrix at the screen.
 
     Using the keyword arguments to display additional text before or
@@ -217,40 +218,42 @@ def show(matrix: MATRIX, prefix: str = None, postfix: str = None) -> None:
             Displays:
 
             ```
-            ['  +m', '  +o', '  +o']
-            ['  +o', '  +m', '  +o']
-            ['  +o', '  +o', '  +m']
+            +m  +o  +o
+            +o  +m  +o
+            +o  +o  +m
             ```
 
         === "Matrix with text"
 
             ```python
             my_matrix = identity_matrix(3)
-            header = '|   x1   |   x2  |  x3 |'
+            header = ' x1  x2  x3'
             show(my_matrix, prefix=header)
             ```
 
             Displays:
 
             ```
-            |   x1   |   x2  |  x3 |
-            ['  +m', '  +o', '  +o']
-            ['  +o', '  +m', '  +o']
-            ['  +o', '  +o', '  +m']
+            x1  x2  x3
+            +m  +o  +o
+            +o  +m  +o
+            +o  +o  +m
             ```
 
     Arguments:
         matrix: The matrix to display.
         prefix: display some text before displaying matrix
         postfix: display some text after displaying matrix
+        fmt: Optional element formatter function.
 
     Raises:
         TypeError: If the matrix is not iterable (type list of lists)
     """
+    fmt_ = fmt or str
     if prefix:
         print(prefix)
     for row in matrix:
-        print([str(r) for r in row])
+        print(' '.join([fmt_(r) for r in row]))
     if postfix:
         print(postfix)
     print(' ')
