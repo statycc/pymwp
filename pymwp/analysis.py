@@ -647,8 +647,7 @@ class LoopAnalysis(Analysis):
         result = LoopResult(pr.to_c(node)).on_start()
 
         # setup for loop analysis
-        variables = Variables(node).vars
-        relations = RelationList.identity(variables=variables)
+        relations = RelationList.identity(variables=Variables(node).vars)
 
         # analyze body commands, always run to completion
         infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
@@ -657,6 +656,7 @@ class LoopAnalysis(Analysis):
         infty = infty or relations.first.eval(Analysis.DOMAIN, index).infinite
 
         # evaluate at variables
+        variables = relations.first.variables
         result.variables = dict(zip(variables, map(
             lambda v: LoopAnalysis.get_result(
                 relations.first, index, v), variables))) \

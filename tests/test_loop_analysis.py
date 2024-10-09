@@ -35,7 +35,8 @@ def test_for_subst_loop_analysis():
     result = LoopAnalysis.run(FOR_SUBST, strict=True).get_func('main')
     loop = result.loops[0]
     assert result.n_loops == 1
-    assert loop.n_vars == 2  # ignore guard
-    assert loop.n_bounded == 2
+    assert loop.n_vars == 3  # include guard
+    assert loop.n_bounded == 3
     assert loop.variables['x_'].is_m
+    assert loop.variables['x'].is_m
     assert loop.variables['y'].is_p
