@@ -165,7 +165,7 @@ If you want to use the latest stable version—possibly ahead of the latest rele
 These options are available when running from source.
 
 ```
-make bench       # run benchmarks on all examples
-make test        # run all unit tests on pymwp source code
-make profile     # run cProfile on all examples  
+make bench       # run benchmark of all c_files examples
+make test        # run unit tests on pymwp source code
+make profile     # run cProfile on all c_files examples  
 ```
