@@ -51,7 +51,11 @@ class Analysis:
         result: Result = res or Result()
         logger.debug("started analysis")
         result.on_start()
-        for f_node in [f for f in ast if pr.is_func(f)]:
+        functions = [f for f in ast if pr.is_func(f)]
+        result.program.n_func = len(functions)
+        result.program.n_loops = 0
+        for f_node in functions:
+            result.program.n_loops += len(FindLoops(f_node).loops)
             if Analysis.syntax_check(f_node, strict):
                 func_res = Analysis.func(f_node, not fin)
                 func_res.func_code = pr.to_c(f_node, True)
@@ -614,6 +618,8 @@ class LoopAnalysis(Analysis):
         result.on_start()
         logger.debug("Starting loop analysis")
         functions = [f for f in ast if pr.is_func(f)]
+        result.program.n_func = len(functions)
+        result.program.n_loops = 0
         for func in functions:
             f_name = func.decl.name
             f_result = FuncLoops(f_name)
@@ -621,8 +627,10 @@ class LoopAnalysis(Analysis):
             logger.info(f"Analyzing {f_name}")
             # find loops and check/fix loop body syntax
             # nested loops are duplicated+lifted
-            loops = [loop for loop in FindLoops(func).loops if
-                     LoopAnalysis.syntax_check(loop, strict)]
+            loops = FindLoops(func).loops
+            result.program.n_loops += len(loops)
+            loops = [lp for lp in loops if
+                     LoopAnalysis.syntax_check(lp, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
             # analyze each loop
             for loop in loops:
