@@ -55,7 +55,7 @@ class Timeable:
     @property
     def dur_ms(self) -> int:
         """Duration in milliseconds."""
-        return int(self.time_diff / 1e6)
+        return int(round(self.time_diff / 1e6))
 
     def on_start(self) -> Timeable:
         """Called at start of timeable entity."""
@@ -170,16 +170,21 @@ class Program(Serializable):
     Attributes:
         n_lines (int): Lines of code in input program.
         program_path (str): Path to program file.
+        n_func (int): Function counter.
+        n_loops (int): Total loops counter.
     """
 
-    def __init__(self, n_lines: int = -1, program_path: str = None):
+    def __init__(self, n_lines: int = -1, program_path: str = None,
+                 n_func: int = -1, n_loops: int = -1):
         self.n_lines: int = n_lines
         self.program_path: str = program_path
+        self.n_func: int = n_func
+        self.n_loops: int = n_loops
 
     @property
     def _attrs(self) -> List[str]:
         """List of attributes."""
-        return ['n_lines', 'program_path']
+        return ['n_lines', 'program_path', 'n_func', 'n_loops']
 
     @property
     def name(self) -> Optional[str]:
