@@ -168,23 +168,26 @@ class Program(Serializable):
     """Details about analyzed C-language input file.
 
     Attributes:
-        n_lines (int): Lines of code in input program.
         program_path (str): Path to program file.
-        n_func (int): Function counter.
-        n_loops (int): Total loops counter.
+        n_lines (int): Lines of code in input program.
+        n_func (int): Total functions (incl. un-analyzed).
+        n_loops (int): Total loops (incl. un-analyzed).
+        n_variables (int): Total variables (incl. un-analyzed).
     """
 
-    def __init__(self, n_lines: int = -1, program_path: str = None,
-                 n_func: int = -1, n_loops: int = -1):
-        self.n_lines: int = n_lines
+    def __init__(self, program_path: str = None,
+                 n_lines: int = -1, n_func: int = 0,
+                 n_loops: int = 0, n_variables: int = 0):
         self.program_path: str = program_path
+        self.n_lines: int = n_lines
         self.n_func: int = n_func
         self.n_loops: int = n_loops
+        self.n_variables: int = n_variables
 
     @property
     def _attrs(self) -> List[str]:
         """List of attributes."""
-        return ['n_lines', 'program_path', 'n_func', 'n_loops']
+        return 'program_path,n_lines,n_func,n_loops,n_variables'.split(',')
 
     @property
     def name(self) -> Optional[str]:
@@ -306,8 +309,9 @@ class FuncLoops(Timeable, Serializable):
         self.loops: List[LoopResult] = []
 
     def __str__(self):
-        loops = [f'{i}. {lp}' for i, lp in enumerate(self.loops)]
-        lp_str = ('\n# ' + '\n# '.join(loops)) if loops else ''
+        loops = [f'{i + 1}. {lp}' for i, lp in enumerate(self.loops)]
+        sep = '\n' + (50 * '·') + '\n' if self.n_loops > 1 else '\n'
+        lp_str = (sep + sep.join(loops)) if loops else ''
         return (f'function: {self.name} • loops: {self.n_loops}'
                 f' • time: {self.dur_ms:,} ms{lp_str}')
 
@@ -526,6 +530,7 @@ class Result(Timeable, Serializable):
         self.program: Program = Program()
         self.relations: Dict[str, FuncResult] = {}
         self.loops: Dict[str, FuncLoops] = {}
+        self.color = False
 
     @property
     def _attrs(self) -> List[str]:
@@ -543,38 +548,40 @@ class Result(Timeable, Serializable):
 
     @property
     def n_functions(self) -> int:
-        """Number of functions in analyzed program."""
+        """Number of analyzed functions in program."""
         return len(self.relations.keys())
 
     @property
     def n_loops(self) -> int:
-        """Number of loops in functions of analyzed program."""
+        """Number of analyzed loops in program."""
         return sum([lp.n_loops for lp in self.loops.values()])
 
     def add_relation(self, result: FuncResult) -> None:
         """Appends function analysis to result."""
         self.relations[result.name] = result
-        Result.pretty_print(str(result))
+        Result.pretty_print(str(result), color=self.color)
 
     def add_loop(self, result: FuncLoops) -> None:
         """Append loop analysis to result."""
         self.loops[result.name] = result
-        Result.pretty_print(str(result))
+        Result.pretty_print(str(result), color=self.color)
 
     @staticmethod
-    def pretty_print(txt: str, line_w: int = 50, hb: str = '─') -> str:
+    def pretty_print(txt: str, line_w: int = 50, hb: str = '─',
+                     color: bool = False) -> str:
         """Draws a colored box around text before display.
 
         Arguments:
             txt: Some text to display.
             line_w: Formatted text line width.
             hb: Horizontal bar box-drawing character
+            color: Apply color to output
 
         Returns:
              Formatted text.
         """
-        color, endc = '\033[96m', '\033[0m'
-        top_bar = (hb * (line_w + 3))
+        color, endc = ('\033[96m', '\033[0m') if color else ('', '')
+        top_bar = (hb * (line_w + 1))
         bot_bar = top_bar[:]
         land, i_bar = Bound.LAND, Relation.INFTY_BAR
         lines, fst_land = [], True

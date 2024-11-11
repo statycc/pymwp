@@ -82,6 +82,7 @@ def main():
     result = Result()
     result.program.program_path = args.input_file
     result.program.n_lines = loc(args.input_file)
+    result.color = args.color
 
     analyzer: Type[Union[Analysis, LoopAnalysis]] = \
         LoopAnalysis if args.mode == 'L' else Analysis
@@ -198,6 +199,11 @@ def __parse_args(
         "--silent",
         action='store_true',
         help="disable all terminal output"
+    )
+    log_group.add_argument(
+        '--color',
+        action='store_true',
+        help="display important output in color"
     )
 
     return parser.parse_args(args)

@@ -50,12 +50,9 @@ class Analysis:
         """
         result: Result = res or Result()
         logger.debug("started analysis")
+        Analysis.take_counts(ast, result)
         result.on_start()
-        functions = [f for f in ast if pr.is_func(f)]
-        result.program.n_func = len(functions)
-        result.program.n_loops = 0
-        for f_node in functions:
-            result.program.n_loops += len(FindLoops(f_node).loops)
+        for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
                 func_res = Analysis.func(f_node, not fin)
                 func_res.func_code = pr.to_c(f_node, True)
@@ -166,6 +163,21 @@ class Analysis:
             cover.ast_mod()  # removes unsupported commands
             logger.warning(f"{name} syntax was modified")
         return True
+
+    @staticmethod
+    def take_counts(ast: pr.Node, result: Result):
+        """Calculate program statistics
+
+        Arguments:
+            ast (pr.Node): Parsed C source code AST Node.
+            result (Result): Pre-initialized result object.
+        """
+        functions = [f for f in ast if pr.is_func(f)]
+        loops = [len(FindLoops(f).loops) for f in functions]
+        variables = [len(Variables(f).vars) for f in functions]
+        result.program.n_func = len(functions)
+        result.program.n_loops = sum(loops)
+        result.program.n_variables = sum(variables)
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
@@ -615,24 +627,19 @@ class LoopAnalysis(Analysis):
             Analysis Result object.
         """
         result = res or Result()
+        Analysis.take_counts(ast, result)
         result.on_start()
         logger.debug("Starting loop analysis")
-        functions = [f for f in ast if pr.is_func(f)]
-        result.program.n_func = len(functions)
-        result.program.n_loops = 0
-        for func in functions:
+        for func in [f for f in ast if pr.is_func(f)]:
             f_name = func.decl.name
             f_result = FuncLoops(f_name)
             f_result.on_start()
             logger.info(f"Analyzing {f_name}")
             # find loops and check/fix loop body syntax
             # nested loops are duplicated+lifted
-            loops = FindLoops(func).loops
-            result.program.n_loops += len(loops)
-            loops = [lp for lp in loops if
-                     LoopAnalysis.syntax_check(lp, strict)]
+            loops = [loop for loop in FindLoops(func).loops if
+                     LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
-            # analyze each loop
             for loop in loops:
                 f_result.loops.append(LoopAnalysis.inspect(loop))
             f_result.on_end()
