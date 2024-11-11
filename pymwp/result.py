@@ -309,7 +309,7 @@ class FuncLoops(Timeable, Serializable):
         self.loops: List[LoopResult] = []
 
     def __str__(self):
-        loops = [f'{i + 1}. {lp}' for i, lp in enumerate(self.loops)]
+        loops = [f'{i + 1} ::: {lp}' for i, lp in enumerate(self.loops)]
         sep = '\n' + (50 * '·') + '\n' if self.n_loops > 1 else '\n'
         lp_str = (sep + sep.join(loops)) if loops else ''
         return (f'function: {self.name} • loops: {self.n_loops}'
