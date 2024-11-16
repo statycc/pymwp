@@ -49,8 +49,8 @@ class Analysis:
             Analysis Result object.
         """
         result: Result = res or Result()
-        logger.debug("started analysis")
         Analysis.take_counts(ast, result)
+        logger.debug("started analysis")
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
@@ -165,19 +165,21 @@ class Analysis:
         return True
 
     @staticmethod
-    def take_counts(ast: pr.Node, result: Result):
-        """Calculate program statistics
+    def take_counts(ast: pr.Node, result: Result) -> None:
+        """Calculate program statistics: functions, loops, and variables.
 
         Arguments:
             ast (pr.Node): Parsed C source code AST Node.
             result (Result): Pre-initialized result object.
         """
-        functions = [f for f in ast if pr.is_func(f)]
-        loops = [len(FindLoops(f).loops) for f in functions]
-        variables = [len(Variables(f).vars) for f in functions]
-        result.program.n_func = len(functions)
-        result.program.n_loops = sum(loops)
-        result.program.n_variables = sum(variables)
+        fs = [f for f in ast if pr.is_func(f)]
+        ls = [x for xs in [FindLoops(f).loops for f in fs] for x in xs]
+        f_variables = [len(Variables(fn).vars) for fn in fs]
+        l_variables = [len(Variables(lp).vars) for lp in ls]
+        result.program.n_func = len(fs)
+        result.program.n_loops = len(ls)
+        result.program.n_func_vars = sum(f_variables)
+        result.program.n_loop_vars = sum(l_variables)
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
@@ -628,8 +630,8 @@ class LoopAnalysis(Analysis):
         """
         result = res or Result()
         Analysis.take_counts(ast, result)
-        result.on_start()
         logger.debug("Starting loop analysis")
+        result.on_start()
         for func in [f for f in ast if pr.is_func(f)]:
             f_name = func.decl.name
             f_result = FuncLoops(f_name)

@@ -19,10 +19,31 @@
 import json
 import logging
 import os
+import re
 
 from . import Result
 
 logger = logging.getLogger(__name__)
+
+
+def del_comments(text):
+    """Remove C-style comments.
+    Thanks to https://stackoverflow.com/a/241506
+
+    Arguments:
+        text: C code fragment
+
+    Returns:
+        Text without comments.
+    """
+    def replacer(match):
+        s = match.group(0)
+        return " " if s.startswith('/') else s
+
+    pattern = re.compile(
+        r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
+        re.DOTALL | re.MULTILINE)
+    return re.sub(pattern, replacer, text)
 
 
 def loc(input_file: str) -> int:
@@ -35,8 +56,9 @@ def loc(input_file: str) -> int:
         Number of non-empty lines in input file.
     """
     with open(input_file, 'r') as fp:
-        lines = fp.readlines()
-    lines = [1 for line in lines if line and len(line.strip())]
+        lines = fp.read()
+    code_lines = del_comments(lines).split("\n")
+    lines = [1 for line in code_lines if line and len(line.strip())]
     return sum(lines)
 
 

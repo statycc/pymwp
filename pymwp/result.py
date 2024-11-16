@@ -172,22 +172,26 @@ class Program(Serializable):
         n_lines (int): Lines of code in input program.
         n_func (int): Total functions (incl. un-analyzed).
         n_loops (int): Total loops (incl. un-analyzed).
-        n_variables (int): Total variables (incl. un-analyzed).
+        n_func_vars (int): Total function variables (incl. un-analyzed).
+        n_loop_vars (int): Total loop variables (incl. un-analyzed).
     """
 
     def __init__(self, program_path: str = None,
                  n_lines: int = -1, n_func: int = 0,
-                 n_loops: int = 0, n_variables: int = 0):
+                 n_loops: int = 0, n_func_vars: int = 0,
+                 n_loop_vars: int = 0):
         self.program_path: str = program_path
         self.n_lines: int = n_lines
         self.n_func: int = n_func
         self.n_loops: int = n_loops
-        self.n_variables: int = n_variables
+        self.n_func_vars: int = n_func_vars
+        self.n_loop_vars: int = n_loop_vars
 
     @property
     def _attrs(self) -> List[str]:
         """List of attributes."""
-        return 'program_path,n_lines,n_func,n_loops,n_variables'.split(',')
+        return 'program_path,n_lines,n_func,n_loops,' \
+               'n_func_vars,n_loop_vars'.split(',')
 
     @property
     def name(self) -> Optional[str]:

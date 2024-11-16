@@ -501,7 +501,10 @@ class Variables(BaseAnalysis):
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def For(self, node: pr.For, *args, **kwargs):
-        # generally skip control block => use loop_guard
+        # count loop guard
+        comp, x_var = Coverage.loop_compat(node)
+        if comp:
+            self.handler(pr.ID(x_var), *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def FuncDef(self, node: pr.FuncDef, *args, **kwargs):
