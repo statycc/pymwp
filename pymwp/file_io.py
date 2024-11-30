@@ -26,7 +26,7 @@ from . import Result
 logger = logging.getLogger(__name__)
 
 
-def del_comments(text):
+def del_comments(text: str) -> str:
     """Remove C-style comments.
     Thanks to https://stackoverflow.com/a/241506
 
@@ -36,7 +36,7 @@ def del_comments(text):
     Returns:
         Text without comments.
     """
-    def replacer(match):
+    def replacer(match) -> str:
         s = match.group(0)
         return " " if s.startswith('/') else s
 
