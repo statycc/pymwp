@@ -5,5 +5,5 @@ flake8
 pytest
 pytest-cov
 pytest-mock
-pytablewriter==1.2.0
+pytablewriter
 psutil

@@ -2,7 +2,7 @@
 
 # the deps needed to build docs
 
-mkdocs-material==9.5.36
-mkdocstrings-python==1.11.1
-mkdocs-include-markdown-plugin==6.2.2
-black
+mkdocs-material==9.5.46
+mkdocstrings-python==1.12.2
+mkdocs-include-markdown-plugin==7.1.2
+black==24.10.0
