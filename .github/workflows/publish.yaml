@@ -36,7 +36,7 @@ jobs:
       - uses: vimtor/action-zip@v1.1
         with:
           files: output/
-          dest: benchmark.zip
+          dest: benchmarks.zip
 
       - name: Build and publish
         env:
@@ -52,5 +52,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: |
             ${{ github.workspace }}/output/benchmarks.txt
-            ${{ github.workspace }}/benchmark.zip
+            ${{ github.workspace }}/benchmarks.zip
             ${{ github.workspace }}/examples.zip
