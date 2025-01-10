@@ -1,4 +1,4 @@
 Flask
 flask-cors
-pymwp==0.5.0
+pymwp==0.5.2
 jsons
