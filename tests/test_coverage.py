@@ -69,6 +69,14 @@ def test_clears_invalid_loop_body():
     assert pr.to_c(after, compact=True).strip() == \
            "void invalid_body(int x, int y) { }"
 
+def test_clears_invalid_while_body():
+    func = f(VAR_TESTS, 'invalid_body2')
+    after = Coverage(func).ast_mod().node
+    assert pr.to_c(after, compact=True).strip() == \
+           ("void invalid_body2(int x, int i, int k) { int i; int j; int k; "
+            "if (((0 <= n) && (0 <= m)) && (0 <= N)) { i = 0; "
+            "while ((nondet() > 0) && (i < n)) { j = 0; "
+            "while ((nondet() > 0) && (j < m)) { k = i; i = k; } ++i; } } }")
 
 def test_clears_partially_invalid_loop_body():
     func = f(VAR_TESTS, 'partially_invalid_body')

@@ -143,12 +143,22 @@ class Nodes(ABC):  # pragma: no cover
 
     @property
     @abstractmethod
+    def Goto(self):
+        pass
+
+    @property
+    @abstractmethod
     def ID(self):
         pass
 
     @property
     @abstractmethod
     def If(self):
+        pass
+
+    @property
+    @abstractmethod
+    def Label(self):
         pass
 
     @property
@@ -247,10 +257,16 @@ class NodeHandler(ABC):  # pragma: no cover
     def FuncDef(self, node: Nodes.FuncDef, *args, **kwargs):
         pass
 
+    def Goto(self, node: Nodes.Goto, *args, **kwargs):
+        pass
+
     def ID(self, node: Nodes.ID, *args, **kwargs):
         pass
 
     def If(self, node: Nodes.If, *args, **kwargs):
+        pass
+
+    def Label(self, node: Nodes.If, *args, **kwargs):
         pass
 
     def ParamList(self, node: Nodes.ParamList, *args, **kwargs):
@@ -498,12 +514,20 @@ class PyCParser(ParserInterface):
         return c_ast.FuncDef
 
     @property
+    def Goto(self):
+        return c_ast.Goto
+
+    @property
     def ID(self):
         return c_ast.ID
 
     @property
     def If(self):
         return c_ast.If
+
+    @property
+    def Label(self):
+        return c_ast.Label
 
     @property
     def ParamList(self):

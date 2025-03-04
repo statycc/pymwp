@@ -21,6 +21,25 @@ void invalid_body(int x, int y){
    for (int i = 0; i < x; i++)
      foo(y);
 }
+
+void invalid_body2(int x, int i, int k){
+  int i, j, k;
+  if(0<=n && 0<=m && 0<=N){
+    i = 0;
+    while(nondet()>0 && i<n){
+      j = 0;
+      while(nondet()>0 && j<m ){
+        j += 1;
+        k = i;
+        while(nondet()>0 && k<N)
+          k += 1;
+        i = k;
+      }
+      ++i;
+    }
+  }
+}
+
 void partially_invalid_body(int x, int y){
    for (int i = 0; i < x; i++){
      foo(y);
