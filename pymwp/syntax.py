@@ -216,6 +216,14 @@ class BaseAnalysis(NodeHandler):
             for n in getattr(node, attr):
                 self.recurse(n, *args, **kwargs)
 
+    @staticmethod
+    def maybe_compound(node, attr='stmt') -> Optional[pr.Compound]:
+        if hasattr(node, attr):
+            comp = getattr(node, attr)
+            if isinstance(comp, pr.Compound):
+                return comp
+        return None
+
     def Assert(self, node: pr.FuncCall, *args, **kwargs):
         pass
 
@@ -315,11 +323,10 @@ class Coverage(BaseAnalysis):
     def handler(self, node: pr.Node, *args, **kwargs):
         """Make a list of uncovered nodes."""
         # add to clear list
-        if 'clear' in kwargs:  # investigate
-            self.clear_list.append(kwargs['clear'])  # should always exist
-            # display edit, then add to list of issues to display
-            node = SyntaxUtils.print_mod(node)
-            self.omit.append(pr.to_c(node, compact=True))
+        self.clear_list.append(kwargs['clear'])  # should always exist
+        # display edit, then add to list of issues to display
+        node = SyntaxUtils.print_mod(node)
+        self.omit.append(pr.to_c(node, compact=True))
 
     def recurse(self, node: pr.Node, *args, **kwargs):
         if isinstance(node, (pr.TernaryOp, pr.ArrayRef, pr.Switch, pr.Goto)):
@@ -366,13 +373,17 @@ class Coverage(BaseAnalysis):
             self.handler(node, *args, **kwargs)
 
     def DoWhile(self, node: pr.DoWhile, *args, **kwargs):
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
+        self.While(node, *args, **kwargs)
 
     def For(self, node: pr.For, *args, **kwargs):
         if not self.loop_compat(node)[0]:
-            self.handler(node, *args, **kwargs)
+            return self.handler(node, *args, **kwargs)
+        cmp = self.maybe_compound(node, 'stmt')
+        if cmp:
+            self._iter_attr(cmp, 'block_items', *args, **kwargs)
         else:
-            self._recurse_attr(node, 'stmt', *args, **kwargs)
+            cl = SyntaxUtils.rm_attr(node, 'stmt')
+            self.recurse(node.stmt, *args, **{**kwargs, 'clear': cl})
 
     def FuncDef(self, node: pr.FuncDef, *args, **kwargs):
         self._recurse_attr(node.decl.type, 'args', *args, **kwargs)
@@ -395,7 +406,12 @@ class Coverage(BaseAnalysis):
             self._recurse_attr(node, 'expr', *args, **kwargs)
 
     def While(self, node: pr.While, *args, **kwargs):
-        self._recurse_attr(node, 'stmt', *args, **kwargs)
+        cmp = self.maybe_compound(node, 'stmt')
+        if cmp:
+            self._iter_attr(cmp, 'block_items', *args, **kwargs)
+        else:
+            cl = SyntaxUtils.rm_attr(node, 'stmt')
+            self.recurse(node.stmt, *args, **{**kwargs, 'clear': cl})
 
 
 class FindLoops(BaseAnalysis):
@@ -479,7 +495,7 @@ class Variables(BaseAnalysis):
 
     def handler(self, node: pr.Node, *args, **kwargs):
         """Record the name of a discovered variable."""
-        if hasattr(node, 'name') and node.name:
+        if hasattr(node, 'name') and node.name and isinstance(node.name, str):
             if node.name not in self.vars:
                 self.vars.append(node.name)
 
