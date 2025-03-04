@@ -322,7 +322,7 @@ class Coverage(BaseAnalysis):
             self.omit.append(pr.to_c(node, compact=True))
 
     def recurse(self, node: pr.Node, *args, **kwargs):
-        if isinstance(node, (pr.TernaryOp, pr.ArrayRef, pr.Switch)):
+        if isinstance(node, (pr.TernaryOp, pr.ArrayRef, pr.Switch, pr.Goto)):
             self.handler(node, *args, **kwargs)
         else:
             super().recurse(node, *args, **kwargs)
