@@ -51,6 +51,7 @@ class Analysis:
         result: Result = res or Result()
         Analysis.take_counts(ast, result)
         logger.debug("started analysis")
+        result.on_emit()
         result.on_start()
         for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
@@ -631,6 +632,7 @@ class LoopAnalysis(Analysis):
         result = res or Result()
         Analysis.take_counts(ast, result)
         logger.debug("Starting loop analysis")
+        result.on_emit()
         result.on_start()
         for func in [f for f in ast if pr.is_func(f)]:
             f_name = func.decl.name

@@ -62,6 +62,10 @@ class Timeable:
         self.start_time = time.time_ns()
         return self
 
+    def on_emit(self) -> Timeable:
+        """Potentially called at intermediate steps."""
+        return self
+
     def on_end(self) -> Timeable:
         """Called at end of timeable entity."""
         self.end_time = time.time_ns()
@@ -535,6 +539,10 @@ class Result(Timeable, Serializable):
         self.relations: Dict[str, FuncResult] = {}
         self.loops: Dict[str, FuncLoops] = {}
         self.color = False
+        self._on_emit = None
+
+    def set_emitter(self, fun: Callable):
+        self._on_emit = fun
 
     @property
     def _attrs(self) -> List[str]:
@@ -614,8 +622,8 @@ class Result(Timeable, Serializable):
         return parts
 
     def get_func(self, name: Optional[str] = None) \
-            -> Union[FuncResult, FuncLoops, Dict[str, FuncResult],
-                     Dict[str, FuncLoops]]:
+            -> Union[FuncResult, FuncLoops, Dict[str, FuncResult], Dict[
+                str, FuncLoops]]:
         """Returns analysis result for function(s).
 
         Here "analysis" means either whole-function analysis, or loop
@@ -659,3 +667,8 @@ class Result(Timeable, Serializable):
     def from_dict(**kwargs) -> Result:
         """Restore Result object."""
         return Serializable._load(Result(), **kwargs)
+
+    def on_emit(self) -> Timeable:
+        if isinstance(self._on_emit, Callable):
+            self._on_emit()
+        return self

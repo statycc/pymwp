@@ -22,7 +22,7 @@ import logging
 from abc import abstractmethod
 from collections import Counter
 from copy import deepcopy
-from typing import List, Callable, Tuple, Optional, Union
+from typing import List, Callable, Tuple, Optional, Union, Any
 
 # noinspection PyPep8Naming
 from .parser import Parser as pr, NodeHandler
@@ -49,8 +49,8 @@ class SyntaxUtils:
         return name_node.name
 
     @staticmethod
-    def init_vars(node: Union[pr.Assignment, pr.DeclList, pr.ExprList]) \
-            -> Tuple[List[str], List[str]]:
+    def init_vars(node: Union[pr.Assignment, pr.DeclList, pr.ExprList, None]) \
+            -> tuple[list[Any], list[Any]]:
         """Find and group variables in an init-block.
 
         Looks for declarations/iterators `int i=…,…` on left
@@ -68,6 +68,9 @@ class SyntaxUtils:
 
         def names(lst):
             return [e.name for e in lst if isinstance(e, (pr.ID, pr.Decl))]
+
+        if not node:
+            return [], [],
 
         # int i=0,… one or more declarations
         if isinstance(node, pr.DeclList):
@@ -312,13 +315,14 @@ class Coverage(BaseAnalysis):
     def handler(self, node: pr.Node, *args, **kwargs):
         """Make a list of uncovered nodes."""
         # add to clear list
-        self.clear_list.append(kwargs['clear'])  # should always exist
-        # display edit, then add to list of issues to display
-        node = SyntaxUtils.print_mod(node)
-        self.omit.append(pr.to_c(node, compact=True))
+        if 'clear' in kwargs:  # investigate
+            self.clear_list.append(kwargs['clear'])  # should always exist
+            # display edit, then add to list of issues to display
+            node = SyntaxUtils.print_mod(node)
+            self.omit.append(pr.to_c(node, compact=True))
 
     def recurse(self, node: pr.Node, *args, **kwargs):
-        if isinstance(node, (pr.TernaryOp, pr.ArrayRef, pr.Switch)):
+        if isinstance(node, (pr.TernaryOp, pr.ArrayRef, pr.Switch, pr.Goto)):
             self.handler(node, *args, **kwargs)
         else:
             super().recurse(node, *args, **kwargs)

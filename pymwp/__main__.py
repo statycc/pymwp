@@ -84,13 +84,15 @@ def main():
     result.program.n_lines = loc(args.input_file)
     result.color = args.color
 
+    # persistence
+    if not args.no_save:
+        file_out = args.out or default_file_out(args.input_file)
+        result.set_emitter(lambda: save_result(file_out, result))
+
     analyzer: Type[Union[Analysis, LoopAnalysis]] = \
         LoopAnalysis if args.mode == 'L' else Analysis
     result = analyzer.run(ast, result, fin=args.fin, strict=args.strict)
-
-    if not args.no_save:
-        file_out = args.out or default_file_out(args.input_file)
-        save_result(file_out, result)
+    result.on_emit()
 
 
 def __parse_args(
