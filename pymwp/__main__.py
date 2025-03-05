@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # -----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 C. Aubert, T. Rubiano, N. Rusch and T. Seiller.
+# Copyright (c) 2020-2025 C. Aubert, T. Rubiano, N. Rusch and T. Seiller.
 #
 # This file is part of pymwp.
 #
