@@ -429,7 +429,6 @@ class FindLoops(BaseAnalysis):
 
     def __init__(self, node: pr.Node):
         self.loops: List[pr.LoopT] = []
-        self.analyzable = []
         self.recurse(node)
 
     def handler(self, node: pr.LoopT, *args, **kwargs) -> None:
