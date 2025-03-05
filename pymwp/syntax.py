@@ -64,10 +64,18 @@ class SyntaxUtils:
         """
 
         def att(lst, attr):
-            return [getattr(e, attr) for e in lst]
+            return [getattr(e, attr) for e in
+                    lst if hasattr(e, attr)]
 
         def names(lst):
-            return [e.name for e in lst if isinstance(e, (pr.ID, pr.Decl))]
+            return ([e.name for e in lst if
+                     isinstance(e, (pr.ID, pr.Decl))] +
+                    [e.left.name for e in lst if
+                     isinstance(e, pr.BinaryOp) and
+                     isinstance(e.left, pr.ID)] +
+                    [e.right.name for e in lst if
+                     isinstance(e, pr.BinaryOp) and
+                     isinstance(e.right, pr.ID)])
 
         if not node:
             return [], [],
@@ -376,8 +384,6 @@ class Coverage(BaseAnalysis):
         self.While(node, *args, **kwargs)
 
     def For(self, node: pr.For, *args, **kwargs):
-        if not self.loop_compat(node)[0]:
-            return self.handler(node, *args, **kwargs)
         cmp = self.maybe_compound(node, 'stmt')
         if cmp:
             self._iter_attr(cmp, 'block_items', *args, **kwargs)
@@ -434,8 +440,7 @@ class FindLoops(BaseAnalysis):
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def For(self, node: pr.For, *args, **kwargs):
-        if Coverage.loop_compat(node)[0]:
-            self.handler(node, *args, **kwargs)
+        self.handler(node, *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def FuncDef(self, node: pr.FuncDef, *args, **kwargs):
@@ -525,6 +530,8 @@ class Variables(BaseAnalysis):
         comp, x_var = Coverage.loop_compat(node)
         if comp:
             self.handler(pr.ID(x_var), *args, **kwargs)
+        else:
+            self._recurse_attr(node, 'next', *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def FuncDef(self, node: pr.FuncDef, *args, **kwargs):

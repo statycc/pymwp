@@ -386,9 +386,12 @@ class PyCParser(ParserInterface):
                 hasattr(node.body, 'block_items'))
 
     def is_loop(self, node: ParserInterface.Node) -> bool:
-        """True is node is a (non-empty) loop statement."""
-        return (isinstance(node, (self.While, self.For, self.DoWhile))
-                and hasattr(node, 'stmt') and node.stmt
+        """True is node is a loop statement."""
+        return isinstance(node, (self.While, self.For, self.DoWhile))
+
+    def is_loop_nonempty(self, node: ParserInterface.Node) -> bool:
+        """True is node is a loop statement with non-empty body."""
+        return ((self.is_loop(node) and hasattr(node, 'stmt') and node.stmt)
                 and not isinstance(node.stmt, self.EmptyStatement))
 
     def to_c(self, node: Any, compact: bool = False) -> str:
