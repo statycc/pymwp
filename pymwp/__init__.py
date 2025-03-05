@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # -----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 C. Aubert, T. Rubiano, N. Rusch and T. Seiller.
+# Copyright (c) 2020-2025 C. Aubert, T. Rubiano, N. Rusch and T. Seiller.
 #
 # This file is part of pymwp.
 #
@@ -27,7 +27,7 @@ __author__ = "Clément Aubert, Thomas Rubiano, Neea Rusch, Thomas Seiller"
 __license__ = "GPL-3.0-or-later"
 
 __notice__ = (
-    f"{__title__} Copyright (c) 2020-2024 {__author__}. This program comes "
+    f"{__title__} Copyright (c) 2020-2025 {__author__}. This program comes "
     f"with ABSOLUTELY NO WARRANTY; for details type `{__title__} --license W`."
     f"This is free software, and you are welcome to redistribute it under "
     f"certain conditions; type `{__title__} --license C` for details.")
