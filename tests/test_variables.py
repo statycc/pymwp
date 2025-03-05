@@ -23,7 +23,8 @@ def test_vars_find_expected_params():
 def test_detecting_vars_in_loops():
     func = f(VAR_TESTS, 'loop')
     x, body = Variables.loop_guard(nth_loop(func))
-    assert Variables(func).vars == body == ['X1']
+    assert Variables(func).vars == ['X1','i']
+    assert body == ['X1']
     assert x == []  # unable to infer guard
 
 
@@ -35,7 +36,8 @@ def test_ignore_function_call_vars():
 def test_ignore_pointer_vars():
     func = f(VAR_TESTS, 'pointer_loop')
     x, body = Variables.loop_guard(nth_loop(func))
-    assert Variables(func).vars == body == ['z']
+    assert Variables(func).vars == ['j','z']
+    assert body == ['z']
     assert x == []
 
 

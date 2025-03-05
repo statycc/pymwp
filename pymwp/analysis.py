@@ -175,10 +175,13 @@ class Analysis:
         """
         fs = [f for f in ast if pr.is_func(f)]
         ls = [x for xs in [FindLoops(f).loops for f in fs] for x in xs]
+        fw = [x for xs in [FindLoops(f).loops for f in fs] for x in xs
+              if isinstance(x, pr.For)]
         f_variables = [len(Variables(fn).vars) for fn in fs]
         l_variables = [len(Variables(lp).vars) for lp in ls]
         result.program.n_func = len(fs)
         result.program.n_loops = len(ls)
+        result.program.n_loops_for = len(fw)
         result.program.n_func_vars = sum(f_variables)
         result.program.n_loop_vars = sum(l_variables)
 
@@ -506,11 +509,22 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         comp, x_var = Coverage.loop_compat(node)
-        if not comp:
-            return index, RelationList(), False
+        body = node.stmt.block_items if \
+            (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items')) \
+            else [node.stmt]
+        logger.debug(f'analysing for('
+                     f'{pr.to_c(node.init)};'
+                     f'{pr.to_c(node.cond)};'
+                     f'{pr.to_c(node.next)})')
+
+        if not comp:  # analyze as a while loop
+            mod_loop = pr.While(
+                node.cond, pr.Compound(body + [node.next]))
+            logger.debug('translation to while')
+            return Analysis.while_loop(index, mod_loop, dg)
+
         relations = RelationList(variables=[x_var])
-        for child in node.stmt.block_items \
-                if hasattr(node, 'block_items') else [node.stmt]:
+        for child in body:
             index, rel_list, exit_ = Analysis.compute_relation(
                 index, child, dg)
             if exit_:

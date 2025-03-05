@@ -34,10 +34,10 @@ def test_find_loop_locates_non_top_level_loops():
 
 
 def test_find_loop_skips_invalid_guard():
-    loops = FindLoops(f(FOR_INVALID, 'main')).loops
-    assert len(loops) == 0
+    loops = FindLoops(f(FOR_INVALID, 'main'))
+    assert len(loops.loops) == 1
 
 
 def test_find_loop_skips_invalid_body():
-    loops = FindLoops(f(FOR_BODY, 'main')).loops
-    assert len(loops) == 0
+    loops = FindLoops(f(FOR_BODY, 'main'))
+    assert len(loops.loops) == 1
