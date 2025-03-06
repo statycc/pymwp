@@ -515,8 +515,8 @@ class Analysis:
         """
         comp, x_var = Coverage.loop_compat(node)
         body = (node.stmt.block_items if
-            (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items')) \
-            else [node.stmt]) or []
+                (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items'))
+                else [node.stmt]) or []
         logger.debug(f'analysing for('
                      f'{pr.to_c(node.init)};'
                      f'{pr.to_c(node.cond)};'
