@@ -248,10 +248,12 @@ class Analysis:
         # ensure we have distinct variables on both sides of x = y
         if not isinstance(node.lvalue, pr.ID) \
                 or isinstance(node.rvalue, pr.Constant) \
-                or node.lvalue.name == node.rvalue.name:
+                or (hasattr(node, 'rvalue') and
+                    hasattr(node.rvalue, 'name') and
+                    node.lvalue.name == node.rvalue.name):
             return index, RelationList(), False
-
-        x, y = node.lvalue.name, node.rvalue.name
+        x = node.lvalue.name
+        y = Variables(node.rvalue).vars[0]
         vars_list = [[x], [y]]
         logger.debug(f'Computing relation {x} = {y}')
 
@@ -285,6 +287,9 @@ class Analysis:
         # operands cannot be unary, nested cast etc.
         assert isinstance(y, (pr.Constant, pr.ID))
         assert isinstance(z, (pr.Constant, pr.ID))
+
+        if isinstance(y, pr.Constant) and isinstance(z, pr.Constant):
+            return index, RelationList(), False
 
         non_constants = tuple([
             v.name if hasattr(v, 'name') else None
