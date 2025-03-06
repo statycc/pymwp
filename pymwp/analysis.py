@@ -248,10 +248,12 @@ class Analysis:
         # ensure we have distinct variables on both sides of x = y
         if not isinstance(node.lvalue, pr.ID) \
                 or isinstance(node.rvalue, pr.Constant) \
-                or node.lvalue.name == node.rvalue.name:
+                or (hasattr(node, 'rvalue') and
+                    hasattr(node.rvalue, 'name') and
+                    node.lvalue.name == node.rvalue.name):
             return index, RelationList(), False
-
-        x, y = node.lvalue.name, node.rvalue.name
+        x = node.lvalue.name
+        y = Variables(node.rvalue).vars[0]
         vars_list = [[x], [y]]
         logger.debug(f'Computing relation {x} = {y}')
 
@@ -285,6 +287,9 @@ class Analysis:
         # operands cannot be unary, nested cast etc.
         assert isinstance(y, (pr.Constant, pr.ID))
         assert isinstance(z, (pr.Constant, pr.ID))
+
+        if isinstance(y, pr.Constant) and isinstance(z, pr.Constant):
+            return index, RelationList(), False
 
         non_constants = tuple([
             v.name if hasattr(v, 'name') else None
@@ -509,9 +514,9 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         comp, x_var = Coverage.loop_compat(node)
-        body = node.stmt.block_items if \
-            (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items')) \
-            else [node.stmt]
+        body = (node.stmt.block_items if
+                (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items'))
+                else [node.stmt]) or []
         logger.debug(f'analysing for('
                      f'{pr.to_c(node.init)};'
                      f'{pr.to_c(node.cond)};'
