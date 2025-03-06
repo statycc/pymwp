@@ -524,7 +524,7 @@ class Analysis:
 
         if not comp:  # analyze as a while loop
             mod_loop = pr.While(
-                node.cond, pr.Compound(body + [node.next]))
+                node.cond, pr.Compound((body or []) + [node.next]))
             logger.debug('translation to while')
             return Analysis.while_loop(index, mod_loop, dg)
 
