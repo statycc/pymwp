@@ -514,9 +514,9 @@ class Analysis:
             Updated index value, relation list, and an exit flag.
         """
         comp, x_var = Coverage.loop_compat(node)
-        body = node.stmt.block_items if \
+        body = (node.stmt.block_items if
             (hasattr(node, 'stmt') and hasattr(node.stmt, 'block_items')) \
-            else [node.stmt]
+            else [node.stmt]) or []
         logger.debug(f'analysing for('
                      f'{pr.to_c(node.init)};'
                      f'{pr.to_c(node.cond)};'
@@ -524,7 +524,7 @@ class Analysis:
 
         if not comp:  # analyze as a while loop
             mod_loop = pr.While(
-                node.cond, pr.Compound((body or []) + [node.next]))
+                node.cond, pr.Compound(body + [node.next]))
             logger.debug('translation to while')
             return Analysis.while_loop(index, mod_loop, dg)
 
