@@ -19,7 +19,7 @@
 import logging
 from typing import List, Tuple, Dict
 
-from . import Coverage, Variables, FindLoops, COM_RES
+from . import Coverage, Variables, FindLoops, PreWriter, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
 from . import Result, FuncResult, FuncLoops, LoopResult, VResult
 # noinspection PyPep8Naming
@@ -35,8 +35,19 @@ class Analysis:
     DOMAIN = [0, 1, 2]
 
     @staticmethod
-    def run(ast: pr.Node, res: Result = None, fin: bool = False,
-            strict: bool = False, **kwargs) -> Result:
+    def init_step(ast, res) -> Result:
+        result: Result = res or Result()
+        result.program.const = PreWriter(ast).sub_dict
+        Analysis.take_counts(ast, result)
+        logger.debug("started analysis")
+        result.on_emit()
+        result.on_start()
+        return result
+
+    @staticmethod
+    def run(ast: pr.Node, res: Result = None,
+            fin: bool = False, strict: bool = False,
+            **kwargs) -> Result:
         """Run MWP analysis on AST.
 
         Arguments:
@@ -48,26 +59,25 @@ class Analysis:
         Returns:
             Analysis Result object.
         """
-        result: Result = res or Result()
-        Analysis.take_counts(ast, result)
-        logger.debug("started analysis")
-        result.on_emit()
-        result.on_start()
+        result: Result = Analysis.init_step(ast, res)
         for f_node in [f for f in ast if pr.is_func(f)]:
             if Analysis.syntax_check(f_node, strict):
-                func_res = Analysis.func(f_node, not fin)
+                func_res = Analysis.func(
+                    f_node, not fin, result.program.const)
                 func_res.func_code = pr.to_c(f_node, True)
                 result.add_relation(func_res)
         result.on_end().log_result()
         return result
 
     @staticmethod
-    def func(node: pr.FuncDef, stop: bool) -> FuncResult:
+    def func(node: pr.FuncDef, stop: bool,
+             const: dict[str, int]) -> FuncResult:
         """Analyze a function.
 
         Arguments:
             node: parsed C source code function node
             stop: terminate if no bound exists
+            const: map of constants
 
         Returns:
               Analysis result for provided function.
@@ -94,7 +104,7 @@ class Analysis:
             choices = relations.first.eval(Analysis.DOMAIN, index)
             if not choices.infinite:
                 bound = Bound().calculate(
-                    relations.first.apply_choice(*choices.first))
+                    relations.first.apply_choice(*choices.first), const)
             evaluated = True
         # infinite by delta graph or by choice
         infinite = delta_infty or (evaluated and choices.infinite)
@@ -102,7 +112,8 @@ class Analysis:
         # record results
         result.index = index
         result.infinite = infinite
-        result.variables = relations.first.variables
+        result.variables = list(filter(
+            lambda x: x not in const, relations.first.variables))
         if not (infinite and stop):
             result.relation = relations.first
         if infinite and not stop:
@@ -175,15 +186,19 @@ class Analysis:
         """
         fs = [f for f in ast if pr.is_func(f)]
         ls = [x for xs in [FindLoops(f).loops for f in fs] for x in xs]
-        fw = [x for xs in [FindLoops(f).loops for f in fs] for x in xs
-              if isinstance(x, pr.For)]
-        f_variables = [len(Variables(fn).vars) for fn in fs]
-        l_variables = [len(Variables(lp).vars) for lp in ls]
+        f_variables = [list(filter(
+            lambda x: x not in result.program.const,
+            Variables(fn).vars)) for fn in fs]
+        l_variables = [list(filter(
+            lambda x: x not in result.program.const,
+            Variables(lp).vars)) for lp in ls]
+        fw = [x for xs in [FindLoops(f).loops for f in fs]
+              for x in xs if isinstance(x, pr.For)]
         result.program.n_func = len(fs)
         result.program.n_loops = len(ls)
         result.program.n_loops_for = len(fw)
-        result.program.n_func_vars = sum(f_variables)
-        result.program.n_loop_vars = sum(l_variables)
+        result.program.n_func_vars = sum(map(len, f_variables))
+        result.program.n_loop_vars = sum(map(len, l_variables))
 
     @staticmethod
     def compute_relation(index: int, node: pr.Node, dg: DeltaGraph) -> COM_RES:
@@ -648,11 +663,7 @@ class LoopAnalysis(Analysis):
         Returns:
             Analysis Result object.
         """
-        result = res or Result()
-        Analysis.take_counts(ast, result)
-        logger.debug("Starting loop analysis")
-        result.on_emit()
-        result.on_start()
+        result: Result = Analysis.init_step(ast, res)
         for func in [f for f in ast if pr.is_func(f)]:
             f_name = func.decl.name
             f_result = FuncLoops(f_name)
@@ -664,7 +675,8 @@ class LoopAnalysis(Analysis):
                      LoopAnalysis.syntax_check(loop, strict)]
             logger.debug(f"Total analyzable loops: {len(loops)}")
             for loop in loops:
-                f_result.loops.append(LoopAnalysis.inspect(loop))
+                f_result.loops.append(LoopAnalysis.inspect(
+                    loop, result.program.const))
             f_result.on_end()
             result.add_loop(f_result)
         result.on_end()
@@ -672,35 +684,38 @@ class LoopAnalysis(Analysis):
         return result
 
     @staticmethod
-    def inspect(node: pr.LoopT) -> LoopResult:
+    def inspect(node: pr.LoopT, const: dict) -> LoopResult:
         """Analyze a loop.
 
         Arguments:
             node (LOOP_T): A loop node.
+            const: Constants dictionary.
 
         Returns:
             Loop analysis result.
         """
         assert pr.is_loop(node)
         result = LoopResult(pr.to_c(node)).on_start()
-
         # setup for loop analysis
         relations = RelationList.identity(variables=Variables(node).vars)
 
         # analyze body commands, always run to completion
-        infty, index = LoopAnalysis.cmds(relations, 0, [node], stop=False)
+        infty, index = LoopAnalysis.cmds(
+            relations, 0, [node], stop=False)
 
         # lame fix because of #148
-        infty = infty or relations.first.eval(Analysis.DOMAIN, index).infinite
+        infty = (infty or relations.first
+                 .eval(Analysis.DOMAIN, index).infinite)
 
         # evaluate at variables
-        variables = relations.first.variables
+        variables = list(filter(
+            lambda x: x not in const, relations.first.variables))
         result.variables = dict(zip(variables, map(
             lambda v: LoopAnalysis.get_result(
-                relations.first, index, v), variables))) \
+                relations.first, index, v, const), variables))) \
             if not infty else \
-            LoopAnalysis.maybe_result(relations.first, index)
-
+            LoopAnalysis.maybe_result(
+                relations.first, index, const)
         result.on_end()
         return result
 
@@ -719,13 +734,16 @@ class LoopAnalysis(Analysis):
         return base and pr.is_loop(node)
 
     @staticmethod
-    def get_result(relation: Relation, index: int, v_name: str) -> VResult:
+    def get_result(
+            relation: Relation, index: int, v_name: str, const
+    ) -> VResult:
         """Find variable bounds when they are known to exist.
 
         Arguments:
             relation (Relation): Relation object.
             index (int): Degree of analysis choice.
             v_name (str): Name of variable to evaluate.
+            const: Dictionary of constants.
 
         Returns:
             Evaluation result for identified variable.
@@ -744,21 +762,26 @@ class LoopAnalysis(Analysis):
                 break
         assert result.choices
         simple_mat = relation.apply_choice(*result.choices.first)
-        result.bound = Bound().calculate(simple_mat).bound_dict[v_name]
+        result.bound = Bound().calculate(simple_mat, const) \
+            .bound_dict[v_name]
         return result
 
     @staticmethod
-    def maybe_result(relation: Relation, index: int) -> Dict[str, VResult]:
+    def maybe_result(
+            relation: Relation, index: int, const: dict) \
+            -> Dict[str, VResult]:
         """Evaluate variables when some variables are known to fail.
 
         Arguments:
             relation (Relation): Relation object.
             index (int): Degree of analysis choice.
+            const: Constants dictionary.
 
         Returns:
             Dictionary of results, for each variable in relation.
         """
-        variables = relation.variables
+        variables = list(filter(lambda x: x not in const,
+                                relation.variables))
         p_bounds = dict(zip(variables, map(lambda v: relation.var_eval(
             Analysis.DOMAIN, index, v), variables)))
         fail = [v for v, c in p_bounds.items() if c.infinite]
@@ -774,6 +797,9 @@ class LoopAnalysis(Analysis):
                 # assumption: if dep is 0, it is 0 in all derivations?
                 deps = set([simple_mat.matrix[fi][idx] for fi in fail_idx])
                 # only when variable has no dependency on failing ones
-                result[v] = (LoopAnalysis.get_result(relation, index, v)
-                             if deps == {ZERO_MWP} else VResult(v))
+                if v not in const:
+                    result[v] = (LoopAnalysis.get_result(
+                        relation, index, v, const)
+                                 if deps == {ZERO_MWP}
+                                 else VResult(v))
         return result

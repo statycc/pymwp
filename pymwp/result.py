@@ -189,7 +189,8 @@ class Program(Serializable):
             n_loops: int = 0,
             n_loop_for: int = 0,
             n_func_vars: int = 0,
-            n_loop_vars: int = 0
+            n_loop_vars: int = 0,
+            const: dict[str, int] = None
     ):
         self.program_path: str = program_path
         self.n_lines: int = n_lines
@@ -198,12 +199,13 @@ class Program(Serializable):
         self.n_loops_for: int = n_loop_for
         self.n_func_vars: int = n_func_vars
         self.n_loop_vars: int = n_loop_vars
+        self.const = const or {}
 
     @property
     def _attrs(self) -> List[str]:
         """List of attributes."""
-        return 'program_path,n_lines,n_func,n_loops,' \
-               'n_loops_for,n_func_vars,n_loop_vars'.split(',')
+        return (('program_path,n_lines,n_func,n_loops,n_loops_for,'
+                 'n_func_vars,n_loop_vars,const').split(','))
 
     @property
     def name(self) -> Optional[str]:
@@ -237,7 +239,8 @@ class FuncResult(Timeable, Serializable):
                  choices: Optional[Choices] = None,
                  bound: Optional[Bound] = None,
                  inf_flows: Optional[str] = None,
-                 index: int = -1, func_code: str = None):
+                 index: int = -1,
+                 func_code: str = None):
         super().__init__()
         self.name: str = name
         self.infinite: bool = infinite

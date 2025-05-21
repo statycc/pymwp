@@ -98,8 +98,8 @@ class MwpBound:
         """
         x, y, z = self.parse(triple)
         self.x = MaxVar(*x)
-        self.y = HonestPoly('+', *y)
-        self.z = HonestPoly('*', *z)
+        self.y = HonestPoly('⊛', *y)
+        self.z = HonestPoly('⊛', *z)
 
     def __str__(self):
         return self.bound_poly(self)
@@ -152,11 +152,13 @@ class MwpBound:
         elif not x.empty:
             term = (f'max({x})' if len(x.vars) > 1 else str(x)) \
                 if compact else (
-                f'max({x},0)' if (len(x.vars) > 1 or not z.empty) else str(x))
+                f'max({x},0)' if (len(x.vars) > 1 or not z.empty)
+                else str(x))
         elif not y.empty:
             term = (f'max({y})' if len(y.vars) > 1 else str(y)) \
                 if compact else (
-                f'max({y},0)' if (len(y.vars) > 1 or not z.empty) else str(y))
+                f'max({y},0)' if (len(y.vars) > 1 or not z.empty)
+                else str(y))
         if term:
             return str(term) if z.empty else f'{term}+{z}'
         return str(z)
@@ -202,21 +204,27 @@ class Bound:
         """List of variables."""
         return list(self.bound_dict.keys())
 
-    def calculate(self, relation: SimpleRelation) -> Bound:
+    def calculate(self, relation: SimpleRelation, const=None) -> Bound:
         """Calculate bound from a simple-valued matrix.
 
         Arguments:
             relation: A simple-valued relation.
+            const: dictionary of constants.
 
         Returns:
             The bound for the relation.
         """
+        const_ = const or {}
         vars_, matrix = relation.variables, relation.matrix
         for col_id, name in enumerate(vars_):
-            var_bound = MwpBound()
-            for row_id in range(len(matrix)):
-                var_bound.append(matrix[row_id][col_id], vars_[row_id])
-            self.bound_dict[name] = var_bound
+            if name not in const_:
+                var_bound = MwpBound()
+                for row_id in range(len(matrix)):
+                    sub = (const[vars_[row_id]]
+                           if vars_[row_id] in const_
+                           else vars_[row_id])
+                    var_bound.append(matrix[row_id][col_id], sub)
+                self.bound_dict[name] = var_bound
         return self
 
     def to_dict(self) -> dict:

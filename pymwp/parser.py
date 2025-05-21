@@ -153,6 +153,11 @@ class Nodes(ABC):  # pragma: no cover
 
     @property
     @abstractmethod
+    def IdentifierType(self):
+        pass
+
+    @property
+    @abstractmethod
     def If(self):
         pass
 
@@ -264,6 +269,9 @@ class NodeHandler(ABC):  # pragma: no cover
         pass
 
     def If(self, node: Nodes.If, *args, **kwargs):
+        pass
+
+    def IdentifierType(self, node: Nodes.If, *args, **kwargs):
         pass
 
     def Label(self, node: Nodes.If, *args, **kwargs):
@@ -523,6 +531,10 @@ class PyCParser(ParserInterface):
     @property
     def ID(self):
         return c_ast.ID
+
+    @property
+    def IdentifierType(self):
+        return c_ast.IdentifierType
 
     @property
     def If(self):

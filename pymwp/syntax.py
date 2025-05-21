@@ -266,6 +266,90 @@ class BaseAnalysis(NodeHandler):
         self._iter_attr(node, 'params', *args, **kwargs)
 
 
+class PreWriter(BaseAnalysis):
+
+    def __init__(self, ast: pr.Node, subs: dict = None):
+        self.sub_dict = subs or {}
+        for f_node in [f for f in ast if pr.is_func(f)]:
+            if hasattr(f_node, 'decl') and hasattr(f_node.decl, 'type') \
+                    and hasattr(f_node.decl.type, 'args') and \
+                    hasattr(f_node.decl.type.args, 'params'):
+                params = f_node.decl.type.args.params
+                self.recurse(f_node, params=params)
+
+    @staticmethod
+    def param_decl(name: str, type_: str):
+        return pr.Decl(
+            name, [], [], [], [], pr.TypeDecl(
+                declname=name, quals=[], align=None,
+                type=pr.IdentifierType(names=[type_])),
+            init=None, bitsize=None)
+
+    def liftX(self, src, tgt, params):
+        tgt_node = getattr(src, tgt)
+        n = len(self.sub_dict.keys())
+        assert isinstance(tgt_node, pr.Constant)
+        name = Variables.subX(n)
+        self.sub_dict[name] = tgt_node.value
+        setattr(src, tgt, pr.ID(name))
+        params.append(PreWriter.param_decl(name, 'int'))
+
+    @staticmethod
+    def for_mod(self):
+        # comp, x_var = Coverage.loop_compat(node)
+        # if not comp:  # analyze as a while loop
+        #     mod_loop = pr.While(node.cond, pr.Compound(body + [node.next]))
+        #     logger.debug('translation to while')
+        pass
+
+    def while_mod(self):
+        pass
+
+    def handler(self, node: pr.Node, *args, **kwargs) -> None:
+        pass
+
+    def recurse(self, node: pr.Node, *args, **kwargs):
+        super().recurse(node, *args, **kwargs)
+
+    def Assignment(self, node: pr.Assignment, *args, **kwargs):
+        self._recurse_attr(node, 'lvalue', *args, **kwargs)
+        self._recurse_attr(node, 'rvalue', *args, **kwargs)
+
+    def BinOperand(self, node: pr.BinaryOp, key: str, *args, **kwargs):
+        step = getattr(node, key)
+        nd = step.expr if isinstance(step, pr.Cast) else step
+        args = (node, key)
+        if isinstance(nd, pr.Constant):
+            if isinstance(node, pr.Cast):
+                args = (step, 'expr')
+            self.liftX(*args, kwargs['params'])
+
+    def BinaryOp(self, node: pr.BinaryOp, *args, **kwargs):
+        self.BinOperand(node, 'left', *args, **kwargs)
+        self.BinOperand(node, 'right', *args, **kwargs)
+
+    def FuncDef(self, node: pr.FuncDef, *args, **kwargs):
+        self._recurse_attr(node, 'body', *args, **kwargs)
+
+    def For(self, node: pr.For, *args, **kwargs):
+        # TODO: maybe loop mod
+        if isinstance(node.cond, pr.BinaryOp):
+            self.BinOperand(node.cond, 'left', *args, **kwargs)
+            self.BinOperand(node.cond, 'right', *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+    def If(self, node: pr.If, *args, **kwargs):
+        self._recurse_attr(node, 'iftrue', *args, **kwargs)
+        self._recurse_attr(node, 'iffalse', *args, **kwargs)
+
+    def While(self, node: pr.While, *args, **kwargs):
+        # TODO: maybe loop mod
+        if isinstance(node.cond, pr.BinaryOp):
+            self.BinOperand(node.cond, 'left', *args, **kwargs)
+            self.BinOperand(node.cond, 'right', *args, **kwargs)
+        self._recurse_attr(node, 'stmt', *args, **kwargs)
+
+
 class Coverage(BaseAnalysis):
     """Simple analysis of AST syntax to determine if AST contains
     only supported language features.
@@ -469,10 +553,21 @@ class Variables(BaseAnalysis):
     """List of reserved names that are not variables;
     see [issue #150](https://github.com/statycc/pymwp/issues/150)."""
 
+    NUMS = '₀,₁,₂,₃,₄,₅,₆,₇,₈,₉'.split(',')
+
     def __init__(self, *nodes: pr.Node):
         self.vars = []
         [self.recurse(node) for node in nodes]
         self.vars = sorted(self.vars)
+
+    @staticmethod
+    def sub(n):
+        ints = [int(c) for c in str(n)]
+        return ''.join([Variables.NUMS[i] for i in ints])
+
+    @staticmethod
+    def subX(n: int, name: str = 'c'):
+        return f'{name}{Variables.sub(n)}'
 
     @staticmethod
     def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
@@ -497,6 +592,10 @@ class Variables(BaseAnalysis):
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
         logger.debug(f"for-loop {', '.join(info)}")
         return loop_x, body
+
+    @staticmethod
+    def is_lift(v):
+        return v and v[-1] in Variables.NUMS
 
     def handler(self, node: pr.Node, *args, **kwargs):
         """Record the name of a discovered variable."""
