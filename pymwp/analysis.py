@@ -19,7 +19,7 @@
 import logging
 from typing import List, Tuple, Dict
 
-from . import Coverage, Variables, FindLoops, PreWriter, COM_RES
+from . import Coverage, Variables, FindLoops, MwpWriter, COM_RES
 from . import DeltaGraph, Polynomial, RelationList, Relation, Bound, Choices
 from . import Result, FuncResult, FuncLoops, LoopResult, VResult
 # noinspection PyPep8Naming
@@ -35,10 +35,27 @@ class Analysis:
     DOMAIN = [0, 1, 2]
 
     @staticmethod
+    def all_funcs(ast: pr.Node):
+        return [f for f in ast if pr.is_func(f)]
+
+    @staticmethod
+    def all_loops(ast: pr.Node):
+        fs = Analysis.all_funcs(ast)
+        return [x for s in [FindLoops(f).loops for f in fs] for x in s], fs
+
+    @staticmethod
     def init_step(ast, res) -> Result:
         result: Result = res or Result()
-        result.program.const = PreWriter(ast).sub_dict
+        ls, fs = Analysis.all_loops(ast)
+        result.program.funcs = \
+            dict([(f.decl.name, {'c': pr.to_c(f)}) for f in fs])
+        result.program.loops = \
+            dict(enumerate([{'c': pr.to_c(lp)} for lp in ls]))
         Analysis.take_counts(ast, result)
+        pre = MwpWriter(ast)
+        for k, v in pre.transforms.items():
+            result.program.funcs[k].update(v)
+        result.program.const = pre.sub_dict
         logger.debug("started analysis")
         result.on_emit()
         result.on_start()
@@ -60,11 +77,10 @@ class Analysis:
             Analysis Result object.
         """
         result: Result = Analysis.init_step(ast, res)
-        for f_node in [f for f in ast if pr.is_func(f)]:
+        for f_node in Analysis.all_funcs(ast):
             if Analysis.syntax_check(f_node, strict):
                 func_res = Analysis.func(
                     f_node, not fin, result.program.const)
-                func_res.func_code = pr.to_c(f_node, True)
                 result.add_relation(func_res)
         result.on_end().log_result()
         return result
@@ -540,7 +556,7 @@ class Analysis:
         if not comp:  # analyze as a while loop
             mod_loop = pr.While(
                 node.cond, pr.Compound(body + [node.next]))
-            logger.debug('translation to while')
+            logger.info('translation to while')
             return Analysis.while_loop(index, mod_loop, dg)
 
         relations = RelationList(variables=[x_var])
@@ -664,7 +680,7 @@ class LoopAnalysis(Analysis):
             Analysis Result object.
         """
         result: Result = Analysis.init_step(ast, res)
-        for func in [f for f in ast if pr.is_func(f)]:
+        for func in Analysis.all_funcs(ast):
             f_name = func.decl.name
             f_result = FuncLoops(f_name)
             f_result.on_start()

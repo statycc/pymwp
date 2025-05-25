@@ -52,7 +52,7 @@ from pymwp.version import __version__
 from pymwp.constants import *  # import all types
 from pymwp.parser import Parser
 from pymwp.choice import Choices
-from pymwp.syntax import Coverage, Variables, FindLoops, PreWriter
+from pymwp.syntax import Coverage, Variables, FindLoops, MwpWriter
 from pymwp.monomial import Monomial
 from pymwp.delta_graphs import DeltaGraph
 from pymwp.polynomial import Polynomial

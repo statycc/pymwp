@@ -187,7 +187,7 @@ class Program(Serializable):
             n_lines: int = -1,
             n_func: int = 0,
             n_loops: int = 0,
-            n_loop_for: int = 0,
+            n_bounded: int = 0,
             n_func_vars: int = 0,
             n_loop_vars: int = 0,
             const: dict[str, int] = None
@@ -196,16 +196,18 @@ class Program(Serializable):
         self.n_lines: int = n_lines
         self.n_func: int = n_func
         self.n_loops: int = n_loops
-        self.n_loops_for: int = n_loop_for
+        self.n_bounded: int = n_bounded
         self.n_func_vars: int = n_func_vars
         self.n_loop_vars: int = n_loop_vars
         self.const = const or {}
+        self.loops = dict()
+        self.funcs = dict()
 
     @property
     def _attrs(self) -> List[str]:
         """List of attributes."""
-        return (('program_path,n_lines,n_func,n_loops,n_loops_for,'
-                 'n_func_vars,n_loop_vars,const').split(','))
+        return (('program_path,n_lines,n_func,n_loops,n_bounded,'
+                 'n_func_vars,n_loop_vars,const,loops,funcs').split(','))
 
     @property
     def name(self) -> Optional[str]:

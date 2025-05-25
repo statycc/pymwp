@@ -266,9 +266,15 @@ class BaseAnalysis(NodeHandler):
         self._iter_attr(node, 'params', *args, **kwargs)
 
 
-class PreWriter(BaseAnalysis):
+class MwpWriter(BaseAnalysis):
+    """Conversion from C to mwp-language.
+
+    Mainly it lifts constants to inputs and determines
+    the right loop form.
+    """
 
     def __init__(self, ast: pr.Node, subs: dict = None):
+        self.transforms = {}
         self.sub_dict = subs or {}
         for f_node in [f for f in ast if pr.is_func(f)]:
             if hasattr(f_node, 'decl') and hasattr(f_node.decl, 'type') \
@@ -276,40 +282,65 @@ class PreWriter(BaseAnalysis):
                     hasattr(f_node.decl.type.args, 'params'):
                 params = f_node.decl.type.args.params
                 self.recurse(f_node, params=params)
+                self.transforms[f_node.decl.name] = \
+                    {'mwp': pr.to_c(f_node)}
 
     @staticmethod
-    def param_decl(name: str, type_: str):
-        return pr.Decl(
-            name, [], [], [], [], pr.TypeDecl(
-                declname=name, quals=[], align=None,
-                type=pr.IdentifierType(names=[type_])),
-            init=None, bitsize=None)
+    def var_decl(name: str, type_: str, init=None):
+        return pr.Decl(name, [], [], [], [], pr.TypeDecl(
+            declname=name, quals=[], align=None,
+            type=pr.IdentifierType(names=[type_])),
+                       init=init, bitsize=None)
+
+    @staticmethod
+    def cmd_incr(node: pr.Assignment, tgt: str = None) -> bool:
+        assert (isinstance(node, pr.Assignment))
+        if isinstance(node.rvalue, pr.BinaryOp):
+            same_var = tgt is None or (tgt in Variables(node.rvalue).vars)
+            const = [t.value for t in [node.rvalue.left, node.rvalue.right]
+                     if isinstance(t, pr.Constant)]
+            const = int(const[0]) if len(const) == 1 else 0
+            add = same_var and node.rvalue.op == '+' and const > 0
+            mul = same_var and node.rvalue.op == '*' and const > 1
+            return add or mul
+        return False
+
+    @staticmethod
+    def cmd_decr(node: pr.Assignment, tgt: str = None) -> bool:
+        assert (isinstance(node, pr.Assignment))
+        if isinstance(node.rvalue, pr.BinaryOp):
+            same_var = tgt is None or (tgt in Variables(node.rvalue).vars)
+            const = [t.value for t in [node.rvalue.left, node.rvalue.right]
+                     if isinstance(t, pr.Constant)]
+            const = int(const[0]) if len(const) == 1 else 0
+            return same_var and node.rvalue.op == '-' and const > 0
+        return False
 
     def liftX(self, src, tgt, params):
+        """Lifts constant to an input."""
         tgt_node = getattr(src, tgt)
         n = len(self.sub_dict.keys())
         assert isinstance(tgt_node, pr.Constant)
         name = Variables.subX(n)
         self.sub_dict[name] = tgt_node.value
         setattr(src, tgt, pr.ID(name))
-        params.append(PreWriter.param_decl(name, 'int'))
-
-    @staticmethod
-    def for_mod(self):
-        # comp, x_var = Coverage.loop_compat(node)
-        # if not comp:  # analyze as a while loop
-        #     mod_loop = pr.While(node.cond, pr.Compound(body + [node.next]))
-        #     logger.debug('translation to while')
-        pass
-
-    def while_mod(self):
-        pass
+        params.append(MwpWriter.var_decl(name, 'int'))
 
     def handler(self, node: pr.Node, *args, **kwargs) -> None:
         pass
 
     def recurse(self, node: pr.Node, *args, **kwargs):
         super().recurse(node, *args, **kwargs)
+
+    def _recurse_attr(self, node: pr.Node, attr: str, *args, **kwargs):
+        if hasattr(node, attr) and getattr(node, attr):
+            self.recurse(getattr(node, attr), *args,
+                         **{**kwargs, 'parent': node})
+
+    def _iter_attr(self, node: pr.Node, attr: str, *args, **kwargs):
+        if hasattr(node, attr) and getattr(node, attr):
+            for n in getattr(node, attr):
+                self.recurse(n, *args, **{**kwargs, 'parent': node})
 
     def Assignment(self, node: pr.Assignment, *args, **kwargs):
         self._recurse_attr(node, 'lvalue', *args, **kwargs)
@@ -332,10 +363,21 @@ class PreWriter(BaseAnalysis):
         self._recurse_attr(node, 'body', *args, **kwargs)
 
     def For(self, node: pr.For, *args, **kwargs):
-        # TODO: maybe loop mod
         if isinstance(node.cond, pr.BinaryOp):
             self.BinOperand(node.cond, 'left', *args, **kwargs)
             self.BinOperand(node.cond, 'right', *args, **kwargs)
+        par = kwargs.get('parent')
+        assert (isinstance(par, pr.Compound))
+        index = par.block_items.index(node)
+        comp, x_var = Coverage.loop_compat(node)
+        if not comp:  # analyze as a while loop
+            body = (node.stmt.block_items if
+                    (hasattr(node, 'stmt') and
+                     hasattr(node.stmt, 'block_items'))
+                    else [node.stmt]) or []
+            mod_loop = pr.While(node.cond, pr.Compound(body + [node.next]))
+            logger.info('translation to while')
+            par.block_items[index] = mod_loop
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def If(self, node: pr.If, *args, **kwargs):
@@ -343,8 +385,30 @@ class PreWriter(BaseAnalysis):
         self._recurse_attr(node, 'iffalse', *args, **kwargs)
 
     def While(self, node: pr.While, *args, **kwargs):
-        # TODO: maybe loop mod
-        if isinstance(node.cond, pr.BinaryOp):
+        par = kwargs.get('parent')
+        assert (isinstance(par, pr.Compound))
+        index = par.block_items.index(node)
+        bin_op = isinstance(node.cond, pr.BinaryOp)
+        cond_v = (Variables(node.cond).vars + [None])[0]
+        has_const = (bin_op and
+                     (isinstance(node.cond.right, pr.Constant) or
+                      isinstance(node.cond.left, pr.Constant)))
+        # rewrite const on right
+        if bin_op and cond_v and has_const and node.cond.op in '<>':
+            if isinstance(node.cond.left, pr.Constant):
+                new_op = '<' if node.cond.op == '>' else '>'
+                node.cond = pr.BinOp(node.cond.right, new_op, node.cond.left)
+        # look for control update
+        if bin_op and cond_v and has_const:
+            mods = dict(Variables.var_mods(node.stmt, cond_v)).values()
+            check_dir = (MwpWriter.cmd_incr if node.cond.op == '<'
+                         else MwpWriter.cmd_decr)
+            # must have a monotonic update
+            if mods and False not in map(lambda c: check_dir(c, cond_v), mods):
+                par.block_items[index] = pr.For(
+                    None, node.cond, None, node.stmt)
+                self.recurse(par.block_items[index], *args, **kwargs)
+        if bin_op:
             self.BinOperand(node.cond, 'left', *args, **kwargs)
             self.BinOperand(node.cond, 'right', *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
@@ -570,6 +634,10 @@ class Variables(BaseAnalysis):
         return f'{name}{Variables.sub(n)}'
 
     @staticmethod
+    def notC(vars_in: List[str]) -> List[str]:
+        return list(filter(lambda x: not Variables.is_lift(x), vars_in))
+
+    @staticmethod
     def loop_guard(node: pr.For) -> Tuple[List[str], List[str]]:
         """Find variables in a for loop.
 
@@ -579,14 +647,20 @@ class Variables(BaseAnalysis):
         Returns:
             Two lists of variables: `(loop_guard, body_variables)`.
         """
-        iters, srcs = SyntaxUtils.init_vars(node.init)
         conds = Variables(node.cond).vars
-        nxt = Variables(node.next).vars
-        iters = list(set(iters) | set(nxt))
         body = Variables(node.stmt).vars
-
-        loop_vars = set(conds) | set(srcs)
-        loop_x = list(loop_vars - set(iters))
+        loop_x = None
+        if not node.init and not node.next:
+            vars_ = set(Variables.notC(conds))
+            const = set(conds) - vars_
+            if len(vars_) == 1 and len(const) == 1:
+                loop_x = [list(const)[0]]
+        if not loop_x:
+            iters, srcs = SyntaxUtils.init_vars(node.init)
+            nxt = Variables.notC(Variables(node.next).vars)
+            iters = list(set(iters) | set(nxt))
+            loop_vars = set(conds) | set(srcs)
+            loop_x = list(loop_vars - set(iters))
 
         info = [('guard', loop_x), ('body', body)]
         info = [f"{lbl}: {' '.join(v) or '?'}" for lbl, v in info]
@@ -596,6 +670,16 @@ class Variables(BaseAnalysis):
     @staticmethod
     def is_lift(v):
         return v and v[-1] in Variables.NUMS
+
+    @staticmethod
+    def var_mods(node: pr.Compound, tgt: str) -> List[pr.Node]:
+        """Find assignments to target variable"""
+        result = []
+        if isinstance(node, pr.Compound):
+            for i, s in enumerate(node.block_items):
+                if isinstance(s, pr.Assignment) and s.lvalue.name == tgt:
+                    result.append((i, s), )
+        return result
 
     def handler(self, node: pr.Node, *args, **kwargs):
         """Record the name of a discovered variable."""

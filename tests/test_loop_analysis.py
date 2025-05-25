@@ -10,8 +10,8 @@ def test_single_link_loop_analysis():
     assert result.loops[0].n_bounded == 2
     assert result.loops[1].n_bounded == 2
     assert result.loops[2].n_bounded == 1
-    assert len(result.loops[0].linear) == 1
-    assert len(result.loops[1].linear) == 1
+    assert len(result.loops[0].linear) == 2
+    assert len(result.loops[1].linear) == 2
     assert len(result.loops[2].linear) == 1
 
 

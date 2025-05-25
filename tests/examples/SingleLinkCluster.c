@@ -17,7 +17,7 @@ void SingleLinkCluster(unsigned int n, int a, int b, int i) {
           a = a - 1;
           b = b + 1;
         }
-        i = i - 1;
+      i = i - 1;
     }
   } 
 }
