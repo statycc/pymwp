@@ -297,11 +297,11 @@ class MwpWriter(BaseAnalysis):
         assert (isinstance(node, pr.Assignment))
         if isinstance(node.rvalue, pr.BinaryOp):
             same_var = tgt is None or (tgt in Variables(node.rvalue).vars)
-            const = [t.value for t in [node.rvalue.left, node.rvalue.right]
-                     if isinstance(t, pr.Constant)]
-            const = int(const[0]) if len(const) == 1 else 0
-            add = same_var and node.rvalue.op == '+' and const > 0
-            mul = same_var and node.rvalue.op == '*' and const > 1
+            # const = [t.value for t in [node.rvalue.left, node.rvalue.right]
+            #          if isinstance(t, pr.Constant)]
+            # const = int(const[0]) if len(const) == 1 else 0
+            add = same_var and node.rvalue.op == '+'  # and const > 0
+            mul = same_var and node.rvalue.op == '*'  # and const > 1
             return add or mul
         return False
 
@@ -310,10 +310,10 @@ class MwpWriter(BaseAnalysis):
         assert (isinstance(node, pr.Assignment))
         if isinstance(node.rvalue, pr.BinaryOp):
             same_var = tgt is None or (tgt in Variables(node.rvalue).vars)
-            const = [t.value for t in [node.rvalue.left, node.rvalue.right]
-                     if isinstance(t, pr.Constant)]
-            const = int(const[0]) if len(const) == 1 else 0
-            return same_var and node.rvalue.op == '-' and const > 0
+            # const = [t.value for t in [node.rvalue.left, node.rvalue.right]
+            #          if isinstance(t, pr.Constant)]
+            # const = int(const[0]) if len(const) == 1 else 0
+            return same_var and node.rvalue.op in '-/'  # and const > 0
         return False
 
     def liftX(self, src, tgt, params):
@@ -335,7 +335,7 @@ class MwpWriter(BaseAnalysis):
     def _recurse_attr(self, node: pr.Node, attr: str, *args, **kwargs):
         if hasattr(node, attr) and getattr(node, attr):
             self.recurse(getattr(node, attr), *args,
-                         **{**kwargs, 'parent': node})
+                         **{**kwargs, 'parent': node, 'src_attr': attr})
 
     def _iter_attr(self, node: pr.Node, attr: str, *args, **kwargs):
         if hasattr(node, attr) and getattr(node, attr):
@@ -367,48 +367,105 @@ class MwpWriter(BaseAnalysis):
             self.BinOperand(node.cond, 'left', *args, **kwargs)
             self.BinOperand(node.cond, 'right', *args, **kwargs)
         par = kwargs.get('parent')
-        assert (isinstance(par, pr.Compound))
-        index = par.block_items.index(node)
         comp, x_var = Coverage.loop_compat(node)
         if not comp:  # analyze as a while loop
             body = (node.stmt.block_items if
                     (hasattr(node, 'stmt') and
                      hasattr(node.stmt, 'block_items'))
                     else [node.stmt]) or []
-            mod_loop = pr.While(node.cond, pr.Compound(body + [node.next]))
+            if (node.cond == node.init == node.next) and node.cond is None:
+                mod_loop = pr.While(None, None, body)
+            else:
+                stmt = body + [node.next] if node.next else body
+                mod_loop = pr.While(node.cond, pr.Compound(stmt))
             logger.info('translation to while')
-            par.block_items[index] = mod_loop
+            if isinstance(par, pr.Compound):
+                index = par.block_items.index(node)
+                par.block_items[index] = mod_loop
+            elif isinstance(par, pr.If):
+                setattr(par, kwargs.get('src_attr'), mod_loop)
+            else:
+                par.stmt = mod_loop
         self._recurse_attr(node, 'stmt', *args, **kwargs)
 
     def If(self, node: pr.If, *args, **kwargs):
         self._recurse_attr(node, 'iftrue', *args, **kwargs)
         self._recurse_attr(node, 'iffalse', *args, **kwargs)
 
-    def While(self, node: pr.While, *args, **kwargs):
+    @staticmethod
+    def subs_node(old_node, new_node, **kwargs):
         par = kwargs.get('parent')
-        assert (isinstance(par, pr.Compound))
-        index = par.block_items.index(node)
-        bin_op = isinstance(node.cond, pr.BinaryOp)
-        cond_v = (Variables(node.cond).vars + [None])[0]
-        has_const = (bin_op and
-                     (isinstance(node.cond.right, pr.Constant) or
-                      isinstance(node.cond.left, pr.Constant)))
-        # rewrite const on right
-        if bin_op and cond_v and has_const and node.cond.op in '<>':
-            if isinstance(node.cond.left, pr.Constant):
-                new_op = '<' if node.cond.op == '>' else '>'
-                node.cond = pr.BinOp(node.cond.right, new_op, node.cond.left)
+        if isinstance(par, pr.Compound):
+            index = par.block_items.index(old_node)
+            par.block_items[index] = new_node
+        elif isinstance(par, (pr.While, pr.For)):
+            setattr(par, 'stmt', new_node)
+        elif isinstance(par, pr.If):
+            setattr(par, kwargs.get('src_attr'), new_node)
+
+    def comp_const(self, node: pr.While, *args, **kwargs):
+        cond_v = Variables(node.cond).vars[0]
         # look for control update
-        if bin_op and cond_v and has_const:
-            mods = dict(Variables.var_mods(node.stmt, cond_v)).values()
-            check_dir = (MwpWriter.cmd_incr if node.cond.op == '<'
-                         else MwpWriter.cmd_decr)
-            # must have a monotonic update
-            if mods and False not in map(lambda c: check_dir(c, cond_v), mods):
-                par.block_items[index] = pr.For(
-                    None, node.cond, None, node.stmt)
-                self.recurse(par.block_items[index], *args, **kwargs)
+        mods = dict(Variables.var_mods(node.stmt, cond_v)).values()
+        check_dir = (MwpWriter.cmd_incr if node.cond.op == '<'
+                     else MwpWriter.cmd_decr)
+        # must have a monotonic update
+        if mods and False not in map(lambda c: check_dir(c, cond_v), mods):
+            new_for = pr.For(None, node.cond, None, node.stmt)
+            self.subs_node(node, new_for, **kwargs)
+            return self.recurse(new_for, *args, **kwargs)
+        # maybe nested
+
+    def comp_sub(self, node: pr.While, *args, **kwargs):
+        [x, y] = node.cond.left.left.name, node.cond.left.right.name
+        mods1 = dict(Variables.var_mods(node.stmt, x)).values()
+        fst = False not in map(lambda c: self.cmd_decr(c, x), mods1)
+        mods2 = dict(Variables.var_mods(node.stmt, y)).values()
+        snd = False not in map(lambda c: self.cmd_incr(c, y), mods2)
+        if fst or snd:
+            new_for = pr.For(None, node.cond, None, node.stmt)
+            self.subs_node(node, new_for, **kwargs)
+            return self.recurse(new_for, *args, **kwargs)
+        # maybe nested
+
+    def comp_incr(self, node: pr.While, *args, **kwargs):
+        [x, y] = node.cond.left.left.name, node.cond.left.right.name
+        mods1 = dict(Variables.var_mods(node.stmt, x)).values()
+        fst = False not in map(lambda c: self.cmd_incr(c, x), mods1)
+        mods2 = dict(Variables.var_mods(node.stmt, y)).values()
+        snd = False not in map(lambda c: self.cmd_incr(c, y), mods2)
+        if fst or snd:
+            new_for = pr.For(None, node.cond, None, node.stmt)
+            self.subs_node(node, new_for, **kwargs)
+            return self.recurse(new_for, *args, **kwargs)
+        # maybe nested
+
+    def While(self, node: pr.While, *args, **kwargs):
+        bin_op = isinstance(node.cond, pr.BinaryOp)
+        c_vars = Variables(node.cond).vars
+        cond_v = (c_vars + [None])[0]
+        has_const = (bin_op and (
+                isinstance(node.cond.right, pr.Constant) or
+                isinstance(node.cond.left, pr.Constant)))
+        # rewrite const on right
+        if has_const and node.cond.op in ['<', '>', '>=', '<=']:
+            if isinstance(node.cond.left, pr.Constant):
+                new_op = (('<' if node.cond.op == '>' else '>')
+                          if node.cond.op in '<>' else
+                          ('<=' if node.cond.op == '>=' else '>='))
+                node.cond = pr.BinaryOp(
+                    new_op, node.cond.right, node.cond.left)
         if bin_op:
+            if len(c_vars) == 1 and cond_v and node.cond.op in '<>':
+                self.comp_const(node, *args, **kwargs)
+            elif ((1 <= len(c_vars) <= 2 and  # maybe same variable
+                   isinstance(node.cond.left, pr.BinaryOp)
+                   and not (isinstance(node.cond.left.right, pr.Constant) or
+                            isinstance(node.cond.left.left, pr.Constant)))):
+                if node.cond.left.op == '-':
+                    self.comp_sub(node, *args, **kwargs)
+                if node.cond.left.op in '*+':
+                    self.comp_incr(node, *args, **kwargs)
             self.BinOperand(node.cond, 'left', *args, **kwargs)
             self.BinOperand(node.cond, 'right', *args, **kwargs)
         self._recurse_attr(node, 'stmt', *args, **kwargs)
@@ -654,6 +711,10 @@ class Variables(BaseAnalysis):
             vars_ = set(Variables.notC(conds))
             const = set(conds) - vars_
             if len(vars_) == 1 and len(const) == 1:
+                loop_x = [list(const)[0]]
+            if (len(vars_) == 2 and len(const) == 1 and
+                    isinstance(node.cond.left, pr.BinaryOp) and
+                    node.cond.left.op in '-*+'):
                 loop_x = [list(const)[0]]
         if not loop_x:
             iters, srcs = SyntaxUtils.init_vars(node.init)
