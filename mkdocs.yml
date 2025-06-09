@@ -8,8 +8,8 @@ edit_uri: blob/main/docs/
 use_directory_urls: true
 
 nav:
-- Introduction: index.md#introduction
-- Getting Started: index.md#installation
+- Introduction: index.md
+- Getting Started: index.md
 - Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
