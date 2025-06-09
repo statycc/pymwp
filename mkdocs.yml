@@ -9,7 +9,6 @@ use_directory_urls: true
 
 nav:
 - Introduction: index.md
-- Getting Started: index.md
 - Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
