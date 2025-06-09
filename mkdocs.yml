@@ -8,12 +8,13 @@ edit_uri: blob/main/docs/
 use_directory_urls: true
 
 nav:
-- Installation & Use: index.md
+- Introduction: index.md#introduction
+- Getting Started: index.md#installation
 - Supported Features: features.md
 - Examples: examples.md
 - Demo: demo.md
 - Modules:
-  - Introduction: modules.md
+  - About Modules: modules.md
   - Analysis: analysis.md
   - Bound: bound.md
   - Choice: choice.md
@@ -29,11 +30,12 @@ nav:
   - Result: result.md
   - Semiring: semiring.md
   - Syntax: syntax.md
-- Utilities: utilities.md
-- Contributing: contributing.md
-- Release History: https://github.com/statycc/pymwp/releases
-- Code Archive: https://doi.org/10.5281/zenodo.7879822
-- License: https://github.com/statycc/pymwp/blob/main/LICENSE
+- Development:  
+  - Utilities: utilities.md
+  - Contributing: contributing.md
+  - Release History: https://github.com/statycc/pymwp/releases
+  - Code Archive: https://doi.org/10.5281/zenodo.7879822
+  - License: https://github.com/statycc/pymwp/blob/main/LICENSE
 
 theme:
   name: material
