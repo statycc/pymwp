@@ -1,18 +1,20 @@
 # Modules Index
 
-pymwp is built from modules; each with a specific role.
-For example, `Analysis` is the top-level handler for running program analysis,
-`matrix` contains matrix-utilities, and the elements stored in matrices are of type `Polynomial`, etc.
-This "modules" documentation section explains the internal behaviors of these building blocks,
-which is relevant for using pymwp imported in scripts.
+pymwp is built from modules.
+Each module has a specific role.
+For example, `Analysis` runs program analysis, and the `matrix` module contains matrix utilities, etc.
+
+This documentation section explains the internal behaviors of these building blocks.
+It is important to understand the modules when importing pymwp in scripts.
 
 ## Scripting Examples
 
-### Extend or reuse analysis output
+### Reuse of analysis output
 
-Run pymwp analysis on a program file, then reuse the analysis result in further computation.
-An analysis run returns a [`Result`](result.md#pymwp.result.Result) object.
-Calling [`get_func()`](result.md#pymwp.result.Result.get_func) then accesses the analysis result of a specific function.
+This scenario describes reusing the pymwp analysis result in further computation.
+
+* An analysis run returns a [`Result`](result.md#pymwp.result.Result) object.
+* Function [`get_func(...)`](result.md#pymwp.result.Result.get_func) returns the analysis result of the specified function.
 
 === "Python script"
 
