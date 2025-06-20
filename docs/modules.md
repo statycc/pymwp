@@ -9,7 +9,7 @@ Fig. 1: pymwp workflow
 
 Under the hood, pymwp is built from various modules.
 Each module has a specific role.
-For example, `Analysis` runs program analysis (i.e., the intermediate steps between input/output in Fig. 1); 
+For example, `Analysis` runs program analysis (i.e., the intermediate steps between parser and output in Fig. 1); 
 the `matrix` module contains matrix utilities, the `parser` is the front-end, etc.
 
 This documentation section explains the internal behaviors of these building blocks.
