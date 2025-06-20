@@ -1,8 +1,6 @@
-# Supported C-Language Features
+# Supported C Language Features
 
-This section provides a summary of supported C language features pymwp can
-analyze. It also lists language features that are in the process of being
-implemented and for which implementation is planned.
+The table below summarizes the supported C language features pymwp can analyze.  
 
 !!! info "Note on C file parsing"
 
@@ -12,7 +10,13 @@ implemented and for which implementation is planned.
     "pycparser aims to support the full C99 language (according to the
     standard ISO/IEC 9899). Some features from C11 are also supported."
 
-BY default, analysis bypasses unsupported statements and raises a warning.
+**What happens if the C program contains unsupported syntax?** 
+
+- By default, the analysis skips unsupported _statements_ and raises a warning.
+- In strict mode (`--strict`), analysis skips whole constructs (_"programs"_) that contain unsupported syntax. 
+
+The strict mode is sound, but not very informative in case of an unsupported program.
+The default handling is more useful for developing the analysis.
 
 **Legend**
 
@@ -40,8 +44,8 @@ BY default, analysis bypasses unsupported statements and raises a warning.
 | if-else statement                            |  🟩   | `if(x > 0) { ... } else { ... }`            |
 | Nested conditional                           |  🟩   | `if(x > 0) { if (y > 0) { ... } }`          |
 | **Repetition statements**                    |       |                                             |
-| while loop                                   |  🟩   | `while(x < 20) { ... }`                     |
-| for loop[^2]                                 |  🟩   | `for (i = 0; i < x; ++i) { ... }`           |
+| `while` loop[^2]                             |  🟩   | `while(x < 20) { ... }`                     |
+| `for` loop[^2]                               |  🟩   | `for (i = 0; i < x; ++i) { ... }`           |
 | **Jump statements**  (excl. `goto`)          |  🟩   | `break`, `continue`, `return x`             |
 | **Functions**                                |  🟧   | `foo(arg1, arg2)`                           |     
 | **Pointers** (`*`, `&` address-of)           |   ⬜   |                                             |     
@@ -52,5 +56,7 @@ BY default, analysis bypasses unsupported statements and raises a warning.
 
  
 [^1]: Binary operands must be variables or constants.
-[^2]: Loop must be recognizable as "run `X` times" and guard variable `X` cannot occur in body.
+[^2]: Loop handling is very important in the mwp calculus. 
+      A C language looping construct converts to a bounded or unbounded loop.
+      A bounded loop must have form "run `X` times" and the guard variable `X` cannot occur in body.
  

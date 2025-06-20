@@ -1,7 +1,8 @@
 -r requirements-dev.txt
 
 # documentation dependencies
-mkdocs-material==9.5.46
-mkdocstrings-python==1.12.2
-mkdocs-include-markdown-plugin==7.1.2
-black
+mkdocs-material==9.6.14
+mkdocstrings-python==1.16.12
+mkdocs-include-markdown-plugin==7.1.6
+pymdown-extensions==10.15
+black==25.1.0
