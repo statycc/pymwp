@@ -1,15 +1,24 @@
-# Modules Index
+# Technical Introduction
 
-pymwp is built from modules.
+At a high-level, pymwp reads a C file and produces an analysis result.
+
+![pymwp workflow](assets/workflow.png){ width="700" }
+/// caption
+Fig. 1: pymwp workflow
+///
+
+Under the hood, pymwp is built from various modules.
 Each module has a specific role.
-For example, `Analysis` runs program analysis, and the `matrix` module contains matrix utilities, etc.
+For example, `Analysis` runs program analysis (i.e., the intermediate steps between parser and output in Fig. 1); 
+the `matrix` module contains matrix utilities, the `parser` is the front-end, etc.
 
 This documentation section explains the internal behaviors of these building blocks.
-It is important to understand the modules when importing pymwp in scripts.
+Understanding these modules becomes relevant when importing pymwp in scripts.
+
 
 ## Scripting Examples
 
-### Reuse of analysis output
+### Reusing analysis output
 
 This scenario describes reusing the pymwp analysis result in further computation.
 
@@ -31,11 +40,12 @@ This scenario describes reusing the pymwp analysis result in further computation
     # run analysis, then access result for main function
     result = Analysis.run(ast, fin=True, no_save=True).get_func('main')
     
+    # do something with the analysis result
     # display analysis result and collected data
     pprint(result.to_dict())
     ```
 
-=== "Input program [if.c]"
+=== "Analysis input (if.c)"
 
     ``` c
     // contents of if.c
@@ -46,7 +56,7 @@ This scenario describes reusing the pymwp analysis result in further computation
 
 === "Terminal output"
 
-    ``` txt
+    ``` json
     {'bound': {'x': 'x;;', 'y': 'x,y;;'},
     'choices': [[[0, 1, 2]]],
     'end_time': 1725498245384529000,
