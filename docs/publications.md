@@ -2,7 +2,7 @@
 
 ## Preferred Citation Format
 
-To reference pymwp, use: 
+Refer to ["pymwp: A Static Analyzer Determining Polynomial Growth Bounds"](http://doi.org/10.1007/978-3-031-45332-8_14).
 
 ``` bibtex
 @inproceedings{aubert2023,
@@ -19,7 +19,7 @@ To reference pymwp, use:
 }
 ```
 
-The article is available without paywall [here](https://nkrusch.github.io/files/pymwp.pdf).
+The article is also available on [HAL](https://hal.science/hal-03269121v4/document).
 
 
 ## Published Works

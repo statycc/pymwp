@@ -1,13 +1,13 @@
-# Technical Introduction
+# Modules Introduction
 
-At a high-level, pymwp reads a C file and produces an analysis result.
+pymwp works by reading a C file and producing an analysis result.
 
 ![pymwp workflow](assets/workflow.png){ width="700" }
 /// caption
 Fig. 1: pymwp workflow
 ///
 
-Under the hood, pymwp is built from various modules.
+Internally, pymwp is built from various modules.
 Each module has a specific role.
 For example, `Analysis` runs program analysis (i.e., the intermediate steps between parser and output in Fig. 1); 
 the `matrix` module contains matrix utilities, the `parser` is the front-end, etc.

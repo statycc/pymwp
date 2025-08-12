@@ -49,13 +49,8 @@ For more details, see pymwp [documentation](https://statycc.github.io/pymwp/), p
 ## Documentation and Demo
 
 * **Documentation:** [statycc.github.io/pymwp](https://statycc.github.io/pymwp/)
-
+* **Manual**: [Tool user guide](https://statycc.github.io/.github/pymwp) with detailed examples and discussion.
 * **Demo**: [online demo](https://statycc.github.io/pymwp/demo/) and [input examples](https://statycc.github.io/pymwp/examples/)
-
-* **Publication**: ["pymwp: A Static Analyzer Determining Polynomial Growth Bounds"](http://doi.org/10.1007/978-3-031-45332-8_14),
-also on [HAL](https://hal.science/hal-03269121v4/document).
-
-* **Tool user guide**: [statycc.github.io/.github/pymwp](https://statycc.github.io/.github/pymwp) with detailed examples and discussion.
 
 The user guide is the ideal place to start for a general and interactive introduction to pymwp.
 

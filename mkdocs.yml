@@ -14,7 +14,7 @@ nav:
 - Demo: demo.md
 - Publications: publications.md
 - Modules:
-  - Technical Intro: modules.md
+  - Introduction: modules.md
   - Analysis: analysis.md
   - Bound: bound.md
   - Choice: choice.md
