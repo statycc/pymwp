@@ -2,7 +2,6 @@
 
 [![build](https://github.com/statycc/pymwp/actions/workflows/build.yaml/badge.svg)](https://github.com/statycc/pymwp/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/statycc/pymwp/branch/main/graph/badge.svg?token=4v3zRbkAjM)](https://codecov.io/gh/statycc/pymwp)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymwp)](https://pypi.org/project/pymwp/)
 [![PyPI](https://img.shields.io/pypi/v/pymwp)](https://pypi.org/project/pymwp/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7879822.svg)](https://doi.org/10.5281/zenodo.7879822)
 
@@ -27,7 +26,7 @@ For example,
    ``` 
    
    is satisfactory because—between the initial variable values (`Xi`) and the final values (`Xi'`)—all variables have a polynomially bounded data-flow (omitting constants): 
-   `X1' ≤ X2+X3` and `X2' ≤ X2`  and `X3' ≤ X3`. pymwp derives this bound automatically ([⯈ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_b.c)).
+   `X1' ≤ X2+X3` and `X2' ≤ X2`  and `X3' ≤ X3`. pymwp derives this bound automatically ([▶ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_b.c)).
 
 However, program
 
@@ -39,7 +38,7 @@ However, program
    ```
 
    fails the analysis, because `X1` grows exponentially (`X1'` = $2^{\texttt{X2}}$).
-   pymwp reports a program is _infinite_ when no polynomial bound can be derived ([⯈ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_d.c)).
+   pymwp reports a program is _infinite_ when no polynomial bound can be derived ([▶ demo](https://statycc.github.io/pymwp/demo/#original_paper_example3_1_d.c)).
 
 
 pymwp is inspired by [_"A Flow Calculus of mwp-Bounds for Complexity Analysis"_](https://doi.org/10.1145/1555746.1555752).
