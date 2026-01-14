@@ -26,7 +26,9 @@ The article is also available on [HAL](https://hal.science/hal-03269121v4/docume
 
 Mentions of pymwp in scientific literature.
 
-* Seiller, Thomas. _"Mathematical informatics."_ HDR, Université Sorbonne Paris Nord, 2024. <https://theses.hal.science/tel-04616661/>
+* Rusch, Neea. _"Applied Implicit Computational Complexity."_ PhD Thesis, Augusta University, 2025. <https://doi.org/10.5281/zenodo.17148449>
+
+* Seiller, Thomas. _"Mathematical informatics."_ HDR, Université Sorbonne Paris Nord, 2024. <https://theses.hal.science/tel-04616661>
 
 * Aubert, Clément, Thomas Rubiano, Neea Rusch, and Thomas Seiller. _“Pymwp: A Static Analyzer Determining Polynomial Growth Bounds.”_ Automated Technology for Verification and Analysis, 2023, 263–75. <https://doi.org/10.1007/978-3-031-45332-8_14>.
 
